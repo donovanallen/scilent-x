@@ -1,6 +1,6 @@
-# Scilent One - Digital Project Template
+# Scilent X
 
-A modern, production-ready web application template built with the latest technologies and best practices. This template emphasizes code quality, developer experience, and maintainability through comprehensive tooling and configuration.
+Based on [Scilent One](https://www.github.com/scilentdigital/scilent-one) Template
 
 ## 🚀 Tech Stack
 
@@ -15,7 +15,7 @@ A modern, production-ready web application template built with the latest techno
 ## 📁 Project Structure
 
 ```bash
-scilent-one/
+scilent-x/
 ├── apps/
 │   └── web/                     # Next.js application
 │       ├── src/

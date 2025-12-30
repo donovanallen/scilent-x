@@ -11,6 +11,7 @@ import {
   navigationMenuTriggerStyle,
 } from '@scilent-one/ui';
 import { doto, spaceGrotesk, sourceSans, spaceMono } from '@/lib/fonts';
+import { ROUTES } from '@/lib/routes';
 
 import './globals.css';
 
@@ -32,47 +33,35 @@ export default function RootLayout({
       >
         <ThemeProvider>
           {/* Fixed navbar that overlays content */}
-          <header className='flex items-center justify-between h-14 px-4 mx-auto fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl supports-backdrop-filter:bg-background/60'>
+          <header className='flex items-center justify-between h-14 px-12 mx-auto fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl supports-backdrop-filter:bg-background/60'>
             <Link
               href='/'
               className='text-2xl font-display font-black tracking-wide hover:font-semibold transition-all duration-200'
             >
-              Scilent One
+              Scilent Music
             </Link>
 
             <div className='flex items-center gap-2'>
               <NavigationMenu>
                 <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink
-                      className={navigationMenuTriggerStyle()}
-                      asChild
-                    >
-                      <Link href='/styles'>Styles</Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink
-                      className={navigationMenuTriggerStyle()}
-                      asChild
-                    >
-                      <Link href='/components'>Components</Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink
-                      className={navigationMenuTriggerStyle()}
-                      asChild
-                    >
-                      <Link href='/db'>Database</Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
+                  {Object.values(ROUTES)
+                    .filter((route) => route.href !== '/')
+                    .map((route) => (
+                      <NavigationMenuItem key={route.href}>
+                        <NavigationMenuLink
+                          className={navigationMenuTriggerStyle()}
+                          asChild
+                        >
+                          <Link href={route.href}>{route.label}</Link>
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
+                    ))}
                 </NavigationMenuList>
               </NavigationMenu>
               <ThemeToggle />
             </div>
           </header>
-          <main className='relative container mx-auto min-h-screen w-full overflow-y-auto px-6 pt-14'>
+          <main className='relative container mx-auto min-h-screen h-full w-full overflow-y-auto p-6'>
             {children}
           </main>
         </ThemeProvider>

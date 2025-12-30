@@ -1,5 +1,5 @@
 {
-  "name": "scilent-one",
+  "name": "scilent-x",
   "private": true,
   "scripts": {
     "changeset": "pnpm exec changeset",
