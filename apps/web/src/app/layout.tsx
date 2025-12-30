@@ -16,9 +16,7 @@ import { ROUTES } from '@/lib/routes';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Scilent One - Digital Project Template',
-  description:
-    'A modern web application template built with Next.js, React, TypeScript, Tailwind CSS, and Turborepo',
+  title: 'Scilent X',
 };
 
 export default function RootLayout({
@@ -61,7 +59,7 @@ export default function RootLayout({
               <ThemeToggle />
             </div>
           </header>
-          <main className='relative container mx-auto min-h-screen h-full w-full overflow-y-auto p-6'>
+          <main className='relative container mx-auto min-h-screen h-full w-full overflow-y-auto p-6 pt-14'>
             {children}
           </main>
         </ThemeProvider>
