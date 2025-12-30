@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Generated files
+*.min.js
+*.min.css
+*.bundle.js
+*.bundle.css
+
+# Cache directories
+.turbo/
+.cache/
+.vercel/
+
+# Next.js specific
+next-env.d.ts
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Package manager files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock

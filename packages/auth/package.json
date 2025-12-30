@@ -1,0 +1,44 @@
+{
+  "name": "@scilent-one/auth",
+  "version": "0.1.1",
+  "private": true,
+  "description": "Authentication package using Better Auth for the monorepo",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./server": {
+      "types": "./src/server.ts",
+      "default": "./src/server.ts"
+    },
+    "./client": {
+      "types": "./src/client.ts",
+      "default": "./src/client.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "generate": "npx @better-auth/cli@latest generate"
+  },
+  "dependencies": {
+    "@scilent-one/db": "workspace:*",
+    "better-auth": "^1.4.9"
+  },
+  "devDependencies": {
+    "@scilent-one/tooling": "workspace:*",
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  }
+}

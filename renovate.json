@@ -1,0 +1,69 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    ":automergePatch",
+    ":automergeMinor"
+  ],
+  "rangeStrategy": "bump",
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "schedule": ["before 6am on monday"],
+  "rebaseWhen": "behind-base-branch",
+  "rollbackPrs": true,
+  "packageRules": [
+    {
+      "description": "Auto-merge safe updates (minor/patch)",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "labels": ["dependencies", "automerge"]
+    },
+    {
+      "description": "Major updates require manual approval",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major"]
+    },
+    {
+      "description": "DevDependencies auto-merge (minor/patch)",
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true,
+      "labels": ["dependencies", "dev"]
+    },
+    {
+      "description": "Group all workspace package updates",
+      "matchManagers": ["npm"],
+      "matchFileNames": ["apps/**", "packages/**"],
+      "groupName": "workspace packages",
+      "prPriority": 1
+    },
+    {
+      "description": "Important libraries like Next.js, React, TS require review",
+      "matchPackageNames": [
+        "next",
+        "react",
+        "react-dom",
+        "typescript",
+        "turbo"
+      ],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major", "framework"]
+    }
+  ],
+  "npm": {
+    "postUpdateOptions": ["pnpmDedupe"]
+  },
+  "commitMessageTopic": "{{depName}}@{{newVersion}}",
+  "commitMessageExtra": "from {{currentVersion}}",
+  "prBodyNotes": [
+    "### ℹ️ Upgrade Details",
+    "This PR was created automatically by Renovate.",
+    "Changelog: {{changelogUrl}}"
+  ]
+}

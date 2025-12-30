@@ -1,0 +1,39 @@
+{
+  "name": "@scilent-one/tooling",
+  "version": "0.1.1",
+  "private": true,
+  "description": "Shared tooling configuration for ESLint, TypeScript, and Prettier",
+  "main": "index.js",
+  "license": "MIT",
+  "files": [
+    "eslint",
+    "typescript",
+    "prettier",
+    "README.md"
+  ],
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.50.1",
+    "@typescript-eslint/parser": "^8.50.1",
+    "eslint-config-next": "^16.1.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "eslint": "^9.39.2",
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3"
+  },
+  "exports": {
+    "./eslint/base": "./eslint/base.js",
+    "./eslint/next": "./eslint/next.js",
+    "./eslint/react": "./eslint/react.js",
+    "./typescript/base": "./typescript/base.json",
+    "./typescript/nextjs": "./typescript/nextjs.json",
+    "./typescript/react": "./typescript/react.json",
+    "./prettier": "./prettier/index.js"
+  }
+}

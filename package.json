@@ -1,0 +1,32 @@
+{
+  "name": "scilent-one",
+  "private": true,
+  "scripts": {
+    "changeset": "pnpm exec changeset",
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "dev:ui": "pnpm turbo storybook --filter=@scilent-one/ui",
+    "lint": "turbo lint",
+    "format": "turbo format",
+    "typecheck": "turbo typecheck",
+    "fix": "turbo lint && turbo format && turbo typecheck",
+    "version": "pnpm exec changeset version",
+    "release": "pnpm exec changeset publish",
+    "clean:full": "rm -rf node_modules apps/*/node_modules packages/*/node_modules .turbo apps/*/.turbo packages/*/.turbo",
+    "reinstall": "pnpm clean:full && pnpm install"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.8",
+    "@scilent-one/tooling": "workspace:*",
+    "@turbo/gen": "^2.7.2",
+    "eslint": "^9.39.2",
+    "prettier": "^3.7.4",
+    "turbo": "^2.7.2",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@10.26.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

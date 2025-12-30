@@ -1,0 +1,17 @@
+{
+  "extends": "@scilent-one/tooling/typescript/react",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": ".",
+    "types": ["vitest/globals"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
+    "vitest.config.ts",
+    "vitest.shims.d.ts"
+  ],
+  "exclude": ["node_modules", "dist", "storybook-static"]
+}

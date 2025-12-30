@@ -1,0 +1,461 @@
+# Database Setup Guide
+
+This guide covers the setup and usage of the `@scilent-one/db` package, which provides a
+pre-configured Prisma ORM layer for the monorepo.
+
+---
+
+## Overview
+
+The database package (`packages/db`) uses:
+
+- **Prisma v7** with the new `prisma-client` generator
+- **PostgreSQL** as the default database provider
+- **`@prisma/adapter-pg`** for direct PostgreSQL connections
+- **Singleton pattern** for hot-reload safe client instantiation
+- **Auth-ready schema** compatible with NextAuth.js / Auth.js
+
+---
+
+## Quick Start
+
+### 1. Configure Environment
+
+Create a `.env` file in the `packages/db` directory:
+
+```bash
+cp packages/db/.env.example packages/db/.env
+```
+
+Edit the file with your PostgreSQL connection string:
+
+```env
+DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
+```
+
+### 2. Generate Prisma Client
+
+```bash
+pnpm --filter @scilent-one/db db:generate
+```
+
+### 3. Sync Database Schema
+
+For development/prototyping (no migrations):
+
+```bash
+pnpm --filter @scilent-one/db db:push
+```
+
+For production (with migrations):
+
+```bash
+pnpm --filter @scilent-one/db db:migrate
+```
+
+### 4. Use in Your Application
+
+```typescript
+import { db } from '@scilent-one/db';
+
+// Query examples
+const users = await db.user.findMany();
+
+const user = await db.user.create({
+  data: {
+    email: 'user@example.com',
+    name: 'John Doe',
+  },
+});
+```
+
+---
+
+## Package Structure
+
+```bash
+packages/db/
+├── .env.example              # Environment template
+├── package.json              # Package configuration
+├── prisma.config.ts          # Prisma v7 configuration file
+├── prisma/
+│   ├── schema.prisma         # Database schema definition
+│   ├── generated/            # Generated Prisma client (gitignored)
+│   └── migrations/           # Database migrations
+├── src/
+│   ├── client.ts             # Singleton Prisma client
+│   └── index.ts              # Package exports
+├── README.md
+└── tsconfig.json
+```
+
+---
+
+## Available Scripts
+
+Run these from the monorepo root using pnpm filters:
+
+| Script         | Command                                           | Description                    |
+| -------------- | ------------------------------------------------- | ------------------------------ |
+| Generate       | `pnpm --filter @scilent-one/db db:generate`       | Generate Prisma Client         |
+| Migrate (dev)  | `pnpm --filter @scilent-one/db db:migrate`        | Create and run migrations      |
+| Migrate (prod) | `pnpm --filter @scilent-one/db db:migrate:deploy` | Run existing migrations        |
+| Push           | `pnpm --filter @scilent-one/db db:push`           | Push schema without migrations |
+| Studio         | `pnpm --filter @scilent-one/db db:studio`         | Open Prisma Studio GUI         |
+
+Or from within the `packages/db` directory:
+
+```bash
+cd packages/db
+pnpm db:generate
+pnpm db:migrate
+pnpm db:push
+pnpm db:studio
+```
+
+---
+
+## Schema Overview
+
+The default schema includes auth-ready models:
+
+### User
+
+Core user model with authentication fields:
+
+```prisma
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+}
+```
+
+### Account
+
+OAuth provider accounts (compatible with NextAuth.js):
+
+```prisma
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  // ... OAuth tokens
+
+  user User @relation(...)
+}
+```
+
+### Session
+
+User sessions for authentication:
+
+```prisma
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(...)
+}
+```
+
+### VerificationToken
+
+Email verification and password reset tokens:
+
+```prisma
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+}
+```
+
+---
+
+## Prisma v7 Configuration
+
+This template uses Prisma v7 with the new configuration approach:
+
+### `prisma.config.ts`
+
+```typescript
+import 'dotenv/config';
+import { defineConfig } from 'prisma/config';
+
+export default defineConfig({
+  schema: 'prisma/schema.prisma',
+  migrations: {
+    path: 'prisma/migrations',
+    seed: 'tsx prisma/seed.ts',
+  },
+  datasource: {
+    url:
+      process.env.DATABASE_URL ??
+      'postgresql://placeholder:placeholder@localhost:5432/placeholder',
+  },
+});
+```
+
+### Schema Generator
+
+The schema uses the new `prisma-client` generator with a custom output path:
+
+```prisma
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+```
+
+### PostgreSQL Adapter
+
+The client uses `@prisma/adapter-pg` for direct PostgreSQL connections:
+
+```typescript
+import { PrismaPg } from '@prisma/adapter-pg';
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const client = new PrismaClient({ adapter });
+```
+
+---
+
+## Database Providers
+
+### Switching Providers
+
+To use a different database provider:
+
+1. Update the `provider` in `prisma/schema.prisma`:
+
+   ```prisma
+   datasource db {
+     provider = "mysql"  // or "sqlite", "mongodb", etc.
+   }
+   ```
+
+2. Update the adapter in `src/client.ts`:
+
+   ```typescript
+   // For MySQL
+   import { PrismaMysql } from '@prisma/adapter-mysql';
+
+   // For SQLite (no adapter needed)
+   // Remove the adapter configuration
+   ```
+
+3. Update your `DATABASE_URL` format accordingly
+
+### Provider-Specific Connection Strings
+
+| Provider   | Format                                          |
+| ---------- | ----------------------------------------------- |
+| PostgreSQL | `postgresql://USER:PASSWORD@HOST:PORT/DATABASE` |
+| MySQL      | `mysql://USER:PASSWORD@HOST:PORT/DATABASE`      |
+| SQLite     | `file:./dev.db`                                 |
+| MongoDB    | `mongodb+srv://USER:PASSWORD@HOST/DATABASE`     |
+
+---
+
+## Working with Migrations
+
+### Create a Migration
+
+After modifying `schema.prisma`:
+
+```bash
+pnpm --filter @scilent-one/db db:migrate
+```
+
+This will:
+
+1. Compare your schema to the database
+2. Generate a migration file
+3. Apply the migration
+4. Regenerate Prisma Client
+
+### Deploy Migrations (Production)
+
+```bash
+pnpm --filter @scilent-one/db db:migrate:deploy
+```
+
+### Reset Database
+
+To reset the database and reapply all migrations:
+
+```bash
+cd packages/db
+pnpm prisma migrate reset
+```
+
+**Warning:** This deletes all data in the database.
+
+---
+
+## Seeding
+
+### Create a Seed Script
+
+Create `packages/db/prisma/seed.ts`:
+
+```typescript
+import { db } from '../src/client.js';
+
+async function main() {
+  // Create initial data
+  await db.user.create({
+    data: {
+      email: 'admin@example.com',
+      name: 'Admin User',
+    },
+  });
+
+  console.log('Database seeded successfully');
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await db.$disconnect();
+  });
+```
+
+### Run Seed
+
+```bash
+cd packages/db
+pnpm prisma db seed
+```
+
+---
+
+## Type Exports
+
+The package exports Prisma types for use in your application:
+
+```typescript
+import { db, Prisma, User, Account, Session } from '@scilent-one/db';
+
+// Use types
+type UserWithAccounts = Prisma.UserGetPayload<{
+  include: { accounts: true };
+}>;
+
+// Create input types
+const userData: Prisma.UserCreateInput = {
+  email: 'user@example.com',
+  name: 'John Doe',
+};
+```
+
+---
+
+## Troubleshooting
+
+### "Cannot find module '../prisma/generated/client.js'"
+
+The Prisma client hasn't been generated. Run:
+
+```bash
+pnpm --filter @scilent-one/db db:generate
+```
+
+### "Environment variable not found: DATABASE_URL"
+
+Ensure you have a `.env` file in `packages/db/` with a valid `DATABASE_URL`.
+
+### "P1001: Can't reach database server"
+
+- Check that your database server is running
+- Verify the connection string in your `.env` file
+- Ensure network/firewall allows the connection
+
+### "Prisma Client is outdated"
+
+Regenerate the client after schema changes:
+
+```bash
+pnpm --filter @scilent-one/db db:generate
+```
+
+### Hot Reload Creating Multiple Connections
+
+The singleton pattern in `src/client.ts` prevents this. If you're still seeing issues,
+ensure you're importing from `@scilent-one/db` and not creating your own client instance.
+
+---
+
+## Best Practices
+
+1. **Always use the singleton client** - Import `db` from `@scilent-one/db` rather than
+   creating new `PrismaClient` instances.
+
+2. **Use migrations in production** - Avoid `db:push` in production environments.
+
+3. **Type your queries** - Use Prisma's generated types for type-safe database operations.
+
+4. **Keep schema modular** - Add comments and section headers for organization.
+
+5. **Version control migrations** - Never modify existing migration files; create new ones.
+
+---
+
+## Web Dashboard
+
+The web application includes a database status dashboard at `/db` that provides:
+
+- **Connection Status** - Real-time connection health with latency monitoring
+- **Database Metadata** - Host, port, and database name (credentials hidden)
+- **Tables Overview** - List of available tables with row counts
+- **Quick Commands** - Common Prisma commands for easy reference
+- **Setup Guide** - Full documentation available at `/db/setup`
+
+### Accessing the Dashboard
+
+1. Start the development server:
+
+   ```bash
+   pnpm --filter web dev
+   ```
+
+2. Navigate to [http://localhost:3000/db](http://localhost:3000/db)
+
+### Features
+
+| Route       | Description                    |
+| ----------- | ------------------------------ |
+| `/db`       | Main status dashboard          |
+| `/db/setup` | Full setup documentation (MDX) |
+
+The dashboard also provides a direct link to Prisma Studio (localhost:5555) when running.
+
+---
+
+## Next Steps
+
+- [ ] Set up your PostgreSQL database (local, Supabase, Neon, Railway, etc.)
+- [ ] Configure the `DATABASE_URL` environment variable
+- [ ] Run `db:generate` and `db:push` to sync your schema
+- [ ] Explore Prisma Studio with `db:studio`
+- [ ] Check connection status at `/db` in the web app
+- [ ] Add authentication with NextAuth.js (schema is already compatible)
+
+---
+
+_Last updated: December 28, 2025_
