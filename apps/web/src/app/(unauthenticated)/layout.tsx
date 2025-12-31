@@ -11,12 +11,12 @@ export default function UnauthenticatedLayout({
   return (
     <>
       {/* Fixed navbar that overlays content */}
-      <header className='flex items-center justify-between h-14 px-12 mx-auto fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl supports-backdrop-filter:bg-background/60'>
+      <header className='flex items-center justify-between h-18 px-12 mx-auto fixed top-0 left-0 right-0 z-50 border-b border-primary/40 bg-background/60 backdrop-blur-xl'>
         <Link
           href='/'
-          className='text-2xl font-display font-black tracking-wide hover:font-semibold transition-all duration-200'
+          className='text-3xl font-display font-black tracking-wide hover:font-semibold transition-all duration-200'
         >
-          Scilent Music
+          scilent<span className='text-muted-foreground'>music</span>
         </Link>
 
         <div className='flex items-center gap-1'>
