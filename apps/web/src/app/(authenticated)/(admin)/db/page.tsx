@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-import Link from 'next/link';
 import {
   Card,
   CardContent,
@@ -10,6 +8,9 @@ import {
   Button,
   cn,
 } from '@scilent-one/ui';
+import Link from 'next/link';
+import { Suspense } from 'react';
+
 import {
   getDbStatus,
   getDbMetadata,

@@ -16,12 +16,12 @@ export default function GlobalError({
 
   return (
     // global-error must include html and body tags
-    <html lang="en">
+    <html lang='en'>
       <body>
         <h2>Something went wrong!</h2>
         <button
-          type="button"
-          className="global-error__retry-button"
+          type='button'
+          className='global-error__retry-button'
           onClick={() => reset()}
         >
           Try again
