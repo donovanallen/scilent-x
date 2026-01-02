@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import { Button } from '@scilent-one/ui';
 import Content from '@docs/DATABASE.mdx';
+import { Button } from '@scilent-one/ui';
+import Link from 'next/link';
 
 export default function SetupPage() {
   return (
