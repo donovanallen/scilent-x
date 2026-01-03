@@ -1,7 +1,11 @@
+import { SignupForm } from './signup-form';
+
 export default function SignupPage() {
   return (
-    <div className='container flex flex-col items-center justify-center h-full gap-4'>
-      <h4>Signup</h4>
+    <div className='flex h-full w-full items-center justify-center'>
+      <div className='w-full max-w-md'>
+        <SignupForm />
+      </div>
     </div>
   );
 }

@@ -33,6 +33,7 @@ export {
   DialogDescription,
 } from './components/dialog';
 export { Input } from './components/input';
+export { Label } from './components/label';
 export {
   navigationMenuTriggerStyle,
   NavigationMenu,

@@ -1,7 +1,11 @@
+import { LoginForm } from './login-form';
+
 export default function LoginPage() {
   return (
-    <div className='container flex flex-col items-center justify-center h-full gap-4'>
-      <h4>Login</h4>
+    <div className='flex w-full items-center justify-center py-8'>
+      <div className='w-full max-w-sm'>
+        <LoginForm />
+      </div>
     </div>
   );
 }
