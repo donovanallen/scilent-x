@@ -1,1 +1,1 @@
-export { ReleaseMerger, ArtistMerger, TrackMerger } from "./merger.js";
+export { ReleaseMerger, ArtistMerger, TrackMerger } from './merger';

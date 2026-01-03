@@ -1,57 +1,54 @@
-import type { Redis } from "ioredis";
+import type { Redis } from 'ioredis';
 import {
   ProviderRegistry,
   type ProviderRegistryConfig,
-} from "./providers/index.js";
+} from './providers/index';
 import {
   LookupCoordinator,
   type LookupCoordinatorConfig,
-} from "./lookup/coordinator.js";
-import { SnapshotCache, type SnapshotCacheConfig } from "./cache/snapshot.js";
-import type { HarmonizedRelease, HarmonizedTrack } from "./types/index.js";
+} from './lookup/coordinator';
+import { SnapshotCache, type SnapshotCacheConfig } from './cache/snapshot';
+// import type { HarmonizedRelease, HarmonizedTrack } from './types/index';
 
 // Re-export everything
 export {
   ProviderRegistry,
   type ProviderRegistryConfig,
   type ProviderName,
-} from "./providers/index.js";
+} from './providers/index';
 export {
   BaseProvider,
   type ProviderConfig,
   type LookupOptions,
-} from "./providers/base.provider.js";
+} from './providers/base.provider';
 export {
   MusicBrainzProvider,
   type MusicBrainzConfig,
-} from "./providers/musicbrainz.provider.js";
+} from './providers/musicbrainz.provider';
 export {
   LookupCoordinator,
   type LookupRequest,
   type LookupResult,
   type LookupCoordinatorConfig,
-} from "./lookup/coordinator.js";
-export { ReleaseMerger, ArtistMerger, TrackMerger } from "./harmonizer/merger.js";
-export { SnapshotCache, type SnapshotCacheConfig } from "./cache/snapshot.js";
-export { Logger, type LogLevel, type LogContext } from "./utils/logger.js";
-export {
-  RateLimiter,
-  type RateLimiterConfig,
-} from "./utils/rate-limiter.js";
+} from './lookup/coordinator';
+export { ReleaseMerger, ArtistMerger, TrackMerger } from './harmonizer/merger';
+export { SnapshotCache, type SnapshotCacheConfig } from './cache/snapshot';
+export { Logger, type LogLevel, type LogContext } from './utils/logger';
+export { RateLimiter, type RateLimiterConfig } from './utils/rate-limiter';
 export {
   withRetry,
   DEFAULT_RETRY_CONFIG,
   type RetryConfig,
-} from "./utils/retry.js";
+} from './utils/retry';
 export {
   isValidGtin,
   isValidIsrc,
   normalizeGtin,
   normalizeIsrc,
   normalizeString,
-} from "./utils/validation.js";
-export * from "./types/index.js";
-export * from "./errors/index.js";
+} from './utils/validation';
+export * from './types/index';
+export * from './errors/index';
 
 // Main engine configuration
 export interface HarmonizationConfig {
@@ -88,7 +85,7 @@ export class HarmonizationEngine {
     options?: { providers?: string[]; bypassCache?: boolean }
   ) {
     return this.coordinator.lookupRelease({
-      type: "gtin",
+      type: 'gtin',
       value: gtin,
       ...options,
     });
@@ -109,7 +106,7 @@ export class HarmonizationEngine {
     options?: { providers?: string[]; bypassCache?: boolean }
   ) {
     return this.coordinator.lookupRelease({
-      type: "url",
+      type: 'url',
       value: url,
       ...options,
     });

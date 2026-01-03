@@ -1,22 +1,15 @@
-import pino from "pino";
+import pino from 'pino';
 
-export type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
+export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
 export interface LogContext {
   [key: string]: unknown;
 }
 
-const pinoOptions: pino.LoggerOptions =
-  process.env["NODE_ENV"] === "development"
-    ? {
-        level: process.env["LOG_LEVEL"] ?? "info",
-        transport: { target: "pino-pretty", options: { colorize: true } },
-      }
-    : {
-        level: process.env["LOG_LEVEL"] ?? "info",
-      };
-
-const baseLogger = pino(pinoOptions);
+// Don't use transport in bundled environments - output JSON logs
+const baseLogger = pino({
+  level: process.env['LOG_LEVEL'] ?? 'info',
+});
 
 export class Logger {
   private logger: pino.Logger;
@@ -58,7 +51,7 @@ export class Logger {
   }
 
   child(context: LogContext): Logger {
-    const child = new Logger("");
+    const child = new Logger('');
     child.logger = this.logger.child(context);
     return child;
   }

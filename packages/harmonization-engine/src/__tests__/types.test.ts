@@ -1,18 +1,18 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from 'vitest';
 import {
   HarmonizedReleaseSchema,
   HarmonizedTrackSchema,
   HarmonizedArtistSchema,
   ProviderSourceSchema,
-} from "../types/harmonized.types.js";
+} from '../types/harmonized.types';
 
-describe("Zod schemas", () => {
-  describe("ProviderSourceSchema", () => {
-    it("validates valid provider source", () => {
+describe('Zod schemas', () => {
+  describe('ProviderSourceSchema', () => {
+    it('validates valid provider source', () => {
       const source = {
-        provider: "musicbrainz",
-        id: "abc-123",
-        url: "https://musicbrainz.org/release/abc-123",
+        provider: 'musicbrainz',
+        id: 'abc-123',
+        url: 'https://musicbrainz.org/release/abc-123',
         fetchedAt: new Date(),
       };
 
@@ -20,10 +20,10 @@ describe("Zod schemas", () => {
       expect(result.success).toBe(true);
     });
 
-    it("allows optional url and snapshotId", () => {
+    it('allows optional url and snapshotId', () => {
       const source = {
-        provider: "test",
-        id: "123",
+        provider: 'test',
+        id: '123',
         fetchedAt: new Date(),
       };
 
@@ -31,11 +31,11 @@ describe("Zod schemas", () => {
       expect(result.success).toBe(true);
     });
 
-    it("coerces date strings", () => {
+    it('coerces date strings', () => {
       const source = {
-        provider: "test",
-        id: "123",
-        fetchedAt: "2024-01-01T00:00:00Z",
+        provider: 'test',
+        id: '123',
+        fetchedAt: '2024-01-01T00:00:00Z',
       };
 
       const result = ProviderSourceSchema.safeParse(source);
@@ -46,15 +46,15 @@ describe("Zod schemas", () => {
     });
   });
 
-  describe("HarmonizedTrackSchema", () => {
-    it("validates valid track", () => {
+  describe('HarmonizedTrackSchema', () => {
+    it('validates valid track', () => {
       const track = {
-        title: "Test Track",
+        title: 'Test Track',
         position: 1,
-        artists: [{ name: "Artist" }],
-        externalIds: { musicbrainz: "track-id" },
+        artists: [{ name: 'Artist' }],
+        externalIds: { musicbrainz: 'track-id' },
         sources: [
-          { provider: "musicbrainz", id: "track-id", fetchedAt: new Date() },
+          { provider: 'musicbrainz', id: 'track-id', fetchedAt: new Date() },
         ],
       };
 
@@ -62,9 +62,9 @@ describe("Zod schemas", () => {
       expect(result.success).toBe(true);
     });
 
-    it("rejects invalid position", () => {
+    it('rejects invalid position', () => {
       const track = {
-        title: "Test Track",
+        title: 'Test Track',
         position: 0, // Must be positive
         artists: [],
         externalIds: {},
@@ -76,29 +76,29 @@ describe("Zod schemas", () => {
     });
   });
 
-  describe("HarmonizedReleaseSchema", () => {
-    it("validates valid release", () => {
+  describe('HarmonizedReleaseSchema', () => {
+    it('validates valid release', () => {
       const release = {
-        title: "Test Album",
-        artists: [{ name: "Artist" }],
-        releaseType: "album",
+        title: 'Test Album',
+        artists: [{ name: 'Artist' }],
+        releaseType: 'album',
         media: [
           {
             position: 1,
             tracks: [
               {
-                title: "Track 1",
+                title: 'Track 1',
                 position: 1,
-                artists: [{ name: "Artist" }],
+                artists: [{ name: 'Artist' }],
                 externalIds: {},
                 sources: [],
               },
             ],
           },
         ],
-        externalIds: { musicbrainz: "release-id" },
+        externalIds: { musicbrainz: 'release-id' },
         sources: [
-          { provider: "musicbrainz", id: "release-id", fetchedAt: new Date() },
+          { provider: 'musicbrainz', id: 'release-id', fetchedAt: new Date() },
         ],
         mergedAt: new Date(),
         confidence: 0.95,
@@ -108,21 +108,21 @@ describe("Zod schemas", () => {
       expect(result.success).toBe(true);
     });
 
-    it("validates all release types", () => {
+    it('validates all release types', () => {
       const releaseTypes = [
-        "album",
-        "single",
-        "ep",
-        "compilation",
-        "soundtrack",
-        "live",
-        "remix",
-        "other",
+        'album',
+        'single',
+        'ep',
+        'compilation',
+        'soundtrack',
+        'live',
+        'remix',
+        'other',
       ];
 
       for (const type of releaseTypes) {
         const release = {
-          title: "Test",
+          title: 'Test',
           artists: [],
           releaseType: type,
           media: [],
@@ -137,11 +137,11 @@ describe("Zod schemas", () => {
       }
     });
 
-    it("rejects invalid confidence", () => {
+    it('rejects invalid confidence', () => {
       const release = {
-        title: "Test",
+        title: 'Test',
         artists: [],
-        releaseType: "album",
+        releaseType: 'album',
         media: [],
         externalIds: {},
         sources: [],
@@ -154,17 +154,17 @@ describe("Zod schemas", () => {
     });
   });
 
-  describe("HarmonizedArtistSchema", () => {
-    it("validates valid artist", () => {
+  describe('HarmonizedArtistSchema', () => {
+    it('validates valid artist', () => {
       const artist = {
-        name: "Test Artist",
-        type: "person",
-        country: "US",
-        aliases: ["Alias 1"],
-        genres: ["rock"],
-        externalIds: { musicbrainz: "artist-id" },
+        name: 'Test Artist',
+        type: 'person',
+        country: 'US',
+        aliases: ['Alias 1'],
+        genres: ['rock'],
+        externalIds: { musicbrainz: 'artist-id' },
         sources: [
-          { provider: "musicbrainz", id: "artist-id", fetchedAt: new Date() },
+          { provider: 'musicbrainz', id: 'artist-id', fetchedAt: new Date() },
         ],
         mergedAt: new Date(),
         confidence: 1.0,
@@ -174,19 +174,19 @@ describe("Zod schemas", () => {
       expect(result.success).toBe(true);
     });
 
-    it("validates all artist types", () => {
+    it('validates all artist types', () => {
       const artistTypes = [
-        "person",
-        "group",
-        "orchestra",
-        "choir",
-        "character",
-        "other",
+        'person',
+        'group',
+        'orchestra',
+        'choir',
+        'character',
+        'other',
       ];
 
       for (const type of artistTypes) {
         const artist = {
-          name: "Test",
+          name: 'Test',
           type,
           externalIds: {},
           sources: [],

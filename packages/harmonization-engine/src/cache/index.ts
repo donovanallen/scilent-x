@@ -1,1 +1,1 @@
-export { SnapshotCache, type SnapshotCacheConfig } from "./snapshot.js";
+export { SnapshotCache, type SnapshotCacheConfig } from './snapshot';

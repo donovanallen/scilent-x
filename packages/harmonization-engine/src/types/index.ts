@@ -19,7 +19,7 @@ export {
   type ArtistType,
   HarmonizedArtistSchema,
   type HarmonizedArtist,
-} from "./harmonized.types.js";
+} from './harmonized.types';
 
 export type {
   ProviderRateLimitConfig,
@@ -27,4 +27,4 @@ export type {
   ProviderConfig,
   LookupOptions,
   ParsedUrl,
-} from "./provider.types.js";
+} from './provider.types';

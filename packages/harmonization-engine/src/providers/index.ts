@@ -1,8 +1,11 @@
-import { BaseProvider } from "./base.provider.js";
-import type { ProviderConfig } from "../types/provider.types.js";
-import { MusicBrainzProvider, type MusicBrainzConfig } from "./musicbrainz.provider.js";
+import { BaseProvider } from './base.provider';
+import type { ProviderConfig } from '../types/provider.types';
+import {
+  MusicBrainzProvider,
+  // type MusicBrainzConfig,
+} from './musicbrainz.provider';
 
-export type ProviderName = "musicbrainz";
+export type ProviderName = 'musicbrainz';
 
 export interface ProviderRegistryConfig {
   providers: Partial<Record<ProviderName, ProviderConfig>>;
@@ -17,7 +20,7 @@ export class ProviderRegistry {
 
   constructor(config: ProviderRegistryConfig) {
     this.initializeProviders(config);
-    this.defaultProviderNames = config.defaultProviders ?? ["musicbrainz"];
+    this.defaultProviderNames = config.defaultProviders ?? ['musicbrainz'];
   }
 
   private initializeProviders(config: ProviderRegistryConfig): void {
@@ -68,5 +71,12 @@ export class ProviderRegistry {
 }
 
 // Re-export
-export { BaseProvider, type ProviderConfig, type LookupOptions } from "./base.provider.js";
-export { MusicBrainzProvider, type MusicBrainzConfig } from "./musicbrainz.provider.js";
+export {
+  BaseProvider,
+  type ProviderConfig,
+  type LookupOptions,
+} from './base.provider';
+export {
+  MusicBrainzProvider,
+  type MusicBrainzConfig,
+} from './musicbrainz.provider';

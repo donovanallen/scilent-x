@@ -1,12 +1,12 @@
-import type { BaseProvider } from "../providers/base.provider.js";
-import type { ProviderRegistry } from "../providers/index.js";
-import type { HarmonizedRelease, HarmonizedTrack } from "../types/index.js";
-import { ReleaseMerger } from "../harmonizer/merger.js";
-import type { SnapshotCache } from "../cache/snapshot.js";
-import { Logger } from "../utils/logger.js";
+import type { BaseProvider } from '../providers/base.provider';
+import type { ProviderRegistry } from '../providers/index';
+import type { HarmonizedRelease, HarmonizedTrack } from '../types/index';
+import { ReleaseMerger } from '../harmonizer/merger';
+import type { SnapshotCache } from '../cache/snapshot';
+import { Logger } from '../utils/logger';
 
 export interface LookupRequest {
-  type: "gtin" | "isrc" | "url" | "search";
+  type: 'gtin' | 'isrc' | 'url' | 'search';
   value: string;
   providers?: string[];
   merge?: boolean;
@@ -27,7 +27,7 @@ export interface LookupCoordinatorConfig {
 }
 
 export class LookupCoordinator {
-  private logger = new Logger("lookup-coordinator");
+  private logger = new Logger('lookup-coordinator');
   private releaseMerger: ReleaseMerger;
   private config: LookupCoordinatorConfig;
 
@@ -49,8 +49,14 @@ export class LookupCoordinator {
     if (!request.bypassCache && this.cache) {
       const cached = await this.cache.get<HarmonizedRelease>(cacheKey);
       if (cached) {
-        this.logger.debug("Cache hit", { key: cacheKey });
-        return { data: cached, sources: [], cached: true, timestamp: new Date(), errors: undefined };
+        this.logger.debug('Cache hit', { key: cacheKey });
+        return {
+          data: cached,
+          sources: [],
+          cached: true,
+          timestamp: new Date(),
+          errors: undefined,
+        };
       }
     }
 
@@ -62,9 +68,9 @@ export class LookupCoordinator {
       providers.map(async (provider) => {
         try {
           switch (request.type) {
-            case "gtin":
+            case 'gtin':
               return await provider.lookupReleaseByGtin(request.value);
-            case "url":
+            case 'url':
               return await provider.lookupReleaseByUrl(request.value);
             default:
               return null;
@@ -72,7 +78,7 @@ export class LookupCoordinator {
         } catch (error) {
           errors.push({
             provider: provider.name,
-            error: error instanceof Error ? error.message : "Unknown error",
+            error: error instanceof Error ? error.message : 'Unknown error',
           });
           return null;
         }
@@ -82,7 +88,7 @@ export class LookupCoordinator {
     const releases = results
       .filter(
         (r): r is PromiseFulfilledResult<HarmonizedRelease | null> =>
-          r.status === "fulfilled"
+          r.status === 'fulfilled'
       )
       .map((r) => r.value)
       .filter((r): r is HarmonizedRelease => r !== null);
@@ -112,8 +118,8 @@ export class LookupCoordinator {
       try {
         await this.config.persistRelease(merged);
       } catch (error) {
-        this.logger.warn("Failed to persist release", {
-          error: error instanceof Error ? error.message : "Unknown",
+        this.logger.warn('Failed to persist release', {
+          error: error instanceof Error ? error.message : 'Unknown',
         });
       }
     }
@@ -136,7 +142,13 @@ export class LookupCoordinator {
     if (this.cache) {
       const cached = await this.cache.get<HarmonizedTrack>(cacheKey);
       if (cached) {
-        return { data: cached, sources: [], cached: true, timestamp: new Date(), errors: undefined };
+        return {
+          data: cached,
+          sources: [],
+          cached: true,
+          timestamp: new Date(),
+          errors: undefined,
+        };
       }
     }
 
@@ -155,8 +167,8 @@ export class LookupCoordinator {
             try {
               await this.config.persistTrack(track);
             } catch (error) {
-              this.logger.warn("Failed to persist track", {
-                error: error instanceof Error ? error.message : "Unknown",
+              this.logger.warn('Failed to persist track', {
+                error: error instanceof Error ? error.message : 'Unknown',
               });
             }
           }
@@ -170,14 +182,14 @@ export class LookupCoordinator {
           };
         }
       } catch (error) {
-        this.logger.warn("Provider lookup failed", {
+        this.logger.warn('Provider lookup failed', {
           provider: provider.name,
           isrc,
-          error: error instanceof Error ? error.message : "Unknown",
+          error: error instanceof Error ? error.message : 'Unknown',
         });
         errors.push({
           provider: provider.name,
-          error: error instanceof Error ? error.message : "Unknown error",
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     }
@@ -205,7 +217,7 @@ export class LookupCoordinator {
     return results
       .filter(
         (r): r is PromiseFulfilledResult<HarmonizedRelease[]> =>
-          r.status === "fulfilled"
+          r.status === 'fulfilled'
       )
       .flatMap((r) => r.value);
   }

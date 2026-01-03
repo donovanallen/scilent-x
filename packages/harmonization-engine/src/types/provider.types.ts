@@ -1,4 +1,4 @@
-import type { RetryConfig } from "../utils/retry.js";
+import type { RetryConfig } from '../utils/retry';
 
 export interface ProviderRateLimitConfig {
   requests: number;
@@ -28,6 +28,6 @@ export interface LookupOptions {
 }
 
 export interface ParsedUrl {
-  type: "release" | "artist" | "track";
+  type: 'release' | 'artist' | 'track';
   id: string;
 }

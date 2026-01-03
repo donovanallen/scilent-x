@@ -1,6 +1,6 @@
-import pRetry, { AbortError } from "p-retry";
-import type { Logger } from "./logger.js";
-import { HttpError } from "../errors/index.js";
+import pRetry, { AbortError } from 'p-retry';
+import type { Logger } from './logger';
+import { HttpError } from '../errors/index';
 
 export interface RetryConfig {
   retries: number;
@@ -35,9 +35,9 @@ export async function withRetry<T>(
           }
         }
 
-        logger?.warn("Retry attempt", {
+        logger?.warn('Retry attempt', {
           attempt: attemptCount,
-          error: error instanceof Error ? error.message : "Unknown",
+          error: error instanceof Error ? error.message : 'Unknown',
         });
 
         throw error;
@@ -49,7 +49,7 @@ export async function withRetry<T>(
       maxTimeout: config.maxTimeout,
       factor: config.factor,
       onFailedAttempt: (error) => {
-        logger?.warn("Attempt failed", {
+        logger?.warn('Attempt failed', {
           attempt: error.attemptNumber,
           retriesLeft: error.retriesLeft,
           error: error.message,

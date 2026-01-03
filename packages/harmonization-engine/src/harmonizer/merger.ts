@@ -4,7 +4,7 @@ import type {
   HarmonizedTrack,
   ProviderSource,
   HarmonizedArtistCredit,
-} from "../types/index.js";
+} from '../types/index';
 
 /**
  * Merges multiple release results from different providers into a single harmonized release.
@@ -13,7 +13,7 @@ import type {
 export class ReleaseMerger {
   merge(releases: HarmonizedRelease[]): HarmonizedRelease {
     if (releases.length === 0) {
-      throw new Error("Cannot merge empty release array");
+      throw new Error('Cannot merge empty release array');
     }
 
     if (releases.length === 1) {
@@ -144,7 +144,7 @@ export class ReleaseMerger {
 export class ArtistMerger {
   merge(artists: HarmonizedArtist[]): HarmonizedArtist {
     if (artists.length === 0) {
-      throw new Error("Cannot merge empty artist array");
+      throw new Error('Cannot merge empty artist array');
     }
 
     if (artists.length === 1) {
@@ -241,7 +241,7 @@ export class ArtistMerger {
 export class TrackMerger {
   merge(tracks: HarmonizedTrack[]): HarmonizedTrack {
     if (tracks.length === 0) {
-      throw new Error("Cannot merge empty track array");
+      throw new Error('Cannot merge empty track array');
     }
 
     if (tracks.length === 1) {

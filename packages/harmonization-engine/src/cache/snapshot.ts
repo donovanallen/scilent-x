@@ -1,5 +1,5 @@
-import type { Redis } from "ioredis";
-import { Logger } from "../utils/logger.js";
+import type { Redis } from 'ioredis';
+import { Logger } from '../utils/logger';
 
 export interface SnapshotCacheConfig {
   defaultTtlSeconds?: number;
@@ -7,7 +7,7 @@ export interface SnapshotCacheConfig {
 }
 
 export class SnapshotCache {
-  private logger = new Logger("snapshot-cache");
+  private logger = new Logger('snapshot-cache');
   private keyPrefix: string;
   private defaultTtlSeconds: number;
 
@@ -15,7 +15,7 @@ export class SnapshotCache {
     private redis: Redis | null,
     config?: SnapshotCacheConfig
   ) {
-    this.keyPrefix = config?.keyPrefix ?? "harmonize:";
+    this.keyPrefix = config?.keyPrefix ?? 'harmonize:';
     this.defaultTtlSeconds = config?.defaultTtlSeconds ?? 86400; // 24 hours
   }
 
@@ -29,19 +29,15 @@ export class SnapshotCache {
       if (!data) return null;
       return JSON.parse(data) as T;
     } catch (error) {
-      this.logger.warn("Cache get failed", {
+      this.logger.warn('Cache get failed', {
         key,
-        error: error instanceof Error ? error.message : "Unknown",
+        error: error instanceof Error ? error.message : 'Unknown',
       });
       return null;
     }
   }
 
-  async set<T>(
-    key: string,
-    value: T,
-    ttlSeconds?: number
-  ): Promise<boolean> {
+  async set<T>(key: string, value: T, ttlSeconds?: number): Promise<boolean> {
     if (!this.redis) {
       return false;
     }
@@ -52,9 +48,9 @@ export class SnapshotCache {
       await this.redis.setex(this.prefixKey(key), ttl, serialized);
       return true;
     } catch (error) {
-      this.logger.warn("Cache set failed", {
+      this.logger.warn('Cache set failed', {
         key,
-        error: error instanceof Error ? error.message : "Unknown",
+        error: error instanceof Error ? error.message : 'Unknown',
       });
       return false;
     }
@@ -69,9 +65,9 @@ export class SnapshotCache {
       await this.redis.del(this.prefixKey(key));
       return true;
     } catch (error) {
-      this.logger.warn("Cache delete failed", {
+      this.logger.warn('Cache delete failed', {
         key,
-        error: error instanceof Error ? error.message : "Unknown",
+        error: error instanceof Error ? error.message : 'Unknown',
       });
       return false;
     }
@@ -86,6 +82,10 @@ export class SnapshotCache {
       const result = await this.redis.exists(this.prefixKey(key));
       return result === 1;
     } catch (error) {
+      this.logger.warn('Cache exists failed', {
+        key,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
       return false;
     }
   }

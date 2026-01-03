@@ -3,4 +3,4 @@ export {
   type LookupRequest,
   type LookupResult,
   type LookupCoordinatorConfig,
-} from "./coordinator.js";
+} from './coordinator';

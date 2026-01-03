@@ -3,12 +3,16 @@ import type {
   HarmonizedTrack,
   HarmonizedArtist,
   ProviderSource,
-} from "../types/index.js";
-import type { ProviderConfig, LookupOptions, ParsedUrl } from "../types/provider.types.js";
-import { Logger } from "../utils/logger.js";
-import { RateLimiter } from "../utils/rate-limiter.js";
-import { withRetry } from "../utils/retry.js";
-import { normalizeString } from "../utils/validation.js";
+} from '../types/index';
+import type {
+  ProviderConfig,
+  LookupOptions,
+  ParsedUrl,
+} from '../types/provider.types';
+import { Logger } from '../utils/logger';
+import { RateLimiter } from '../utils/rate-limiter';
+import { withRetry } from '../utils/retry';
+import { normalizeString } from '../utils/validation';
 
 export abstract class BaseProvider {
   abstract readonly name: string;
@@ -115,7 +119,10 @@ export abstract class BaseProvider {
     );
   }
 
-  async searchReleases(query: string, limit = 25): Promise<HarmonizedRelease[]> {
+  async searchReleases(
+    query: string,
+    limit = 25
+  ): Promise<HarmonizedRelease[]> {
     return this.withRateLimitAndRetry(() => this._searchReleases(query, limit));
   }
 
@@ -145,4 +152,4 @@ export abstract class BaseProvider {
   }
 }
 
-export type { ProviderConfig, LookupOptions } from "../types/provider.types.js";
+export type { ProviderConfig, LookupOptions } from '../types/provider.types';

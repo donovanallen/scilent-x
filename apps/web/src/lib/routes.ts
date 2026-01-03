@@ -8,6 +8,7 @@ import {
   Settings,
   Shield,
   User,
+  CloudSync,
 } from 'lucide-react';
 
 export const ROUTES = {
@@ -71,6 +72,13 @@ export const ROUTES = {
     href: '/db',
     label: 'Database',
     icon: Database,
+    protected: true,
+    isAdmin: true,
+  },
+  harmony: {
+    href: '/harmony',
+    label: 'Harmony',
+    icon: CloudSync,
     protected: true,
     isAdmin: true,
   },

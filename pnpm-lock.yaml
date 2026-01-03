@@ -62,6 +62,9 @@ importers:
       '@scilent-one/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@scilent-one/harmonization-engine':
+        specifier: workspace:*
+        version: link:../../packages/harmonization-engine
       '@scilent-one/ui':
         specifier: workspace:*
         version: link:../../packages/ui
