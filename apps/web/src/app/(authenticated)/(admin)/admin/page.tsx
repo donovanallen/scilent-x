@@ -1,3 +1,9 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Admin',
+};
+
 export default function AdminPage() {
   return (
     <div className='container flex flex-col items-center justify-center h-full gap-4'>

@@ -6,7 +6,7 @@ import { doto, spaceGrotesk, sourceSans, spaceMono } from '@/lib/fonts';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Scilent X',
+  title: { default: 'Scilent X', template: '%s | Scilent X' },
 };
 
 export default function RootLayout({

@@ -8,6 +8,7 @@ import {
   Button,
   cn,
 } from '@scilent-one/ui';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
@@ -17,6 +18,10 @@ import {
   getDbTables,
   getTableCounts,
 } from './actions';
+
+export const metadata: Metadata = {
+  title: 'Database',
+};
 
 function StatusBadge({
   status,
