@@ -4,6 +4,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   // Configure pageExtensions to include mdx
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
+  devIndicators: false,
 };
 
 const withMDX = createMDX({

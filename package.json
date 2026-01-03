@@ -5,14 +5,15 @@
     "changeset": "pnpm exec changeset",
     "build": "turbo build",
     "dev": "turbo dev",
-    "dev:ui": "pnpm turbo storybook --filter=@scilent-one/ui",
+    "dev:ui": "pnpm sandbox --filter @scilent-one/ui",
+    "dev:ui:storybook": "pnpm turbo storybook --filter=@scilent-one/ui",
     "lint": "turbo lint",
     "format": "turbo format",
     "typecheck": "turbo typecheck",
     "fix": "turbo lint && turbo format && turbo typecheck",
     "version": "pnpm exec changeset version",
     "release": "pnpm exec changeset publish",
-    "clean:full": "rm -rf node_modules apps/*/node_modules packages/*/node_modules .turbo apps/*/.turbo packages/*/.turbo",
+    "clean:full": "rm -rf node_modules apps/*/node_modules apps/web/.next packages/*/node_modules .turbo apps/*/.turbo packages/*/.turbo",
     "reinstall": "pnpm clean:full && pnpm install"
   },
   "devDependencies": {

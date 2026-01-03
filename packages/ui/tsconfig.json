@@ -10,6 +10,8 @@
     "src/**/*.tsx",
     ".storybook/**/*.ts",
     ".storybook/**/*.tsx",
+    "sandbox/**/*.ts",
+    "sandbox/**/*.tsx",
     "vitest.config.ts",
     "vitest.shims.d.ts"
   ],
