@@ -4,42 +4,40 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from '@scilent-one/ui';
 import { LogOut } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-import { ThemeToggle } from './theme-toggle';
+import { signOut, useSession } from '@/lib/auth-client';
+import { ROUTES } from '@/lib/routes';
 
 export function SidebarFooterContent() {
-  const { state } = useSidebar();
-  const isCollapsed = state === 'collapsed';
+  const router = useRouter();
+  const { data: session } = useSession();
 
-  const handleLogout = () => {
-    // TODO: Implement actual logout functionality
-    console.log('Logout clicked');
+  const handleLogout = async () => {
+    await signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push(ROUTES.login.href);
+        },
+      },
+    });
   };
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarMenuButton
-          tooltip='Logout'
-          onClick={handleLogout}
-          className='text-muted-foreground hover:text-destructive'
-        >
-          <LogOut />
-          <span>Logout</span>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-      <SidebarMenuItem>
-        <div
-          className={`flex items-center ${isCollapsed ? 'justify-center' : 'px-2'}`}
-        >
-          <ThemeToggle />
-          {!isCollapsed && (
-            <span className='ml-2 text-sm text-muted-foreground'>Theme</span>
-          )}
-        </div>
+        {session?.user && (
+          <SidebarMenuButton
+            tooltip='Logout'
+            onClick={handleLogout}
+            className='text-muted-foreground hover:text-destructive'
+          >
+            <LogOut />
+            <span>Logout</span>
+          </SidebarMenuButton>
+        )}
       </SidebarMenuItem>
     </SidebarMenu>
   );

@@ -24,7 +24,7 @@
     "@scilent-one/db": "workspace:*",
     "@scilent-one/harmonization-engine": "workspace:*",
     "@scilent-one/ui": "workspace:*",
-    "better-auth": "^1.4.9",
+    "better-auth": "catalog:better-auth",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.562.0",

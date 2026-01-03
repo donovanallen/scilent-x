@@ -1,14 +1,12 @@
 import {
   ArrowRight,
-  Component,
   Database,
   Home,
   LogIn,
-  Palette,
   Settings,
-  Shield,
   User,
   CloudSync,
+  Users,
 } from 'lucide-react';
 
 export const ROUTES = {
@@ -33,13 +31,6 @@ export const ROUTES = {
     protected: true,
     isAdmin: false,
   },
-  admin: {
-    href: '/admin',
-    label: 'Admin',
-    icon: Shield,
-    protected: true,
-    isAdmin: true,
-  },
   login: {
     href: '/login',
     label: 'Login',
@@ -54,20 +45,6 @@ export const ROUTES = {
     protected: false,
     isAdmin: false,
   },
-  styles: {
-    href: '/styles',
-    label: 'Styles',
-    icon: Palette,
-    protected: true,
-    isAdmin: true,
-  },
-  components: {
-    href: '/components',
-    label: 'Components',
-    icon: Component,
-    protected: true,
-    isAdmin: true,
-  },
   db: {
     href: '/db',
     label: 'Database',
@@ -79,6 +56,13 @@ export const ROUTES = {
     href: '/harmony',
     label: 'Harmony',
     icon: CloudSync,
+    protected: true,
+    isAdmin: true,
+  },
+  users: {
+    href: '/users',
+    label: 'Users',
+    icon: Users,
     protected: true,
     isAdmin: true,
   },
