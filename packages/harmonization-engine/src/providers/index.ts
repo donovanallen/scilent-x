@@ -1,0 +1,72 @@
+import { BaseProvider } from "./base.provider.js";
+import type { ProviderConfig } from "../types/provider.types.js";
+import { MusicBrainzProvider, type MusicBrainzConfig } from "./musicbrainz.provider.js";
+
+export type ProviderName = "musicbrainz";
+
+export interface ProviderRegistryConfig {
+  providers: Partial<Record<ProviderName, ProviderConfig>>;
+  defaultProviders?: ProviderName[];
+}
+
+type ProviderConstructor = new (config: ProviderConfig) => BaseProvider;
+
+export class ProviderRegistry {
+  private providers = new Map<string, BaseProvider>();
+  private defaultProviderNames: string[] = [];
+
+  constructor(config: ProviderRegistryConfig) {
+    this.initializeProviders(config);
+    this.defaultProviderNames = config.defaultProviders ?? ["musicbrainz"];
+  }
+
+  private initializeProviders(config: ProviderRegistryConfig): void {
+    const providerClasses: Record<ProviderName, ProviderConstructor> = {
+      musicbrainz: MusicBrainzProvider as unknown as ProviderConstructor,
+    };
+
+    for (const [name, providerConfig] of Object.entries(config.providers)) {
+      if (providerConfig?.enabled) {
+        const ProviderClass = providerClasses[name as ProviderName];
+        if (ProviderClass) {
+          this.providers.set(name, new ProviderClass(providerConfig));
+        }
+      }
+    }
+  }
+
+  get(name: string): BaseProvider | undefined {
+    return this.providers.get(name);
+  }
+
+  getAll(): BaseProvider[] {
+    return Array.from(this.providers.values());
+  }
+
+  getEnabled(): BaseProvider[] {
+    return this.getAll().filter((p) => this.providers.has(p.name));
+  }
+
+  getDefaults(): BaseProvider[] {
+    return this.defaultProviderNames
+      .map((name) => this.providers.get(name))
+      .filter((p): p is BaseProvider => p !== undefined);
+  }
+
+  getByPriority(): BaseProvider[] {
+    return this.getEnabled().sort((a, b) => b.priority - a.priority);
+  }
+
+  findByUrl(url: string): BaseProvider | undefined {
+    return this.getEnabled().find((p) => p.canHandleUrl(url));
+  }
+
+  // Register a custom provider at runtime
+  register(provider: BaseProvider): void {
+    this.providers.set(provider.name, provider);
+  }
+}
+
+// Re-export
+export { BaseProvider, type ProviderConfig, type LookupOptions } from "./base.provider.js";
+export { MusicBrainzProvider, type MusicBrainzConfig } from "./musicbrainz.provider.js";
