@@ -78,24 +78,24 @@ export const auth = betterAuth({
    * - GitHub: https://github.com/settings/developers
    * - Apple: https://developer.apple.com/account/resources/authkeys/list
    */
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-      // Always prompt user to select account
-      // prompt: 'select_account',
-    },
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID ?? '',
-      clientSecret: process.env.GITHUB_CLIENT_SECRET ?? '',
-    },
-    apple: {
-      clientId: process.env.APPLE_CLIENT_ID ?? '',
-      clientSecret: process.env.APPLE_CLIENT_SECRET ?? '',
-      // Required for native iOS apps using app bundle ID
-      // appBundleIdentifier: process.env.APPLE_APP_BUNDLE_IDENTIFIER,
-    },
-  },
+  // socialProviders: {
+  //   google: {
+  //     clientId: process.env.GOOGLE_CLIENT_ID ?? '',
+  //     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+  //     // Always prompt user to select account
+  //     // prompt: 'select_account',
+  //   },
+  //   github: {
+  //     clientId: process.env.GITHUB_CLIENT_ID ?? '',
+  //     clientSecret: process.env.GITHUB_CLIENT_SECRET ?? '',
+  //   },
+  //   apple: {
+  //     clientId: process.env.APPLE_CLIENT_ID ?? '',
+  //     clientSecret: process.env.APPLE_CLIENT_SECRET ?? '',
+  //     // Required for native iOS apps using app bundle ID
+  //     // appBundleIdentifier: process.env.APPLE_APP_BUNDLE_IDENTIFIER,
+  //   },
+  // },
 
   /**
    * Trusted Origins for CORS
@@ -103,7 +103,7 @@ export const auth = betterAuth({
    */
   trustedOrigins: [
     // Apple Sign In requires this
-    'https://appleid.apple.com',
+    // 'https://appleid.apple.com',
     // Add your production domains
     // 'https://yourdomain.com',
   ],

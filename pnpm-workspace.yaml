@@ -4,3 +4,5 @@ packages:
 catalogs:
   prisma:
     prisma: latest
+  better-auth:
+    better-auth: latest
