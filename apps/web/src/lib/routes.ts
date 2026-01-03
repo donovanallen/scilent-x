@@ -1,4 +1,14 @@
-import { ArrowRight, Home, LogIn, Settings, Shield, User } from 'lucide-react';
+import {
+  ArrowRight,
+  Component,
+  Database,
+  Home,
+  LogIn,
+  Palette,
+  Settings,
+  Shield,
+  User,
+} from 'lucide-react';
 
 export const ROUTES = {
   home: {
@@ -42,5 +52,26 @@ export const ROUTES = {
     icon: ArrowRight,
     protected: false,
     isAdmin: false,
+  },
+  styles: {
+    href: '/styles',
+    label: 'Styles',
+    icon: Palette,
+    protected: true,
+    isAdmin: true,
+  },
+  components: {
+    href: '/components',
+    label: 'Components',
+    icon: Component,
+    protected: true,
+    isAdmin: true,
+  },
+  db: {
+    href: '/db',
+    label: 'Database',
+    icon: Database,
+    protected: true,
+    isAdmin: true,
   },
 } as const;

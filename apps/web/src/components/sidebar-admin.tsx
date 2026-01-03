@@ -1,5 +1,3 @@
-'use client';
-
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -12,19 +10,15 @@ import { usePathname } from 'next/navigation';
 
 import { ROUTES } from '../lib/routes';
 
-export function SidebarNav() {
+export function SidebarAdminNav() {
   const pathname = usePathname();
-
-  // Get protected routes (excluding admin routes for non-admins - can be enhanced later)
-  const protectedRoutes = Object.values(ROUTES).filter(
-    (route) => route.protected && !route.isAdmin
-  );
+  const adminRoutes = Object.values(ROUTES).filter((route) => route.isAdmin);
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Application</SidebarGroupLabel>
+      <SidebarGroupLabel>Admin</SidebarGroupLabel>
       <SidebarMenu>
-        {protectedRoutes.map((route) => {
+        {adminRoutes.map((route) => {
           const Icon = route.icon;
           const isActive = pathname === route.href;
 
