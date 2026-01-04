@@ -14,7 +14,7 @@ import type {
 } from '../types/index';
 import { HttpError, ProviderError } from '../errors/index';
 
-const TIDAL_API = 'https://openapi.tidal.com';
+const TIDAL_API = 'https://openapi.tidal.com/v2';
 const TIDAL_AUTH_API = 'https://auth.tidal.com/v1/oauth2/token';
 
 /**
@@ -104,10 +104,19 @@ interface TidalSingleResponse<T> {
   included?: Array<TidalArtist | TidalTrack | TidalAlbum>;
 }
 
-interface TidalSearchResponse {
-  albums?: TidalAlbum[];
-  artists?: TidalArtist[];
-  tracks?: TidalTrack[];
+// V2 Search Results response - the search endpoint returns a searchResults resource
+// that has relationships to albums, artists, tracks, etc.
+interface TidalSearchResultsResponse {
+  data: {
+    id: string;
+    type: 'searchResults';
+    relationships?: {
+      albums?: { data: Array<{ id: string; type: 'albums' }> };
+      artists?: { data: Array<{ id: string; type: 'artists' }> };
+      tracks?: { data: Array<{ id: string; type: 'tracks' }> };
+    };
+  };
+  included?: Array<TidalArtist | TidalTrack | TidalAlbum>;
 }
 
 interface TidalTokenResponse {
@@ -213,14 +222,13 @@ export class TidalProvider extends BaseProvider {
   }
 
   /**
-   * Make an authenticated request to the Tidal API.
+   * Make an authenticated request to the Tidal v2 API.
    */
   private async fetchApi<T>(
     endpoint: string,
     params?: Record<string, string>
   ): Promise<T | null> {
     const token = await this.getAccessToken();
-    const config = this.config as TidalConfig;
 
     const searchParams = new URLSearchParams({
       countryCode: this.countryCode,
@@ -229,16 +237,22 @@ export class TidalProvider extends BaseProvider {
 
     const url = `${TIDAL_API}${endpoint}?${searchParams.toString()}`;
 
+    this.logger.debug('Tidal API request', { url });
+
     const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.tidal.v1+json',
-        'Content-Type': 'application/vnd.tidal.v1+json',
-        'X-Tidal-Token': config.clientId,
+        Accept: 'application/vnd.api+json',
       },
     });
 
     if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      this.logger.warn('Tidal API error response', {
+        status: response.status,
+        error: errorText,
+      });
+
       if (response.status === 404) return null;
       if (response.status === 401) {
         // Token might be expired, clear it
@@ -251,7 +265,7 @@ export class TidalProvider extends BaseProvider {
         );
       }
       throw new HttpError(
-        `Tidal API error: ${response.status}`,
+        `Tidal API error: ${response.status} - ${errorText}`,
         response.status,
         this.name
       );
@@ -263,52 +277,53 @@ export class TidalProvider extends BaseProvider {
   protected async _lookupReleaseByGtin(
     gtin: string
   ): Promise<HarmonizedRelease | null> {
-    // Tidal supports barcode lookup via the albums endpoint with filter
+    // V2 API: Try searching for the barcode/UPC
+    // First attempt with full GTIN
     const data = await this.fetchApi<TidalListResponse<TidalAlbum>>(
-      '/albums',
+      '/albums/byBarcodeId',
       {
-        'filter[barcodeId]': gtin,
+        barcodeId: gtin,
       }
     );
 
-    if (!data?.data?.length) {
-      // Try without leading zeros for UPC compatibility
-      const cleanedGtin = gtin.replace(/^0+/, '');
-      if (cleanedGtin !== gtin) {
-        const retryData = await this.fetchApi<TidalListResponse<TidalAlbum>>(
-          '/albums',
-          {
-            'filter[barcodeId]': cleanedGtin,
-          }
-        );
-        if (retryData?.data?.length) {
-          return this._lookupReleaseById(retryData.data[0]!.id);
-        }
-      }
-      return null;
+    if (data?.data?.length) {
+      return this._lookupReleaseById(data.data[0]!.id);
     }
 
-    // Fetch full album details with tracks
-    return this._lookupReleaseById(data.data[0]!.id);
+    // Try without leading zeros for UPC compatibility
+    const cleanedGtin = gtin.replace(/^0+/, '');
+    if (cleanedGtin !== gtin) {
+      const retryData = await this.fetchApi<TidalListResponse<TidalAlbum>>(
+        '/albums/byBarcodeId',
+        {
+          barcodeId: cleanedGtin,
+        }
+      );
+      if (retryData?.data?.length) {
+        return this._lookupReleaseById(retryData.data[0]!.id);
+      }
+    }
+
+    return null;
   }
 
   protected async _lookupReleaseById(
     id: string,
     _options?: LookupOptions
   ): Promise<HarmonizedRelease | null> {
-    // Fetch album with relationships
+    // V2 API: Fetch album with relationships
     const albumData = await this.fetchApi<TidalSingleResponse<TidalAlbum>>(
       `/albums/${id}`,
       {
-        include: 'artists,items',
+        include: 'artists',
       }
     );
 
     if (!albumData?.data) return null;
 
-    // Fetch album tracks separately
+    // V2 API: Fetch album items (tracks) using the items relationship
     const tracksData = await this.fetchApi<TidalListResponse<TidalTrack>>(
-      `/albums/${id}/relationships/items`,
+      `/albums/${id}/items`,
       {
         include: 'artists',
         limit: '100',
@@ -334,11 +349,15 @@ export class TidalProvider extends BaseProvider {
   protected async _lookupTrackByIsrc(
     isrc: string
   ): Promise<HarmonizedTrack | null> {
-    const data = await this.fetchApi<TidalListResponse<TidalTrack>>('/tracks', {
-      'filter[isrc]': isrc,
-      include: 'artists',
-      limit: '1',
-    });
+    // V2 API: Use the tracks/byIsrc endpoint
+    const data = await this.fetchApi<TidalListResponse<TidalTrack>>(
+      '/tracks/byIsrc',
+      {
+        isrc,
+        include: 'artists',
+        limit: '1',
+      }
+    );
 
     if (!data?.data?.length) return null;
 
@@ -367,19 +386,24 @@ export class TidalProvider extends BaseProvider {
     query: string,
     limit = 25
   ): Promise<HarmonizedRelease[]> {
-    const data = await this.fetchApi<TidalListResponse<TidalAlbum>>(
-      '/search',
+    // V2 API uses /searchResults/{query} with query in the path
+    const encodedQuery = encodeURIComponent(query);
+    const data = await this.fetchApi<TidalSearchResultsResponse>(
+      `/searchResults/${encodedQuery}`,
       {
-        query,
-        type: 'ALBUMS',
+        include: 'albums',
         limit: String(limit),
-        include: 'artists',
       }
     );
 
-    if (!data?.data) return [];
+    if (!data?.included) return [];
 
-    return data.data.map((album) =>
+    // Extract albums from the included resources
+    const albums = data.included.filter(
+      (item): item is TidalAlbum => item.type === 'albums'
+    );
+
+    return albums.map((album) =>
       this.transformAlbum(album, data.included, [], undefined)
     );
   }
@@ -388,18 +412,24 @@ export class TidalProvider extends BaseProvider {
     query: string,
     limit = 25
   ): Promise<HarmonizedArtist[]> {
-    const data = await this.fetchApi<TidalListResponse<TidalArtist>>(
-      '/search',
+    // V2 API uses /searchResults/{query} with query in the path
+    const encodedQuery = encodeURIComponent(query);
+    const data = await this.fetchApi<TidalSearchResultsResponse>(
+      `/searchResults/${encodedQuery}`,
       {
-        query,
-        type: 'ARTISTS',
+        include: 'artists',
         limit: String(limit),
       }
     );
 
-    if (!data?.data) return [];
+    if (!data?.included) return [];
 
-    return data.data.map((artist) => this.transformArtist(artist));
+    // Extract artists from the included resources
+    const artists = data.included.filter(
+      (item): item is TidalArtist => item.type === 'artists'
+    );
+
+    return artists.map((artist) => this.transformArtist(artist));
   }
 
   // Transformation methods
