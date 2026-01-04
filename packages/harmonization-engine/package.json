@@ -1,0 +1,48 @@
+{
+  "name": "@scilent-one/harmonization-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Music metadata harmonization engine for normalizing and merging metadata from multiple sources",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./providers": {
+      "types": "./src/providers/index.ts",
+      "default": "./src/providers/index.ts"
+    },
+    "./types": {
+      "types": "./src/types/index.ts",
+      "default": "./src/types/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "ioredis": "^5.8.2",
+    "zod": "^3.25.76",
+    "pino": "^9.9.0",
+    "p-retry": "^6.2.1"
+  },
+  "devDependencies": {
+    "@scilent-one/tooling": "workspace:*",
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "peerDependencies": {
+    "ioredis": "^5.8.2"
+  },
+  "peerDependenciesMeta": {
+    "ioredis": {
+      "optional": true
+    }
+  }
+}
