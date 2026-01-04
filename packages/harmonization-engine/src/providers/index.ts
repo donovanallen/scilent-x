@@ -4,8 +4,16 @@ import {
   MusicBrainzProvider,
   // type MusicBrainzConfig,
 } from './musicbrainz.provider';
+import {
+  SpotifyProvider,
+  // type SpotifyConfig,
+} from './spotify.provider';
+import {
+  TidalProvider,
+  // type TidalConfig,
+} from './tidal.provider';
 
-export type ProviderName = 'musicbrainz';
+export type ProviderName = 'musicbrainz' | 'spotify' | 'tidal';
 
 export interface ProviderRegistryConfig {
   providers: Partial<Record<ProviderName, ProviderConfig>>;
@@ -26,6 +34,8 @@ export class ProviderRegistry {
   private initializeProviders(config: ProviderRegistryConfig): void {
     const providerClasses: Record<ProviderName, ProviderConstructor> = {
       musicbrainz: MusicBrainzProvider as unknown as ProviderConstructor,
+      spotify: SpotifyProvider as unknown as ProviderConstructor,
+      tidal: TidalProvider as unknown as ProviderConstructor,
     };
 
     for (const [name, providerConfig] of Object.entries(config.providers)) {
@@ -80,3 +90,5 @@ export {
   MusicBrainzProvider,
   type MusicBrainzConfig,
 } from './musicbrainz.provider';
+export { SpotifyProvider, type SpotifyConfig } from './spotify.provider';
+export { TidalProvider, type TidalConfig } from './tidal.provider';
