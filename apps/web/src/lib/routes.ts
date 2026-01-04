@@ -5,6 +5,7 @@ import {
   LogIn,
   Settings,
   User,
+  CloudSync,
   Users,
 } from 'lucide-react';
 
@@ -48,6 +49,13 @@ export const ROUTES = {
     href: '/db',
     label: 'Database',
     icon: Database,
+    protected: true,
+    isAdmin: true,
+  },
+  harmony: {
+    href: '/harmony',
+    label: 'Harmony',
+    icon: CloudSync,
     protected: true,
     isAdmin: true,
   },

@@ -22,6 +22,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@scilent-one/auth": "workspace:*",
     "@scilent-one/db": "workspace:*",
+    "@scilent-one/harmonization-engine": "workspace:*",
     "@scilent-one/harmony-ui": "workspace:*",
     "@scilent-one/ui": "workspace:*",
     "better-auth": "catalog:better-auth",
