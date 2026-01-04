@@ -1,5 +1,11 @@
 # @scilent-one/auth
 
+## 0.1.2
+
+### Patch Changes
+
+- 850a778: AUTH: implements email/pw auth
+
 ## 0.1.1
 
 ### Patch Changes
