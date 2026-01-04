@@ -115,7 +115,7 @@ export class HarmonizationEngine {
   /**
    * Search for releases across enabled providers
    */
-  async search(query: string, limit = 25, providers?: string[]) {
+  async search(query: string, providers?: string[], limit = 25) {
     return this.coordinator.searchReleases(query, providers, limit);
   }
 

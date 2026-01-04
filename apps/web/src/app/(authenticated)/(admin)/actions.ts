@@ -42,7 +42,7 @@ export async function lookupByIsrc(isrc: string) {
 export async function searchReleases(query: string, limit = 10) {
   const engine = getHarmonizationEngine();
   try {
-    const result = await engine.search(query, limit);
+    const result = await engine.search(query, undefined, limit);
     return { error: null, data: result };
   } catch (err) {
     return {
