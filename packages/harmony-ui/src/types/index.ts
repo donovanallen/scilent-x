@@ -1,5 +1,6 @@
-// Schemas
+// Re-export all types and schemas from harmonization-engine
 export {
+  // Schemas
   ProviderSourceSchema,
   HarmonizedArtistCreditSchema,
   HarmonizedTrackSchema,
@@ -10,18 +11,15 @@ export {
   HarmonizedReleaseSchema,
   ArtistTypeSchema,
   HarmonizedArtistSchema,
-} from "./schemas";
-
-// Types
-export type {
-  ProviderSource,
-  HarmonizedArtistCredit,
-  HarmonizedTrack,
-  ReleaseType,
-  ReleaseStatus,
-  ArtworkType,
-  PartialDate,
-  HarmonizedRelease,
-  ArtistType,
-  HarmonizedArtist,
-} from "./schemas";
+  // Types
+  type ProviderSource,
+  type HarmonizedArtistCredit,
+  type HarmonizedTrack,
+  type ReleaseType,
+  type ReleaseStatus,
+  type ArtworkType,
+  type PartialDate,
+  type HarmonizedRelease,
+  type ArtistType,
+  type HarmonizedArtist,
+} from "@scilent-one/harmonization-engine/types";

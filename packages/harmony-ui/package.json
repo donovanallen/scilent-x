@@ -22,8 +22,8 @@
     "storybook:build": "storybook build -o storybook-static"
   },
   "dependencies": {
-    "@scilent-one/ui": "workspace:*",
-    "zod": "^3.25.11"
+    "@scilent-one/harmonization-engine": "workspace:*",
+    "@scilent-one/ui": "workspace:*"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^4.1.3",
