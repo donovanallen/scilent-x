@@ -10,6 +10,7 @@ import {
 } from "@scilent-one/ui";
 import type { HarmonizedRelease } from "../../types";
 import { formatPartialDate, formatArtistCredits, getFrontArtworkUrl } from "../../utils";
+import { AlbumArtwork } from "./AlbumArtwork";
 
 export interface AlbumCardProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onClick"> {
@@ -68,31 +69,14 @@ export function AlbumCard({
       }}
       {...props}
     >
-      <div className="aspect-square relative overflow-hidden bg-muted">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={release.title}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
-            loading="lazy"
-          />
-        ) : (
-          <div className="h-full w-full flex items-center justify-center">
-            <svg
-              className="h-1/3 w-1/3 text-muted-foreground"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-              />
-            </svg>
-          </div>
-        )}
+      <div className="relative">
+        <AlbumArtwork
+          src={imageUrl}
+          alt={release.title}
+          size="full"
+          rounded="none"
+          hoverEffect
+        />
         {showType && (
           <Badge
             variant="secondary"

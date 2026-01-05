@@ -6,21 +6,22 @@ import {
   formatArtistCredits,
   getFrontArtworkUrl,
 } from "../../utils";
+import { AlbumArtwork, AlbumArtworkSkeleton } from "./AlbumArtwork";
 
 export interface AlbumDetailsProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /** The harmonized release data */
   release: HarmonizedRelease;
   /** Optional artwork URL (overrides release artwork) */
-  artworkUrl?: string;
+  artworkUrl?: string | undefined;
   /** Whether to show labels */
-  showLabels?: boolean;
+  showLabels?: boolean | undefined;
   /** Whether to show genres/tags */
-  showGenres?: boolean;
+  showGenres?: boolean | undefined;
   /** Whether to show sources */
-  showSources?: boolean;
+  showSources?: boolean | undefined;
   /** Whether to show confidence score */
-  showConfidence?: boolean;
+  showConfidence?: boolean | undefined;
 }
 
 const releaseTypeLabels: Record<string, string> = {
@@ -62,33 +63,13 @@ export function AlbumDetails({
     <div className={cn("space-y-6", className)} {...props}>
       <div className="flex flex-col md:flex-row gap-6">
         {/* Album Artwork */}
-        <div className="shrink-0">
-          <div className="h-64 w-64 rounded-lg overflow-hidden bg-muted shadow-lg">
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt={release.title}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center">
-                <svg
-                  className="h-1/3 w-1/3 text-muted-foreground"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-                  />
-                </svg>
-              </div>
-            )}
-          </div>
-        </div>
+        <AlbumArtwork
+          src={imageUrl}
+          alt={release.title}
+          size="2xl"
+          rounded="lg"
+          shadow
+        />
 
         {/* Album Info */}
         <div className="flex-1 space-y-4">
@@ -199,7 +180,7 @@ export function AlbumDetailsSkeleton({
   return (
     <div className={cn("space-y-6", className)} {...props}>
       <div className="flex flex-col md:flex-row gap-6">
-        <Skeleton className="h-64 w-64 rounded-lg shrink-0" />
+        <AlbumArtworkSkeleton size="2xl" rounded="lg" />
         <div className="flex-1 space-y-4">
           <div className="space-y-2">
             <Skeleton className="h-3 w-16" />

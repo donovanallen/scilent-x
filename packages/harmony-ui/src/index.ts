@@ -92,12 +92,16 @@ export {
 
 // Album components
 export {
+  AlbumArtwork,
+  AlbumArtworkSkeleton,
   AlbumCard,
   AlbumCardSkeleton,
   AlbumTrackList,
   AlbumTrackListSkeleton,
   AlbumDetails,
   AlbumDetailsSkeleton,
+  type AlbumArtworkProps,
+  type AlbumArtworkSkeletonProps,
   type AlbumCardProps,
   type AlbumTrackListProps,
   type AlbumTrackListSkeletonProps,
