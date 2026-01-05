@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   cn,
   Card,
@@ -7,13 +7,19 @@ import {
   CardTitle,
   Badge,
   Skeleton,
-} from "@scilent-one/ui";
-import type { HarmonizedRelease } from "../../types";
-import { formatPartialDate, formatArtistCredits, getFrontArtworkUrl } from "../../utils";
-import { AlbumArtwork } from "./AlbumArtwork";
+} from '@scilent-one/ui';
+import type { HarmonizedRelease } from '../../types';
+import {
+  formatPartialDate,
+  formatArtistCredits,
+  getFrontArtworkUrl,
+} from '../../utils';
+import { AlbumArtwork } from './AlbumArtwork';
 
-export interface AlbumCardProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onClick"> {
+export interface AlbumCardProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'onClick'
+> {
   /** The harmonized release data */
   release: HarmonizedRelease;
   /** Optional artwork URL (overrides release artwork) */
@@ -27,14 +33,14 @@ export interface AlbumCardProps
 }
 
 const releaseTypeLabels: Record<string, string> = {
-  album: "Album",
-  single: "Single",
-  ep: "EP",
-  compilation: "Compilation",
-  soundtrack: "Soundtrack",
-  live: "Live",
-  remix: "Remix",
-  other: "Release",
+  album: 'Album',
+  single: 'Single',
+  ep: 'EP',
+  compilation: 'Compilation',
+  soundtrack: 'Soundtrack',
+  live: 'Live',
+  remix: 'Remix',
+  other: 'Release',
 };
 
 export function AlbumCard({
@@ -55,18 +61,19 @@ export function AlbumCard({
   return (
     <Card
       className={cn(
-        "overflow-hidden transition-colors cursor-pointer hover:bg-accent/50 group",
+        'overflow-hidden transition-colors cursor-pointer hover:bg-accent/50 group',
         className
       )}
       onClick={handleClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           handleClick();
         }
       }}
+      aria-label={`View ${release.title}`}
       {...props}
     >
       <div className="relative">
@@ -112,7 +119,7 @@ export function AlbumCardSkeleton({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <Card className={cn("overflow-hidden", className)} {...props}>
+    <Card className={cn('overflow-hidden', className)} {...props}>
       <Skeleton className="aspect-square w-full" />
       <CardHeader className="p-3 pb-1">
         <Skeleton className="h-4 w-3/4" />

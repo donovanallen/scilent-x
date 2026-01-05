@@ -1,7 +1,7 @@
-import * as React from "react";
-import { cn } from "@scilent-one/ui";
-import type { HarmonizedTrack } from "../../types";
-import { TrackCard, TrackCardSkeleton } from "./TrackCard";
+import * as React from 'react';
+import { cn } from '@scilent-one/ui';
+import type { HarmonizedTrack } from '../../types';
+import { TrackCard, TrackCardSkeleton } from './TrackCard';
 
 export interface TrackListProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Array of tracks to display */
@@ -35,7 +35,7 @@ export function TrackList({
       (acc, track) => {
         const disc = track.discNumber ?? 1;
         if (!acc[disc]) acc[disc] = [];
-        acc[disc].push(track);
+        (acc[disc] as HarmonizedTrack[]).push(track);
         return acc;
       },
       {} as Record<number, HarmonizedTrack[]>
@@ -48,7 +48,9 @@ export function TrackList({
   const hasMultipleDiscs = discNumbers.length > 1;
 
   const getTrackId = (track: HarmonizedTrack) => {
-    return track.isrc || Object.values(track.externalIds)[0] || `${track.position}`;
+    return (
+      track.isrc || Object.values(track.externalIds)[0] || `${track.position}`
+    );
   };
 
   const getArtworkUrl = (track: HarmonizedTrack) => {
@@ -57,7 +59,7 @@ export function TrackList({
   };
 
   return (
-    <div className={cn("space-y-2", className)} {...props}>
+    <div className={cn('space-y-2', className)} {...props}>
       {discNumbers.map((discNum) => {
         const discTracks = groupedTracks[discNum] ?? [];
         return (
@@ -88,8 +90,7 @@ export function TrackList({
   );
 }
 
-export interface TrackListSkeletonProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface TrackListSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Number of skeleton tracks to show */
   count?: number;
   showPositions?: boolean;
@@ -102,7 +103,7 @@ export function TrackListSkeleton({
   ...props
 }: TrackListSkeletonProps) {
   return (
-    <div className={cn("space-y-1", className)} {...props}>
+    <div className={cn('space-y-1', className)} {...props}>
       {Array.from({ length: count }).map((_, i) => (
         <TrackCardSkeleton key={i} showPosition={showPositions} />
       ))}

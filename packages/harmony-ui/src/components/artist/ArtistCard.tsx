@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   cn,
   Card,
@@ -7,11 +7,13 @@ import {
   CardTitle,
   Badge,
   Skeleton,
-} from "@scilent-one/ui";
-import type { HarmonizedArtist } from "../../types";
+} from '@scilent-one/ui';
+import type { HarmonizedArtist } from '../../types';
 
-export interface ArtistCardProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onClick"> {
+export interface ArtistCardProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'onClick'
+> {
   /** The harmonized artist data */
   artist: HarmonizedArtist;
   /** Optional image URL for the artist */
@@ -37,18 +39,19 @@ export function ArtistCard({
   return (
     <Card
       className={cn(
-        "overflow-hidden transition-colors cursor-pointer hover:bg-accent/50",
+        'overflow-hidden transition-colors cursor-pointer hover:bg-accent/50',
         className
       )}
       onClick={handleClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           handleClick();
         }
       }}
+      aria-label={`View ${artist.name}`}
       {...props}
     >
       <div className="aspect-square relative overflow-hidden bg-muted">
@@ -66,6 +69,7 @@ export function ArtistCard({
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -112,7 +116,7 @@ export function ArtistCardSkeleton({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <Card className={cn("overflow-hidden", className)} {...props}>
+    <Card className={cn('overflow-hidden', className)} {...props}>
       <Skeleton className="aspect-square w-full" />
       <CardHeader className="p-4 pb-2">
         <Skeleton className="h-5 w-3/4" />

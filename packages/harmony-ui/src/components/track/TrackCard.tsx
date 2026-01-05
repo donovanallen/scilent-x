@@ -1,11 +1,17 @@
-import * as React from "react";
-import { cn, Card, CardContent, Badge, Skeleton } from "@scilent-one/ui";
-import type { HarmonizedTrack } from "../../types";
-import { formatDuration, formatArtistCredits, formatTrackPosition } from "../../utils";
-import { TrackArtwork } from "./TrackArtwork";
+import * as React from 'react';
+import { cn, Card, CardContent, Badge, Skeleton } from '@scilent-one/ui';
+import type { HarmonizedTrack } from '../../types';
+import {
+  formatDuration,
+  formatArtistCredits,
+  formatTrackPosition,
+} from '../../utils';
+import { TrackArtwork } from './TrackArtwork';
 
-export interface TrackCardProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onPlay"> {
+export interface TrackCardProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'onPlay'
+> {
   /** The harmonized track data */
   track: HarmonizedTrack;
   /** Optional artwork URL */
@@ -37,19 +43,20 @@ export function TrackCard({
   return (
     <Card
       className={cn(
-        "transition-colors hover:bg-accent/50 cursor-pointer",
-        isPlaying && "bg-accent",
+        'transition-colors hover:bg-accent/50 cursor-pointer',
+        isPlaying && 'bg-accent',
         className
       )}
       onClick={handleClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           handleClick();
         }
       }}
+      aria-label={`Track: ${track.title}`}
       {...props}
     >
       <CardContent className="flex items-center gap-4 p-3">
@@ -68,8 +75,8 @@ export function TrackCard({
           <div className="flex items-center gap-2">
             <span
               className={cn(
-                "font-medium truncate",
-                isPlaying && "text-primary"
+                'font-medium truncate',
+                isPlaying && 'text-primary'
               )}
             >
               {track.title}
@@ -93,8 +100,7 @@ export function TrackCard({
   );
 }
 
-export interface TrackCardSkeletonProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface TrackCardSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   showPosition?: boolean;
 }
 
@@ -104,7 +110,7 @@ export function TrackCardSkeleton({
   ...props
 }: TrackCardSkeletonProps) {
   return (
-    <Card className={cn("p-3", className)} {...props}>
+    <Card className={cn('p-3', className)} {...props}>
       <div className="flex items-center gap-4">
         {showPosition && <Skeleton className="h-4 w-8" />}
         <Skeleton className="h-10 w-10 rounded-md shrink-0" />

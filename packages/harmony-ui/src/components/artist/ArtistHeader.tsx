@@ -1,10 +1,9 @@
-import * as React from "react";
-import { cn, Badge, Skeleton, Separator } from "@scilent-one/ui";
-import type { HarmonizedArtist } from "../../types";
-import { formatPartialDate } from "../../utils";
+import * as React from 'react';
+import { cn, Badge, Skeleton, Separator } from '@scilent-one/ui';
+import type { HarmonizedArtist } from '../../types';
+import { formatPartialDate } from '../../utils';
 
-export interface ArtistHeaderProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface ArtistHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   /** The harmonized artist data */
   artist: HarmonizedArtist;
   /** Optional image URL for the artist */
@@ -27,16 +26,16 @@ export function ArtistHeader({
   ...props
 }: ArtistHeaderProps) {
   const typeLabels: Record<string, string> = {
-    person: "Solo Artist",
-    group: "Band/Group",
-    orchestra: "Orchestra",
-    choir: "Choir",
-    character: "Character",
-    other: "Artist",
+    person: 'Solo Artist',
+    group: 'Band/Group',
+    orchestra: 'Orchestra',
+    choir: 'Choir',
+    character: 'Character',
+    other: 'Artist',
   };
 
   return (
-    <div className={cn("space-y-6", className)} {...props}>
+    <div className={cn('space-y-6', className)} {...props}>
       <div className="flex flex-col md:flex-row gap-6">
         {/* Artist Image */}
         <div className="shrink-0">
@@ -92,6 +91,7 @@ export function ArtistHeader({
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -161,7 +161,7 @@ export function ArtistHeaderSkeleton({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("space-y-6", className)} {...props}>
+    <div className={cn('space-y-6', className)} {...props}>
       <div className="flex flex-col md:flex-row gap-6">
         <Skeleton className="h-48 w-48 rounded-full shrink-0" />
         <div className="flex-1 space-y-4">
