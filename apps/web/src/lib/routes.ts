@@ -3,6 +3,7 @@ import {
   Database,
   Home,
   LogIn,
+  Search,
   Settings,
   User,
   CloudSync,
@@ -15,6 +16,13 @@ export const ROUTES = {
     label: 'Home',
     icon: Home,
     protected: false,
+    isAdmin: false,
+  },
+  search: {
+    href: '/search',
+    label: 'Search',
+    icon: Search,
+    protected: true,
     isAdmin: false,
   },
   profile: {
@@ -31,13 +39,6 @@ export const ROUTES = {
     protected: true,
     isAdmin: false,
   },
-  login: {
-    href: '/login',
-    label: 'Login',
-    icon: LogIn,
-    protected: false,
-    isAdmin: false,
-  },
   signup: {
     href: '/signup',
     label: 'Signup',
@@ -45,12 +46,12 @@ export const ROUTES = {
     protected: false,
     isAdmin: false,
   },
-  db: {
-    href: '/db',
-    label: 'Database',
-    icon: Database,
-    protected: true,
-    isAdmin: true,
+  login: {
+    href: '/login',
+    label: 'Login',
+    icon: LogIn,
+    protected: false,
+    isAdmin: false,
   },
   harmony: {
     href: '/harmony',
@@ -63,6 +64,13 @@ export const ROUTES = {
     href: '/users',
     label: 'Users',
     icon: Users,
+    protected: true,
+    isAdmin: true,
+  },
+  db: {
+    href: '/db',
+    label: 'Database',
+    icon: Database,
     protected: true,
     isAdmin: true,
   },

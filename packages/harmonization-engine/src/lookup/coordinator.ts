@@ -1,6 +1,10 @@
 import type { BaseProvider } from '../providers/base.provider';
 import type { ProviderRegistry } from '../providers/index';
-import type { HarmonizedRelease, HarmonizedTrack } from '../types/index';
+import type {
+  HarmonizedRelease,
+  HarmonizedTrack,
+  HarmonizedArtist,
+} from '../types/index';
 import { ReleaseMerger } from '../harmonizer/merger';
 import type { SnapshotCache } from '../cache/snapshot';
 import { Logger } from '../utils/logger';
@@ -217,6 +221,44 @@ export class LookupCoordinator {
     return results
       .filter(
         (r): r is PromiseFulfilledResult<HarmonizedRelease[]> =>
+          r.status === 'fulfilled'
+      )
+      .flatMap((r) => r.value);
+  }
+
+  async searchTracks(
+    query: string,
+    providers?: string[],
+    limit = 25
+  ): Promise<HarmonizedTrack[]> {
+    const targetProviders = this.getTargetProviders(providers);
+
+    const results = await Promise.allSettled(
+      targetProviders.map((p) => p.searchTracks(query, limit))
+    );
+
+    return results
+      .filter(
+        (r): r is PromiseFulfilledResult<HarmonizedTrack[]> =>
+          r.status === 'fulfilled'
+      )
+      .flatMap((r) => r.value);
+  }
+
+  async searchArtists(
+    query: string,
+    providers?: string[],
+    limit = 25
+  ): Promise<HarmonizedArtist[]> {
+    const targetProviders = this.getTargetProviders(providers);
+
+    const results = await Promise.allSettled(
+      targetProviders.map((p) => p.searchArtists(query, limit))
+    );
+
+    return results
+      .filter(
+        (r): r is PromiseFulfilledResult<HarmonizedArtist[]> =>
           r.status === 'fulfilled'
       )
       .flatMap((r) => r.value);

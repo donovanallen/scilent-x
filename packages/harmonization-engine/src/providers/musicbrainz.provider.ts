@@ -206,6 +206,18 @@ export class MusicBrainzProvider extends BaseProvider {
     return (data?.artists ?? []).map((a) => this.transformArtist(a));
   }
 
+  protected async _searchTracks(
+    query: string,
+    limit = 25
+  ): Promise<HarmonizedTrack[]> {
+    const url = `${MB_API}/recording?query=${encodeURIComponent(query)}&limit=${limit}&fmt=json`;
+    const data = (await this.fetch(url)) as {
+      recordings?: MusicBrainzRecording[];
+    } | null;
+
+    return (data?.recordings ?? []).map((r, i) => this.transformTrack(r, i + 1));
+  }
+
   private async fetch(url: string): Promise<unknown> {
     const response = await fetch(url, {
       headers: {

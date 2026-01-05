@@ -72,6 +72,10 @@ export abstract class BaseProvider {
     query: string,
     limit?: number
   ): Promise<HarmonizedArtist[]>;
+  protected abstract _searchTracks(
+    query: string,
+    limit?: number
+  ): Promise<HarmonizedTrack[]>;
 
   // Public methods with rate limiting + retry
   async lookupReleaseByGtin(
@@ -128,6 +132,10 @@ export abstract class BaseProvider {
 
   async searchArtists(query: string, limit = 25): Promise<HarmonizedArtist[]> {
     return this.withRateLimitAndRetry(() => this._searchArtists(query, limit));
+  }
+
+  async searchTracks(query: string, limit = 25): Promise<HarmonizedTrack[]> {
+    return this.withRateLimitAndRetry(() => this._searchTracks(query, limit));
   }
 
   // Helper for wrapping calls

@@ -322,6 +322,21 @@ export class SpotifyProvider extends BaseProvider {
     return data.artists.items.map((artist) => this.transformArtist(artist));
   }
 
+  protected async _searchTracks(
+    query: string,
+    limit = 25
+  ): Promise<HarmonizedTrack[]> {
+    const data = await this.fetchApi<SpotifySearchResponse>(
+      `/search?q=${encodeURIComponent(query)}&type=track&limit=${limit}`
+    );
+
+    if (!data?.tracks?.items) return [];
+
+    return data.tracks.items.map((track) =>
+      this.transformTrack(track, track.track_number, track.disc_number)
+    );
+  }
+
   // Transformation methods
 
   private transformAlbum(raw: SpotifyAlbum): HarmonizedRelease {

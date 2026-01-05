@@ -432,6 +432,37 @@ export class TidalProvider extends BaseProvider {
     return artists.map((artist) => this.transformArtist(artist));
   }
 
+  protected async _searchTracks(
+    query: string,
+    limit = 25
+  ): Promise<HarmonizedTrack[]> {
+    // V2 API uses /searchResults/{query} with query in the path
+    const encodedQuery = encodeURIComponent(query);
+    const data = await this.fetchApi<TidalSearchResultsResponse>(
+      `/searchResults/${encodedQuery}`,
+      {
+        include: 'tracks',
+        limit: String(limit),
+      }
+    );
+
+    if (!data?.included) return [];
+
+    // Extract tracks from the included resources
+    const tracks = data.included.filter(
+      (item): item is TidalTrack => item.type === 'tracks'
+    );
+
+    return tracks.map((track) =>
+      this.transformTrack(
+        track,
+        track.attributes.trackNumber,
+        track.attributes.volumeNumber,
+        data.included
+      )
+    );
+  }
+
   // Transformation methods
 
   private transformAlbum(

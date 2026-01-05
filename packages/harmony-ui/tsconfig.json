@@ -1,0 +1,9 @@
+{
+  "extends": "@scilent-one/tooling/typescript/react",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "."
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}
