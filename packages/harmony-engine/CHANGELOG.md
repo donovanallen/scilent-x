@@ -1,5 +1,11 @@
 # @scilent-one/harmony-engine
 
+## 0.2.1
+
+### Patch Changes
+
+- fae832e: Bugfixes and updates ;)
+
 ## 0.2.0
 
 ### Minor Changes
