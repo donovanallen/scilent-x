@@ -1,5 +1,5 @@
 {
-  "name": "@scilent-one/harmonization-engine",
+  "name": "@scilent-one/harmony-engine",
   "version": "0.2.0",
   "private": true,
   "description": "Music metadata harmonization engine for normalizing and merging metadata from multiple sources",

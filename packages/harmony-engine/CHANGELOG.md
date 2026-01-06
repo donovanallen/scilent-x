@@ -1,4 +1,4 @@
-# @scilent-one/harmonization-engine
+# @scilent-one/harmony-engine
 
 ## 0.2.0
 

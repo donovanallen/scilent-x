@@ -1,11 +1,19 @@
-// apps/web/src/app/(authenticated)/(admin)/harmonization/actions.ts
 'use server';
 
-import { isValidGtin, isValidIsrc } from '@scilent-one/harmonization-engine';
+import {
+  isValidGtin,
+  isValidIsrc,
+  type LookupResult,
+  type HarmonizedRelease,
+  type HarmonizedTrack,
+} from '@scilent-one/harmony-engine';
 
 import { getHarmonizationEngine } from '@/lib/harmonization';
 
-export async function lookupByGtin(gtin: string) {
+export async function lookupByGtin(gtin: string): Promise<{
+  error: string | null;
+  data: LookupResult<HarmonizedRelease> | null;
+}> {
   if (!isValidGtin(gtin)) {
     return { error: 'Invalid GTIN format', data: null };
   }
@@ -22,7 +30,10 @@ export async function lookupByGtin(gtin: string) {
   }
 }
 
-export async function lookupByIsrc(isrc: string) {
+export async function lookupByIsrc(isrc: string): Promise<{
+  error: string | null;
+  data: LookupResult<HarmonizedTrack> | null;
+}> {
   if (!isValidIsrc(isrc)) {
     return { error: 'Invalid ISRC format', data: null };
   }
@@ -39,7 +50,13 @@ export async function lookupByIsrc(isrc: string) {
   }
 }
 
-export async function searchReleases(query: string, limit = 10) {
+export async function searchReleases(
+  query: string,
+  limit = 10
+): Promise<{
+  error: string | null;
+  data: HarmonizedRelease[] | null;
+}> {
   const engine = getHarmonizationEngine();
   try {
     const result = await engine.search(query, undefined, limit);
