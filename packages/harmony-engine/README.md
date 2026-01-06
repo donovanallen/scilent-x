@@ -1,4 +1,4 @@
-# @scilent-one/harmonization-engine
+# @scilent-one/harmony-engine
 
 A standalone package for normalizing and merging music metadata from multiple sources into a canonical representation.
 
@@ -17,7 +17,7 @@ The Harmonization Engine provides a unified interface for querying multiple meta
 ## Installation
 
 ```bash
-pnpm add @scilent-one/harmonization-engine
+pnpm add @scilent-one/harmony-engine
 ```
 
 ### Optional Dependencies
@@ -31,7 +31,7 @@ pnpm add ioredis
 ## Quick Start
 
 ```typescript
-import { HarmonizationEngine } from "@scilent-one/harmonization-engine";
+import { HarmonizationEngine } from "@scilent-one/harmony-engine";
 
 // Create an engine instance
 const engine = new HarmonizationEngine({
@@ -188,7 +188,7 @@ const engine = new HarmonizationEngine({
 Extend `BaseProvider` to add support for additional metadata sources:
 
 ```typescript
-import { BaseProvider, ProviderConfig, LookupOptions } from "@scilent-one/harmonization-engine";
+import { BaseProvider, ProviderConfig, LookupOptions } from "@scilent-one/harmony-engine";
 
 interface MyProviderConfig extends ProviderConfig {
   apiKey: string;
@@ -233,7 +233,7 @@ For production use, connect Redis for distributed caching:
 
 ```typescript
 import Redis from "ioredis";
-import { HarmonizationEngine } from "@scilent-one/harmonization-engine";
+import { HarmonizationEngine } from "@scilent-one/harmony-engine";
 
 const redis = new Redis(process.env.REDIS_URL);
 
@@ -285,7 +285,7 @@ import {
   RateLimitError,
   ProviderNotFoundError,
   ValidationError,
-} from "@scilent-one/harmonization-engine";
+} from "@scilent-one/harmony-engine";
 
 try {
   const result = await engine.lookupByGtin(gtin);
@@ -310,7 +310,7 @@ import {
   normalizeGtin,
   normalizeIsrc,
   normalizeString,
-} from "@scilent-one/harmonization-engine";
+} from "@scilent-one/harmony-engine";
 
 // Validate identifiers
 isValidGtin("0602445790920");  // true
@@ -336,7 +336,7 @@ NODE_ENV=development  # Enables pretty-printing
 ### Type Checking
 
 ```bash
-cd packages/harmonization-engine
+cd packages/harmony-engine
 pnpm typecheck
 ```
 
