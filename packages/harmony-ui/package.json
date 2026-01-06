@@ -22,7 +22,7 @@
     "storybook:build": "storybook build -o storybook-static"
   },
   "dependencies": {
-    "@scilent-one/harmonization-engine": "workspace:*",
+    "@scilent-one/harmony-engine": "workspace:*",
     "@scilent-one/ui": "workspace:*",
     "tslib": "^2.8.1"
   },

@@ -69,7 +69,7 @@ export function TrackList({
                 Disc {discNum}
               </h3>
             )}
-            {discTracks.map((track) => {
+            {discTracks.map((track: HarmonizedTrack) => {
               const trackId = getTrackId(track);
               return (
                 <TrackCard

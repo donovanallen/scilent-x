@@ -1,15 +1,15 @@
-import * as React from "react";
-import { cn, Badge, Separator, Skeleton } from "@scilent-one/ui";
-import type { HarmonizedRelease } from "../../types";
+import * as React from 'react';
+import { cn, Badge, Separator, Skeleton } from '@scilent-one/ui';
+import type { HarmonizedRelease, HarmonizedTrack } from '../../types';
 import {
   formatPartialDate,
   formatArtistCredits,
   getFrontArtworkUrl,
-} from "../../utils";
-import { AlbumArtwork, AlbumArtworkSkeleton } from "./AlbumArtwork";
+} from '../../utils';
+import { AlbumArtwork, AlbumArtworkSkeleton } from './AlbumArtwork';
+import type { ProviderSource } from '@scilent-one/harmony-engine';
 
-export interface AlbumDetailsProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface AlbumDetailsProps extends React.HTMLAttributes<HTMLDivElement> {
   /** The harmonized release data */
   release: HarmonizedRelease;
   /** Optional artwork URL (overrides release artwork) */
@@ -25,21 +25,21 @@ export interface AlbumDetailsProps
 }
 
 const releaseTypeLabels: Record<string, string> = {
-  album: "Album",
-  single: "Single",
-  ep: "EP",
-  compilation: "Compilation",
-  soundtrack: "Soundtrack",
-  live: "Live Album",
-  remix: "Remix Album",
-  other: "Release",
+  album: 'Album',
+  single: 'Single',
+  ep: 'EP',
+  compilation: 'Compilation',
+  soundtrack: 'Soundtrack',
+  live: 'Live Album',
+  remix: 'Remix Album',
+  other: 'Release',
 };
 
 const statusLabels: Record<string, string> = {
-  official: "Official",
-  promotional: "Promotional",
-  bootleg: "Bootleg",
-  "pseudo-release": "Pseudo-release",
+  official: 'Official',
+  promotional: 'Promotional',
+  bootleg: 'Bootleg',
+  'pseudo-release': 'Pseudo-release',
 };
 
 export function AlbumDetails({
@@ -55,12 +55,13 @@ export function AlbumDetails({
   const imageUrl = artworkUrl ?? getFrontArtworkUrl(release.artwork);
 
   const trackCount = release.media.reduce(
-    (sum, medium) => sum + medium.tracks.length,
+    (sum: number, medium: { tracks: HarmonizedTrack[] }) =>
+      sum + medium.tracks.length,
     0
   );
 
   return (
-    <div className={cn("space-y-6", className)} {...props}>
+    <div className={cn('space-y-6', className)} {...props}>
       <div className="flex flex-col md:flex-row gap-6">
         {/* Album Artwork */}
         <AlbumArtwork
@@ -77,7 +78,9 @@ export function AlbumDetails({
             <p className="text-sm text-muted-foreground uppercase tracking-wider">
               {releaseTypeLabels[release.releaseType] || release.releaseType}
             </p>
-            <h1 className="text-4xl font-bold tracking-tight">{release.title}</h1>
+            <h1 className="text-4xl font-bold tracking-tight">
+              {release.title}
+            </h1>
             {release.disambiguation && (
               <p className="text-lg text-muted-foreground">
                 {release.disambiguation}
@@ -91,7 +94,7 @@ export function AlbumDetails({
               <span>{formatPartialDate(release.releaseDate)}</span>
             )}
             <span>
-              {trackCount} {trackCount === 1 ? "track" : "tracks"}
+              {trackCount} {trackCount === 1 ? 'track' : 'tracks'}
             </span>
             {release.status && (
               <Badge variant="outline">
@@ -107,7 +110,7 @@ export function AlbumDetails({
 
           {showGenres && release.genres && release.genres.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {release.genres.map((genre) => (
+              {release.genres.map((genre: string) => (
                 <Badge key={genre} variant="secondary">
                   {genre}
                 </Badge>
@@ -122,19 +125,21 @@ export function AlbumDetails({
           <Separator />
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-muted-foreground">
-              Label{release.labels.length > 1 ? "s" : ""}
+              Label{release.labels.length > 1 ? 's' : ''}
             </h3>
             <div className="flex flex-wrap gap-4 text-sm">
-              {release.labels.map((label, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <span className="font-medium">{label.name}</span>
-                  {label.catalogNumber && (
-                    <span className="text-muted-foreground font-mono text-xs">
-                      {label.catalogNumber}
-                    </span>
-                  )}
-                </div>
-              ))}
+              {release.labels.map(
+                (label: (typeof release.labels)[number], idx: number) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span className="font-medium">{label.name}</span>
+                    {label.catalogNumber && (
+                      <span className="text-muted-foreground font-mono text-xs">
+                        {label.catalogNumber}
+                      </span>
+                    )}
+                  </div>
+                )
+              )}
             </div>
           </div>
         </>
@@ -148,7 +153,7 @@ export function AlbumDetails({
               Sources
             </h3>
             <div className="flex flex-wrap gap-2">
-              {release.sources.map((source, idx) => (
+              {release.sources.map((source: ProviderSource, idx: number) => (
                 <Badge key={idx} variant="outline">
                   {source.provider}
                 </Badge>
@@ -178,7 +183,7 @@ export function AlbumDetailsSkeleton({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("space-y-6", className)} {...props}>
+    <div className={cn('space-y-6', className)} {...props}>
       <div className="flex flex-col md:flex-row gap-6">
         <AlbumArtworkSkeleton size="2xl" rounded="lg" />
         <div className="flex-1 space-y-4">

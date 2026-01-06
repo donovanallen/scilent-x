@@ -94,7 +94,7 @@ export function ArtistCard({
       {showGenres && artist.genres && artist.genres.length > 0 && (
         <CardContent className="p-4 pt-0">
           <div className="flex flex-wrap gap-1">
-            {artist.genres.slice(0, 3).map((genre) => (
+            {artist.genres.slice(0, 3).map((genre: string) => (
               <Badge key={genre} variant="secondary" className="text-xs">
                 {genre}
               </Badge>

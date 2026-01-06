@@ -125,7 +125,7 @@ export function ArtistHeader({
 
           {showGenres && artist.genres && artist.genres.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {artist.genres.map((genre) => (
+              {artist.genres.map((genre: string) => (
                 <Badge key={genre} variant="secondary">
                   {genre}
                 </Badge>
@@ -143,7 +143,7 @@ export function ArtistHeader({
               Also known as
             </h3>
             <div className="flex flex-wrap gap-2">
-              {artist.aliases.map((alias) => (
+              {artist.aliases.map((alias: string) => (
                 <Badge key={alias} variant="outline">
                   {alias}
                 </Badge>

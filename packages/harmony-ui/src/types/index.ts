@@ -22,4 +22,4 @@ export {
   type HarmonizedRelease,
   type ArtistType,
   type HarmonizedArtist,
-} from "@scilent-one/harmonization-engine/types";
+} from '@scilent-one/harmony-engine/types';

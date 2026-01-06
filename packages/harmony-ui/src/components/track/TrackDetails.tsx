@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   cn,
   Card,
@@ -8,17 +8,17 @@ import {
   Badge,
   Separator,
   Skeleton,
-} from "@scilent-one/ui";
-import type { HarmonizedTrack } from "../../types";
+} from '@scilent-one/ui';
+import type { HarmonizedTrack } from '../../types';
 import {
   formatDuration,
   formatArtistCredits,
   formatTrackPosition,
-} from "../../utils";
-import { TrackArtwork } from "./TrackArtwork";
+} from '../../utils';
+import { TrackArtwork } from './TrackArtwork';
+import type { ProviderSource } from '@scilent-one/harmony-engine';
 
-export interface TrackDetailsProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface TrackDetailsProps extends React.HTMLAttributes<HTMLDivElement> {
   /** The harmonized track data */
   track: HarmonizedTrack;
   /** Optional artwork URL */
@@ -38,7 +38,7 @@ export function TrackDetails({
   ...props
 }: TrackDetailsProps) {
   return (
-    <Card className={cn("overflow-hidden", className)} {...props}>
+    <Card className={cn('overflow-hidden', className)} {...props}>
       <CardHeader className="flex-row items-start gap-4 space-y-0">
         <TrackArtwork src={artworkUrl} alt={track.title} size="lg" />
         <div className="flex-1 min-w-0 space-y-1">
@@ -83,12 +83,16 @@ export function TrackDetails({
             <div className="space-y-2">
               <h4 className="text-sm font-medium">Credits</h4>
               <div className="grid gap-1.5 text-sm">
-                {track.credits.map((credit, idx) => (
-                  <div key={idx} className="flex justify-between">
-                    <span className="text-muted-foreground">{credit.role}</span>
-                    <span>{credit.name}</span>
-                  </div>
-                ))}
+                {track.credits.map(
+                  (credit: { role: string; name: string }, idx: number) => (
+                    <div key={idx} className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        {credit.role}
+                      </span>
+                      <span>{credit.name}</span>
+                    </div>
+                  )
+                )}
               </div>
             </div>
           </>
@@ -100,7 +104,7 @@ export function TrackDetails({
             <div className="space-y-2">
               <h4 className="text-sm font-medium">Sources</h4>
               <div className="flex flex-wrap gap-1">
-                {track.sources.map((source, idx) => (
+                {track.sources.map((source: ProviderSource, idx: number) => (
                   <Badge key={idx} variant="secondary">
                     {source.provider}
                   </Badge>
@@ -119,7 +123,7 @@ export function TrackDetailsSkeleton({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <Card className={cn("overflow-hidden", className)} {...props}>
+    <Card className={cn('overflow-hidden', className)} {...props}>
       <CardHeader className="flex-row items-start gap-4 space-y-0">
         <Skeleton className="h-16 w-16 rounded-md shrink-0" />
         <div className="flex-1 space-y-2">
