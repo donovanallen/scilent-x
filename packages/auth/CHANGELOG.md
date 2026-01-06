@@ -1,5 +1,11 @@
 # @scilent-one/auth
 
+## 0.1.3
+
+### Patch Changes
+
+- fae832e: Bugfixes and updates ;)
+
 ## 0.1.2
 
 ### Patch Changes
