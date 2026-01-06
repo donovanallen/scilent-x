@@ -1,5 +1,17 @@
 # @scilent-one/harmony-engine
 
+## 0.2.0
+
+### Minor Changes
+
+- 1acecf5: Adds Tidal to supported providers
+- cc5e21f: HARMONY: package setup
+
+### Patch Changes
+
+- d5fdd8d: Search query fix
+- 7b00bcb: Dependency update
+
 ## 0.1.0
 
 ### Features
