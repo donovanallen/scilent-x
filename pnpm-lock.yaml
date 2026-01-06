@@ -66,12 +66,9 @@ importers:
       '@scilent-one/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@scilent-one/harmonization-engine':
+      '@scilent-one/harmony-engine':
         specifier: workspace:*
-        version: link:../../packages/harmonization-engine
-      '@scilent-one/harmony-ui':
-        specifier: workspace:*
-        version: link:../../packages/harmony-ui
+        version: link:../../packages/harmony-engine
       '@scilent-one/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -184,7 +181,7 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  packages/harmonization-engine:
+  packages/harmony-engine:
     dependencies:
       ioredis:
         specifier: ^5.8.2

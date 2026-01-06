@@ -7,7 +7,7 @@ import {
   type LookupResult,
   type HarmonizedRelease,
   type HarmonizedTrack,
-} from '@scilent-one/harmonization-engine';
+} from '@scilent-one/harmony-engine';
 
 import { getHarmonizationEngine } from '@/lib/harmonization';
 
