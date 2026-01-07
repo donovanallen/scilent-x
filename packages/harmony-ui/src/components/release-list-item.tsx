@@ -1,15 +1,14 @@
 'use client';
 
 import { Badge, cn } from '@scilent-one/ui';
-import type { HarmonizedRelease } from '@scilent-one/harmonization-engine';
+import type { HarmonizedRelease } from '@scilent-one/harmony-engine';
 import { Calendar, Disc, Music } from 'lucide-react';
 import * as React from 'react';
 
 import { Artwork } from './artwork';
 import { ArtistCredit } from './artist-credit';
 
-export interface ReleaseListItemProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface ReleaseListItemProps extends React.HTMLAttributes<HTMLDivElement> {
   release: HarmonizedRelease;
   showProviders?: boolean;
 }
@@ -30,7 +29,8 @@ export function ReleaseListItem({
   const year = release.releaseDate?.year;
   const trackCount = release.media.reduce((acc, m) => acc + m.tracks.length, 0);
   const totalDuration = release.media.reduce(
-    (acc, m) => acc + m.tracks.reduce((t, track) => t + (track.duration || 0), 0),
+    (acc, m) =>
+      acc + m.tracks.reduce((t, track) => t + (track.duration || 0), 0),
     0
   );
   const providers = release.sources.map((s) => s.provider);
@@ -43,12 +43,7 @@ export function ReleaseListItem({
       )}
       {...props}
     >
-      <Artwork
-        src={artworkUrl}
-        alt={release.title}
-        size="lg"
-        rounded="md"
-      />
+      <Artwork src={artworkUrl} alt={release.title} size="lg" rounded="md" />
       <div className="flex-1 min-w-0 space-y-1">
         <div className="flex items-start gap-2">
           <h3 className="font-medium text-sm leading-tight truncate group-hover:text-primary transition-colors">

@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge, Card, cn } from '@scilent-one/ui';
-import type { HarmonizedRelease } from '@scilent-one/harmonization-engine';
+import type { HarmonizedRelease } from '@scilent-one/harmony-engine';
 import * as React from 'react';
 
 import { Artwork } from './artwork';

@@ -1,6 +1,6 @@
 'use client';
 
-import type { HarmonizedArtist } from '@scilent-one/harmonization-engine';
+import type { HarmonizedArtist } from '@scilent-one/harmony-engine';
 import { Badge, Card, CardContent, cn } from '@scilent-one/ui';
 import { ExternalLink, User } from 'lucide-react';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@scilent-one/ui';
-import type { HarmonizedArtistCredit } from '@scilent-one/harmonization-engine';
+import type { HarmonizedArtistCredit } from '@scilent-one/harmony-engine';
 import * as React from 'react';
 
 export interface ArtistCreditProps extends React.HTMLAttributes<HTMLSpanElement> {

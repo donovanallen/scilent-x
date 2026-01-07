@@ -4,7 +4,7 @@ import type {
   HarmonizedRelease,
   HarmonizedTrack,
   HarmonizedArtist,
-} from '@scilent-one/harmonization-engine';
+} from '@scilent-one/harmony-engine';
 import { useCallback, useState, useTransition } from 'react';
 
 import {

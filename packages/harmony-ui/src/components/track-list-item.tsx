@@ -1,6 +1,6 @@
 'use client';
 
-import type { HarmonizedTrack } from '@scilent-one/harmonization-engine';
+import type { HarmonizedTrack } from '@scilent-one/harmony-engine';
 import { Badge, cn } from '@scilent-one/ui';
 import { Clock, ExternalLink } from 'lucide-react';
 

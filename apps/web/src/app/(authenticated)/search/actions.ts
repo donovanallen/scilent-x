@@ -6,7 +6,7 @@ import type {
   HarmonizedArtist,
   ReleaseType,
   ReleaseStatus,
-} from '@scilent-one/harmonization-engine';
+} from '@scilent-one/harmony-engine';
 
 import { getHarmonizationEngine } from '@/lib/harmonization';
 

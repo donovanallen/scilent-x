@@ -48,6 +48,16 @@ export {
   CollapsibleContent,
 } from './components/collapsible';
 export {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandSeparator,
+  CommandShortcut,
+} from './components/command';
+export {
   Dialog,
   DialogPortal,
   DialogOverlay,
@@ -89,6 +99,14 @@ export {
   NavigationMenuIndicator,
   NavigationMenuViewport,
 } from './components/navigation-menu';
+export { ScrollArea } from './components/scroll-area';
+export {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './components/select';
 export { Separator } from './components/separator';
 export {
   Sheet,
@@ -107,6 +125,7 @@ export { Toaster } from './components/sonner';
 export { Switch } from './components/switch';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/tabs';
 export { Textarea } from './components/textarea';
+export { ToggleGroup, ToggleGroupItem } from './components/toggle-group';
 export {
   Tooltip,
   TooltipTrigger,

@@ -1,5 +1,5 @@
 ---
-'@scilent-one/harmonization-engine': patch
+'@scilent-one/harmony-engine': patch
 '@scilent-one/ui': patch
 ---
 

@@ -12,10 +12,7 @@ export async function GET(request: Request) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const { searchParams } = new URL(request.url);
 
@@ -44,7 +41,8 @@ export async function GET(request: Request) {
         ? (sortByParam as (typeof allowedSortBy)[number])
         : 'createdAt';
     const rawSortOrder = searchParams.get('sortOrder');
-    const sortOrder = rawSortOrder === 'asc' || rawSortOrder === 'desc' ? rawSortOrder : 'desc';
+    const sortOrder =
+      rawSortOrder === 'asc' || rawSortOrder === 'desc' ? rawSortOrder : 'desc';
 
     // Filters
     const hasUsername = searchParams.get('hasUsername');

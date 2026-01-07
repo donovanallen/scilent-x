@@ -1,6 +1,6 @@
 'use client';
 
-import type { HarmonizedArtist } from '@scilent-one/harmonization-engine';
+import type { HarmonizedArtist } from '@scilent-one/harmony-engine';
 import { Badge, cn } from '@scilent-one/ui';
 import { ExternalLink, User } from 'lucide-react';
 
@@ -34,7 +34,10 @@ export function ArtistListItem({
         <div className="flex items-center gap-2">
           <h4 className="font-medium truncate">{artist.name}</h4>
           {artist.type && (
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 capitalize">
+            <Badge
+              variant="outline"
+              className="text-[10px] px-1.5 py-0 h-4 capitalize"
+            >
               {artist.type}
             </Badge>
           )}
@@ -43,7 +46,9 @@ export function ArtistListItem({
           {artist.country && <span>{artist.country}</span>}
           {artist.disambiguation && (
             <>
-              {artist.country && <span className="text-muted-foreground/50">·</span>}
+              {artist.country && (
+                <span className="text-muted-foreground/50">·</span>
+              )}
               <span className="truncate">{artist.disambiguation}</span>
             </>
           )}

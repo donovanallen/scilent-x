@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReleaseType } from '@scilent-one/harmonization-engine';
+import type { ReleaseType } from '@scilent-one/harmony-engine';
 import {
   Badge,
   Button,
