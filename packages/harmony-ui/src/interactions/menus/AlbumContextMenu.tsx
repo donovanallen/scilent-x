@@ -46,7 +46,7 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
   // Build external links from sources
   const externalLinks = React.useMemo(() => {
     const links: { platform: string; url: string }[] = [];
-    
+
     release.sources?.forEach((source) => {
       if (source.url) {
         links.push({
@@ -72,11 +72,19 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
 
   const handleViewArtist = React.useCallback(() => {
     if (primaryArtist) {
-      // Navigate with artist credit info - the app can resolve to full artist
-      interaction.onNavigate?.('artist', release);
+      // Build a minimal HarmonizedArtist from the credit info
+      // The app can use externalIds to resolve to the full artist entity
+      const artistEntity = {
+        name: primaryArtist.creditedName ?? primaryArtist.name,
+        externalIds: primaryArtist.externalIds ?? {},
+        sources: [],
+        mergedAt: new Date(),
+        confidence: 1,
+      };
+      interaction.onNavigate?.('artist', artistEntity);
     }
     onClose?.();
-  }, [interaction, release, primaryArtist, onClose]);
+  }, [interaction, primaryArtist, onClose]);
 
   const handleCopyUPC = React.useCallback(() => {
     if (release.gtin) {
@@ -95,19 +103,25 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
     onClose?.();
   }, [interaction, release, onClose]);
 
-  const handleOpenExternal = React.useCallback((url: string, platform: string) => {
-    interaction.onOpenExternal?.(url, platform);
-    onClose?.();
-  }, [interaction, onClose]);
+  const handleOpenExternal = React.useCallback(
+    (url: string, platform: string) => {
+      interaction.onOpenExternal?.(url, platform);
+      onClose?.();
+    },
+    [interaction, onClose]
+  );
 
-  const handleCustomAction = React.useCallback((action: MenuAction) => {
-    if (action.onClick) {
-      action.onClick();
-    } else if (action.href) {
-      window.open(action.href, '_blank');
-    }
-    onClose?.();
-  }, [onClose]);
+  const handleCustomAction = React.useCallback(
+    (action: MenuAction) => {
+      if (action.onClick) {
+        action.onClick();
+      } else if (action.href) {
+        window.open(action.href, '_blank');
+      }
+      onClose?.();
+    },
+    [onClose]
+  );
 
   return (
     <>
@@ -117,13 +131,9 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
       {/* Navigation actions */}
       {interaction.onNavigate && (
         <>
-          <MenuItem onSelect={handleViewAlbum}>
-            View Album Details
-          </MenuItem>
+          <MenuItem onSelect={handleViewAlbum}>View Album Details</MenuItem>
           {primaryArtist && (
-            <MenuItem onSelect={handleViewArtist}>
-              View Artist
-            </MenuItem>
+            <MenuItem onSelect={handleViewArtist}>View Artist</MenuItem>
           )}
         </>
       )}
@@ -158,14 +168,10 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
       {/* Copy actions */}
       <MenuSeparator />
       {release.gtin && (
-        <MenuItem onSelect={handleCopyUPC}>
-          Copy UPC/GTIN
-        </MenuItem>
+        <MenuItem onSelect={handleCopyUPC}>Copy UPC/GTIN</MenuItem>
       )}
       {interaction.onCopyLink && (
-        <MenuItem onSelect={handleCopyLink}>
-          Copy Link
-        </MenuItem>
+        <MenuItem onSelect={handleCopyLink}>Copy Link</MenuItem>
       )}
 
       {/* Custom menu items */}
