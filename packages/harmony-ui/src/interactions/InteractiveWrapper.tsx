@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { cn } from '@scilent-one/ui';
 import { useHarmonyInteraction } from './provider';
 import type { InteractiveWrapperProps } from './types';
 import { EntityMenu } from './menus';
@@ -60,7 +59,7 @@ export function InteractiveWrapper({
 
   // Wrap in a span to apply className if provided
   if (className) {
-    return <span className={cn(className)}>{content}</span>;
+    return <span className={className}>{content}</span>;
   }
 
   return <>{content}</>;
