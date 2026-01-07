@@ -41,7 +41,7 @@ export { Prisma }
 
 /**
  * Model User
- * User model - Core user information
+ * User model - Core user information with social profile fields
  */
 export type User = Prisma.UserModel
 /**
@@ -59,3 +59,33 @@ export type Session = Prisma.SessionModel
  * Verification model - Email verification, password reset tokens, etc.
  */
 export type Verification = Prisma.VerificationModel
+/**
+ * Model Post
+ * Post model - User-created content
+ */
+export type Post = Prisma.PostModel
+/**
+ * Model Comment
+ * Comment model - Comments on posts
+ */
+export type Comment = Prisma.CommentModel
+/**
+ * Model Like
+ * Like model - Likes on posts or comments
+ */
+export type Like = Prisma.LikeModel
+/**
+ * Model Follow
+ * Follow model - User following relationships
+ */
+export type Follow = Prisma.FollowModel
+/**
+ * Model Mention
+ * Mention model - @mentions in posts or comments
+ */
+export type Mention = Prisma.MentionModel
+/**
+ * Model Activity
+ * Activity model - Activity feed for users
+ */
+export type Activity = Prisma.ActivityModel

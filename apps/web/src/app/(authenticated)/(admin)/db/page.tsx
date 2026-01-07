@@ -125,27 +125,29 @@ async function DbTablesCard() {
       </CardHeader>
       <CardContent>
         <div className='space-y-2'>
-          {tables.map((table) => (
-            <div
-              key={table.name}
-              className='flex items-center justify-between py-2 px-3 rounded-md bg-muted/50'
-            >
-              <div>
-                <span className='font-medium'>{table.displayName}</span>
-                <span className='text-muted-foreground text-sm ml-2'>
-                  ({table.name})
-                </span>
+          {tables
+            .sort((a, b) => a.displayName.localeCompare(b.displayName))
+            .map((table) => (
+              <div
+                key={table.name}
+                className='flex items-center justify-between py-2 px-3 rounded-md bg-muted/50'
+              >
+                <div>
+                  <span className='font-medium'>{table.displayName}</span>
+                  <span className='text-muted-foreground text-sm ml-2'>
+                    ({table.name})
+                  </span>
+                </div>
+                {counts[table.name] !== null && (
+                  <Badge
+                    variant='secondary'
+                    className='font-mono rounded-full px-2 py-1'
+                  >
+                    {counts[table.name]} rows
+                  </Badge>
+                )}
               </div>
-              {counts[table.name] !== null && (
-                <Badge
-                  variant='secondary'
-                  className='font-mono rounded-full px-2 py-1'
-                >
-                  {counts[table.name]} rows
-                </Badge>
-              )}
-            </div>
-          ))}
+            ))}
         </div>
       </CardContent>
     </Card>

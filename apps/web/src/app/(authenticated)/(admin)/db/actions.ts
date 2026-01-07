@@ -95,44 +95,91 @@ export async function getDbMetadata(): Promise<DbMetadata> {
 }
 
 /**
- * Return list of available database tables from Prisma schema
+ * Return list of available database tables by introspecting the database
  */
 export async function getDbTables(): Promise<DbTable[]> {
-  // These are derived from the Prisma schema
-  // In a more dynamic setup, you could introspect the database
-  return [
-    { name: 'users', displayName: 'User' },
-    { name: 'accounts', displayName: 'Account' },
-    { name: 'sessions', displayName: 'Session' },
-    { name: 'verifications', displayName: 'Verification' },
-  ];
+  try {
+    // Query PostgreSQL's information_schema to get all user tables
+    const tables = await db.$queryRaw<Array<{ table_name: string }>>`
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+        AND table_type = 'BASE TABLE'
+      ORDER BY table_name;
+    `;
+
+    // Convert table names to display names
+    return tables.map((row: { table_name: string }) => ({
+      name: row.table_name,
+      displayName: formatTableDisplayName(row.table_name),
+    }));
+  } catch (error) {
+    // Fallback to empty array if introspection fails
+    console.error('Failed to introspect database tables:', error);
+    return [];
+  }
 }
 
 /**
- * Get table row counts (only works when connected)
+ * Convert database table name to a display name
+ * Examples: 'users' -> 'User', 'user_accounts' -> 'User Account'
+ */
+function formatTableDisplayName(tableName: string): string {
+  return tableName
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
+ * Get table row counts for all tables dynamically
  */
 export async function getTableCounts(): Promise<Record<string, number | null>> {
   try {
-    const [userCount, accountCount, sessionCount, tokenCount] =
-      await Promise.all([
-        db.user.count(),
-        db.account.count(),
-        db.session.count(),
-        db.verification.count(),
-      ]);
+    // Get all tables dynamically
+    const tables = await getDbTables();
 
-    return {
-      users: userCount,
-      accounts: accountCount,
-      sessions: sessionCount,
-      verifications: tokenCount,
-    };
-  } catch {
-    return {
-      users: null,
-      accounts: null,
-      sessions: null,
-      verifications: null,
-    };
+    if (tables.length === 0) {
+      return {};
+    }
+
+    // Count rows for each table using raw SQL queries
+    // Note: Table names are validated (from information_schema) so safe to use
+    const countPromises = tables.map(async (table) => {
+      try {
+        // Use $queryRawUnsafe with properly quoted table name
+        // Since table names come from information_schema, they're safe
+        // PostgreSQL requires double quotes for identifiers
+        const query = `SELECT COUNT(*) as count FROM "${table.name}"`;
+        const result =
+          await db.$queryRawUnsafe<Array<{ count: bigint }>>(query);
+
+        // Convert bigint to number
+        return {
+          tableName: table.name,
+          count: Number(result[0]?.count ?? 0),
+        };
+      } catch (error) {
+        console.error(`Failed to count rows for table ${table.name}:`, error);
+        return {
+          tableName: table.name,
+          count: null,
+        };
+      }
+    });
+
+    const results = await Promise.all(countPromises);
+
+    // Convert array to record
+    return results.reduce(
+      (acc, { tableName, count }) => {
+        acc[tableName] = count;
+        return acc;
+      },
+      {} as Record<string, number | null>
+    );
+  } catch (error) {
+    console.error('Failed to get table counts:', error);
+    return {};
   }
 }
