@@ -1,6 +1,11 @@
-import { NextResponse } from 'next/server';
 import { getHomeFeed, type PaginationParams } from '@scilent-one/social';
-import { getCurrentUser, handleApiError, parseSearchParams } from '@/lib/api-utils';
+import { NextResponse } from 'next/server';
+
+import {
+  getCurrentUser,
+  handleApiError,
+  parseSearchParams,
+} from '@/lib/api-utils';
 
 // GET /api/v1/feed - Get home feed (posts from followed users)
 export async function GET(request: Request) {

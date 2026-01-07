@@ -1,6 +1,11 @@
-import { NextResponse } from 'next/server';
 import { searchUsers, type PaginationParams } from '@scilent-one/social';
-import { getCurrentUser, handleApiError, parseSearchParams } from '@/lib/api-utils';
+import { NextResponse } from 'next/server';
+
+import {
+  getCurrentUser,
+  handleApiError,
+  parseSearchParams,
+} from '@/lib/api-utils';
 
 // GET /api/v1/users/search - Search users (for @mentions)
 export async function GET(request: Request) {

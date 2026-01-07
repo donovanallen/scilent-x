@@ -1,6 +1,15 @@
+import {
+  getCommentsByPost,
+  createComment,
+  type PaginationParams,
+} from '@scilent-one/social';
 import { NextResponse } from 'next/server';
-import { getCommentsByPost, createComment, type PaginationParams } from '@scilent-one/social';
-import { getCurrentUser, handleApiError, parseSearchParams } from '@/lib/api-utils';
+
+import {
+  getCurrentUser,
+  handleApiError,
+  parseSearchParams,
+} from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string }>;

@@ -1,6 +1,15 @@
+import {
+  getUserByUsername,
+  getProfileFeed,
+  type PaginationParams,
+} from '@scilent-one/social';
 import { NextResponse } from 'next/server';
-import { getUserByUsername, getProfileFeed, type PaginationParams } from '@scilent-one/social';
-import { getCurrentUser, handleApiError, parseSearchParams } from '@/lib/api-utils';
+
+import {
+  getCurrentUser,
+  handleApiError,
+  parseSearchParams,
+} from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ username: string }>;
@@ -18,7 +27,11 @@ export async function GET(request: Request, { params }: RouteParams) {
     const profile = await getUserByUsername(username, user?.id);
 
     if (includePosts) {
-      const posts = await getProfileFeed(profile.id, paginationParams, user?.id);
+      const posts = await getProfileFeed(
+        profile.id,
+        paginationParams,
+        user?.id
+      );
       return NextResponse.json({ ...profile, posts });
     }
 

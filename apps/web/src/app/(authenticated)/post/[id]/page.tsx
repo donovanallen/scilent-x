@@ -1,8 +1,5 @@
 'use client';
 
-import { useCallback, useEffect, useState, use } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
 import {
   Button,
   PostCard,
@@ -12,6 +9,9 @@ import {
   type PostCardProps,
   type CommentCardProps,
 } from '@scilent-one/ui';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState, use } from 'react';
 import { toast } from 'sonner';
 
 interface PostWithComments extends PostCardProps {
@@ -99,6 +99,7 @@ export default function PostPage({
         const data = await res.json();
         setPost(data);
       } catch (error) {
+        console.error('Failed to load post:', error);
         toast.error('Failed to load post');
       } finally {
         setIsLoading(false);
@@ -129,6 +130,7 @@ export default function PostPage({
         setHasMoreComments(data.hasMore);
         setCommentsCursor(data.nextCursor);
       } catch (error) {
+        console.error('Failed to load comments:', error);
         toast.error('Failed to load comments');
       } finally {
         setCommentsLoading(false);
@@ -155,6 +157,7 @@ export default function PostPage({
         likesCount: (post._count?.likes ?? post.likesCount ?? 0) + 1,
       });
     } catch (error) {
+      console.error('Failed to like post:', error);
       toast.error('Failed to like post');
     }
   };
@@ -173,6 +176,7 @@ export default function PostPage({
         likesCount: (post._count?.likes ?? post.likesCount ?? 0) - 1,
       });
     } catch (error) {
+      console.error('Failed to unlike post:', error);
       toast.error('Failed to unlike post');
     }
   };
@@ -187,6 +191,7 @@ export default function PostPage({
       toast.success('Post deleted');
       router.push('/feed');
     } catch (error) {
+      console.error('Failed to delete post:', error);
       toast.error('Failed to delete post');
     }
   };
@@ -214,6 +219,7 @@ export default function PostPage({
 
       toast.success('Comment added!');
     } catch (error) {
+      console.error('Failed to add comment:', error);
       toast.error('Failed to add comment');
     } finally {
       setIsSubmitting(false);
@@ -233,12 +239,14 @@ export default function PostPage({
             ? {
                 ...comment,
                 isLiked: true,
-                likesCount: (comment._count?.likes ?? comment.likesCount ?? 0) + 1,
+                likesCount:
+                  (comment._count?.likes ?? comment.likesCount ?? 0) + 1,
               }
             : comment
         )
       );
     } catch (error) {
+      console.error('Failed to like comment:', error);
       toast.error('Failed to like comment');
     }
   };
@@ -256,12 +264,14 @@ export default function PostPage({
             ? {
                 ...comment,
                 isLiked: false,
-                likesCount: (comment._count?.likes ?? comment.likesCount ?? 0) - 1,
+                likesCount:
+                  (comment._count?.likes ?? comment.likesCount ?? 0) - 1,
               }
             : comment
         )
       );
     } catch (error) {
+      console.error('Failed to unlike comment:', error);
       toast.error('Failed to unlike comment');
     }
   };
@@ -284,7 +294,8 @@ export default function PostPage({
             ? {
                 ...comment,
                 replies: [...(comment.replies || []), newReply],
-                repliesCount: (comment._count?.replies ?? comment.repliesCount ?? 0) + 1,
+                repliesCount:
+                  (comment._count?.replies ?? comment.repliesCount ?? 0) + 1,
               }
             : comment
         )
@@ -292,6 +303,7 @@ export default function PostPage({
 
       toast.success('Reply added!');
     } catch (error) {
+      console.error('Failed to add reply:', error);
       toast.error('Failed to add reply');
     }
   };
@@ -314,6 +326,7 @@ export default function PostPage({
 
       toast.success('Comment deleted');
     } catch (error) {
+      console.error('Failed to delete comment:', error);
       toast.error('Failed to delete comment');
     }
   };

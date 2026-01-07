@@ -1,8 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, Loader2 } from 'lucide-react';
 import {
   Button,
   Card,
@@ -15,6 +12,9 @@ import {
   Textarea,
   UserAvatar,
 } from '@scilent-one/ui';
+import { ArrowLeft, Check, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface UserProfile {
@@ -59,6 +59,7 @@ export default function EditProfilePage() {
         setBio(user.bio || '');
         setAvatarUrl(user.avatarUrl || '');
       } catch (error) {
+        console.error('Failed to load profile:', error);
         toast.error('Failed to load profile');
       } finally {
         setIsLoading(false);

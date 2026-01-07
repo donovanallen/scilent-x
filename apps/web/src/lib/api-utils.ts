@@ -1,7 +1,7 @@
 import { auth } from '@scilent-one/auth/server';
+import { SocialError } from '@scilent-one/social';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { SocialError } from '@scilent-one/social';
 
 export async function getCurrentUser() {
   const session = await auth.api.getSession({
@@ -51,7 +51,10 @@ export function handleApiError(error: unknown) {
   );
 }
 
-export function parseSearchParams(request: Request): { cursor?: string; limit?: number } {
+export function parseSearchParams(request: Request): {
+  cursor?: string;
+  limit?: number;
+} {
   const { searchParams } = new URL(request.url);
   const cursorParam = searchParams.get('cursor');
   const limitParam = searchParams.get('limit');

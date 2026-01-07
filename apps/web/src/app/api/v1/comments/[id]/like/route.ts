@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
 import { likeComment, unlikeComment } from '@scilent-one/social';
+import { NextResponse } from 'next/server';
+
 import { getCurrentUser, handleApiError } from '@/lib/api-utils';
 
 interface RouteParams {

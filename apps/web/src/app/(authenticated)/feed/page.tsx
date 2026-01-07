@@ -1,13 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Feed,
   PostForm,
   useInfiniteScroll,
   type PostCardProps,
 } from '@scilent-one/ui';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface FeedPost extends PostCardProps {
@@ -68,12 +68,11 @@ export default function FeedPage() {
 
       const data: PaginatedResponse = await res.json();
 
-      setPosts((prev) =>
-        cursorParam ? [...prev, ...data.items] : data.items
-      );
+      setPosts((prev) => (cursorParam ? [...prev, ...data.items] : data.items));
       setHasMore(data.hasMore);
       setCursor(data.nextCursor);
     } catch (error) {
+      console.error('Failed to load feed:', error);
       toast.error('Failed to load feed');
     } finally {
       setIsLoading(false);
@@ -105,6 +104,7 @@ export default function FeedPage() {
       setPosts((prev) => [newPost, ...prev]);
       toast.success('Post created!');
     } catch (error) {
+      console.error('Failed to create post:', error);
       toast.error('Failed to create post');
     } finally {
       setIsSubmitting(false);
@@ -126,6 +126,7 @@ export default function FeedPage() {
         )
       );
     } catch (error) {
+      console.error('Failed to like post:', error);
       toast.error('Failed to like post');
     }
   };
@@ -145,6 +146,7 @@ export default function FeedPage() {
         )
       );
     } catch (error) {
+      console.error('Failed to unlike post:', error);
       toast.error('Failed to unlike post');
     }
   };
@@ -159,6 +161,7 @@ export default function FeedPage() {
       setPosts((prev) => prev.filter((post) => post.id !== postId));
       toast.success('Post deleted');
     } catch (error) {
+      console.error('Failed to delete post:', error);
       toast.error('Failed to delete post');
     }
   };

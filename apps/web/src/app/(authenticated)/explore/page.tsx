@@ -1,17 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Feed,
   useInfiniteScroll,
   type PostCardProps,
-  Button,
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent,
 } from '@scilent-one/ui';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface FeedPost extends PostCardProps {
@@ -83,6 +82,7 @@ export default function ExplorePage() {
         setHasMore(data.hasMore);
         setCursor(data.nextCursor);
       } catch (error) {
+        console.error('Failed to load posts:', error);
         toast.error('Failed to load posts');
       } finally {
         setIsLoading(false);
@@ -100,8 +100,7 @@ export default function ExplorePage() {
   const { sentinelRef } = useInfiniteScroll({
     hasMore,
     isLoading,
-    onLoadMore: () =>
-      cursor && fetchPosts(cursor, activeTab === 'trending'),
+    onLoadMore: () => cursor && fetchPosts(cursor, activeTab === 'trending'),
   });
 
   const handleLikePost = async (postId: string) => {
@@ -119,6 +118,7 @@ export default function ExplorePage() {
         )
       );
     } catch (error) {
+      console.error('Failed to like post:', error);
       toast.error('Failed to like post');
     }
   };
@@ -138,6 +138,7 @@ export default function ExplorePage() {
         )
       );
     } catch (error) {
+      console.error('Failed to unlike post:', error);
       toast.error('Failed to unlike post');
     }
   };

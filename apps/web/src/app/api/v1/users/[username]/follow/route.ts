@@ -1,5 +1,10 @@
+import {
+  followUser,
+  unfollowUser,
+  getUserByUsername,
+} from '@scilent-one/social';
 import { NextResponse } from 'next/server';
-import { followUser, unfollowUser, getUserByUsername } from '@scilent-one/social';
+
 import { getCurrentUser, handleApiError } from '@/lib/api-utils';
 
 interface RouteParams {

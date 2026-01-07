@@ -1,7 +1,5 @@
 'use client';
 
-import { useCallback, useEffect, useState, use } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   ProfileHeader,
   Feed,
@@ -9,6 +7,8 @@ import {
   Skeleton,
   type PostCardProps,
 } from '@scilent-one/ui';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState, use } from 'react';
 import { toast } from 'sonner';
 
 interface UserProfile {
@@ -21,11 +21,13 @@ interface UserProfile {
   email: string;
   createdAt: string;
   isFollowing?: boolean | undefined;
-  _count?: {
-    posts: number;
-    followers: number;
-    following: number;
-  } | undefined;
+  _count?:
+    | {
+        posts: number;
+        followers: number;
+        following: number;
+      }
+    | undefined;
 }
 
 interface FeedPost extends PostCardProps {
@@ -33,12 +35,6 @@ interface FeedPost extends PostCardProps {
     likes: number;
     comments: number;
   };
-}
-
-interface PaginatedResponse {
-  items: FeedPost[];
-  nextCursor: string | null;
-  hasMore: boolean;
 }
 
 interface CurrentUser {
@@ -97,6 +93,7 @@ export default function ProfilePage({
         const data = await res.json();
         setProfile(data);
       } catch (error) {
+        console.error('Failed to load profile:', error);
         toast.error('Failed to load profile');
       } finally {
         setIsLoading(false);
@@ -134,6 +131,7 @@ export default function ProfilePage({
           setCursor(data.posts.nextCursor);
         }
       } catch (error) {
+        console.error('Failed to load posts:', error);
         toast.error('Failed to load posts');
       } finally {
         setPostsLoading(false);
@@ -172,6 +170,7 @@ export default function ProfilePage({
       });
       toast.success(`Following @${username}`);
     } catch (error) {
+      console.error('Failed to follow user:', error);
       toast.error('Failed to follow user');
     } finally {
       setIsFollowLoading(false);
@@ -196,6 +195,7 @@ export default function ProfilePage({
       });
       toast.success(`Unfollowed @${username}`);
     } catch (error) {
+      console.error('Failed to unfollow user:', error);
       toast.error('Failed to unfollow user');
     } finally {
       setIsFollowLoading(false);
@@ -217,6 +217,7 @@ export default function ProfilePage({
         )
       );
     } catch (error) {
+      console.error('Failed to like post:', error);
       toast.error('Failed to like post');
     }
   };
@@ -236,6 +237,7 @@ export default function ProfilePage({
         )
       );
     } catch (error) {
+      console.error('Failed to unlike post:', error);
       toast.error('Failed to unlike post');
     }
   };

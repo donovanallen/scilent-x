@@ -1,6 +1,15 @@
+import {
+  createPost,
+  getExploreFeed,
+  type PaginationParams,
+} from '@scilent-one/social';
 import { NextResponse } from 'next/server';
-import { createPost, getExploreFeed, type PaginationParams } from '@scilent-one/social';
-import { getCurrentUser, handleApiError, parseSearchParams } from '@/lib/api-utils';
+
+import {
+  getCurrentUser,
+  handleApiError,
+  parseSearchParams,
+} from '@/lib/api-utils';
 
 // GET /api/v1/posts - List all posts (explore feed)
 export async function GET(request: Request) {

@@ -1,5 +1,10 @@
+import {
+  getCommentById,
+  updateComment,
+  deleteComment,
+} from '@scilent-one/social';
 import { NextResponse } from 'next/server';
-import { getCommentById, updateComment, deleteComment } from '@scilent-one/social';
+
 import { getCurrentUser, handleApiError } from '@/lib/api-utils';
 
 interface RouteParams {

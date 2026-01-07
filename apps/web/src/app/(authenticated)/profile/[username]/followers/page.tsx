@@ -1,14 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { Button, UserCard, useInfiniteScroll, Skeleton } from '@scilent-one/ui';
 import { ArrowLeft } from 'lucide-react';
-import {
-  Button,
-  UserCard,
-  useInfiniteScroll,
-  Skeleton,
-} from '@scilent-one/ui';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState, use } from 'react';
 import { toast } from 'sonner';
 
 interface UserProfile {
@@ -88,6 +83,7 @@ export default function FollowersPage({
         setHasMore(data.hasMore);
         setCursor(data.nextCursor);
       } catch (error) {
+        console.error('Failed to load followers:', error);
         toast.error('Failed to load followers');
       } finally {
         setIsLoading(false);
@@ -121,6 +117,7 @@ export default function FollowersPage({
         )
       );
     } catch (error) {
+      console.error('Failed to follow user:', error);
       toast.error('Failed to follow user');
     }
   };
@@ -140,6 +137,7 @@ export default function FollowersPage({
         )
       );
     } catch (error) {
+      console.error('Failed to unfollow user:', error);
       toast.error('Failed to unfollow user');
     }
   };
@@ -173,8 +171,12 @@ export default function FollowersPage({
               followingCount={user._count?.following}
               postsCount={user._count?.posts}
               isCurrentUser={currentUser?.id === user.id}
-              onFollow={user.username ? () => handleFollow(user.username!) : undefined}
-              onUnfollow={user.username ? () => handleUnfollow(user.username!) : undefined}
+              onFollow={
+                user.username ? () => handleFollow(user.username!) : undefined
+              }
+              onUnfollow={
+                user.username ? () => handleUnfollow(user.username!) : undefined
+              }
               onClick={() =>
                 user.username && router.push(`/profile/${user.username}`)
               }

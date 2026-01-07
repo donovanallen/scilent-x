@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
 import { getUserById, updateProfile } from '@scilent-one/social';
+import { NextResponse } from 'next/server';
+
 import { getCurrentUser, handleApiError } from '@/lib/api-utils';
 
 // GET /api/v1/users/me - Get current user profile
