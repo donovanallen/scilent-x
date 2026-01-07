@@ -107,3 +107,43 @@ export {
   type AlbumTrackListSkeletonProps,
   type AlbumDetailsProps,
 } from "./components/album";
+
+// Interactions
+export {
+  // Provider
+  HarmonyInteractionProvider,
+  useHarmonyInteraction,
+  HarmonyInteractionContext,
+  // Interactive Wrapper
+  InteractiveWrapper,
+  // Menus
+  EntityMenu,
+  TrackContextMenu,
+  AlbumContextMenu,
+  ArtistContextMenu,
+  // Previews
+  EntityPreview,
+  TrackHoverPreview,
+  AlbumHoverPreview,
+  ArtistHoverPreview,
+  // Types
+  type EntityType,
+  type Platform,
+  type HarmonizedEntity,
+  type MenuAction,
+  type PreviewMode,
+  type PreviewContent,
+  type EntityPreviewContentProps,
+  type HarmonyInteractionConfig,
+  type HarmonyInteractionContextValue,
+  type InteractiveWrapperProps,
+  type HarmonyInteractionProviderProps,
+  type EntityMenuProps,
+  type TrackContextMenuProps,
+  type AlbumContextMenuProps,
+  type ArtistContextMenuProps,
+  type EntityPreviewProps,
+  type TrackHoverPreviewProps,
+  type AlbumHoverPreviewProps,
+  type ArtistHoverPreviewProps,
+} from "./interactions";

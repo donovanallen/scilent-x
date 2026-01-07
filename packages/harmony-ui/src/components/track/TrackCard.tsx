@@ -7,6 +7,7 @@ import {
   formatTrackPosition,
 } from '../../utils';
 import { TrackArtwork } from './TrackArtwork';
+import { InteractiveWrapper } from '../../interactions/InteractiveWrapper';
 
 export interface TrackCardProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -24,6 +25,8 @@ export interface TrackCardProps extends Omit<
   isPlaying?: boolean | undefined;
   /** Callback when the track is clicked */
   onPlay?: ((track: HarmonizedTrack) => void) | undefined;
+  /** Whether to enable interactive features (context menu, hover preview) */
+  interactive?: boolean | undefined;
 }
 
 export function TrackCard({
@@ -33,6 +36,7 @@ export function TrackCard({
   showDiscNumber = false,
   isPlaying = false,
   onPlay,
+  interactive = false,
   className,
   ...props
 }: TrackCardProps) {
@@ -40,7 +44,7 @@ export function TrackCard({
     onPlay?.(track);
   }, [onPlay, track]);
 
-  return (
+  const card = (
     <Card
       className={cn(
         'transition-colors hover:bg-accent/50 cursor-pointer',
@@ -98,6 +102,16 @@ export function TrackCard({
       </CardContent>
     </Card>
   );
+
+  if (interactive) {
+    return (
+      <InteractiveWrapper entityType="track" entity={track}>
+        {card}
+      </InteractiveWrapper>
+    );
+  }
+
+  return card;
 }
 
 export interface TrackCardSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
