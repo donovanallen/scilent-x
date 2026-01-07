@@ -7,6 +7,7 @@
     "dev": "turbo dev",
     "dev:ui": "pnpm sandbox --filter @scilent-one/ui",
     "dev:ui:storybook": "pnpm turbo storybook --filter=@scilent-one/ui",
+    "dev:harmony-ui:storybook": "pnpm turbo storybook --filter=@scilent-one/harmony-ui",
     "lint": "turbo lint",
     "format": "turbo format",
     "typecheck": "turbo typecheck",
