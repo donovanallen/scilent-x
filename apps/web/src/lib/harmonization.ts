@@ -2,7 +2,7 @@
 import {
   HarmonizationEngine,
   type ProviderRegistryConfig,
-} from '@scilent-one/harmonization-engine';
+} from '@scilent-one/harmony-engine';
 
 // Singleton instance
 let engine: HarmonizationEngine | null = null;

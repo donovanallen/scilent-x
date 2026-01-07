@@ -1,10 +1,37 @@
 // Utility function
 export { cn } from './utils';
 
+// Rich Text Components
+export {
+  RichTextEditor,
+  type RichTextEditorProps,
+} from './components/rich-text-editor';
+export {
+  RichTextContent,
+  type RichTextContentProps,
+} from './components/rich-text-content';
+
 // Hooks
 export { useIsMobile } from './hooks/use-mobile';
+export {
+  useInfiniteScroll,
+  type UseInfiniteScrollOptions,
+  type UseInfiniteScrollReturn,
+} from './hooks/use-infinite-scroll';
+export {
+  useOptimisticAction,
+  useLike,
+  useFollow,
+  type UseOptimisticActionOptions,
+  type UseOptimisticActionReturn,
+  type UseLikeOptions,
+  type UseLikeReturn,
+  type UseFollowOptions,
+  type UseFollowReturn,
+} from './hooks/use-optimistic-action';
 
 // Components
+export { Avatar, AvatarImage, AvatarFallback } from './components/avatar';
 export { Badge, badgeVariants } from './components/badge';
 export { Button, buttonVariants, type ButtonProps } from './components/button';
 export {
@@ -32,6 +59,23 @@ export {
   DialogTitle,
   DialogDescription,
 } from './components/dialog';
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuGroup,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuRadioGroup,
+} from './components/dropdown-menu';
 export { Input } from './components/input';
 export { Label } from './components/label';
 export {
@@ -62,6 +106,7 @@ export { Skeleton } from './components/skeleton';
 export { Toaster } from './components/sonner';
 export { Switch } from './components/switch';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/tabs';
+export { Textarea } from './components/textarea';
 export {
   Tooltip,
   TooltipTrigger,
@@ -94,46 +139,65 @@ export {
   SidebarTrigger,
   useSidebar,
 } from './components/sidebar';
-export { Toggle, toggleVariants } from './components/toggle';
-export { ToggleGroup, ToggleGroupItem } from './components/toggle-group';
+
+// Context Menu
 export {
-  Command,
-  CommandDialog,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandShortcut,
-  CommandSeparator,
-} from './components/command';
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuCheckboxItem,
+  ContextMenuRadioItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuGroup,
+  ContextMenuPortal,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuRadioGroup,
+} from './components/context-menu';
+
+// Hover Card
 export {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectScrollDownButton,
-  SelectScrollUpButton,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from './components/select';
-export { ScrollArea, ScrollBar } from './components/scroll-area';
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+} from './components/hover-card';
+
+// Popover
 export {
-  DropdownMenu,
-  DropdownMenuPortal,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuItem,
-  DropdownMenuCheckboxItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-} from './components/dropdown-menu';
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverAnchor,
+} from './components/popover';
+
+// Social Components
+export {
+  UserAvatar,
+  type UserAvatarProps,
+  PostCard,
+  type PostCardProps,
+  type PostCardAuthor,
+  PostForm,
+  type PostFormProps,
+  MentionText,
+  type MentionTextProps,
+  CommentCard,
+  type CommentCardProps,
+  type CommentCardAuthor,
+  CommentForm,
+  type CommentFormProps,
+  CommentList,
+  type CommentListProps,
+  FollowButton,
+  type FollowButtonProps,
+  UserCard,
+  type UserCardProps,
+  ProfileHeader,
+  type ProfileHeaderProps,
+  Feed,
+  type FeedProps,
+} from './components/social';

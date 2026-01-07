@@ -9,7 +9,13 @@
 * 🟢 You can import this file directly.
 */
 
+export const ActivityType = {
+  POST_CREATED: 'POST_CREATED',
+  POST_LIKED: 'POST_LIKED',
+  COMMENT_CREATED: 'COMMENT_CREATED',
+  COMMENT_LIKED: 'COMMENT_LIKED',
+  USER_FOLLOWED: 'USER_FOLLOWED',
+  USER_MENTIONED: 'USER_MENTIONED'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType]

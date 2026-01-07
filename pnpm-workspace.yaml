@@ -1,8 +1,17 @@
 packages:
-  - 'apps/*'
-  - 'packages/*'
+  - apps/*
+  - packages/*
+
 catalogs:
-  prisma:
-    prisma: latest
   better-auth:
     better-auth: latest
+  prisma:
+    prisma: latest
+
+# Only allow these packages to run their build scripts
+# All other packages with install scripts will be ignored
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - prisma
+  - esbuild
+  - sharp
