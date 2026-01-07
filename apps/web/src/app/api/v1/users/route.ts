@@ -16,18 +16,29 @@ export async function GET(request: Request) {
     // Search
     const query = searchParams.get('q') ?? '';
 
-    // Sort
-    const sortBy = searchParams.get('sortBy') ?? 'createdAt';
+    // Sort - validate against allowed values
+    const allowedSortBy = [
+      'createdAt',
+      'name',
+      'username',
+      'followers',
+      'posts',
+    ] as const;
+    const sortByParam = searchParams.get('sortBy');
+    const sortBy =
+      sortByParam &&
+      allowedSortBy.includes(sortByParam as (typeof allowedSortBy)[number])
+        ? (sortByParam as (typeof allowedSortBy)[number])
+        : 'createdAt';
     const sortOrder = searchParams.get('sortOrder') ?? 'desc';
 
     // Filters
     const hasUsername = searchParams.get('hasUsername');
-    const hasAvatar = searchParams.get('hasAvatar');
 
     // Build where clause
     const where: Prisma.UserWhereInput = {};
 
-    // Search filter
+    // Search filter - searches across username, name, and bio
     if (query) {
       where.OR = [
         { username: { contains: query, mode: 'insensitive' } },
@@ -36,31 +47,9 @@ export async function GET(request: Request) {
       ];
     }
 
-    // Filter: only users with username
+    // Filter: only users with username (users who have completed profile setup)
     if (hasUsername === 'true') {
       where.username = { not: null };
-    }
-
-    // Filter: only users with avatar
-    if (hasAvatar === 'true') {
-      // If we had an OR for search, we need to restructure
-      if (query) {
-        where.AND = [
-          {
-            OR: [
-              { username: { contains: query, mode: 'insensitive' } },
-              { name: { contains: query, mode: 'insensitive' } },
-              { bio: { contains: query, mode: 'insensitive' } },
-            ],
-          },
-          {
-            OR: [{ avatarUrl: { not: null } }, { image: { not: null } }],
-          },
-        ];
-        delete where.OR;
-      } else {
-        where.OR = [{ avatarUrl: { not: null } }, { image: { not: null } }];
-      }
     }
 
     // Build orderBy clause
@@ -91,7 +80,6 @@ export async function GET(request: Request) {
       where,
       select: {
         id: true,
-        email: true,
         name: true,
         username: true,
         bio: true,
@@ -125,10 +113,9 @@ export async function GET(request: Request) {
     const items = hasMore ? users.slice(0, limit) : users;
     const nextCursor = hasMore ? items[items.length - 1]?.id : null;
 
-    // Transform response
+    // Transform response (excluding email for privacy)
     const transformedItems = items.map((userItem) => ({
       id: userItem.id,
-      email: userItem.email,
       name: userItem.name,
       username: userItem.username,
       bio: userItem.bio,

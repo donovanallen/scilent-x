@@ -32,7 +32,6 @@ import { toast } from 'sonner';
 
 interface UserProfile {
   id: string;
-  email: string;
   name: string | null;
   username: string | null;
   bio: string | null;
