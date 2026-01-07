@@ -63,7 +63,10 @@ export {
 // Mentions
 export {
   parseMentions,
+  parseHtmlMentions,
   createMentions,
+  createMentionsFromUsernames,
+  convertLegacyMentions,
   replaceMentionsWithLinks,
   extractMentionedUsernames,
   deleteMentionsByPost,

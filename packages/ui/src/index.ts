@@ -10,6 +10,15 @@ export {
   RichTextContent,
   type RichTextContentProps,
 } from './components/rich-text-content';
+export {
+  TiptapEditor,
+  type TiptapEditorProps,
+} from './components/tiptap-editor';
+export {
+  MentionList,
+  type MentionListProps,
+  type MentionSuggestion,
+} from './components/mention-list';
 
 // Hooks
 export { useIsMobile } from './hooks/use-mobile';
