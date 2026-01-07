@@ -10,7 +10,9 @@ export interface RichTextContentProps {
   onMentionClick?: ((username: string) => void) | undefined;
 }
 
-// Regex to match @username mentions
+// Regex to match @username mentions (global flag for replace/exec)
+// Note: String.replace() with global flag handles lastIndex correctly.
+// For exec() loops, we reset lastIndex = 0 before each use.
 const MENTION_REGEX = /@([a-zA-Z][a-zA-Z0-9_]{0,29})/g;
 
 /**
@@ -29,10 +31,11 @@ export function RichTextContent({
 }: RichTextContentProps) {
   // If we have HTML content, render it
   if (html) {
-    // Process HTML to add mention interactivity
+    // Process HTML to add mention interactivity with accessibility attributes
     const processedHtml = React.useMemo(() => {
+      // String.replace() with global flag handles lastIndex correctly
       return html.replace(MENTION_REGEX, (match, username) => {
-        return `<button type="button" class="rich-text-mention text-primary hover:underline font-medium" data-mention="${username}">${match}</button>`;
+        return `<button type="button" class="rich-text-mention text-primary hover:underline font-medium" data-mention="${username}" aria-label="View ${username}'s profile">${match}</button>`;
       });
     }, [html]);
 
@@ -66,6 +69,7 @@ export function RichTextContent({
       let lastIndex = 0;
       let match: RegExpExecArray | null;
 
+      // Reset lastIndex before exec() loop to ensure consistent behavior
       MENTION_REGEX.lastIndex = 0;
 
       while ((match = MENTION_REGEX.exec(content)) !== null) {
@@ -102,7 +106,8 @@ export function RichTextContent({
               <button
                 key={index}
                 type="button"
-                className="text-primary hover:underline font-medium"
+                className="text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-label={`View ${part.value}'s profile`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onMentionClick?.(part.value);

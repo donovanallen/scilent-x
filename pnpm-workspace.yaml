@@ -8,12 +8,10 @@ catalogs:
   prisma:
     prisma: latest
 
-ignoredBuiltDependencies:
+# Only allow these packages to run their build scripts
+# All other packages with install scripts will be ignored
+onlyBuiltDependencies:
   - '@prisma/engines'
-  - core-js-pure
-  - esbuild
   - prisma
+  - esbuild
   - sharp
-  - unrs-resolver
-
-onlyBuiltDependencies: '@prisma/engines prisma esbuild unrs-resolver'

@@ -31,6 +31,8 @@ export function PostForm({
 }: PostFormProps) {
   const [content, setContent] = React.useState('');
   const [contentHtml, setContentHtml] = React.useState('');
+  // Key to force remount of the editor after submission to clear Quill's internal state
+  const [editorKey, setEditorKey] = React.useState(0);
 
   const handleEditorChange = React.useCallback((text: string, html: string) => {
     setContent(text);
@@ -44,6 +46,8 @@ export function PostForm({
     await onSubmit(content, contentHtml);
     setContent('');
     setContentHtml('');
+    // Increment key to force editor remount and clear Quill's internal state
+    setEditorKey((prev) => prev + 1);
   };
 
   const charactersRemaining = maxLength - content.length;
@@ -72,6 +76,7 @@ export function PostForm({
                 readOnly={isSubmitting}
                 maxLength={maxLength}
                 className='border-0'
+                editorKey={editorKey}
               />
             </div>
           </div>

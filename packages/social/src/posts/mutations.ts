@@ -1,6 +1,7 @@
 import { db } from '@scilent-one/db';
 import type { CreatePostInput, UpdatePostInput, PostWithAuthor } from '../types';
 import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errors';
+import { sanitizeHtml } from '../utils/sanitize';
 import { parseMentions, createMentions } from '../mentions/parser';
 
 const authorSelect = {
@@ -23,10 +24,13 @@ export async function createPost(
     throw new ValidationError('Post content cannot exceed 5000 characters');
   }
 
+  // Sanitize HTML content to prevent XSS and other attacks
+  const sanitizedHtml = sanitizeHtml(input.contentHtml);
+
   const post = await db.post.create({
     data: {
       content: input.content,
-      contentHtml: input.contentHtml ?? null,
+      contentHtml: sanitizedHtml,
       authorId: userId,
     },
     include: {
@@ -91,11 +95,14 @@ export async function updatePost(
     where: { postId },
   });
 
+  // Sanitize HTML content to prevent XSS and other attacks
+  const sanitizedHtml = sanitizeHtml(input.contentHtml);
+
   const post = await db.post.update({
     where: { id: postId },
     data: {
       content: input.content,
-      contentHtml: input.contentHtml ?? null,
+      contentHtml: sanitizedHtml,
     },
     include: {
       author: { select: authorSelect },

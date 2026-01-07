@@ -11,6 +11,8 @@ export interface RichTextEditorProps {
   className?: string;
   minHeight?: string;
   maxLength?: number;
+  /** Key to force remount and clear editor state */
+  editorKey?: string | number;
 }
 
 const modules = {
@@ -48,6 +50,7 @@ export function RichTextEditor({
   className,
   minHeight = '100px',
   maxLength,
+  editorKey,
 }: RichTextEditorProps) {
   const [mounted, setMounted] = React.useState(false);
   const [ReactQuill, setReactQuill] = React.useState<QuillComponent | null>(null);
@@ -55,14 +58,8 @@ export function RichTextEditor({
   React.useEffect(() => {
     setMounted(true);
     // Dynamically import ReactQuill only on client side
+    // CSS is imported statically in globals.css to avoid FOUC
     import('react-quill-new').then((module) => {
-      // Also import the CSS styles
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css';
-      if (!document.querySelector('link[href*="quill.snow.css"]')) {
-        document.head.appendChild(link);
-      }
       setReactQuill(() => module.default);
     });
   }, []);
@@ -114,6 +111,7 @@ export function RichTextEditor({
       }}
     >
       <ReactQuill
+        key={editorKey}
         theme="snow"
         value={value}
         onChange={handleChange}

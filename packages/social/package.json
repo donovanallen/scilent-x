@@ -16,7 +16,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@scilent-one/db": "workspace:*"
+    "@scilent-one/db": "workspace:*",
+    "isomorphic-dompurify": "^2.35.0"
   },
   "devDependencies": {
     "@scilent-one/tooling": "workspace:*",
