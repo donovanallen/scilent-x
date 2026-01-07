@@ -37,3 +37,8 @@ export type Session = Prisma.SessionModel
  * Verification model - Email verification, password reset tokens, etc.
  */
 export type Verification = Prisma.VerificationModel
+/**
+ * Model UserPreferences
+ * UserPreferences model - User-specific settings and preferences
+ */
+export type UserPreferences = Prisma.UserPreferencesModel

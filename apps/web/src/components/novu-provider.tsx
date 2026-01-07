@@ -55,12 +55,15 @@ interface NovuContextValue {
   subscriberId: string | null;
   /** The Novu application ID */
   applicationId: string;
+  /** Whether in-app notifications are enabled for this user */
+  inAppNotificationsEnabled: boolean;
 }
 
 const NovuContext = createContext<NovuContextValue>({
   isConfigured: false,
   subscriberId: null,
   applicationId: '',
+  inAppNotificationsEnabled: true,
 });
 
 /**
@@ -92,6 +95,11 @@ interface NovuProviderProps {
    * Pass null if user is not authenticated.
    */
   subscriberId: string | null;
+  /**
+   * Whether in-app notifications are enabled for this user.
+   * Defaults to true. When false, the notification inbox will be hidden.
+   */
+  inAppNotificationsEnabled?: boolean;
 }
 
 /**
@@ -107,23 +115,32 @@ interface NovuProviderProps {
  *
  * export default async function AuthenticatedLayout({ children }) {
  *   const session = await getSession();
+ *   const prefs = await getUserPreferences();
  *
  *   return (
- *     <NovuProvider subscriberId={session?.user?.id ?? null}>
+ *     <NovuProvider
+ *       subscriberId={session?.user?.id ?? null}
+ *       inAppNotificationsEnabled={prefs?.inAppNotificationsEnabled ?? true}
+ *     >
  *       {children}
  *     </NovuProvider>
  *   );
  * }
  * ```
  */
-export function NovuProvider({ children, subscriberId }: NovuProviderProps) {
+export function NovuProvider({
+  children,
+  subscriberId,
+  inAppNotificationsEnabled = true,
+}: NovuProviderProps) {
   const contextValue = useMemo(
     () => ({
       isConfigured: isNovuClientConfigured(),
       subscriberId,
       applicationId: NOVU_APP_ID,
+      inAppNotificationsEnabled,
     }),
-    [subscriberId]
+    [subscriberId, inAppNotificationsEnabled]
   );
 
   return (
@@ -148,6 +165,7 @@ interface NotificationInboxProps {
  *
  * Displays a notification bell with unread count and a popover inbox.
  * Uses Novu's pre-built Inbox component with customizable appearance.
+ * Respects user's in-app notification preferences from the NovuProvider context.
  *
  * @example
  * ```tsx
@@ -168,11 +186,18 @@ interface NotificationInboxProps {
  * ```
  */
 export function NotificationInbox({ subscriberId }: NotificationInboxProps) {
+  const { inAppNotificationsEnabled } = useNovuContext();
+
   // Don't render if Novu is not configured
   if (!isNovuClientConfigured()) {
     // You can return a disabled bell icon here if you want
     // For now, we'll return null to hide it completely
     console.warn('[Novu] Client not configured - NotificationInbox hidden');
+    return null;
+  }
+
+  // Don't render if user has disabled in-app notifications
+  if (!inAppNotificationsEnabled) {
     return null;
   }
 

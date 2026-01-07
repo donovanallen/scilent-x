@@ -23,4 +23,5 @@ export type {
   Account,
   Session,
   Verification,
+  UserPreferences,
 } from '../prisma/generated/client.js';
