@@ -3,6 +3,10 @@ import { NextResponse } from 'next/server';
 
 import { getCurrentUser, handleApiError } from '@/lib/api-utils';
 
+// Pagination constants
+const DEFAULT_PAGE_SIZE = 20;
+const MAX_PAGE_SIZE = 50;
+
 // GET /api/v1/users - Get all users with search, filter, sort, and pagination
 export async function GET(request: Request) {
   try {
@@ -11,7 +15,10 @@ export async function GET(request: Request) {
 
     // Pagination
     const cursor = searchParams.get('cursor') ?? undefined;
-    const limit = Math.min(parseInt(searchParams.get('limit') ?? '20', 10), 50);
+    const limit = Math.min(
+      parseInt(searchParams.get('limit') ?? String(DEFAULT_PAGE_SIZE), 10),
+      MAX_PAGE_SIZE
+    );
 
     // Search
     const query = searchParams.get('q') ?? '';
