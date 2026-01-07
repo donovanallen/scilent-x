@@ -29,7 +29,7 @@ import {
   Clock,
   User,
 } from 'lucide-react';
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 
 import type { SearchType } from './actions';
 
@@ -315,6 +315,27 @@ export function SearchResults({
   hasSearched,
 }: SearchResultsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [columnCount, setColumnCount] = useState(GRID_COLUMNS.lg);
+
+  // Responsive column count based on window width
+  useEffect(() => {
+    const updateColumns = () => {
+      const width = window.innerWidth;
+      if (width >= 1280) {
+        setColumnCount(GRID_COLUMNS.xl);
+      } else if (width >= 1024) {
+        setColumnCount(GRID_COLUMNS.lg);
+      } else if (width >= 768) {
+        setColumnCount(GRID_COLUMNS.md);
+      } else {
+        setColumnCount(GRID_COLUMNS.sm);
+      }
+    };
+
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
 
   // Get the appropriate results count based on search type
   const resultCount = useMemo(() => {
@@ -331,33 +352,30 @@ export function SearchResults({
   // For grid view, we virtualize by rows
   const releaseGridRows = useMemo(() => {
     if (view !== 'grid' || searchType !== 'release') return [];
-    const cols = GRID_COLUMNS.lg; // TODO: Make responsive
     const rows: HarmonizedRelease[][] = [];
-    for (let i = 0; i < releaseResults.length; i += cols) {
-      rows.push(releaseResults.slice(i, i + cols));
+    for (let i = 0; i < releaseResults.length; i += columnCount) {
+      rows.push(releaseResults.slice(i, i + columnCount));
     }
     return rows;
-  }, [releaseResults, view, searchType]);
+  }, [releaseResults, view, searchType, columnCount]);
 
   const trackGridRows = useMemo(() => {
     if (view !== 'grid' || searchType !== 'track') return [];
-    const cols = GRID_COLUMNS.lg; // TODO: Make responsive
     const rows: HarmonizedTrack[][] = [];
-    for (let i = 0; i < trackResults.length; i += cols) {
-      rows.push(trackResults.slice(i, i + cols));
+    for (let i = 0; i < trackResults.length; i += columnCount) {
+      rows.push(trackResults.slice(i, i + columnCount));
     }
     return rows;
-  }, [trackResults, view, searchType]);
+  }, [trackResults, view, searchType, columnCount]);
 
   const artistGridRows = useMemo(() => {
     if (view !== 'grid' || searchType !== 'artist') return [];
-    const cols = GRID_COLUMNS.lg; // TODO: Make responsive
     const rows: HarmonizedArtist[][] = [];
-    for (let i = 0; i < artistResults.length; i += cols) {
-      rows.push(artistResults.slice(i, i + cols));
+    for (let i = 0; i < artistResults.length; i += columnCount) {
+      rows.push(artistResults.slice(i, i + columnCount));
     }
     return rows;
-  }, [artistResults, view, searchType]);
+  }, [artistResults, view, searchType, columnCount]);
 
   const gridRows = useMemo(() => {
     switch (searchType) {

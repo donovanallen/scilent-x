@@ -102,7 +102,7 @@ function sortReleases(
       case 'relevance':
       default:
         // Relevance is the default order from search
-        return 0;
+        break;
     }
 
     return sort.direction === 'desc' ? -comparison : comparison;
