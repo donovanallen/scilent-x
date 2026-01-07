@@ -130,6 +130,40 @@ export {
   useSidebar,
 } from './components/sidebar';
 
+// Context Menu
+export {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuCheckboxItem,
+  ContextMenuRadioItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuGroup,
+  ContextMenuPortal,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuRadioGroup,
+} from './components/context-menu';
+
+// Hover Card
+export {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+} from './components/hover-card';
+
+// Popover
+export {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverAnchor,
+} from './components/popover';
+
 // Social Components
 export {
   UserAvatar,

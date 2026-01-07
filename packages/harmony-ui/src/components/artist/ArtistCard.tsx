@@ -9,6 +9,7 @@ import {
   Skeleton,
 } from '@scilent-one/ui';
 import type { HarmonizedArtist } from '../../types';
+import { InteractiveWrapper } from '../../interactions/InteractiveWrapper';
 
 export interface ArtistCardProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -22,6 +23,8 @@ export interface ArtistCardProps extends Omit<
   showGenres?: boolean | undefined;
   /** Callback when the artist is clicked */
   onClick?: ((artist: HarmonizedArtist) => void) | undefined;
+  /** Whether to enable interactive features (context menu, hover preview) */
+  interactive?: boolean | undefined;
 }
 
 export function ArtistCard({
@@ -29,6 +32,7 @@ export function ArtistCard({
   imageUrl,
   showGenres = true,
   onClick,
+  interactive = false,
   className,
   ...props
 }: ArtistCardProps) {
@@ -36,7 +40,7 @@ export function ArtistCard({
     onClick?.(artist);
   }, [onClick, artist]);
 
-  return (
+  const card = (
     <Card
       className={cn(
         'overflow-hidden transition-colors cursor-pointer hover:bg-accent/50',
@@ -109,6 +113,16 @@ export function ArtistCard({
       )}
     </Card>
   );
+
+  if (interactive) {
+    return (
+      <InteractiveWrapper entityType="artist" entity={artist}>
+        {card}
+      </InteractiveWrapper>
+    );
+  }
+
+  return card;
 }
 
 export function ArtistCardSkeleton({
