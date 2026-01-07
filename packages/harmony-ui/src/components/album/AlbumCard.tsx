@@ -15,6 +15,7 @@ import {
   getFrontArtworkUrl,
 } from '../../utils';
 import { AlbumArtwork } from './AlbumArtwork';
+import { InteractiveWrapper } from '../../interactions/InteractiveWrapper';
 
 export interface AlbumCardProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -30,6 +31,8 @@ export interface AlbumCardProps extends Omit<
   showType?: boolean | undefined;
   /** Callback when the album is clicked */
   onClick?: ((release: HarmonizedRelease) => void) | undefined;
+  /** Whether to enable interactive features (context menu, hover preview) */
+  interactive?: boolean | undefined;
 }
 
 const releaseTypeLabels: Record<string, string> = {
@@ -49,6 +52,7 @@ export function AlbumCard({
   showYear = true,
   showType = true,
   onClick,
+  interactive = false,
   className,
   ...props
 }: AlbumCardProps) {
@@ -58,7 +62,7 @@ export function AlbumCard({
 
   const imageUrl = artworkUrl ?? getFrontArtworkUrl(release.artwork);
 
-  return (
+  const card = (
     <Card
       className={cn(
         'overflow-hidden transition-colors cursor-pointer hover:bg-accent/50 group',
@@ -112,6 +116,16 @@ export function AlbumCard({
       </CardContent>
     </Card>
   );
+
+  if (interactive) {
+    return (
+      <InteractiveWrapper entityType="album" entity={release}>
+        {card}
+      </InteractiveWrapper>
+    );
+  }
+
+  return card;
 }
 
 export function AlbumCardSkeleton({

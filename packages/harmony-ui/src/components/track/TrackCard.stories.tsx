@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TrackCard, TrackCardSkeleton } from "./TrackCard";
+import { HarmonyInteractionProvider } from "../../interactions";
 import { mockTrack, mockTrackExplicit, PLACEHOLDER_ALBUM_ART_SM } from "../../__stories__/mock-data";
 
 const meta: Meta<typeof TrackCard> = {
@@ -84,4 +85,40 @@ export const Interactive: Story = {
       alert(`Playing: ${track.title}`);
     },
   },
+};
+
+export const WithInteractiveFeatures: Story = {
+  name: 'With Interactive Features (Right-click, Hover)',
+  decorators: [
+    (Story) => (
+      <HarmonyInteractionProvider
+        config={{
+          platform: 'web',
+          enableContextMenu: true,
+          enableHoverPreview: true,
+          hoverDelay: 200,
+          onNavigate: (type, _entity) => alert(`Navigate to ${type} details`),
+          onOpenExternal: (url, platform) => alert(`Open in ${platform}`),
+          onCopyLink: () => alert('Link copied!'),
+          previewContent: { track: 'full' },
+        }}
+      >
+        <div className="p-4">
+          <Story />
+        </div>
+      </HarmonyInteractionProvider>
+    ),
+  ],
+  render: () => (
+    <div className="w-[500px]">
+      <p className="text-sm text-muted-foreground mb-4">
+        Right-click for context menu, hover for preview
+      </p>
+      <TrackCard
+        track={mockTrackExplicit}
+        artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
+        interactive
+      />
+    </div>
+  ),
 };

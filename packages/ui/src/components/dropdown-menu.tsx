@@ -4,7 +4,7 @@ import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react"
 
-import { cn } from "src/utils"
+import { cn } from "../utils"
 
 function DropdownMenu({
   ...props
@@ -85,7 +85,7 @@ function DropdownMenuItem({
 function DropdownMenuCheckboxItem({
   className,
   children,
-  checked,
+  checked = false,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem>) {
   return (

@@ -175,7 +175,7 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
           {customItems.map((action) => (
             <MenuItem
               key={action.id}
-              disabled={action.disabled}
+              disabled={action.disabled ?? false}
               variant={action.destructive ? 'destructive' : 'default'}
               onSelect={() => handleCustomAction(action)}
             >

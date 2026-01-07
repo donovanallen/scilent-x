@@ -4,7 +4,7 @@ import * as React from "react"
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu"
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react"
 
-import { cn } from "src/utils"
+import { cn } from "../utils"
 
 function ContextMenu({
   ...props
@@ -137,7 +137,7 @@ function ContextMenuItem({
 function ContextMenuCheckboxItem({
   className,
   children,
-  checked,
+  checked = false,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.CheckboxItem>) {
   return (
