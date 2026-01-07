@@ -155,7 +155,13 @@ export default function UsersPage() {
     onLoadMore: () => cursor && fetchUsers(cursor),
   });
 
-  const handleFollow = async (username: string) => {
+  const handleFollow = async (username: string | null | undefined) => {
+    // Defensive check: ensure username is valid before making API call
+    if (!username) {
+      console.error('Cannot follow user without username');
+      return;
+    }
+
     try {
       const res = await fetch(`/api/v1/users/${username}/follow`, {
         method: 'POST',
@@ -180,7 +186,13 @@ export default function UsersPage() {
     }
   };
 
-  const handleUnfollow = async (username: string) => {
+  const handleUnfollow = async (username: string | null | undefined) => {
+    // Defensive check: ensure username is valid before making API call
+    if (!username) {
+      console.error('Cannot unfollow user without username');
+      return;
+    }
+
     try {
       const res = await fetch(`/api/v1/users/${username}/follow`, {
         method: 'DELETE',
@@ -382,11 +394,11 @@ export default function UsersPage() {
                 isFollowing={user.isFollowing}
                 isCurrentUser={currentUser?.id === user.id}
                 onFollow={
-                  user.username ? () => handleFollow(user.username!) : undefined
+                  user.username ? () => handleFollow(user.username) : undefined
                 }
                 onUnfollow={
                   user.username
-                    ? () => handleUnfollow(user.username!)
+                    ? () => handleUnfollow(user.username)
                     : undefined
                 }
                 onClick={() =>
