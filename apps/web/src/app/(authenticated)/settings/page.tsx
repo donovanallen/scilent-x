@@ -11,11 +11,18 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
   Separator,
+  Switch,
 } from '@scilent-one/ui';
-import { ChevronDown, Trash2, User } from 'lucide-react';
-import { useState } from 'react';
+import { Bell, ChevronDown, Trash2, User } from 'lucide-react';
+import { useState, useEffect, useTransition } from 'react';
+import { toast } from 'sonner';
 
 import { useSession } from '@/lib/auth-client';
+import {
+  getUserPreferences,
+  toggleInAppNotifications,
+  type NotificationPreferences,
+} from './actions';
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat('en-US', {
@@ -26,7 +33,63 @@ function formatDate(date: Date) {
 export default function SettingsPage() {
   const { data: session, isPending } = useSession();
   const [profileOpen, setProfileOpen] = useState(true);
+  const [notificationsOpen, setNotificationsOpen] = useState(true);
   const [deleteOpen, setDeleteOpen] = useState(false);
+
+  // Notification preferences state
+  const [notificationPrefs, setNotificationPrefs] =
+    useState<NotificationPreferences | null>(null);
+  const [prefsLoading, setPrefsLoading] = useState(true);
+  const [isPendingUpdate, startTransition] = useTransition();
+
+  // Load notification preferences on mount
+  useEffect(() => {
+    async function loadPreferences() {
+      try {
+        const prefs = await getUserPreferences();
+        if (prefs) {
+          setNotificationPrefs({
+            inAppNotificationsEnabled: prefs.inAppNotificationsEnabled,
+            emailNotificationsEnabled: prefs.emailNotificationsEnabled,
+            pushNotificationsEnabled: prefs.pushNotificationsEnabled,
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load preferences:', error);
+        toast.error('Failed to load notification preferences');
+      } finally {
+        setPrefsLoading(false);
+      }
+    }
+
+    if (session?.user) {
+      loadPreferences();
+    }
+  }, [session?.user]);
+
+  const handleInAppNotificationToggle = (enabled: boolean) => {
+    // Optimistically update the UI
+    setNotificationPrefs((prev) =>
+      prev ? { ...prev, inAppNotificationsEnabled: enabled } : null
+    );
+
+    startTransition(async () => {
+      const result = await toggleInAppNotifications(enabled);
+      if (result.success) {
+        toast.success(
+          enabled
+            ? 'In-app notifications enabled'
+            : 'In-app notifications disabled'
+        );
+      } else {
+        // Revert on error
+        setNotificationPrefs((prev) =>
+          prev ? { ...prev, inAppNotificationsEnabled: !enabled } : null
+        );
+        toast.error(result.error || 'Failed to update notification settings');
+      }
+    });
+  };
 
   const handleDeleteAccount = () => {
     // TODO: Implement delete account functionality
@@ -129,6 +192,89 @@ export default function SettingsPage() {
                     </div>
                   )}
                 </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </Card>
+
+        {/* Notifications Section */}
+        <Card>
+          <Collapsible
+            open={notificationsOpen}
+            onOpenChange={setNotificationsOpen}
+          >
+            <CollapsibleTrigger asChild>
+              <CardHeader className='cursor-pointer hover:bg-muted/50 transition-colors'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-3'>
+                    <Bell className='size-5 text-muted-foreground' />
+                    <div>
+                      <CardTitle className='text-lg'>Notifications</CardTitle>
+                      <CardDescription>
+                        Manage how you receive notifications
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`size-5 text-muted-foreground transition-transform duration-200 ${
+                      notificationsOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </div>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className='space-y-4'>
+                {prefsLoading ? (
+                  <div className='space-y-3'>
+                    <div className='h-10 bg-muted animate-pulse rounded' />
+                  </div>
+                ) : (
+                  <div className='space-y-4'>
+                    {/* In-App Notifications Toggle */}
+                    <div className='flex items-center justify-between'>
+                      <div className='space-y-0.5'>
+                        <label
+                          htmlFor='in-app-notifications'
+                          className='text-sm font-medium cursor-pointer'
+                        >
+                          In-app notifications
+                        </label>
+                        <p className='text-xs text-muted-foreground'>
+                          Receive notifications within the app
+                        </p>
+                      </div>
+                      <Switch
+                        id='in-app-notifications'
+                        checked={
+                          notificationPrefs?.inAppNotificationsEnabled ?? true
+                        }
+                        onCheckedChange={handleInAppNotificationToggle}
+                        disabled={isPendingUpdate}
+                      />
+                    </div>
+
+                    <Separator />
+
+                    {/* Email Notifications - Coming Soon */}
+                    <div className='flex items-center justify-between opacity-50'>
+                      <div className='space-y-0.5'>
+                        <label className='text-sm font-medium'>
+                          Email notifications
+                        </label>
+                        <p className='text-xs text-muted-foreground'>
+                          Receive notifications via email (coming soon)
+                        </p>
+                      </div>
+                      <Switch
+                        checked={
+                          notificationPrefs?.emailNotificationsEnabled ?? true
+                        }
+                        disabled
+                      />
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </CollapsibleContent>
           </Collapsible>

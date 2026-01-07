@@ -86,3 +86,27 @@ model Verification {
   @@unique([identifier, value])
   @@map("verifications")
 }
+
+// ============================================================================
+// User Preferences
+// ============================================================================
+
+/// UserPreferences model - User-specific settings and preferences
+model UserPreferences {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  /// Whether in-app notifications are enabled
+  inAppNotificationsEnabled Boolean @default(true)
+
+  /// Whether email notifications are enabled
+  emailNotificationsEnabled Boolean @default(true)
+
+  /// Whether push notifications are enabled
+  pushNotificationsEnabled Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_preferences")
+}

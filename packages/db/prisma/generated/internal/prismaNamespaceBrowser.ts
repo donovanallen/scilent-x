@@ -54,7 +54,8 @@ export const ModelName = {
   User: 'User',
   Account: 'Account',
   Session: 'Session',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  UserPreferences: 'UserPreferences'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -129,6 +130,19 @@ export const VerificationScalarFieldEnum = {
 } as const
 
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+
+
+export const UserPreferencesScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  inAppNotificationsEnabled: 'inAppNotificationsEnabled',
+  emailNotificationsEnabled: 'emailNotificationsEnabled',
+  pushNotificationsEnabled: 'pushNotificationsEnabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserPreferencesScalarFieldEnum = (typeof UserPreferencesScalarFieldEnum)[keyof typeof UserPreferencesScalarFieldEnum]
 
 
 export const SortOrder = {
