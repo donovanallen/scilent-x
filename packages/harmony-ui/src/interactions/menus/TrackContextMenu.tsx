@@ -18,6 +18,7 @@ import {
 import { useHarmonyInteraction } from '../provider';
 import type { HarmonizedEntity, MenuAction } from '../types';
 import type { HarmonizedTrack } from '../../types';
+import { formatPlatformName } from '../../utils';
 
 export interface TrackContextMenuProps {
   /** The track entity */
@@ -169,19 +170,4 @@ export function TrackContextMenu({ entity, onClose }: TrackContextMenuProps) {
       )}
     </>
   );
-}
-
-/**
- * Format platform name for display
- */
-function formatPlatformName(platform: string): string {
-  const names: Record<string, string> = {
-    spotify: 'Spotify',
-    musicbrainz: 'MusicBrainz',
-    tidal: 'Tidal',
-    apple: 'Apple Music',
-    deezer: 'Deezer',
-    youtube: 'YouTube Music',
-  };
-  return names[platform.toLowerCase()] ?? platform;
 }

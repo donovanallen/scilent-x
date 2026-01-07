@@ -5,4 +5,5 @@ export {
   getPrimaryArtistName,
   formatTrackPosition,
   getFrontArtworkUrl,
+  formatPlatformName,
 } from "./format";

@@ -106,3 +106,28 @@ export function getFrontArtworkUrl(
   const firstArtwork = artwork[0];
   return front?.url ?? firstArtwork?.url;
 }
+
+/**
+ * Platform display names mapping
+ */
+const platformDisplayNames: Record<string, string> = {
+  spotify: 'Spotify',
+  musicbrainz: 'MusicBrainz',
+  tidal: 'Tidal',
+  apple: 'Apple Music',
+  apple_music: 'Apple Music',
+  deezer: 'Deezer',
+  youtube: 'YouTube Music',
+  youtube_music: 'YouTube Music',
+  amazon_music: 'Amazon Music',
+  soundcloud: 'SoundCloud',
+  bandcamp: 'Bandcamp',
+  discogs: 'Discogs',
+};
+
+/**
+ * Format a platform/provider name for display
+ */
+export function formatPlatformName(platform: string): string {
+  return platformDisplayNames[platform.toLowerCase()] ?? platform;
+}
