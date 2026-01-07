@@ -8,4 +8,12 @@ catalogs:
   prisma:
     prisma: latest
 
+ignoredBuiltDependencies:
+  - '@prisma/engines'
+  - core-js-pure
+  - esbuild
+  - prisma
+  - sharp
+  - unrs-resolver
+
 onlyBuiltDependencies: '@prisma/engines prisma esbuild unrs-resolver'

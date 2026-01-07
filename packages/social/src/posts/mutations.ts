@@ -26,6 +26,7 @@ export async function createPost(
   const post = await db.post.create({
     data: {
       content: input.content,
+      contentHtml: input.contentHtml ?? null,
       authorId: userId,
     },
     include: {
@@ -92,7 +93,10 @@ export async function updatePost(
 
   const post = await db.post.update({
     where: { id: postId },
-    data: { content: input.content },
+    data: {
+      content: input.content,
+      contentHtml: input.contentHtml ?? null,
+    },
     include: {
       author: { select: authorSelect },
       _count: {

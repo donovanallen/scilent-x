@@ -143,6 +143,7 @@ export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[k
 export const PostScalarFieldEnum = {
   id: 'id',
   content: 'content',
+  contentHtml: 'contentHtml',
   authorId: 'authorId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

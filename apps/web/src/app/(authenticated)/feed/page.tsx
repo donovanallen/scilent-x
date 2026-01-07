@@ -89,13 +89,13 @@ export default function FeedPage() {
     onLoadMore: () => cursor && fetchPosts(cursor),
   });
 
-  const handleCreatePost = async (content: string) => {
+  const handleCreatePost = async (content: string, contentHtml: string) => {
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/v1/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, contentHtml }),
       });
 
       if (!res.ok) throw new Error('Failed to create post');

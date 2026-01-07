@@ -1,6 +1,16 @@
 // Utility function
 export { cn } from './utils';
 
+// Rich Text Components
+export {
+  RichTextEditor,
+  type RichTextEditorProps,
+} from './components/rich-text-editor';
+export {
+  RichTextContent,
+  type RichTextContentProps,
+} from './components/rich-text-content';
+
 // Hooks
 export { useIsMobile } from './hooks/use-mobile';
 export {

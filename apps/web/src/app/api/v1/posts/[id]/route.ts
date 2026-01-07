@@ -35,7 +35,10 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    const post = await updatePost(user.id, id, { content: body.content });
+    const post = await updatePost(user.id, id, {
+      content: body.content,
+      contentHtml: body.contentHtml,
+    });
 
     return NextResponse.json(post);
   } catch (error) {
