@@ -90,10 +90,24 @@ export function EntityPreview({
   }
 
   // Mobile platform: use popover with tap trigger
+  // Wrap children in a div with onClick to handle tap-to-preview
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        {children}
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => setIsOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setIsOpen(true);
+            }
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          {children}
+        </div>
       </PopoverTrigger>
       <PopoverContent className="w-80">
         {previewContent}
