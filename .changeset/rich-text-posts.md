@@ -1,8 +1,7 @@
 ---
-"@scilent-one/ui": minor
-"@scilent-one/db": minor
-"@scilent-one/social": minor
-"web": minor
+'@scilent-one/ui': minor
+'@scilent-one/db': minor
+'@scilent-one/social': minor
 ---
 
 Add rich-text formatting support for posts using QuillJS
