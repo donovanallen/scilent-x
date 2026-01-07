@@ -33,6 +33,13 @@ export const ROUTES = {
     protected: true,
     isAdmin: false,
   },
+  users: {
+    href: '/users',
+    label: 'Users',
+    icon: Users,
+    protected: true,
+    isAdmin: false,
+  },
   profile: {
     href: '/profile',
     label: 'Profile',
@@ -75,7 +82,7 @@ export const ROUTES = {
     protected: true,
     isAdmin: true,
   },
-  users: {
+  adminUsers: {
     href: '/admin/users',
     label: 'Users',
     icon: Users,

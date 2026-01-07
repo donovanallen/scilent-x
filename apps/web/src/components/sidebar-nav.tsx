@@ -54,6 +54,9 @@ export function SidebarNav() {
     if (route.href === '/profile') {
       return pathname.startsWith('/profile/');
     }
+    if (route.href === '/users') {
+      return pathname === '/users';
+    }
     return pathname === route.href;
   };
 
