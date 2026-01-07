@@ -106,6 +106,11 @@ export function EntityMenu({
     touchStartPosRef.current = null;
   }, []);
 
+  // Stable callback to close the menu - used by menu content components
+  const handleClose = React.useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
   // If interactions are disabled or context menus are off, just render children
   if (!interaction.enabled || !interaction.enableContextMenu || disabled) {
     return <>{children}</>;
@@ -115,21 +120,15 @@ export function EntityMenu({
   const menuContent = React.useMemo(() => {
     switch (entityType) {
       case 'track':
-        return (
-          <TrackContextMenu entity={entity} onClose={() => setIsOpen(false)} />
-        );
+        return <TrackContextMenu entity={entity} onClose={handleClose} />;
       case 'album':
-        return (
-          <AlbumContextMenu entity={entity} onClose={() => setIsOpen(false)} />
-        );
+        return <AlbumContextMenu entity={entity} onClose={handleClose} />;
       case 'artist':
-        return (
-          <ArtistContextMenu entity={entity} onClose={() => setIsOpen(false)} />
-        );
+        return <ArtistContextMenu entity={entity} onClose={handleClose} />;
       default:
         return null;
     }
-  }, [entityType, entity]);
+  }, [entityType, entity, handleClose]);
 
   // Web platform: use right-click context menu
   if (interaction.platform === 'web') {

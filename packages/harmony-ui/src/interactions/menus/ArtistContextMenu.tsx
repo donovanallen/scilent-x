@@ -18,6 +18,7 @@ import {
 import { useHarmonyInteraction } from '../provider';
 import type { HarmonizedEntity, MenuAction } from '../types';
 import type { HarmonizedArtist } from '../../types';
+import { formatPlatformName } from '../../utils';
 
 export interface ArtistContextMenuProps {
   /** The artist entity */
@@ -164,19 +165,4 @@ export function ArtistContextMenu({ entity, onClose }: ArtistContextMenuProps) {
       )}
     </>
   );
-}
-
-/**
- * Format platform name for display
- */
-function formatPlatformName(platform: string): string {
-  const names: Record<string, string> = {
-    spotify: 'Spotify',
-    musicbrainz: 'MusicBrainz',
-    tidal: 'Tidal',
-    apple: 'Apple Music',
-    deezer: 'Deezer',
-    youtube: 'YouTube Music',
-  };
-  return names[platform.toLowerCase()] ?? platform;
 }
