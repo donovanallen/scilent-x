@@ -11,6 +11,12 @@ const MAX_PAGE_SIZE = 50;
 export async function GET(request: Request) {
   try {
     const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 },
+      );
+    }
     const { searchParams } = new URL(request.url);
 
     // Pagination
@@ -37,7 +43,8 @@ export async function GET(request: Request) {
       allowedSortBy.includes(sortByParam as (typeof allowedSortBy)[number])
         ? (sortByParam as (typeof allowedSortBy)[number])
         : 'createdAt';
-    const sortOrder = searchParams.get('sortOrder') ?? 'desc';
+    const rawSortOrder = searchParams.get('sortOrder');
+    const sortOrder = rawSortOrder === 'asc' || rawSortOrder === 'desc' ? rawSortOrder : 'desc';
 
     // Filters
     const hasUsername = searchParams.get('hasUsername');
@@ -71,10 +78,10 @@ export async function GET(request: Request) {
         orderBy = { username: direction };
         break;
       case 'followers':
-        orderBy = { followers: { _count: direction } };
-        break;
       case 'posts':
-        orderBy = { posts: { _count: direction } };
+        // Avoid inefficient relation-count-based sorting for large datasets.
+        // Fallback to createdAt sorting to maintain predictable behavior.
+        orderBy = { createdAt: direction };
         break;
       case 'createdAt':
       default:

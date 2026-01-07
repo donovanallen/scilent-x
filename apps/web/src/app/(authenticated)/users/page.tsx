@@ -379,33 +379,35 @@ export default function UsersPage() {
       ) : (
         <>
           <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-            {users.map((user) => (
-              <UserCard
-                key={user.id}
-                id={user.id}
-                name={user.name}
-                username={user.username}
-                bio={user.bio}
-                avatarUrl={user.avatarUrl}
-                image={user.image}
-                followersCount={user.followersCount}
-                followingCount={user.followingCount}
-                postsCount={user.postsCount}
-                isFollowing={user.isFollowing}
-                isCurrentUser={currentUser?.id === user.id}
-                onFollow={
-                  user.username ? () => handleFollow(user.username) : undefined
-                }
-                onUnfollow={
-                  user.username
-                    ? () => handleUnfollow(user.username)
-                    : undefined
-                }
-                onClick={() =>
-                  user.username && router.push(`/profile/${user.username}`)
-                }
-              />
-            ))}
+            {users.map((user) => {
+              const username = user.username;
+
+              return (
+                <UserCard
+                  key={user.id}
+                  id={user.id}
+                  name={user.name}
+                  username={username}
+                  bio={user.bio}
+                  avatarUrl={user.avatarUrl}
+                  image={user.image}
+                  followersCount={user.followersCount}
+                  followingCount={user.followingCount}
+                  postsCount={user.postsCount}
+                  isFollowing={user.isFollowing}
+                  isCurrentUser={currentUser?.id === user.id}
+                  onFollow={
+                    username ? () => handleFollow(username) : undefined
+                  }
+                  onUnfollow={
+                    username ? () => handleUnfollow(username) : undefined
+                  }
+                  onClick={() =>
+                    username && router.push(`/profile/${username}`)
+                  }
+                />
+              );
+            })}
           </div>
           {hasMore && (
             <div ref={sentinelRef} className='flex justify-center py-4'>
