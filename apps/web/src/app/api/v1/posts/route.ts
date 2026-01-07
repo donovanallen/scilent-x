@@ -38,7 +38,10 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const post = await createPost(user.id, { content: body.content });
+    const post = await createPost(user.id, {
+      content: body.content,
+      contentHtml: body.contentHtml,
+    });
 
     return NextResponse.json(post, { status: 201 });
   } catch (error) {

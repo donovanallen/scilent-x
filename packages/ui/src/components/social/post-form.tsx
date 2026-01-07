@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { Card, CardContent, CardFooter } from '../card';
 import { Button } from '../button';
-import { Textarea } from '../textarea';
 import { UserAvatar } from './user-avatar';
+import { RichTextEditor } from '../rich-text-editor';
 import { cn } from '../../utils';
 
 export interface PostFormProps {
@@ -17,7 +17,7 @@ export interface PostFormProps {
   placeholder?: string;
   maxLength?: number;
   isSubmitting?: boolean;
-  onSubmit: (content: string) => void | Promise<void>;
+  onSubmit: (content: string, contentHtml: string) => void | Promise<void>;
   className?: string;
 }
 
@@ -30,14 +30,24 @@ export function PostForm({
   className,
 }: PostFormProps) {
   const [content, setContent] = React.useState('');
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const [contentHtml, setContentHtml] = React.useState('');
+  // Key to force remount of the editor after submission to clear Quill's internal state
+  const [editorKey, setEditorKey] = React.useState(0);
+
+  const handleEditorChange = React.useCallback((text: string, html: string) => {
+    setContent(text);
+    setContentHtml(html);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim() || isSubmitting) return;
 
-    await onSubmit(content);
+    await onSubmit(content, contentHtml);
     setContent('');
+    setContentHtml('');
+    // Increment key to force editor remount and clear Quill's internal state
+    setEditorKey((prev) => prev + 1);
   };
 
   const charactersRemaining = maxLength - content.length;
@@ -59,13 +69,14 @@ export function PostForm({
               />
             )}
             <div className='flex-1'>
-              <Textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
+              <RichTextEditor
+                value={contentHtml}
+                onChange={handleEditorChange}
                 placeholder={placeholder}
-                className='min-h-[80px] resize-none border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0'
-                disabled={isSubmitting}
+                readOnly={isSubmitting}
+                maxLength={maxLength}
+                className='border-0'
+                editorKey={editorKey}
               />
             </div>
           </div>

@@ -57,10 +57,12 @@ export interface PostWithAuthor extends Post {
 
 export interface CreatePostInput {
   content: string;
+  contentHtml?: string;
 }
 
 export interface UpdatePostInput {
   content: string;
+  contentHtml?: string;
 }
 
 // Comment types

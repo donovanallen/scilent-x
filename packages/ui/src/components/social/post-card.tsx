@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown-menu';
 import { UserAvatar } from './user-avatar';
-import { MentionText } from './mention-text';
+import { RichTextContent } from '../rich-text-content';
 import { cn } from '../../utils';
 
 export interface PostCardAuthor {
@@ -25,6 +25,7 @@ export interface PostCardAuthor {
 export interface PostCardProps {
   id: string;
   content: string;
+  contentHtml?: string | null;
   author: PostCardAuthor;
   createdAt: Date | string;
   likesCount: number;
@@ -37,6 +38,7 @@ export interface PostCardProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onClick?: () => void;
+  onMentionClick?: (username: string) => void;
   className?: string;
 }
 
@@ -59,6 +61,7 @@ function formatRelativeTime(date: Date | string): string {
 export function PostCard({
   id,
   content,
+  contentHtml,
   author,
   createdAt,
   likesCount,
@@ -71,6 +74,7 @@ export function PostCard({
   onEdit,
   onDelete,
   onClick,
+  onMentionClick,
   className,
 }: PostCardProps) {
   const handleLikeClick = (e: React.MouseEvent) => {
@@ -145,7 +149,11 @@ export function PostCard({
         )}
       </CardHeader>
       <CardContent className='pb-2'>
-        <MentionText content={content} className='whitespace-pre-wrap break-words' />
+        <RichTextContent
+          html={contentHtml}
+          content={content}
+          onMentionClick={onMentionClick}
+        />
       </CardContent>
       <CardFooter className='pt-0'>
         <div className='flex items-center gap-4'>
