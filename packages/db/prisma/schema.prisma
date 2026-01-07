@@ -15,7 +15,7 @@ datasource db {
 // Better Auth Core Models
 // ============================================================================
 
-/// User model - Core user information
+/// User model - Core user information with social profile fields
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -25,9 +25,25 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Social profile fields
+  username      String?   @unique
+  bio           String?   @db.Text
+  avatarUrl     String?
+
+  // Auth relations
   accounts Account[]
   sessions Session[]
 
+  // Social relations
+  posts         Post[]
+  comments      Comment[]
+  likes         Like[]
+  followers     Follow[]    @relation("following")
+  following     Follow[]    @relation("follower")
+  mentions      Mention[]
+  activities    Activity[]
+
+  @@index([username])
   @@map("users")
 }
 
@@ -85,4 +101,130 @@ model Verification {
 
   @@unique([identifier, value])
   @@map("verifications")
+}
+
+// ============================================================================
+// Social Models
+// ============================================================================
+
+/// Post model - User-created content
+model Post {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  likes     Like[]
+  mentions  Mention[]
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("posts")
+}
+
+/// Comment model - Comments on posts
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  authorId  String
+  postId    String
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  likes     Like[]
+  mentions  Mention[]
+
+  @@index([authorId])
+  @@index([postId])
+  @@index([parentId])
+  @@index([createdAt])
+  @@map("comments")
+}
+
+/// Like model - Likes on posts or comments
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String?
+  commentId String?
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+  @@index([postId])
+  @@index([commentId])
+  @@map("likes")
+}
+
+/// Follow model - User following relationships
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+/// Mention model - @mentions in posts or comments
+model Mention {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String?
+  commentId String?
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([postId])
+  @@index([commentId])
+  @@map("mentions")
+}
+
+/// Activity type enum for the activity feed
+enum ActivityType {
+  POST_CREATED
+  POST_LIKED
+  COMMENT_CREATED
+  COMMENT_LIKED
+  USER_FOLLOWED
+  USER_MENTIONED
+}
+
+/// Activity model - Activity feed for users
+model Activity {
+  id         String       @id @default(cuid())
+  type       ActivityType
+  userId     String
+  actorId    String?
+  postId     String?
+  commentId  String?
+  createdAt  DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activities")
 }

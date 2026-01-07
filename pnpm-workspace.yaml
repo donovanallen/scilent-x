@@ -1,8 +1,11 @@
 packages:
-  - 'apps/*'
-  - 'packages/*'
+  - apps/*
+  - packages/*
+
 catalogs:
-  prisma:
-    prisma: latest
   better-auth:
     better-auth: latest
+  prisma:
+    prisma: latest
+
+onlyBuiltDependencies: '@prisma/engines prisma esbuild unrs-resolver'

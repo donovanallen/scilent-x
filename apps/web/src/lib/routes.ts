@@ -1,8 +1,10 @@
 import {
   ArrowRight,
+  Compass,
   Database,
   Home,
   LogIn,
+  Rss,
   Settings,
   User,
   CloudSync,
@@ -15,6 +17,20 @@ export const ROUTES = {
     label: 'Home',
     icon: Home,
     protected: false,
+    isAdmin: false,
+  },
+  feed: {
+    href: '/feed',
+    label: 'Feed',
+    icon: Rss,
+    protected: true,
+    isAdmin: false,
+  },
+  explore: {
+    href: '/explore',
+    label: 'Explore',
+    icon: Compass,
+    protected: true,
     isAdmin: false,
   },
   profile: {

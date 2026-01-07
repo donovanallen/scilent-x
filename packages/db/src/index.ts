@@ -23,4 +23,12 @@ export type {
   Account,
   Session,
   Verification,
+  // Social types
+  Post,
+  Comment,
+  Like,
+  Follow,
+  Mention,
+  Activity,
+  ActivityType,
 } from '../prisma/generated/client.js';

@@ -1,0 +1,194 @@
+'use client';
+
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Feed,
+  useInfiniteScroll,
+  type PostCardProps,
+  Button,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@scilent-one/ui';
+import { toast } from 'sonner';
+
+interface FeedPost extends PostCardProps {
+  _count?: {
+    likes: number;
+    comments: number;
+  };
+}
+
+interface PaginatedResponse {
+  items: FeedPost[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+interface CurrentUser {
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+}
+
+export default function ExplorePage() {
+  const router = useRouter();
+  const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [activeTab, setActiveTab] = useState<'recent' | 'trending'>('recent');
+
+  // Fetch current user
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await fetch('/api/v1/users/me');
+        if (res.ok) {
+          const user = await res.json();
+          setCurrentUser(user);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+      }
+    }
+    fetchUser();
+  }, []);
+
+  // Fetch posts
+  const fetchPosts = useCallback(
+    async (cursorParam?: string, trending = false) => {
+      setIsLoading(true);
+      try {
+        const url = new URL('/api/v1/feed/explore', window.location.origin);
+        if (cursorParam) {
+          url.searchParams.set('cursor', cursorParam);
+        }
+        if (trending) {
+          url.searchParams.set('trending', 'true');
+        }
+
+        const res = await fetch(url.toString());
+        if (!res.ok) throw new Error('Failed to fetch posts');
+
+        const data: PaginatedResponse = await res.json();
+
+        setPosts((prev) =>
+          cursorParam ? [...prev, ...data.items] : data.items
+        );
+        setHasMore(data.hasMore);
+        setCursor(data.nextCursor);
+      } catch (error) {
+        toast.error('Failed to load posts');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    setPosts([]);
+    setCursor(null);
+    fetchPosts(undefined, activeTab === 'trending');
+  }, [fetchPosts, activeTab]);
+
+  const { sentinelRef } = useInfiniteScroll({
+    hasMore,
+    isLoading,
+    onLoadMore: () =>
+      cursor && fetchPosts(cursor, activeTab === 'trending'),
+  });
+
+  const handleLikePost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/like`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Failed to like post');
+
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, isLiked: true, likesCount: post.likesCount + 1 }
+            : post
+        )
+      );
+    } catch (error) {
+      toast.error('Failed to like post');
+    }
+  };
+
+  const handleUnlikePost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/like`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to unlike post');
+
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, isLiked: false, likesCount: post.likesCount - 1 }
+            : post
+        )
+      );
+    } catch (error) {
+      toast.error('Failed to unlike post');
+    }
+  };
+
+  return (
+    <div className='container max-w-2xl py-6 space-y-6'>
+      <h1 className='text-2xl font-bold'>Explore</h1>
+
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as 'recent' | 'trending')}
+      >
+        <TabsList className='grid w-full grid-cols-2'>
+          <TabsTrigger value='recent'>Recent</TabsTrigger>
+          <TabsTrigger value='trending'>Trending</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value='recent' className='mt-6'>
+          <Feed
+            posts={posts.map((post) => ({
+              ...post,
+              likesCount: post._count?.likes ?? post.likesCount ?? 0,
+              commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
+            }))}
+            currentUserId={currentUser?.id}
+            isLoading={isLoading}
+            hasMore={hasMore}
+            loadMoreRef={sentinelRef}
+            onLikePost={handleLikePost}
+            onUnlikePost={handleUnlikePost}
+            onPostClick={(postId) => router.push(`/post/${postId}`)}
+          />
+        </TabsContent>
+
+        <TabsContent value='trending' className='mt-6'>
+          <Feed
+            posts={posts.map((post) => ({
+              ...post,
+              likesCount: post._count?.likes ?? post.likesCount ?? 0,
+              commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
+            }))}
+            currentUserId={currentUser?.id}
+            isLoading={isLoading}
+            hasMore={hasMore}
+            loadMoreRef={sentinelRef}
+            onLikePost={handleLikePost}
+            onUnlikePost={handleUnlikePost}
+            onPostClick={(postId) => router.push(`/post/${postId}`)}
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
