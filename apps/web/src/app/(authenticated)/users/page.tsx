@@ -396,9 +396,7 @@ export default function UsersPage() {
                   postsCount={user.postsCount}
                   isFollowing={user.isFollowing}
                   isCurrentUser={currentUser?.id === user.id}
-                  onFollow={
-                    username ? () => handleFollow(username) : undefined
-                  }
+                  onFollow={username ? () => handleFollow(username) : undefined}
                   onUnfollow={
                     username ? () => handleUnfollow(username) : undefined
                   }

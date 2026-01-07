@@ -120,6 +120,20 @@ export class HarmonizationEngine {
   }
 
   /**
+   * Search for tracks across enabled providers
+   */
+  async searchTracks(query: string, providers?: string[], limit = 25) {
+    return this.coordinator.searchTracks(query, providers, limit);
+  }
+
+  /**
+   * Search for artists across enabled providers
+   */
+  async searchArtists(query: string, providers?: string[], limit = 25) {
+    return this.coordinator.searchArtists(query, providers, limit);
+  }
+
+  /**
    * Get a specific provider by name
    */
   getProvider(name: string) {

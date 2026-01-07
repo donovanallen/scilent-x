@@ -39,7 +39,7 @@ your-monorepo/
 
 ```json
 {
-  "name": "@your-org/harmonization-engine",
+  "name": "@your-org/harmony-engine",
   "version": "1.0.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -1981,7 +1981,7 @@ export class HarmonizationEngine {
 ```typescript
 // apps/web/app/api/harmonize/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { HarmonizationEngine } from '@your-org/harmonization-engine';
+import { HarmonizationEngine } from '@your-org/harmony-engine';
 import { prisma } from '@/lib/prisma';
 import { redis } from '@/lib/redis';
 

@@ -1,4 +1,4 @@
-// Re-export all types and schemas from harmonization-engine
+// Re-export all types and schemas from harmony-engine
 export {
   // Schemas
   ProviderSourceSchema,

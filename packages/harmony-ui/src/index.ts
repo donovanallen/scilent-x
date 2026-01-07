@@ -1,4 +1,3 @@
-// Types and Schemas
 export {
   // Schemas
   ProviderSourceSchema,
@@ -22,7 +21,7 @@ export {
   type HarmonizedRelease,
   type ArtistType,
   type HarmonizedArtist,
-} from "./types";
+} from './types';
 
 // Utility functions
 export {
@@ -32,7 +31,7 @@ export {
   getPrimaryArtistName,
   formatTrackPosition,
   getFrontArtworkUrl,
-} from "./utils";
+} from './utils';
 
 // Common components
 export {
@@ -58,7 +57,7 @@ export {
   type HeroSkeletonProps,
   type PageSkeletonProps,
   type InlineSkeletonProps,
-} from "./components/common";
+} from './components/common';
 
 // Track components
 export {
@@ -74,7 +73,7 @@ export {
   type TrackListProps,
   type TrackListSkeletonProps,
   type TrackDetailsProps,
-} from "./components/track";
+} from './components/track';
 
 // Artist components
 export {
@@ -88,7 +87,7 @@ export {
   type ArtistHeaderProps,
   type ArtistDiscographyProps,
   type ArtistDiscographySkeletonProps,
-} from "./components/artist";
+} from './components/artist';
 
 // Album components
 export {
@@ -106,7 +105,7 @@ export {
   type AlbumTrackListProps,
   type AlbumTrackListSkeletonProps,
   type AlbumDetailsProps,
-} from "./components/album";
+} from './components/album';
 
 // Interactions
 export {
@@ -146,4 +145,4 @@ export {
   type TrackHoverPreviewProps,
   type AlbumHoverPreviewProps,
   type ArtistHoverPreviewProps,
-} from "./interactions";
+} from './interactions';
