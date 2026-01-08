@@ -30,13 +30,16 @@ export function ProviderMenuItem<T extends HarmonizedEntity = HarmonizedEntity>(
   menuType = 'context',
 }: ProviderMenuItemProps<T>) {
   const [isLoading, setIsLoading] = React.useState(false);
+  // Use ref for the guard to avoid stale closure issues while keeping stable callback reference
+  const isLoadingRef = React.useRef(false);
   const isContextMenu = menuType === 'context';
 
   const MenuItem = isContextMenu ? ContextMenuItem : DropdownMenuItem;
 
   const handleSelect = React.useCallback(async () => {
-    if (action.disabled || isLoading) return;
+    if (action.disabled || isLoadingRef.current) return;
 
+    isLoadingRef.current = true;
     setIsLoading(true);
     try {
       await action.onAction(entity);
@@ -44,10 +47,11 @@ export function ProviderMenuItem<T extends HarmonizedEntity = HarmonizedEntity>(
       // Error handling is delegated to the action itself
       console.error(`Provider action failed: ${action.id}`, error);
     } finally {
+      isLoadingRef.current = false;
       setIsLoading(false);
       onClose?.();
     }
-  }, [action, entity, isLoading, onClose]);
+  }, [action, entity, onClose]);
 
   const Icon = action.icon;
   const showLoading = isLoading || action.loading;
