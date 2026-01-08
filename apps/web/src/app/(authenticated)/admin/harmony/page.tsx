@@ -74,24 +74,13 @@ async function EngineStatusCard() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className='grid gap-4 sm:grid-cols-3'>
+          <div className='grid gap-4 sm:grid-cols-2'>
             <div className='rounded-lg border p-4'>
               <div className='text-2xl font-bold'>
                 {status.enabledProviders.length}
               </div>
               <div className='text-sm text-muted-foreground'>
                 Active Providers
-              </div>
-            </div>
-            <div className='rounded-lg border p-4'>
-              <div className='text-2xl font-bold'>
-                {status.enabledProviders.reduce(
-                  (acc, p) => acc + p.priority,
-                  0
-                )}
-              </div>
-              <div className='text-sm text-muted-foreground'>
-                Total Priority Score
               </div>
             </div>
             <div className='rounded-lg border p-4'>
@@ -214,8 +203,8 @@ function LoadingSkeleton() {
           <div className='h-6 w-48 animate-pulse rounded bg-muted' />
         </CardHeader>
         <CardContent>
-          <div className='grid gap-4 sm:grid-cols-3'>
-            {[1, 2, 3].map((i) => (
+          <div className='grid gap-4 sm:grid-cols-2'>
+            {[1, 2].map((i) => (
               <div key={i} className='h-20 animate-pulse rounded-lg bg-muted' />
             ))}
           </div>
