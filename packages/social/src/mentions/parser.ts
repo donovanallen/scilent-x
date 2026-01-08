@@ -1,6 +1,16 @@
 import { db } from '@scilent-one/db';
 import type { ParsedMention, LegacyParsedMention, MentionType } from '../types';
 
+// Valid mention types for validation
+const VALID_MENTION_TYPES: MentionType[] = ['USER', 'ARTIST', 'ALBUM', 'TRACK'];
+
+/**
+ * Validates if a string is a valid MentionType
+ */
+function isValidMentionType(type: string | undefined | null): type is MentionType {
+  return type !== null && type !== undefined && VALID_MENTION_TYPES.includes(type as MentionType);
+}
+
 // Regex to match @username mentions
 // Username can contain letters, numbers, underscores, but must start with a letter
 const MENTION_REGEX = /@([a-zA-Z][a-zA-Z0-9_]{0,29})/g;
@@ -27,14 +37,20 @@ export function parseHtmlMentions(html: string): ParsedMention[] {
   // Reset regex lastIndex
   HTML_MENTION_REGEX.lastIndex = 0;
   while ((match = HTML_MENTION_REGEX.exec(html)) !== null) {
-    const type = match[1] as MentionType;
-    const id = match[2]!;
-    const label = match[3]!;
+    const rawType = match[1];
+    const id = match[2];
+    const label = match[3];
+
+    // Skip if id or label is missing
+    if (!id || !label) continue;
+
+    // Validate and normalize the type
+    const type: MentionType = isValidMentionType(rawType) ? rawType : 'USER';
 
     if (!seenIds.has(id)) {
       seenIds.add(id);
       mentions.push({
-        type: type || 'USER',
+        type,
         entityId: id,
         label,
       });
@@ -44,14 +60,20 @@ export function parseHtmlMentions(html: string): ParsedMention[] {
   // Also try alternative attribute order
   HTML_MENTION_REGEX_ALT.lastIndex = 0;
   while ((match = HTML_MENTION_REGEX_ALT.exec(html)) !== null) {
-    const id = match[1]!;
-    const type = match[2] as MentionType;
-    const label = match[3]!;
+    const id = match[1];
+    const rawType = match[2];
+    const label = match[3];
+
+    // Skip if id or label is missing
+    if (!id || !label) continue;
+
+    // Validate and normalize the type
+    const type: MentionType = isValidMentionType(rawType) ? rawType : 'USER';
 
     if (!seenIds.has(id)) {
       seenIds.add(id);
       mentions.push({
-        type: type || 'USER',
+        type,
         entityId: id,
         label,
       });
@@ -110,16 +132,20 @@ export async function convertLegacyMentions(
     select: { id: true, username: true },
   });
 
-  const usernameToId = new Map(
-    users.map((u) => [u.username?.toLowerCase(), u.id])
-  );
+  // Build map only for users with valid (non-null) usernames
+  const usernameToId = new Map<string, string>();
+  for (const user of users) {
+    if (user.username) {
+      usernameToId.set(user.username.toLowerCase(), user.id);
+    }
+  }
 
   const result: ParsedMention[] = [];
   for (const m of legacyMentions) {
     const userId = usernameToId.get(m.username.toLowerCase());
     if (userId) {
       result.push({
-        type: 'USER' as MentionType,
+        type: 'USER',
         entityId: userId,
         label: m.username,
         startIndex: m.startIndex,

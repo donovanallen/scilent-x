@@ -15,52 +15,75 @@ export interface MentionListProps {
   items: MentionSuggestion[];
   command: (item: MentionSuggestion) => void;
   isLoading?: boolean;
+  error?: string | null;
+  /** Controlled selected index from parent */
+  selectedIndex?: number;
+  /** Callback when selection changes */
+  onSelect?: (index: number) => void;
 }
 
-export const MentionList = React.forwardRef<HTMLDivElement, MentionListProps>(
-  ({ items, command, isLoading }, ref) => {
-    const [selectedIndex, setSelectedIndex] = React.useState(0);
+export interface MentionListRef {
+  getSelectedIndex: () => number;
+  setSelectedIndex: (index: number) => void;
+  selectItem: (index: number) => void;
+}
+
+export const MentionList = React.forwardRef<MentionListRef, MentionListProps>(
+  ({ items, command, isLoading, error, selectedIndex = 0, onSelect }, ref) => {
+    const [internalSelectedIndex, setInternalSelectedIndex] =
+      React.useState(selectedIndex);
+
+    // Use controlled index if provided, otherwise internal state
+    const currentIndex =
+      selectedIndex !== undefined ? selectedIndex : internalSelectedIndex;
+
+    // Sync internal state with controlled index
+    React.useEffect(() => {
+      if (selectedIndex !== undefined) {
+        setInternalSelectedIndex(selectedIndex);
+      }
+    }, [selectedIndex]);
 
     // Reset selection when items change
     React.useEffect(() => {
-      setSelectedIndex(0);
-    }, [items]);
+      setInternalSelectedIndex(0);
+      onSelect?.(0);
+    }, [items, onSelect]);
 
-    // Handle keyboard navigation
-    React.useEffect(() => {
-      const handleKeyDown = (event: KeyboardEvent) => {
-        if (event.key === 'ArrowUp') {
-          event.preventDefault();
-          setSelectedIndex((prev) => (prev - 1 + items.length) % items.length);
-          return true;
-        }
-
-        if (event.key === 'ArrowDown') {
-          event.preventDefault();
-          setSelectedIndex((prev) => (prev + 1) % items.length);
-          return true;
-        }
-
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          if (items[selectedIndex]) {
-            command(items[selectedIndex]);
+    // Expose imperative handle for parent to control selection
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        getSelectedIndex: () => currentIndex,
+        setSelectedIndex: (index: number) => {
+          setInternalSelectedIndex(index);
+          onSelect?.(index);
+        },
+        selectItem: (index: number) => {
+          if (items[index]) {
+            command(items[index]);
           }
-          return true;
-        }
+        },
+      }),
+      [currentIndex, items, command, onSelect]
+    );
 
-        return false;
-      };
-
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [items, selectedIndex, command]);
+    // Scroll selected item into view
+    const selectedRef = React.useRef<HTMLButtonElement>(null);
+    React.useEffect(() => {
+      selectedRef.current?.scrollIntoView({
+        block: 'nearest',
+        behavior: 'smooth',
+      });
+    }, [currentIndex]);
 
     if (isLoading) {
       return (
         <div
-          ref={ref}
           className="bg-popover border border-border rounded-md shadow-md p-2 min-w-[200px]"
+          role="listbox"
+          aria-busy="true"
+          aria-label="Loading mention suggestions"
         >
           <div className="flex items-center gap-2 p-2 text-muted-foreground">
             <LoadingSpinner />
@@ -70,11 +93,33 @@ export const MentionList = React.forwardRef<HTMLDivElement, MentionListProps>(
       );
     }
 
+    if (error) {
+      return (
+        <div
+          className="bg-popover border border-border rounded-md shadow-md p-2 min-w-[200px]"
+          role="alert"
+        >
+          <div className="flex items-center gap-2 p-2 text-destructive">
+            <svg
+              className="w-4 h-4"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            <span className="text-sm">{error}</span>
+          </div>
+        </div>
+      );
+    }
+
     if (items.length === 0) {
       return (
         <div
-          ref={ref}
           className="bg-popover border border-border rounded-md shadow-md p-2 min-w-[200px]"
+          role="listbox"
+          aria-label="No results"
         >
           <div className="p-2 text-muted-foreground text-sm">No users found</div>
         </div>
@@ -83,18 +128,22 @@ export const MentionList = React.forwardRef<HTMLDivElement, MentionListProps>(
 
     return (
       <div
-        ref={ref}
         className="bg-popover border border-border rounded-md shadow-md overflow-hidden min-w-[200px] max-h-[300px] overflow-y-auto"
+        role="listbox"
+        aria-label="Mention suggestions"
       >
         {items.map((item, index) => (
           <button
             key={item.id}
+            ref={index === currentIndex ? selectedRef : null}
             type="button"
+            role="option"
+            aria-selected={index === currentIndex}
             onClick={() => command(item)}
             className={cn(
               'w-full flex items-center gap-3 px-3 py-2 text-left transition-colors',
               'hover:bg-accent focus:bg-accent focus:outline-none',
-              index === selectedIndex && 'bg-accent'
+              index === currentIndex && 'bg-accent'
             )}
           >
             <MentionAvatar item={item} />
@@ -128,14 +177,18 @@ function MentionAvatar({ item }: { item: MentionSuggestion }) {
     return (
       <img
         src={avatarSrc}
-        alt={item.label}
+        alt=""
+        aria-hidden="true"
         className="w-8 h-8 rounded-full object-cover"
       />
     );
   }
 
   return (
-    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+    <div
+      className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium"
+      aria-hidden="true"
+    >
       {initials || '?'}
     </div>
   );
@@ -148,6 +201,7 @@ function LoadingSpinner() {
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle
         className="opacity-25"

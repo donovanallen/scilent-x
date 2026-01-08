@@ -17,6 +17,7 @@ export {
 export {
   MentionList,
   type MentionListProps,
+  type MentionListRef,
   type MentionSuggestion,
 } from './components/mention-list';
 
