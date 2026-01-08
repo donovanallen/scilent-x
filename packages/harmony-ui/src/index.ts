@@ -28,6 +28,7 @@ export {
   formatDuration,
   formatPartialDate,
   formatArtistCredits,
+  formatArtistNames,
   getPrimaryArtistName,
   formatTrackPosition,
   getFrontArtworkUrl,
@@ -120,6 +121,8 @@ export {
   TrackContextMenu,
   AlbumContextMenu,
   ArtistContextMenu,
+  ProviderActionsGroup,
+  ProviderMenuItem,
   // Previews
   EntityPreview,
   TrackHoverPreview,
@@ -141,8 +144,16 @@ export {
   type TrackContextMenuProps,
   type AlbumContextMenuProps,
   type ArtistContextMenuProps,
+  type ProviderActionsGroupProps,
+  type ProviderMenuItemProps,
   type EntityPreviewProps,
   type TrackHoverPreviewProps,
   type AlbumHoverPreviewProps,
   type ArtistHoverPreviewProps,
+  // Provider action types
+  type ProviderActionType,
+  type ProviderName,
+  type ProviderAction,
+  type ProviderActions,
+  type EnabledProvider,
 } from './interactions';

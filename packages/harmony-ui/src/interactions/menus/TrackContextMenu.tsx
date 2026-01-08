@@ -15,11 +15,12 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@scilent-one/ui';
-import { Music, ExternalLink, Copy, Link, ScrollText } from 'lucide-react';
+import { Music, ExternalLink, Copy, Link, ScrollText, Type } from 'lucide-react';
 import { useHarmonyInteraction } from '../provider';
-import type { HarmonizedEntity, MenuAction } from '../types';
+import type { HarmonizedEntity, MenuAction, ProviderAction } from '../types';
 import type { HarmonizedTrack } from '../../types';
-import { formatPlatformName } from '../../utils';
+import { formatPlatformName, formatArtistNames } from '../../utils';
+import { ProviderActionsGroup } from './ProviderActionsGroup';
 
 export interface TrackContextMenuProps {
   /** The track entity */
@@ -36,7 +37,13 @@ export interface TrackContextMenuProps {
 
 /**
  * Context menu content for track entities.
- * Provides actions like: view track, view album, view artist, external links, copy ISRC
+ *
+ * Organized into sections:
+ * - Section 1: Core Actions (view track, view credits)
+ * - Section 2: Copy Submenu (link, ISRC, title, artists)
+ * - Section 3: Open In Submenu (external platform links)
+ * - Section 4: Provider Actions (like, save, add to playlist - dynamic based on connected providers)
+ * - Section 5: Custom Menu Items (app-specific)
  */
 export function TrackContextMenu({
   entity,
@@ -77,8 +84,14 @@ export function TrackContextMenu({
     return links;
   }, [track.sources]);
 
+  // Get provider actions for tracks
+  const providerActions = (interaction.providerActions?.track ?? []) as ProviderAction<HarmonizedTrack>[];
+
   // Get custom menu items for tracks
   const customItems = interaction.customMenuItems?.track ?? [];
+
+  // Determine if we have copy actions
+  const hasCopyActions = track.isrc || interaction.onCopyLink || track.title || track.artists?.length;
 
   const handleViewTrack = React.useCallback(() => {
     interaction.onNavigate?.('track', track);
@@ -96,6 +109,21 @@ export function TrackContextMenu({
     interaction.onCopyLink?.(track, 'track');
     onClose?.();
   }, [interaction, track, onClose]);
+
+  const handleCopyTitle = React.useCallback(() => {
+    if (track.title) {
+      navigator.clipboard.writeText(track.title);
+    }
+    onClose?.();
+  }, [track.title, onClose]);
+
+  const handleCopyArtists = React.useCallback(() => {
+    if (track.artists?.length) {
+      const artistNames = formatArtistNames(track.artists);
+      navigator.clipboard.writeText(artistNames);
+    }
+    onClose?.();
+  }, [track.artists, onClose]);
 
   const handleViewCredits = React.useCallback(() => {
     interaction.onViewCredits?.(track, 'track');
@@ -127,31 +155,69 @@ export function TrackContextMenu({
       <MenuLabel className="truncate">{track.title}</MenuLabel>
       <MenuSeparator />
 
-      {/* Navigation actions */}
+      {/* Section 1: Core Actions */}
       {interaction.onNavigate && (
-        <MenuItem onSelect={handleViewTrack}>
-          <Music className="mr-2 h-4 w-4" />
+        <MenuItem className="gap-2" onSelect={handleViewTrack}>
+          <Music className="size-4" />
           View Track Details
         </MenuItem>
       )}
 
-      {/* View credits if available */}
       {interaction.onViewCredits &&
         track.credits &&
         track.credits.length > 0 && (
-          <MenuItem onSelect={handleViewCredits}>
-            <ScrollText className="mr-2 h-4 w-4" />
+          <MenuItem className="gap-2" onSelect={handleViewCredits}>
+            <ScrollText className="size-4" />
             View Credits
           </MenuItem>
         )}
 
-      {/* External platform links */}
+      {/* Section 2: Copy Submenu */}
+      {hasCopyActions && (
+        <>
+          <MenuSeparator />
+          <MenuSub>
+            <MenuSubTrigger className="gap-2">
+              <Copy className="size-4" />
+              Copy
+            </MenuSubTrigger>
+            <MenuSubContent>
+              {interaction.onCopyLink && (
+                <MenuItem onSelect={handleCopyLink}>
+                  <Link className="mr-2 size-4" />
+                  Copy Link
+                </MenuItem>
+              )}
+              {track.isrc && (
+                <MenuItem onSelect={handleCopyISRC}>
+                  <Copy className="mr-2 size-4" />
+                  Copy ISRC
+                </MenuItem>
+              )}
+              {track.title && (
+                <MenuItem onSelect={handleCopyTitle}>
+                  <Type className="mr-2 size-4" />
+                  Copy Title
+                </MenuItem>
+              )}
+              {track.artists && track.artists.length > 0 && (
+                <MenuItem onSelect={handleCopyArtists}>
+                  <Copy className="mr-2 size-4" />
+                  Copy Artist{track.artists.length > 1 ? 's' : ''}
+                </MenuItem>
+              )}
+            </MenuSubContent>
+          </MenuSub>
+        </>
+      )}
+
+      {/* Section 3: Open In Submenu (external platform links) */}
       {externalLinks.length > 0 && (
         <>
           <MenuSeparator />
           <MenuSub>
-            <MenuSubTrigger>
-              <ExternalLink className="mr-2 h-4 w-4" />
+            <MenuSubTrigger className="gap-2">
+              <ExternalLink className="size-4" />
               Open in...
             </MenuSubTrigger>
             <MenuSubContent>
@@ -168,22 +234,18 @@ export function TrackContextMenu({
         </>
       )}
 
-      {/* Copy actions */}
-      <MenuSeparator />
-      {track.isrc && (
-        <MenuItem onSelect={handleCopyISRC}>
-          <Copy className="mr-2 h-4 w-4" />
-          Copy ISRC
-        </MenuItem>
-      )}
-      {interaction.onCopyLink && (
-        <MenuItem onSelect={handleCopyLink}>
-          <Link className="mr-2 h-4 w-4" />
-          Copy Link
-        </MenuItem>
+      {/* Section 4: Provider Actions */}
+      {providerActions.length > 0 && (
+        <ProviderActionsGroup<HarmonizedTrack>
+          entityType="track"
+          entity={track}
+          actions={providerActions}
+          onClose={onClose}
+          menuType={menuType}
+        />
       )}
 
-      {/* Custom menu items */}
+      {/* Section 5: Custom menu items */}
       {customItems.length > 0 && (
         <>
           <MenuSeparator />
@@ -193,8 +255,9 @@ export function TrackContextMenu({
               disabled={action.disabled ?? false}
               variant={action.destructive ? 'destructive' : 'default'}
               onSelect={() => handleCustomAction(action)}
+              className="gap-2"
             >
-              {action.icon && <action.icon className="mr-2 h-4 w-4" />}
+              {action.icon && <action.icon className="size-4" />}
               {action.label}
             </MenuItem>
           ))}

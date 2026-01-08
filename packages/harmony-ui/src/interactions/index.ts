@@ -10,6 +10,12 @@ export type {
   HarmonyInteractionConfig,
   HarmonyInteractionContextValue,
   InteractiveWrapperProps,
+  // Provider action types
+  ProviderActionType,
+  ProviderName,
+  ProviderAction,
+  ProviderActions,
+  EnabledProvider,
 } from './types';
 
 // Provider
@@ -29,10 +35,14 @@ export {
   TrackContextMenu,
   AlbumContextMenu,
   ArtistContextMenu,
+  ProviderActionsGroup,
+  ProviderMenuItem,
   type EntityMenuProps,
   type TrackContextMenuProps,
   type AlbumContextMenuProps,
   type ArtistContextMenuProps,
+  type ProviderActionsGroupProps,
+  type ProviderMenuItemProps,
 } from './menus';
 
 // Previews

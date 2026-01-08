@@ -15,11 +15,12 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@scilent-one/ui';
-import { User, ExternalLink, Link, Library } from 'lucide-react';
+import { User, ExternalLink, Link, Library, Copy, Type } from 'lucide-react';
 import { useHarmonyInteraction } from '../provider';
-import type { HarmonizedEntity, MenuAction } from '../types';
+import type { HarmonizedEntity, MenuAction, ProviderAction } from '../types';
 import type { HarmonizedArtist } from '../../types';
 import { formatPlatformName } from '../../utils';
+import { ProviderActionsGroup } from './ProviderActionsGroup';
 
 export interface ArtistContextMenuProps {
   /** The artist entity */
@@ -36,7 +37,13 @@ export interface ArtistContextMenuProps {
 
 /**
  * Context menu content for artist entities.
- * Provides actions like: view artist, view discography, external links
+ *
+ * Organized into sections:
+ * - Section 1: Core Actions (view artist, view discography)
+ * - Section 2: Copy Submenu (link, name)
+ * - Section 3: Open In Submenu (external platform links)
+ * - Section 4: Provider Actions (follow - dynamic based on connected providers)
+ * - Section 5: Custom Menu Items (app-specific)
  */
 export function ArtistContextMenu({
   entity,
@@ -77,8 +84,14 @@ export function ArtistContextMenu({
     return links;
   }, [artist.sources]);
 
+  // Get provider actions for artists
+  const providerActions = (interaction.providerActions?.artist ?? []) as ProviderAction<HarmonizedArtist>[];
+
   // Get custom menu items for artists
   const customItems = interaction.customMenuItems?.artist ?? [];
+
+  // Determine if we have copy actions
+  const hasCopyActions = interaction.onCopyLink || artist.name;
 
   const handleViewArtist = React.useCallback(() => {
     interaction.onNavigate?.('artist', artist);
@@ -89,6 +102,13 @@ export function ArtistContextMenu({
     interaction.onCopyLink?.(artist, 'artist');
     onClose?.();
   }, [interaction, artist, onClose]);
+
+  const handleCopyName = React.useCallback(() => {
+    if (artist.name) {
+      navigator.clipboard.writeText(artist.name);
+    }
+    onClose?.();
+  }, [artist.name, onClose]);
 
   const handleViewCredits = React.useCallback(() => {
     interaction.onViewCredits?.(artist, 'artist');
@@ -125,7 +145,7 @@ export function ArtistContextMenu({
       )}
       <MenuSeparator />
 
-      {/* Navigation actions */}
+      {/* Section 1: Core Actions */}
       {interaction.onNavigate && (
         <MenuItem className="gap-2" onSelect={handleViewArtist}>
           <User className="size-4" />
@@ -133,7 +153,6 @@ export function ArtistContextMenu({
         </MenuItem>
       )}
 
-      {/* View credits/metadata */}
       {interaction.onViewCredits && (
         <MenuItem className="gap-2" onSelect={handleViewCredits}>
           <Library className="size-4" />
@@ -141,12 +160,39 @@ export function ArtistContextMenu({
         </MenuItem>
       )}
 
-      {/* External platform links */}
+      {/* Section 2: Copy Submenu */}
+      {hasCopyActions && (
+        <>
+          <MenuSeparator />
+          <MenuSub>
+            <MenuSubTrigger className="gap-2">
+              <Copy className="size-4" />
+              Copy
+            </MenuSubTrigger>
+            <MenuSubContent>
+              {interaction.onCopyLink && (
+                <MenuItem onSelect={handleCopyLink}>
+                  <Link className="mr-2 size-4" />
+                  Copy Link
+                </MenuItem>
+              )}
+              {artist.name && (
+                <MenuItem onSelect={handleCopyName}>
+                  <Type className="mr-2 size-4" />
+                  Copy Name
+                </MenuItem>
+              )}
+            </MenuSubContent>
+          </MenuSub>
+        </>
+      )}
+
+      {/* Section 3: Open In Submenu (external platform links) */}
       {externalLinks.length > 0 && (
         <>
           <MenuSeparator />
           <MenuSub>
-            <MenuSubTrigger className="flex gap-2">
+            <MenuSubTrigger className="gap-2">
               <ExternalLink className="size-4" />
               Open in...
             </MenuSubTrigger>
@@ -164,18 +210,18 @@ export function ArtistContextMenu({
         </>
       )}
 
-      {/* Copy actions */}
-      {interaction.onCopyLink && (
-        <>
-          <MenuSeparator />
-          <MenuItem className="gap-2" onSelect={handleCopyLink}>
-            <Link className="size-4" />
-            Copy Link
-          </MenuItem>
-        </>
+      {/* Section 4: Provider Actions */}
+      {providerActions.length > 0 && (
+        <ProviderActionsGroup<HarmonizedArtist>
+          entityType="artist"
+          entity={artist}
+          actions={providerActions}
+          onClose={onClose}
+          menuType={menuType}
+        />
       )}
 
-      {/* Custom menu items */}
+      {/* Section 5: Custom menu items */}
       {customItems.length > 0 && (
         <>
           <MenuSeparator />
