@@ -1,5 +1,12 @@
 # @scilent-one/harmony-engine
 
+## 0.2.2
+
+### Patch Changes
+
+- 4ccafdb: Enables search by by artist, release and track
+- 9878cbd: Add Artist and Track search functionality; UI: related components
+
 ## 0.2.1
 
 ### Patch Changes
