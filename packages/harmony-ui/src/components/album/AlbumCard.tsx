@@ -111,13 +111,6 @@ export function AlbumCard({
           rounded="none"
           hoverEffect
         />
-        {showType && release.releaseType && (
-          <ReleaseTypePill
-            releaseType={release.releaseType}
-            uppercase
-            className="absolute bottom-2 right-2 text-[10px] opacity-90"
-          />
-        )}
       </div>
 
       <CardHeader className="p-3 pb-1">
@@ -130,20 +123,24 @@ export function AlbumCard({
         <ArtistCredit
           artists={release.artists}
           {...(maxArtists !== undefined && { maxDisplay: maxArtists })}
-          className="text-xs line-clamp-1"
+          className="text-sm line-clamp-1"
         />
-        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-2 justify-between">
           {showYear && release.releaseDate?.year && (
-            <span>{formatPartialDate(release.releaseDate)}</span>
+            <span className="text-xs text-muted-foreground">
+              {formatPartialDate(release.releaseDate)}
+            </span>
           )}
           {showYear &&
             release.releaseDate?.year &&
             showTrackCount &&
             trackCount > 0 && <span>·</span>}
-          {showTrackCount && trackCount > 0 && (
-            <span>
-              {trackCount} {trackCount === 1 ? 'track' : 'tracks'}
-            </span>
+          {showType && release.releaseType && (
+            <ReleaseTypePill
+              releaseType={release.releaseType}
+              uppercase
+              className="ml-auto"
+            />
           )}
         </div>
       </CardContent>

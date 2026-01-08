@@ -15,6 +15,11 @@ export {
   type ArtistDiscographySkeletonProps,
 } from './ArtistDiscography';
 
-export { ArtistListItem, type ArtistListItemProps } from './ArtistListItem';
+export {
+  ArtistListItem,
+  ArtistListItemSkeleton,
+  type ArtistListItemProps,
+  type ArtistListItemSkeletonProps,
+} from './ArtistListItem';
 
 export { ArtistCredit, type ArtistCreditProps } from './ArtistCredit';
