@@ -15,6 +15,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@scilent-one/ui';
+import { User, ExternalLink, Link, Library } from 'lucide-react';
 import { useHarmonyInteraction } from '../provider';
 import type { HarmonizedEntity, MenuAction } from '../types';
 import type { HarmonizedArtist } from '../../types';
@@ -25,29 +26,45 @@ export interface ArtistContextMenuProps {
   entity: HarmonizedEntity;
   /** Callback when menu should close */
   onClose?: () => void;
+  /**
+   * Which menu type this content is rendered inside.
+   * Determines whether to use ContextMenu* or DropdownMenu* components.
+   * @default 'context'
+   */
+  menuType?: 'context' | 'dropdown';
 }
 
 /**
  * Context menu content for artist entities.
  * Provides actions like: view artist, view discography, external links
  */
-export function ArtistContextMenu({ entity, onClose }: ArtistContextMenuProps) {
+export function ArtistContextMenu({
+  entity,
+  onClose,
+  menuType = 'context',
+}: ArtistContextMenuProps) {
   const interaction = useHarmonyInteraction();
   const artist = entity as HarmonizedArtist;
-  const isWeb = interaction.platform === 'web';
+  const isContextMenu = menuType === 'context';
 
-  // Menu components based on platform
-  const MenuItem = isWeb ? ContextMenuItem : DropdownMenuItem;
-  const MenuSeparator = isWeb ? ContextMenuSeparator : DropdownMenuSeparator;
-  const MenuLabel = isWeb ? ContextMenuLabel : DropdownMenuLabel;
-  const MenuSub = isWeb ? ContextMenuSub : DropdownMenuSub;
-  const MenuSubTrigger = isWeb ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
-  const MenuSubContent = isWeb ? ContextMenuSubContent : DropdownMenuSubContent;
+  // Menu components based on menu type (not platform)
+  const MenuItem = isContextMenu ? ContextMenuItem : DropdownMenuItem;
+  const MenuSeparator = isContextMenu
+    ? ContextMenuSeparator
+    : DropdownMenuSeparator;
+  const MenuLabel = isContextMenu ? ContextMenuLabel : DropdownMenuLabel;
+  const MenuSub = isContextMenu ? ContextMenuSub : DropdownMenuSub;
+  const MenuSubTrigger = isContextMenu
+    ? ContextMenuSubTrigger
+    : DropdownMenuSubTrigger;
+  const MenuSubContent = isContextMenu
+    ? ContextMenuSubContent
+    : DropdownMenuSubContent;
 
   // Build external links from sources
   const externalLinks = React.useMemo(() => {
     const links: { platform: string; url: string }[] = [];
-    
+
     artist.sources?.forEach((source) => {
       if (source.url) {
         links.push({
@@ -78,19 +95,25 @@ export function ArtistContextMenu({ entity, onClose }: ArtistContextMenuProps) {
     onClose?.();
   }, [interaction, artist, onClose]);
 
-  const handleOpenExternal = React.useCallback((url: string, platform: string) => {
-    interaction.onOpenExternal?.(url, platform);
-    onClose?.();
-  }, [interaction, onClose]);
+  const handleOpenExternal = React.useCallback(
+    (url: string, platform: string) => {
+      interaction.onOpenExternal?.(url, platform);
+      onClose?.();
+    },
+    [interaction, onClose]
+  );
 
-  const handleCustomAction = React.useCallback((action: MenuAction) => {
-    if (action.onClick) {
-      action.onClick();
-    } else if (action.href) {
-      window.open(action.href, '_blank');
-    }
-    onClose?.();
-  }, [onClose]);
+  const handleCustomAction = React.useCallback(
+    (action: MenuAction) => {
+      if (action.onClick) {
+        action.onClick();
+      } else if (action.href) {
+        window.open(action.href, '_blank');
+      }
+      onClose?.();
+    },
+    [onClose]
+  );
 
   return (
     <>
@@ -104,14 +127,16 @@ export function ArtistContextMenu({ entity, onClose }: ArtistContextMenuProps) {
 
       {/* Navigation actions */}
       {interaction.onNavigate && (
-        <MenuItem onSelect={handleViewArtist}>
+        <MenuItem className="gap-2" onSelect={handleViewArtist}>
+          <User className="size-4" />
           View Artist
         </MenuItem>
       )}
 
       {/* View credits/metadata */}
       {interaction.onViewCredits && (
-        <MenuItem onSelect={handleViewCredits}>
+        <MenuItem className="gap-2" onSelect={handleViewCredits}>
+          <Library className="size-4" />
           View Discography
         </MenuItem>
       )}
@@ -121,7 +146,10 @@ export function ArtistContextMenu({ entity, onClose }: ArtistContextMenuProps) {
         <>
           <MenuSeparator />
           <MenuSub>
-            <MenuSubTrigger>Open in...</MenuSubTrigger>
+            <MenuSubTrigger className="flex gap-2">
+              <ExternalLink className="size-4" />
+              Open in...
+            </MenuSubTrigger>
             <MenuSubContent>
               {externalLinks.map(({ platform, url }) => (
                 <MenuItem
@@ -140,7 +168,8 @@ export function ArtistContextMenu({ entity, onClose }: ArtistContextMenuProps) {
       {interaction.onCopyLink && (
         <>
           <MenuSeparator />
-          <MenuItem onSelect={handleCopyLink}>
+          <MenuItem className="gap-2" onSelect={handleCopyLink}>
+            <Link className="size-4" />
             Copy Link
           </MenuItem>
         </>
@@ -156,8 +185,9 @@ export function ArtistContextMenu({ entity, onClose }: ArtistContextMenuProps) {
               disabled={action.disabled ?? false}
               variant={action.destructive ? 'destructive' : 'default'}
               onSelect={() => handleCustomAction(action)}
+              className="gap-2"
             >
-              {action.icon && <action.icon className="mr-2 h-4 w-4" />}
+              {action.icon && <action.icon className="size-4" />}
               {action.label}
             </MenuItem>
           ))}

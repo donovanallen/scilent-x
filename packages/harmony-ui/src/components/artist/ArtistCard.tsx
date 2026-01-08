@@ -10,6 +10,7 @@ import {
 } from '@scilent-one/ui';
 import type { HarmonizedArtist } from '../../types';
 import { InteractiveWrapper } from '../../interactions/InteractiveWrapper';
+import { User } from 'lucide-react';
 
 export interface ArtistCardProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -25,6 +26,10 @@ export interface ArtistCardProps extends Omit<
   onClick?: ((artist: HarmonizedArtist) => void) | undefined;
   /** Whether to enable interactive features (context menu, hover preview) */
   interactive?: boolean | undefined;
+  /** Side to position the hover preview @default 'right' */
+  previewSide: 'top' | 'right' | 'bottom' | 'left';
+  /** Alignment for the hover preview @default 'start' */
+  previewAlign: 'start' | 'center' | 'end';
 }
 
 export function ArtistCard({
@@ -33,6 +38,8 @@ export function ArtistCard({
   showGenres = true,
   onClick,
   interactive = false,
+  previewSide,
+  previewAlign,
   className,
   ...props
 }: ArtistCardProps) {
@@ -67,21 +74,8 @@ export function ArtistCard({
             loading="lazy"
           />
         ) : (
-          <div className="h-full w-full flex items-center justify-center">
-            <svg
-              className="h-1/3 w-1/3 text-muted-foreground"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
+          <div className="size-full flex items-center justify-center">
+            <User className="size-16 text-muted-foreground" />
           </div>
         )}
       </div>
@@ -116,7 +110,12 @@ export function ArtistCard({
 
   if (interactive) {
     return (
-      <InteractiveWrapper entityType="artist" entity={artist}>
+      <InteractiveWrapper
+        entityType="artist"
+        entity={artist}
+        previewSide={previewSide}
+        previewAlign={previewAlign}
+      >
         {card}
       </InteractiveWrapper>
     );

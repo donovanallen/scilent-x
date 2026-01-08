@@ -15,6 +15,14 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@scilent-one/ui';
+import {
+  Disc3,
+  User,
+  ExternalLink,
+  Copy,
+  Link,
+  ScrollText,
+} from 'lucide-react';
 import { useHarmonyInteraction } from '../provider';
 import type { HarmonizedEntity, MenuAction } from '../types';
 import type { HarmonizedRelease } from '../../types';
@@ -25,24 +33,40 @@ export interface AlbumContextMenuProps {
   entity: HarmonizedEntity;
   /** Callback when menu should close */
   onClose?: () => void;
+  /**
+   * Which menu type this content is rendered inside.
+   * Determines whether to use ContextMenu* or DropdownMenu* components.
+   * @default 'context'
+   */
+  menuType?: 'context' | 'dropdown';
 }
 
 /**
  * Context menu content for album/release entities.
  * Provides actions like: view album, view artist, external links, copy UPC
  */
-export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
+export function AlbumContextMenu({
+  entity,
+  onClose,
+  menuType = 'context',
+}: AlbumContextMenuProps) {
   const interaction = useHarmonyInteraction();
   const release = entity as HarmonizedRelease;
-  const isWeb = interaction.platform === 'web';
+  const isContextMenu = menuType === 'context';
 
-  // Menu components based on platform
-  const MenuItem = isWeb ? ContextMenuItem : DropdownMenuItem;
-  const MenuSeparator = isWeb ? ContextMenuSeparator : DropdownMenuSeparator;
-  const MenuLabel = isWeb ? ContextMenuLabel : DropdownMenuLabel;
-  const MenuSub = isWeb ? ContextMenuSub : DropdownMenuSub;
-  const MenuSubTrigger = isWeb ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
-  const MenuSubContent = isWeb ? ContextMenuSubContent : DropdownMenuSubContent;
+  // Menu components based on menu type (not platform)
+  const MenuItem = isContextMenu ? ContextMenuItem : DropdownMenuItem;
+  const MenuSeparator = isContextMenu
+    ? ContextMenuSeparator
+    : DropdownMenuSeparator;
+  const MenuLabel = isContextMenu ? ContextMenuLabel : DropdownMenuLabel;
+  const MenuSub = isContextMenu ? ContextMenuSub : DropdownMenuSub;
+  const MenuSubTrigger = isContextMenu
+    ? ContextMenuSubTrigger
+    : DropdownMenuSubTrigger;
+  const MenuSubContent = isContextMenu
+    ? ContextMenuSubContent
+    : DropdownMenuSubContent;
 
   // Build external links from sources
   const externalLinks = React.useMemo(() => {
@@ -132,9 +156,15 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
       {/* Navigation actions */}
       {interaction.onNavigate && (
         <>
-          <MenuItem onSelect={handleViewAlbum}>View Album Details</MenuItem>
+          <MenuItem onSelect={handleViewAlbum}>
+            <Disc3 className="mr-2 h-4 w-4" />
+            View Album Details
+          </MenuItem>
           {primaryArtist && (
-            <MenuItem onSelect={handleViewArtist}>View Artist</MenuItem>
+            <MenuItem onSelect={handleViewArtist}>
+              <User className="mr-2 h-4 w-4" />
+              View Artist
+            </MenuItem>
           )}
         </>
       )}
@@ -142,6 +172,7 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
       {/* View credits/metadata */}
       {interaction.onViewCredits && (
         <MenuItem onSelect={handleViewCredits}>
+          <ScrollText className="mr-2 h-4 w-4" />
           View Credits & Metadata
         </MenuItem>
       )}
@@ -151,7 +182,10 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
         <>
           <MenuSeparator />
           <MenuSub>
-            <MenuSubTrigger>Open in...</MenuSubTrigger>
+            <MenuSubTrigger>
+              <ExternalLink className="mr-2 h-4 w-4" />
+              Open in...
+            </MenuSubTrigger>
             <MenuSubContent>
               {externalLinks.map(({ platform, url }) => (
                 <MenuItem
@@ -169,10 +203,16 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
       {/* Copy actions */}
       <MenuSeparator />
       {release.gtin && (
-        <MenuItem onSelect={handleCopyUPC}>Copy UPC/GTIN</MenuItem>
+        <MenuItem onSelect={handleCopyUPC}>
+          <Copy className="mr-2 h-4 w-4" />
+          Copy UPC/GTIN
+        </MenuItem>
       )}
       {interaction.onCopyLink && (
-        <MenuItem onSelect={handleCopyLink}>Copy Link</MenuItem>
+        <MenuItem onSelect={handleCopyLink}>
+          <Link className="mr-2 h-4 w-4" />
+          Copy Link
+        </MenuItem>
       )}
 
       {/* Custom menu items */}

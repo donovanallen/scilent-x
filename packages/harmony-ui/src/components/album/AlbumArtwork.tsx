@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { cn, Skeleton } from '@scilent-one/ui';
+import { Disc3 } from 'lucide-react';
 
 export interface AlbumArtworkProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -108,7 +109,7 @@ export function AlbumArtwork({
         aria-label={alt}
         {...props}
       >
-        <AlbumPlaceholderIcon />
+        <Disc3 className="size-16 text-muted-foreground" />
       </div>
     );
   }
@@ -131,31 +132,6 @@ export function AlbumArtwork({
         onError={handleImageError}
       />
     </div>
-  );
-}
-
-/**
- * Disc/vinyl placeholder icon displayed when no album artwork is available
- */
-function AlbumPlaceholderIcon() {
-  return (
-    <svg
-      className="h-1/3 w-1/3 text-muted-foreground"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      {/* Outer disc */}
-      <circle cx="12" cy="12" r="10" strokeWidth={1.5} />
-      {/* Inner ring */}
-      <circle cx="12" cy="12" r="6" strokeWidth={1.5} />
-      {/* Center hole */}
-      <circle cx="12" cy="12" r="2" strokeWidth={1.5} />
-      {/* Grooves */}
-      <circle cx="12" cy="12" r="8" strokeWidth={0.5} opacity={0.5} />
-      <circle cx="12" cy="12" r="4" strokeWidth={0.5} opacity={0.5} />
-    </svg>
   );
 }
 

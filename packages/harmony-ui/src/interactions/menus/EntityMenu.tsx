@@ -116,19 +116,40 @@ export function EntityMenu({
     return <>{children}</>;
   }
 
-  // Get the menu content based on entity type
+  // Determine which menu type we'll use based on platform
+  const menuType = interaction.platform === 'web' ? 'context' : 'dropdown';
+
+  // Get the menu content based on entity type, passing the menu type
   const menuContent = React.useMemo(() => {
     switch (entityType) {
       case 'track':
-        return <TrackContextMenu entity={entity} onClose={handleClose} />;
+        return (
+          <TrackContextMenu
+            entity={entity}
+            onClose={handleClose}
+            menuType={menuType}
+          />
+        );
       case 'album':
-        return <AlbumContextMenu entity={entity} onClose={handleClose} />;
+        return (
+          <AlbumContextMenu
+            entity={entity}
+            onClose={handleClose}
+            menuType={menuType}
+          />
+        );
       case 'artist':
-        return <ArtistContextMenu entity={entity} onClose={handleClose} />;
+        return (
+          <ArtistContextMenu
+            entity={entity}
+            onClose={handleClose}
+            menuType={menuType}
+          />
+        );
       default:
         return null;
     }
-  }, [entityType, entity, handleClose]);
+  }, [entityType, entity, handleClose, menuType]);
 
   // Web platform: use right-click context menu
   if (interaction.platform === 'web') {

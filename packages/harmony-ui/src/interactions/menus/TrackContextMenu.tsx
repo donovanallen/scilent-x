@@ -15,6 +15,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@scilent-one/ui';
+import { Music, ExternalLink, Copy, Link, ScrollText } from 'lucide-react';
 import { useHarmonyInteraction } from '../provider';
 import type { HarmonizedEntity, MenuAction } from '../types';
 import type { HarmonizedTrack } from '../../types';
@@ -25,29 +26,45 @@ export interface TrackContextMenuProps {
   entity: HarmonizedEntity;
   /** Callback when menu should close */
   onClose?: () => void;
+  /**
+   * Which menu type this content is rendered inside.
+   * Determines whether to use ContextMenu* or DropdownMenu* components.
+   * @default 'context'
+   */
+  menuType?: 'context' | 'dropdown';
 }
 
 /**
  * Context menu content for track entities.
  * Provides actions like: view track, view album, view artist, external links, copy ISRC
  */
-export function TrackContextMenu({ entity, onClose }: TrackContextMenuProps) {
+export function TrackContextMenu({
+  entity,
+  onClose,
+  menuType = 'context',
+}: TrackContextMenuProps) {
   const interaction = useHarmonyInteraction();
   const track = entity as HarmonizedTrack;
-  const isWeb = interaction.platform === 'web';
+  const isContextMenu = menuType === 'context';
 
-  // Menu components based on platform
-  const MenuItem = isWeb ? ContextMenuItem : DropdownMenuItem;
-  const MenuSeparator = isWeb ? ContextMenuSeparator : DropdownMenuSeparator;
-  const MenuLabel = isWeb ? ContextMenuLabel : DropdownMenuLabel;
-  const MenuSub = isWeb ? ContextMenuSub : DropdownMenuSub;
-  const MenuSubTrigger = isWeb ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
-  const MenuSubContent = isWeb ? ContextMenuSubContent : DropdownMenuSubContent;
+  // Menu components based on menu type (not platform)
+  const MenuItem = isContextMenu ? ContextMenuItem : DropdownMenuItem;
+  const MenuSeparator = isContextMenu
+    ? ContextMenuSeparator
+    : DropdownMenuSeparator;
+  const MenuLabel = isContextMenu ? ContextMenuLabel : DropdownMenuLabel;
+  const MenuSub = isContextMenu ? ContextMenuSub : DropdownMenuSub;
+  const MenuSubTrigger = isContextMenu
+    ? ContextMenuSubTrigger
+    : DropdownMenuSubTrigger;
+  const MenuSubContent = isContextMenu
+    ? ContextMenuSubContent
+    : DropdownMenuSubContent;
 
   // Build external links from sources
   const externalLinks = React.useMemo(() => {
     const links: { platform: string; url: string }[] = [];
-    
+
     track.sources?.forEach((source) => {
       if (source.url) {
         links.push({
@@ -85,19 +102,25 @@ export function TrackContextMenu({ entity, onClose }: TrackContextMenuProps) {
     onClose?.();
   }, [interaction, track, onClose]);
 
-  const handleOpenExternal = React.useCallback((url: string, platform: string) => {
-    interaction.onOpenExternal?.(url, platform);
-    onClose?.();
-  }, [interaction, onClose]);
+  const handleOpenExternal = React.useCallback(
+    (url: string, platform: string) => {
+      interaction.onOpenExternal?.(url, platform);
+      onClose?.();
+    },
+    [interaction, onClose]
+  );
 
-  const handleCustomAction = React.useCallback((action: MenuAction) => {
-    if (action.onClick) {
-      action.onClick();
-    } else if (action.href) {
-      window.open(action.href, '_blank');
-    }
-    onClose?.();
-  }, [onClose]);
+  const handleCustomAction = React.useCallback(
+    (action: MenuAction) => {
+      if (action.onClick) {
+        action.onClick();
+      } else if (action.href) {
+        window.open(action.href, '_blank');
+      }
+      onClose?.();
+    },
+    [onClose]
+  );
 
   return (
     <>
@@ -107,23 +130,30 @@ export function TrackContextMenu({ entity, onClose }: TrackContextMenuProps) {
       {/* Navigation actions */}
       {interaction.onNavigate && (
         <MenuItem onSelect={handleViewTrack}>
+          <Music className="mr-2 h-4 w-4" />
           View Track Details
         </MenuItem>
       )}
 
       {/* View credits if available */}
-      {interaction.onViewCredits && track.credits && track.credits.length > 0 && (
-        <MenuItem onSelect={handleViewCredits}>
-          View Credits
-        </MenuItem>
-      )}
+      {interaction.onViewCredits &&
+        track.credits &&
+        track.credits.length > 0 && (
+          <MenuItem onSelect={handleViewCredits}>
+            <ScrollText className="mr-2 h-4 w-4" />
+            View Credits
+          </MenuItem>
+        )}
 
       {/* External platform links */}
       {externalLinks.length > 0 && (
         <>
           <MenuSeparator />
           <MenuSub>
-            <MenuSubTrigger>Open in...</MenuSubTrigger>
+            <MenuSubTrigger>
+              <ExternalLink className="mr-2 h-4 w-4" />
+              Open in...
+            </MenuSubTrigger>
             <MenuSubContent>
               {externalLinks.map(({ platform, url }) => (
                 <MenuItem
@@ -142,11 +172,13 @@ export function TrackContextMenu({ entity, onClose }: TrackContextMenuProps) {
       <MenuSeparator />
       {track.isrc && (
         <MenuItem onSelect={handleCopyISRC}>
+          <Copy className="mr-2 h-4 w-4" />
           Copy ISRC
         </MenuItem>
       )}
       {interaction.onCopyLink && (
         <MenuItem onSelect={handleCopyLink}>
+          <Link className="mr-2 h-4 w-4" />
           Copy Link
         </MenuItem>
       )}

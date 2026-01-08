@@ -80,6 +80,8 @@ export function TrackList({
                   showDiscNumber={!groupByDisc && hasMultipleDiscs}
                   isPlaying={playingTrackId === trackId}
                   onPlay={onTrackPlay}
+                  previewSide="bottom"
+                  previewAlign="start"
                 />
               );
             })}

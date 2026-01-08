@@ -42,7 +42,7 @@ export function TrackListItem({
       {/* Track info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h4 className="font-medium truncate">{track.title}</h4>
+          <h5 className="truncate">{track.title}</h5>
           {track.explicit && (
             <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
               E

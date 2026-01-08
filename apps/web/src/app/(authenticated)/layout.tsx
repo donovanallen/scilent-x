@@ -10,6 +10,7 @@ import {
 import * as React from 'react';
 
 import { AppSidebar } from '../../components/app-sidebar';
+import { HarmonyInteractionProvider } from '../../components/harmony-interaction-provider';
 
 export default function AuthenticatedLayout({
   children,
@@ -29,7 +30,7 @@ export default function AuthenticatedLayout({
           <div className='flex-1' />
         </header>
         <main className='flex flex-1 flex-col overflow-auto p-6'>
-          {children}
+          <HarmonyInteractionProvider>{children}</HarmonyInteractionProvider>
         </main>
       </SidebarInset>
     </SidebarProvider>
