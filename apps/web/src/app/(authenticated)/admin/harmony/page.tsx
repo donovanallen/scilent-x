@@ -151,8 +151,8 @@ async function EngineStatusCard() {
         <CardContent>
           <div className='space-y-3 text-sm'>
             <p className='text-muted-foreground'>
-              Configuration details are managed securely on the server and are not
-              displayed in this dashboard.
+              Configuration details are managed securely on the server and are
+              not displayed in this dashboard.
             </p>
           </div>
         </CardContent>

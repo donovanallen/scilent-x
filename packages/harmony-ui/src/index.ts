@@ -50,6 +50,7 @@ export {
   HeroSkeleton,
   PageSkeleton,
   InlineSkeleton,
+  Artwork,
   type PlatformName,
   type PlatformBadgeProps,
   type PlatformBadgeListProps,
@@ -63,6 +64,7 @@ export {
   type HeroSkeletonProps,
   type PageSkeletonProps,
   type InlineSkeletonProps,
+  type ArtworkProps,
 } from './components/common';
 
 // Track components
@@ -89,10 +91,14 @@ export {
   ArtistHeaderSkeleton,
   ArtistDiscography,
   ArtistDiscographySkeleton,
+  ArtistListItem,
+  ArtistCredit,
   type ArtistCardProps,
   type ArtistHeaderProps,
   type ArtistDiscographyProps,
   type ArtistDiscographySkeletonProps,
+  type ArtistListItemProps,
+  type ArtistCreditProps,
 } from './components/artist';
 
 // Album components
@@ -101,6 +107,8 @@ export {
   AlbumArtworkSkeleton,
   AlbumCard,
   AlbumCardSkeleton,
+  AlbumListItem,
+  AlbumListItemSkeleton,
   AlbumTrackList,
   AlbumTrackListSkeleton,
   AlbumDetails,
@@ -108,6 +116,8 @@ export {
   type AlbumArtworkProps,
   type AlbumArtworkSkeletonProps,
   type AlbumCardProps,
+  type AlbumListItemProps,
+  type AlbumListItemSkeletonProps,
   type AlbumTrackListProps,
   type AlbumTrackListSkeletonProps,
   type AlbumDetailsProps,

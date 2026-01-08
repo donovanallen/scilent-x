@@ -4,7 +4,7 @@ import type { HarmonizedArtist } from '@scilent-one/harmony-engine';
 import { Badge, cn } from '@scilent-one/ui';
 import { ExternalLink, User } from 'lucide-react';
 
-interface ArtistListItemProps {
+export interface ArtistListItemProps {
   artist: HarmonizedArtist;
   showProviders?: boolean;
   className?: string;
