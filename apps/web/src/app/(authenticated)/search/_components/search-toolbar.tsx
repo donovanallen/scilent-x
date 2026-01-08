@@ -12,7 +12,7 @@ import {
 } from '@scilent-one/ui';
 import { Grid3X3, List, Loader2 } from 'lucide-react';
 
-import type { SearchType, SortField, SortOption } from './actions';
+import type { SearchType, SortField, SortOption } from '../actions';
 
 interface SearchToolbarProps {
   total: number;
@@ -147,14 +147,14 @@ export function SearchToolbar({
           onValueChange={(value) => {
             if (value) onViewChange(value as 'list' | 'grid');
           }}
-          className='bg-muted rounded-md p-0.5'
+          className='bg-muted text-muted-foreground rounded-md p-0.5'
         >
           <ToggleGroupItem
             value='list'
             aria-label='List view'
             className={cn(
               'h-7 w-7 p-0',
-              view === 'list' && 'bg-background shadow-sm'
+              'data-[state=on]:bg-border data-[state=on]:text-foreground'
             )}
           >
             <List className='size-4' />
@@ -164,7 +164,7 @@ export function SearchToolbar({
             aria-label='Grid view'
             className={cn(
               'h-7 w-7 p-0',
-              view === 'grid' && 'bg-background shadow-sm'
+              'data-[state=on]:bg-border data-[state=on]:text-foreground'
             )}
           >
             <Grid3X3 className='size-4' />

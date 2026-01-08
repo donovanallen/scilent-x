@@ -14,7 +14,8 @@ import {
   type SearchFilters,
   type SearchType,
   type SortOption,
-} from './actions';
+} from '../actions';
+
 import { SearchInput } from './search-input';
 import { SearchResults } from './search-results';
 import { SearchToolbar } from './search-toolbar';
@@ -51,7 +52,7 @@ export function SearchContainer({ providers }: SearchContainerProps) {
     field: 'relevance',
     direction: 'desc',
   });
-  const [view, setView] = useState<'list' | 'grid'>('list');
+  const [view, setView] = useState<'list' | 'grid'>('grid');
 
   const handleSearch = useCallback(
     (searchQuery: string, searchFilters?: SearchFilters, type?: SearchType) => {
@@ -200,7 +201,7 @@ export function SearchContainer({ providers }: SearchContainerProps) {
   );
 
   return (
-    <div className='flex flex-col flex-1 min-h-0 gap-4'>
+    <div className='flex flex-col flex-1 min-h-0 gap-2'>
       <SearchInput
         onSearch={handleSearch}
         filters={filters}
