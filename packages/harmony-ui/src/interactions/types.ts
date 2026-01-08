@@ -160,4 +160,14 @@ export interface InteractiveWrapperProps {
   className?: string;
   /** Whether to disable interactions for this wrapper */
   disabled?: boolean;
+  /** 
+   * Side to position the hover preview 
+   * @default 'right'
+   */
+  previewSide?: 'top' | 'right' | 'bottom' | 'left';
+  /**
+   * Alignment for the hover preview
+   * @default 'start'
+   */
+  previewAlign?: 'start' | 'center' | 'end';
 }

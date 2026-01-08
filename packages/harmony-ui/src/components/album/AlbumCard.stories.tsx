@@ -1,22 +1,27 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
-import { AlbumCard, AlbumCardSkeleton } from "./AlbumCard";
-import { mockRelease, mockSingle, mockEP, PLACEHOLDER_ALBUM_ART } from "../../__stories__/mock-data";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { AlbumCard, AlbumCardSkeleton } from './AlbumCard';
+import {
+  mockRelease,
+  mockSingle,
+  mockEP,
+  PLACEHOLDER_ALBUM_ART,
+} from '../../__stories__/mock-data';
 
 const meta: Meta<typeof AlbumCard> = {
-  title: "Album/AlbumCard",
+  title: 'Album/AlbumCard',
   component: AlbumCard,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "padded",
+    layout: 'padded',
   },
   argTypes: {
     showYear: {
-      control: "boolean",
-      description: "Show release year",
+      control: 'boolean',
+      description: 'Show release year',
     },
     showType: {
-      control: "boolean",
-      description: "Show release type badge",
+      control: 'boolean',
+      description: 'Show release type badge',
     },
   },
   args: {
@@ -91,15 +96,25 @@ export const Grid: Story = {
   decorators: [
     () => (
       <div className="grid grid-cols-4 gap-4 w-[900px]">
-        <AlbumCard release={mockRelease} />
-        <AlbumCard release={mockSingle} />
-        <AlbumCard release={mockEP} />
+        <AlbumCard
+          release={mockRelease}
+          previewSide="bottom"
+          previewAlign="start"
+        />
+        <AlbumCard
+          release={mockSingle}
+          previewSide="bottom"
+          previewAlign="start"
+        />
+        <AlbumCard release={mockEP} previewSide="bottom" previewAlign="start" />
         <AlbumCard
           release={{
             ...mockRelease,
-            title: "OK Computer",
-            releaseType: "album",
+            title: 'OK Computer',
+            releaseType: 'album',
           }}
+          previewSide="bottom"
+          previewAlign="start"
         />
         <AlbumCardSkeleton />
         <AlbumCardSkeleton />

@@ -27,6 +27,10 @@ export interface TrackCardProps extends Omit<
   onPlay?: ((track: HarmonizedTrack) => void) | undefined;
   /** Whether to enable interactive features (context menu, hover preview) */
   interactive?: boolean | undefined;
+  /** Side to position the hover preview @default 'right' */
+  previewSide: 'top' | 'right' | 'bottom' | 'left';
+  /** Alignment for the hover preview @default 'start' */
+  previewAlign: 'start' | 'center' | 'end';
 }
 
 export function TrackCard({
@@ -37,6 +41,8 @@ export function TrackCard({
   isPlaying = false,
   onPlay,
   interactive = false,
+  previewSide,
+  previewAlign,
   className,
   ...props
 }: TrackCardProps) {
@@ -105,7 +111,12 @@ export function TrackCard({
 
   if (interactive) {
     return (
-      <InteractiveWrapper entityType="track" entity={track}>
+      <InteractiveWrapper
+        entityType="track"
+        entity={track}
+        previewSide={previewSide}
+        previewAlign={previewAlign}
+      >
         {card}
       </InteractiveWrapper>
     );

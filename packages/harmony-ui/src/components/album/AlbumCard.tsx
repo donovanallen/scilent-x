@@ -33,6 +33,10 @@ export interface AlbumCardProps extends Omit<
   onClick?: ((release: HarmonizedRelease) => void) | undefined;
   /** Whether to enable interactive features (context menu, hover preview) */
   interactive?: boolean | undefined;
+  /** Side to position the hover preview @default 'right' */
+  previewSide: 'top' | 'right' | 'bottom' | 'left';
+  /** Alignment for the hover preview @default 'start' */
+  previewAlign: 'start' | 'center' | 'end';
 }
 
 const releaseTypeLabels: Record<string, string> = {
@@ -53,6 +57,8 @@ export function AlbumCard({
   showType = true,
   onClick,
   interactive = false,
+  previewSide,
+  previewAlign,
   className,
   ...props
 }: AlbumCardProps) {
@@ -81,6 +87,14 @@ export function AlbumCard({
       {...props}
     >
       <div className="relative">
+        {showType && (
+          <Badge
+            variant="secondary"
+            className="absolute top-1.5 right-2 text-xs z-10"
+          >
+            {releaseTypeLabels[release.releaseType] || release.releaseType}
+          </Badge>
+        )}
         <AlbumArtwork
           src={imageUrl}
           alt={release.title}
@@ -88,14 +102,6 @@ export function AlbumCard({
           rounded="none"
           hoverEffect
         />
-        {showType && (
-          <Badge
-            variant="secondary"
-            className="absolute bottom-2 left-2 text-xs"
-          >
-            {releaseTypeLabels[release.releaseType] || release.releaseType}
-          </Badge>
-        )}
       </div>
 
       <CardHeader className="p-3 pb-1">
@@ -108,18 +114,30 @@ export function AlbumCard({
         <p className="text-xs text-muted-foreground truncate">
           {formatArtistCredits(release.artists)}
         </p>
-        {showYear && release.releaseDate?.year && (
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {formatPartialDate(release.releaseDate)}
-          </p>
-        )}
+        <div className="flex items-center justify-between">
+          {showYear && release.releaseDate?.year && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {formatPartialDate(release.releaseDate)}
+            </p>
+          )}
+          {showType && (
+            <Badge variant="secondary" className="text-xs z-10">
+              {releaseTypeLabels[release.releaseType] || release.releaseType}
+            </Badge>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
 
   if (interactive) {
     return (
-      <InteractiveWrapper entityType="album" entity={release}>
+      <InteractiveWrapper
+        entityType="album"
+        entity={release}
+        previewSide={previewSide}
+        previewAlign={previewAlign}
+      >
         {card}
       </InteractiveWrapper>
     );

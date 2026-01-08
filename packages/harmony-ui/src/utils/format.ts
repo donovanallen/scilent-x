@@ -85,9 +85,12 @@ export function getPrimaryArtistName(
  * Format track position with optional disc number
  */
 export function formatTrackPosition(
-  position: number,
+  position: number | undefined,
   discNumber?: number
 ): string {
+  if (position === undefined || position === null) {
+    return '-';
+  }
   if (discNumber && discNumber > 1) {
     return `${discNumber}.${position}`;
   }

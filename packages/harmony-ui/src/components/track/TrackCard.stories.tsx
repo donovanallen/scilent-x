@@ -1,27 +1,31 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
-import { TrackCard, TrackCardSkeleton } from "./TrackCard";
-import { HarmonyInteractionProvider } from "../../interactions";
-import { mockTrack, mockTrackExplicit, PLACEHOLDER_ALBUM_ART_SM } from "../../__stories__/mock-data";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { TrackCard, TrackCardSkeleton } from './TrackCard';
+import { HarmonyInteractionProvider } from '../../interactions';
+import {
+  mockTrack,
+  mockTrackExplicit,
+  PLACEHOLDER_ALBUM_ART_SM,
+} from '../../__stories__/mock-data';
 
 const meta: Meta<typeof TrackCard> = {
-  title: "Track/TrackCard",
+  title: 'Track/TrackCard',
   component: TrackCard,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "padded",
+    layout: 'padded',
   },
   argTypes: {
     showPosition: {
-      control: "boolean",
-      description: "Show track position number",
+      control: 'boolean',
+      description: 'Show track position number',
     },
     showDiscNumber: {
-      control: "boolean",
-      description: "Show disc number in position",
+      control: 'boolean',
+      description: 'Show disc number in position',
     },
     isPlaying: {
-      control: "boolean",
-      description: "Highlight as currently playing",
+      control: 'boolean',
+      description: 'Highlight as currently playing',
     },
   },
   args: {
@@ -118,6 +122,8 @@ export const WithInteractiveFeatures: Story = {
         track={mockTrackExplicit}
         artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
         interactive
+        previewSide="bottom"
+        previewAlign="start"
       />
     </div>
   ),

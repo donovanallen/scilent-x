@@ -1,18 +1,22 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ArtistCard, ArtistCardSkeleton } from "./ArtistCard";
-import { mockArtist, mockSoloArtist, PLACEHOLDER_ARTIST_IMAGE } from "../../__stories__/mock-data";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { ArtistCard, ArtistCardSkeleton } from './ArtistCard';
+import {
+  mockArtist,
+  mockSoloArtist,
+  PLACEHOLDER_ARTIST_IMAGE,
+} from '../../__stories__/mock-data';
 
 const meta: Meta<typeof ArtistCard> = {
-  title: "Artist/ArtistCard",
+  title: 'Artist/ArtistCard',
   component: ArtistCard,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "padded",
+    layout: 'padded',
   },
   argTypes: {
     showGenres: {
-      control: "boolean",
-      description: "Show genre badges",
+      control: 'boolean',
+      description: 'Show genre badges',
     },
   },
   args: {
@@ -73,17 +77,25 @@ export const Grid: Story = {
   decorators: [
     () => (
       <div className="grid grid-cols-3 gap-4 w-[720px]">
-        <ArtistCard artist={mockArtist} />
+        <ArtistCard
+          artist={mockArtist}
+          previewSide="bottom"
+          previewAlign="start"
+        />
         <ArtistCard
           artist={mockSoloArtist}
           imageUrl={PLACEHOLDER_ARTIST_IMAGE}
+          previewSide="bottom"
+          previewAlign="start"
         />
         <ArtistCard
           artist={{
             ...mockArtist,
-            name: "Atoms for Peace",
-            genres: ["Electronic", "Experimental"],
+            name: 'Atoms for Peace',
+            genres: ['Electronic', 'Experimental'],
           }}
+          previewSide="bottom"
+          previewAlign="start"
         />
         <ArtistCardSkeleton />
         <ArtistCardSkeleton />

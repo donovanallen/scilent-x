@@ -102,6 +102,8 @@ export function ArtistDiscography({
                       release={release}
                       artworkUrl={getArtworkUrl(release)}
                       onClick={onReleaseClick}
+                      previewSide="bottom"
+                      previewAlign="start"
                     />
                   );
                 })}

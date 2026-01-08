@@ -27,7 +27,9 @@ const meta: Meta<typeof InteractiveWrapper> = {
   },
   decorators: [
     (Story, context) => {
-      const { platform = 'web' } = context.args as { platform?: 'web' | 'mobile' };
+      const { platform = 'web' } = context.args as {
+        platform?: 'web' | 'mobile';
+      };
       return (
         <HarmonyInteractionProvider
           config={{
@@ -71,10 +73,16 @@ export const WithTrackCard: Story = {
   render: () => (
     <div className="max-w-md">
       <p className="text-sm text-muted-foreground mb-4">
-        Right-click the track card to see the context menu. Hover to see the preview.
+        Right-click the track card to see the context menu. Hover to see the
+        preview.
       </p>
       <InteractiveWrapper entityType="track" entity={mockTrack}>
-        <TrackCard track={mockTrack} artworkUrl={PLACEHOLDER_ALBUM_ART_SM} />
+        <TrackCard
+          track={mockTrack}
+          artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
+          previewSide="bottom"
+          previewAlign="start"
+        />
       </InteractiveWrapper>
     </div>
   ),
@@ -85,10 +93,15 @@ export const WithAlbumCard: Story = {
   render: () => (
     <div className="max-w-xs">
       <p className="text-sm text-muted-foreground mb-4">
-        Right-click the album card to see the context menu. Hover to see the preview.
+        Right-click the album card to see the context menu. Hover to see the
+        preview.
       </p>
       <InteractiveWrapper entityType="album" entity={mockRelease}>
-        <AlbumCard release={mockRelease} />
+        <AlbumCard
+          release={mockRelease}
+          previewSide="bottom"
+          previewAlign="start"
+        />
       </InteractiveWrapper>
     </div>
   ),
@@ -99,10 +112,16 @@ export const WithArtistCard: Story = {
   render: () => (
     <div className="max-w-xs">
       <p className="text-sm text-muted-foreground mb-4">
-        Right-click the artist card to see the context menu. Hover to see the preview.
+        Right-click the artist card to see the context menu. Hover to see the
+        preview.
       </p>
       <InteractiveWrapper entityType="artist" entity={mockArtist}>
-        <ArtistCard artist={mockArtist} imageUrl={PLACEHOLDER_ARTIST_IMAGE} />
+        <ArtistCard
+          artist={mockArtist}
+          imageUrl={PLACEHOLDER_ARTIST_IMAGE}
+          previewSide="bottom"
+          previewAlign="start"
+        />
       </InteractiveWrapper>
     </div>
   ),
@@ -113,14 +132,20 @@ export const MultipleCards: Story = {
   render: () => (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
-        All cards below are interactive. Right-click for context menus, hover for previews.
+        All cards below are interactive. Right-click for context menus, hover
+        for previews.
       </p>
-      
+
       <div>
         <h3 className="text-sm font-medium mb-2">Track</h3>
         <div className="max-w-md">
           <InteractiveWrapper entityType="track" entity={mockTrack}>
-            <TrackCard track={mockTrack} artworkUrl={PLACEHOLDER_ALBUM_ART_SM} />
+            <TrackCard
+              track={mockTrack}
+              artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
+              previewSide="bottom"
+              previewAlign="start"
+            />
           </InteractiveWrapper>
         </div>
       </div>
@@ -129,14 +154,23 @@ export const MultipleCards: Story = {
         <div>
           <h3 className="text-sm font-medium mb-2">Album</h3>
           <InteractiveWrapper entityType="album" entity={mockRelease}>
-            <AlbumCard release={mockRelease} />
+            <AlbumCard
+              release={mockRelease}
+              previewSide="bottom"
+              previewAlign="start"
+            />
           </InteractiveWrapper>
         </div>
-        
+
         <div>
           <h3 className="text-sm font-medium mb-2">Artist</h3>
           <InteractiveWrapper entityType="artist" entity={mockArtist}>
-            <ArtistCard artist={mockArtist} imageUrl={PLACEHOLDER_ARTIST_IMAGE} />
+            <ArtistCard
+              artist={mockArtist}
+              imageUrl={PLACEHOLDER_ARTIST_IMAGE}
+              previewSide="bottom"
+              previewAlign="start"
+            />
           </InteractiveWrapper>
         </div>
       </div>
@@ -166,7 +200,12 @@ export const ContextMenuOnly: Story = {
         Only context menu is enabled. Right-click to see the menu.
       </p>
       <InteractiveWrapper entityType="track" entity={mockTrack}>
-        <TrackCard track={mockTrack} artworkUrl={PLACEHOLDER_ALBUM_ART_SM} />
+        <TrackCard
+          track={mockTrack}
+          artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
+          previewSide="bottom"
+          previewAlign="start"
+        />
       </InteractiveWrapper>
     </div>
   ),
@@ -194,7 +233,12 @@ export const HoverPreviewOnly: Story = {
         Only hover preview is enabled. Hover to see the preview.
       </p>
       <InteractiveWrapper entityType="track" entity={mockTrack}>
-        <TrackCard track={mockTrack} artworkUrl={PLACEHOLDER_ALBUM_ART_SM} />
+        <TrackCard
+          track={mockTrack}
+          artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
+          previewSide="bottom"
+          previewAlign="start"
+        />
       </InteractiveWrapper>
     </div>
   ),
@@ -205,10 +249,16 @@ export const Disabled: Story = {
   render: () => (
     <div className="max-w-md">
       <p className="text-sm text-muted-foreground mb-4">
-        Interactions are disabled on this wrapper. Right-click and hover do nothing extra.
+        Interactions are disabled on this wrapper. Right-click and hover do
+        nothing extra.
       </p>
       <InteractiveWrapper entityType="track" entity={mockTrack} disabled>
-        <TrackCard track={mockTrack} artworkUrl={PLACEHOLDER_ALBUM_ART_SM} />
+        <TrackCard
+          track={mockTrack}
+          artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
+          previewSide="bottom"
+          previewAlign="start"
+        />
       </InteractiveWrapper>
     </div>
   ),
@@ -226,10 +276,16 @@ export const WithoutProvider: Story = {
   render: () => (
     <div className="max-w-md">
       <p className="text-sm text-muted-foreground mb-4">
-        No provider is present. The component renders normally without interactions.
+        No provider is present. The component renders normally without
+        interactions.
       </p>
       <InteractiveWrapper entityType="track" entity={mockTrack}>
-        <TrackCard track={mockTrack} artworkUrl={PLACEHOLDER_ALBUM_ART_SM} />
+        <TrackCard
+          track={mockTrack}
+          artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
+          previewSide="bottom"
+          previewAlign="start"
+        />
       </InteractiveWrapper>
     </div>
   ),
