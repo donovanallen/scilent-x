@@ -150,44 +150,10 @@ async function EngineStatusCard() {
         </CardHeader>
         <CardContent>
           <div className='space-y-3 text-sm'>
-            <div className='flex justify-between rounded-lg bg-muted/50 px-3 py-2'>
-              <span className='text-muted-foreground'>MUSICBRAINZ_CONTACT</span>
-              <span className='font-mono'>
-                {process.env.MUSICBRAINZ_CONTACT
-                  ? '••••••••'
-                  : 'Not set (using default)'}
-              </span>
-            </div>
-            <div className='flex justify-between rounded-lg bg-muted/50 px-3 py-2'>
-              <span className='text-muted-foreground'>SPOTIFY_CLIENT_ID</span>
-              <span className='font-mono'>
-                {process.env.SPOTIFY_CLIENT_ID ? '••••••••' : 'Not configured'}
-              </span>
-            </div>
-            <div className='flex justify-between rounded-lg bg-muted/50 px-3 py-2'>
-              <span className='text-muted-foreground'>
-                SPOTIFY_CLIENT_SECRET
-              </span>
-              <span className='font-mono'>
-                {process.env.SPOTIFY_CLIENT_SECRET
-                  ? '••••••••'
-                  : 'Not configured'}
-              </span>
-            </div>
-            <div className='flex justify-between rounded-lg bg-muted/50 px-3 py-2'>
-              <span className='text-muted-foreground'>TIDAL_CLIENT_ID</span>
-              <span className='font-mono'>
-                {process.env.TIDAL_CLIENT_ID ? '••••••••' : 'Not configured'}
-              </span>
-            </div>
-            <div className='flex justify-between rounded-lg bg-muted/50 px-3 py-2'>
-              <span className='text-muted-foreground'>TIDAL_CLIENT_SECRET</span>
-              <span className='font-mono'>
-                {process.env.TIDAL_CLIENT_SECRET
-                  ? '••••••••'
-                  : 'Not configured'}
-              </span>
-            </div>
+            <p className='text-muted-foreground'>
+              Configuration details are managed securely on the server and are not
+              displayed in this dashboard.
+            </p>
           </div>
         </CardContent>
       </Card>
