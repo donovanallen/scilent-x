@@ -11,6 +11,84 @@ import type {
 export type EntityType = 'track' | 'album' | 'artist';
 
 /**
+ * Types of provider actions available in context menus
+ */
+export type ProviderActionType =
+  | 'like'
+  | 'save'
+  | 'follow'
+  | 'add_to_playlist'
+  | 'open_external';
+
+/**
+ * Known streaming/music providers
+ */
+export type ProviderName =
+  | 'spotify'
+  | 'tidal'
+  | 'apple_music'
+  | 'youtube_music'
+  | 'deezer'
+  | 'amazon_music'
+  | string;
+
+/**
+ * Individual provider action definition
+ */
+export interface ProviderAction<T extends HarmonizedEntity = HarmonizedEntity> {
+  /** Unique identifier for this action */
+  id: string;
+  /** The provider this action is for (e.g., 'spotify', 'tidal') */
+  provider: ProviderName;
+  /** Type of action */
+  actionType: ProviderActionType;
+  /** Display label for the action */
+  label: string;
+  /** Optional icon component */
+  icon?: ComponentType<{ className?: string }>;
+  /** Async handler for the action */
+  onAction: (entity: T) => Promise<void>;
+  /** Whether the action is disabled */
+  disabled?: boolean;
+  /** Whether this action is currently loading */
+  loading?: boolean;
+}
+
+/**
+ * Provider actions organized by entity type
+ */
+export interface ProviderActions {
+  track?: ProviderAction<HarmonizedTrack>[];
+  album?: ProviderAction<HarmonizedRelease>[];
+  artist?: ProviderAction<HarmonizedArtist>[];
+}
+
+/**
+ * Describes a connected provider and its capabilities
+ */
+export interface EnabledProvider {
+  /** Provider identifier */
+  name: ProviderName;
+  /** Display name for the provider */
+  displayName: string;
+  /** Whether the user is currently connected/authenticated */
+  connected: boolean;
+  /** What actions this provider supports */
+  capabilities: {
+    /** Can save/like tracks */
+    canSaveTracks?: boolean;
+    /** Can save/like albums */
+    canSaveAlbums?: boolean;
+    /** Can follow artists */
+    canFollowArtists?: boolean;
+    /** Can add to playlists */
+    canAddToPlaylist?: boolean;
+    /** Can open external links */
+    canOpenExternal?: boolean;
+  };
+}
+
+/**
  * Platform configuration for interaction behaviors
  */
 export type Platform = 'web' | 'mobile' | 'auto';
@@ -119,6 +197,19 @@ export interface HarmonyInteractionConfig {
   customMenuItems?: Partial<Record<EntityType, MenuAction[]>>;
 
   /**
+   * Provider-specific actions per entity type
+   * These are rendered in a dedicated "Provider Actions" section of context menus
+   * Separate from customMenuItems to allow proper grouping and provider-aware UI
+   */
+  providerActions?: ProviderActions;
+
+  /**
+   * List of enabled/connected providers
+   * Used to determine which provider actions to show
+   */
+  enabledProviders?: EnabledProvider[];
+
+  /**
    * Preview content mode per entity type
    * - 'mini': Key stats, small artwork, quick links
    * - 'full': Expanded card with more metadata
@@ -131,7 +222,7 @@ export interface HarmonyInteractionConfig {
 /**
  * Internal context value with resolved configuration
  */
-export interface HarmonyInteractionContextValue extends Required<Omit<HarmonyInteractionConfig, 'onNavigate' | 'onOpenExternal' | 'onCopyLink' | 'onViewCredits' | 'customMenuItems' | 'previewContent'>> {
+export interface HarmonyInteractionContextValue extends Required<Omit<HarmonyInteractionConfig, 'onNavigate' | 'onOpenExternal' | 'onCopyLink' | 'onViewCredits' | 'customMenuItems' | 'providerActions' | 'enabledProviders' | 'previewContent'>> {
   /** Whether interactions are enabled (provider is present) */
   enabled: boolean;
   /** Resolved platform (auto is replaced with actual value) */
@@ -143,6 +234,8 @@ export interface HarmonyInteractionContextValue extends Required<Omit<HarmonyInt
   onCopyLink?: HarmonyInteractionConfig['onCopyLink'];
   onViewCredits?: HarmonyInteractionConfig['onViewCredits'];
   customMenuItems?: HarmonyInteractionConfig['customMenuItems'];
+  providerActions?: HarmonyInteractionConfig['providerActions'];
+  enabledProviders?: HarmonyInteractionConfig['enabledProviders'];
   previewContent?: HarmonyInteractionConfig['previewContent'];
 }
 
