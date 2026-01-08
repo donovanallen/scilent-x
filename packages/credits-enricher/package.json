@@ -1,0 +1,49 @@
+{
+  "name": "@scilent-one/credits-enricher",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Credits enrichment layer for augmenting music metadata with detailed credits from Muso.ai and other sources",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./providers": {
+      "types": "./src/providers/index.ts",
+      "default": "./src/providers/index.ts"
+    },
+    "./types": {
+      "types": "./src/types/index.ts",
+      "default": "./src/types/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@scilent-one/harmony-engine": "workspace:*",
+    "ioredis": "^5.8.2",
+    "zod": "^3.25.76",
+    "pino": "^9.9.0",
+    "p-retry": "^6.2.1"
+  },
+  "devDependencies": {
+    "@scilent-one/tooling": "workspace:*",
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "peerDependencies": {
+    "ioredis": "^5.8.2"
+  },
+  "peerDependenciesMeta": {
+    "ioredis": {
+      "optional": true
+    }
+  }
+}
