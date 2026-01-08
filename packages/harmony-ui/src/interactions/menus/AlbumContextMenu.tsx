@@ -15,34 +15,66 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@scilent-one/ui';
+import {
+  Disc3,
+  User,
+  ExternalLink,
+  Copy,
+  Link,
+  ScrollText,
+  Type,
+} from 'lucide-react';
 import { useHarmonyInteraction } from '../provider';
-import type { HarmonizedEntity, MenuAction } from '../types';
+import type { HarmonizedEntity, MenuAction, ProviderAction } from '../types';
 import type { HarmonizedRelease } from '../../types';
-import { formatPlatformName } from '../../utils';
+import { formatPlatformName, formatArtistNames } from '../../utils';
+import { ProviderActionsGroup } from './ProviderActionsGroup';
 
 export interface AlbumContextMenuProps {
   /** The album/release entity */
   entity: HarmonizedEntity;
   /** Callback when menu should close */
   onClose?: () => void;
+  /**
+   * Which menu type this content is rendered inside.
+   * Determines whether to use ContextMenu* or DropdownMenu* components.
+   * @default 'context'
+   */
+  menuType?: 'context' | 'dropdown';
 }
 
 /**
  * Context menu content for album/release entities.
- * Provides actions like: view album, view artist, external links, copy UPC
+ *
+ * Organized into sections:
+ * - Section 1: Core Actions (view album, view artist, view credits)
+ * - Section 2: Copy Submenu (link, UPC/GTIN, title, artists)
+ * - Section 3: Open In Submenu (external platform links)
+ * - Section 4: Provider Actions (save, add to library - dynamic based on connected providers)
+ * - Section 5: Custom Menu Items (app-specific)
  */
-export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
+export function AlbumContextMenu({
+  entity,
+  onClose,
+  menuType = 'context',
+}: AlbumContextMenuProps) {
   const interaction = useHarmonyInteraction();
   const release = entity as HarmonizedRelease;
-  const isWeb = interaction.platform === 'web';
+  const isContextMenu = menuType === 'context';
 
-  // Menu components based on platform
-  const MenuItem = isWeb ? ContextMenuItem : DropdownMenuItem;
-  const MenuSeparator = isWeb ? ContextMenuSeparator : DropdownMenuSeparator;
-  const MenuLabel = isWeb ? ContextMenuLabel : DropdownMenuLabel;
-  const MenuSub = isWeb ? ContextMenuSub : DropdownMenuSub;
-  const MenuSubTrigger = isWeb ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
-  const MenuSubContent = isWeb ? ContextMenuSubContent : DropdownMenuSubContent;
+  // Menu components based on menu type (not platform)
+  const MenuItem = isContextMenu ? ContextMenuItem : DropdownMenuItem;
+  const MenuSeparator = isContextMenu
+    ? ContextMenuSeparator
+    : DropdownMenuSeparator;
+  const MenuLabel = isContextMenu ? ContextMenuLabel : DropdownMenuLabel;
+  const MenuSub = isContextMenu ? ContextMenuSub : DropdownMenuSub;
+  const MenuSubTrigger = isContextMenu
+    ? ContextMenuSubTrigger
+    : DropdownMenuSubTrigger;
+  const MenuSubContent = isContextMenu
+    ? ContextMenuSubContent
+    : DropdownMenuSubContent;
 
   // Build external links from sources
   const externalLinks = React.useMemo(() => {
@@ -63,8 +95,14 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
   // Get primary artist for "View Artist" action
   const primaryArtist = release.artists?.[0];
 
+  // Get provider actions for albums
+  const providerActions = (interaction.providerActions?.album ?? []) as ProviderAction<HarmonizedRelease>[];
+
   // Get custom menu items for albums
   const customItems = interaction.customMenuItems?.album ?? [];
+
+  // Determine if we have copy actions
+  const hasCopyActions = release.gtin || interaction.onCopyLink || release.title || release.artists?.length;
 
   const handleViewAlbum = React.useCallback(() => {
     interaction.onNavigate?.('album', release);
@@ -99,6 +137,21 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
     onClose?.();
   }, [interaction, release, onClose]);
 
+  const handleCopyTitle = React.useCallback(() => {
+    if (release.title) {
+      navigator.clipboard.writeText(release.title);
+    }
+    onClose?.();
+  }, [release.title, onClose]);
+
+  const handleCopyArtists = React.useCallback(() => {
+    if (release.artists?.length) {
+      const artistNames = formatArtistNames(release.artists);
+      navigator.clipboard.writeText(artistNames);
+    }
+    onClose?.();
+  }, [release.artists, onClose]);
+
   const handleViewCredits = React.useCallback(() => {
     interaction.onViewCredits?.(release, 'album');
     onClose?.();
@@ -129,29 +182,77 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
       <MenuLabel className="truncate">{release.title}</MenuLabel>
       <MenuSeparator />
 
-      {/* Navigation actions */}
+      {/* Section 1: Core Actions */}
       {interaction.onNavigate && (
         <>
-          <MenuItem onSelect={handleViewAlbum}>View Album Details</MenuItem>
+          <MenuItem className="gap-2" onSelect={handleViewAlbum}>
+            <Disc3 className="size-4" />
+            View Album Details
+          </MenuItem>
           {primaryArtist && (
-            <MenuItem onSelect={handleViewArtist}>View Artist</MenuItem>
+            <MenuItem className="gap-2" onSelect={handleViewArtist}>
+              <User className="size-4" />
+              View Artist
+            </MenuItem>
           )}
         </>
       )}
 
-      {/* View credits/metadata */}
       {interaction.onViewCredits && (
-        <MenuItem onSelect={handleViewCredits}>
+        <MenuItem className="gap-2" onSelect={handleViewCredits}>
+          <ScrollText className="size-4" />
           View Credits & Metadata
         </MenuItem>
       )}
 
-      {/* External platform links */}
+      {/* Section 2: Copy Submenu */}
+      {hasCopyActions && (
+        <>
+          <MenuSeparator />
+          <MenuSub>
+            <MenuSubTrigger className="gap-2">
+              <Copy className="size-4" />
+              Copy
+            </MenuSubTrigger>
+            <MenuSubContent>
+              {interaction.onCopyLink && (
+                <MenuItem onSelect={handleCopyLink} className="gap-2">
+                  <Link className="size-4" />
+                  Copy Link
+                </MenuItem>
+              )}
+              {release.gtin && (
+                <MenuItem onSelect={handleCopyUPC} className="gap-2">
+                  <Copy className="size-4" />
+                  Copy UPC/GTIN
+                </MenuItem>
+              )}
+              {release.title && (
+                <MenuItem onSelect={handleCopyTitle} className="gap-2">
+                  <Type className="size-4" />
+                  Copy Title
+                </MenuItem>
+              )}
+              {release.artists && release.artists.length > 0 && (
+                <MenuItem onSelect={handleCopyArtists} className="gap-2">
+                  <Copy className="size-4" />
+                  Copy Artist{release.artists.length > 1 ? 's' : ''}
+                </MenuItem>
+              )}
+            </MenuSubContent>
+          </MenuSub>
+        </>
+      )}
+
+      {/* Section 3: Open In Submenu (external platform links) */}
       {externalLinks.length > 0 && (
         <>
           <MenuSeparator />
           <MenuSub>
-            <MenuSubTrigger>Open in...</MenuSubTrigger>
+            <MenuSubTrigger className="gap-2">
+              <ExternalLink className="size-4" />
+              Open in...
+            </MenuSubTrigger>
             <MenuSubContent>
               {externalLinks.map(({ platform, url }) => (
                 <MenuItem
@@ -166,16 +267,18 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
         </>
       )}
 
-      {/* Copy actions */}
-      <MenuSeparator />
-      {release.gtin && (
-        <MenuItem onSelect={handleCopyUPC}>Copy UPC/GTIN</MenuItem>
-      )}
-      {interaction.onCopyLink && (
-        <MenuItem onSelect={handleCopyLink}>Copy Link</MenuItem>
+      {/* Section 4: Provider Actions */}
+      {providerActions.length > 0 && (
+        <ProviderActionsGroup<HarmonizedRelease>
+          entityType="album"
+          entity={release}
+          actions={providerActions}
+          onClose={onClose}
+          menuType={menuType}
+        />
       )}
 
-      {/* Custom menu items */}
+      {/* Section 5: Custom menu items */}
       {customItems.length > 0 && (
         <>
           <MenuSeparator />
@@ -185,8 +288,9 @@ export function AlbumContextMenu({ entity, onClose }: AlbumContextMenuProps) {
               disabled={action.disabled ?? false}
               variant={action.destructive ? 'destructive' : 'default'}
               onSelect={() => handleCustomAction(action)}
+              className="gap-2"
             >
-              {action.icon && <action.icon className="mr-2 h-4 w-4" />}
+              {action.icon && <action.icon className="size-4" />}
               {action.label}
             </MenuItem>
           ))}

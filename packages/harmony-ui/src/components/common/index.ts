@@ -4,7 +4,16 @@ export {
   type PlatformName,
   type PlatformBadgeProps,
   type PlatformBadgeListProps,
-} from "./PlatformBadge";
+} from './PlatformBadge';
+
+export {
+  ReleaseTypePill,
+  getReleaseTypeLabel,
+  getReleaseTypePluralLabel,
+  releaseTypeLabels,
+  releaseTypePluralLabels,
+  type ReleaseTypePillProps,
+} from './ReleaseTypePill';
 
 export {
   MetadataTable,
@@ -14,7 +23,7 @@ export {
   type MetadataTableProps,
   type MetadataGridProps,
   type MetadataTableSkeletonProps,
-} from "./MetadataTable";
+} from './MetadataTable';
 
 export {
   GridSkeleton,
@@ -27,4 +36,6 @@ export {
   type HeroSkeletonProps,
   type PageSkeletonProps,
   type InlineSkeletonProps,
-} from "./LoadingSkeletons";
+} from './LoadingSkeletons';
+
+export { Artwork, type ArtworkProps } from './Artwork';

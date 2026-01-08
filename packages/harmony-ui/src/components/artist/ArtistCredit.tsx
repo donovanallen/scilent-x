@@ -6,8 +6,8 @@ import * as React from 'react';
 
 export interface ArtistCreditProps extends React.HTMLAttributes<HTMLSpanElement> {
   artists: HarmonizedArtistCredit[];
-  linkable?: boolean;
-  maxDisplay?: number;
+  linkable?: boolean | undefined;
+  maxDisplay?: number | undefined;
 }
 
 export function ArtistCredit({

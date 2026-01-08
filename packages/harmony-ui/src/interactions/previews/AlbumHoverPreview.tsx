@@ -9,7 +9,7 @@ import {
   formatArtistCredits,
   getFrontArtworkUrl,
 } from '../../utils';
-import { PlatformBadgeList } from '../../components/common';
+import { PlatformBadgeList, ReleaseTypePill } from '../../components/common';
 
 export interface AlbumHoverPreviewProps {
   /** The album/release entity */
@@ -19,17 +19,6 @@ export interface AlbumHoverPreviewProps {
   /** Additional class name */
   className?: string;
 }
-
-const releaseTypeLabels: Record<string, string> = {
-  album: 'Album',
-  single: 'Single',
-  ep: 'EP',
-  compilation: 'Compilation',
-  soundtrack: 'Soundtrack',
-  live: 'Live',
-  remix: 'Remix',
-  other: 'Release',
-};
 
 /**
  * Hover preview content for album/release entities.
@@ -85,9 +74,10 @@ export function AlbumHoverPreview({
             {formatArtistCredits(release.artists)}
           </p>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Badge variant="secondary" className="text-xs">
-              {releaseTypeLabels[release.releaseType] ?? release.releaseType}
-            </Badge>
+            <ReleaseTypePill
+              releaseType={release.releaseType}
+              className="text-xs"
+            />
             {release.releaseDate?.year && (
               <span>{formatPartialDate(release.releaseDate)}</span>
             )}
@@ -116,9 +106,10 @@ export function AlbumHoverPreview({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Badge variant="secondary" className="text-xs">
-          {releaseTypeLabels[release.releaseType] ?? release.releaseType}
-        </Badge>
+        <ReleaseTypePill
+          releaseType={release.releaseType}
+          className="text-xs"
+        />
         {release.releaseDate?.year && (
           <Badge variant="outline" className="text-xs">
             {formatPartialDate(release.releaseDate)}

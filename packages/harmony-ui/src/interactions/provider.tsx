@@ -78,6 +78,8 @@ export function HarmonyInteractionProvider({
     onCopyLink: config.onCopyLink,
     onViewCredits: config.onViewCredits,
     customMenuItems: config.customMenuItems,
+    providerActions: config.providerActions,
+    enabledProviders: config.enabledProviders,
     previewContent: config.previewContent,
   }), [
     resolvedPlatform,
@@ -89,6 +91,8 @@ export function HarmonyInteractionProvider({
     config.onCopyLink,
     config.onViewCredits,
     config.customMenuItems,
+    config.providerActions,
+    config.enabledProviders,
     config.previewContent,
   ]);
 

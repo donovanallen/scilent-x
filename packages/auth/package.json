@@ -1,6 +1,6 @@
 {
   "name": "@scilent-one/auth",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "description": "Authentication package using Better Auth for the monorepo",
   "type": "module",

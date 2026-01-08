@@ -82,12 +82,27 @@ export function getPrimaryArtistName(
 }
 
 /**
+ * Format artist credits to a simple comma-separated list of names
+ * (simpler version of formatArtistCredits without join phrases)
+ */
+export function formatArtistNames(
+  credits: HarmonizedArtistCredit[]
+): string {
+  return credits
+    .map((credit) => credit.creditedName || credit.name)
+    .join(", ");
+}
+
+/**
  * Format track position with optional disc number
  */
 export function formatTrackPosition(
-  position: number,
+  position: number | undefined,
   discNumber?: number
 ): string {
+  if (position === undefined || position === null) {
+    return '-';
+  }
   if (discNumber && discNumber > 1) {
     return `${discNumber}.${position}`;
   }
