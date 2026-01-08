@@ -1,11 +1,12 @@
 'use client';
 
-import { Badge, Card, cn } from '@scilent-one/ui';
+import { Card, cn } from '@scilent-one/ui';
 import type { HarmonizedRelease } from '@scilent-one/harmony-engine';
 import * as React from 'react';
 
 import { Artwork } from './artwork';
 import { ArtistCredit } from './artist-credit';
+import { ReleaseTypePill } from './common';
 
 export interface ReleaseCardProps extends React.HTMLAttributes<HTMLDivElement> {
   release: HarmonizedRelease;
@@ -42,12 +43,11 @@ export function ReleaseCard({
             className="w-full aspect-square"
           />
           {showType && (
-            <Badge
-              variant="secondary"
-              className="absolute bottom-2 right-2 text-[10px] uppercase tracking-wider opacity-90"
-            >
-              {release.releaseType}
-            </Badge>
+            <ReleaseTypePill
+              releaseType={release.releaseType}
+              uppercase
+              className="absolute bottom-2 right-2 text-[10px] opacity-90"
+            />
           )}
         </div>
         <div className="space-y-1">
