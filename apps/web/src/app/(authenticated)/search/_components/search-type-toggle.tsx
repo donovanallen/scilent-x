@@ -2,7 +2,6 @@
 
 import { ToggleGroup, ToggleGroupItem, useIsMobile } from '@scilent-one/ui';
 import { Disc3, Music, User } from 'lucide-react';
-import { useState } from 'react';
 
 import type { SearchType } from '../actions';
 
@@ -15,20 +14,15 @@ export function SearchTypeToggle({
   searchType,
   onSearchTypeChange,
 }: SearchTypeToggleProps) {
-  const [currentSearchType, setCurrentSearchType] =
-    useState<SearchType>(searchType);
   const isMobile = useIsMobile();
-
-  const handleSearchTypeChange = (value: SearchType) => {
-    setCurrentSearchType(value);
-    onSearchTypeChange(value);
-  };
 
   return (
     <ToggleGroup
       type='single'
-      value={currentSearchType}
-      onValueChange={handleSearchTypeChange}
+      value={searchType}
+      onValueChange={(value) => {
+        if (value) onSearchTypeChange(value as SearchType);
+      }}
       className='border rounded-lg p-2'
     >
       <ToggleGroupItem
@@ -38,7 +32,7 @@ export function SearchTypeToggle({
         title='Releases'
       >
         <Disc3 className='size-3.5' />
-        {!isMobile && currentSearchType === 'release' && 'Releases'}
+        {!isMobile && searchType === 'release' && 'Releases'}
       </ToggleGroupItem>
       <ToggleGroupItem
         value='track'
@@ -47,7 +41,7 @@ export function SearchTypeToggle({
         title='Tracks'
       >
         <Music className='size-3.5' />
-        {!isMobile && currentSearchType === 'track' && 'Tracks'}
+        {!isMobile && searchType === 'track' && 'Tracks'}
       </ToggleGroupItem>
       <ToggleGroupItem
         value='artist'
@@ -56,7 +50,7 @@ export function SearchTypeToggle({
         title='Artists'
       >
         <User className='size-3.5' />
-        {!isMobile && currentSearchType === 'artist' && 'Artists'}
+        {!isMobile && searchType === 'artist' && 'Artists'}
       </ToggleGroupItem>
     </ToggleGroup>
   );
