@@ -9,6 +9,7 @@ import {
 } from '@scilent-one/ui';
 import type { HarmonizedRelease, ReleaseType } from '../../types';
 import { AlbumCard, AlbumCardSkeleton } from '../album/AlbumCard';
+import { getReleaseTypePluralLabel } from '../common';
 
 export interface ArtistDiscographyProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Array of releases for the artist */
@@ -22,18 +23,6 @@ export interface ArtistDiscographyProps extends React.HTMLAttributes<HTMLDivElem
   /** Callback when a release is clicked */
   onReleaseClick?: ((release: HarmonizedRelease) => void) | undefined;
 }
-
-const releaseTypeLabels: Record<ReleaseType | 'all', string> = {
-  all: 'All',
-  album: 'Albums',
-  single: 'Singles',
-  ep: 'EPs',
-  compilation: 'Compilations',
-  soundtrack: 'Soundtracks',
-  live: 'Live',
-  remix: 'Remixes',
-  other: 'Other',
-};
 
 export function ArtistDiscography({
   releases,
@@ -78,7 +67,7 @@ export function ArtistDiscography({
         <TabsList>
           {availableTabs.map((tab) => (
             <TabsTrigger key={tab} value={tab}>
-              {releaseTypeLabels[tab]}
+              {getReleaseTypePluralLabel(tab)}
               {groupedReleases[tab] && (
                 <span className="ml-1 text-xs text-muted-foreground">
                   {`(${groupedReleases[tab]?.length ?? 0})`}

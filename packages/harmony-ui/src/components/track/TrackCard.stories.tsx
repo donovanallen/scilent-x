@@ -15,6 +15,11 @@ const meta: Meta<typeof TrackCard> = {
     layout: 'padded',
   },
   argTypes: {
+    variant: {
+      control: 'radio',
+      options: ['card', 'list'],
+      description: 'Visual variant - card or list row',
+    },
     showPosition: {
       control: 'boolean',
       description: 'Show track position number',
@@ -23,16 +28,66 @@ const meta: Meta<typeof TrackCard> = {
       control: 'boolean',
       description: 'Show disc number in position',
     },
+    showArtwork: {
+      control: 'boolean',
+      description: 'Show track artwork',
+    },
+    showIsrc: {
+      control: 'boolean',
+      description: 'Show ISRC code',
+    },
+    inlineIsrc: {
+      control: 'boolean',
+      description: 'Show ISRC inline with artists',
+    },
+    showSources: {
+      control: 'boolean',
+      description: 'Show source/provider badges',
+    },
+    fullProviderNames: {
+      control: 'boolean',
+      description: 'Show full provider names instead of initials',
+    },
+    maxSources: {
+      control: { type: 'number', min: 1, max: 5 },
+      description: 'Maximum number of sources to display',
+    },
+    showDurationIcon: {
+      control: 'boolean',
+      description: 'Show clock icon before duration',
+    },
+    showExternalLink: {
+      control: 'boolean',
+      description: 'Show full hover overlay with external link',
+    },
+    subtleExternalLink: {
+      control: 'boolean',
+      description: 'Show subtle external link icon on hover',
+    },
     isPlaying: {
       control: 'boolean',
       description: 'Highlight as currently playing',
     },
+    interactive: {
+      control: 'boolean',
+      description: 'Enable context menu and hover preview',
+    },
   },
   args: {
     track: mockTrack,
+    variant: 'card',
     showPosition: true,
     showDiscNumber: false,
+    showArtwork: true,
+    showIsrc: false,
+    inlineIsrc: false,
+    showSources: false,
+    fullProviderNames: false,
+    showDurationIcon: false,
+    showExternalLink: false,
+    subtleExternalLink: false,
     isPlaying: false,
+    interactive: false,
   },
 };
 
@@ -74,10 +129,109 @@ export const NoPosition: Story = {
   },
 };
 
+// New stories for added options
+
+export const ListVariant: Story = {
+  name: 'List Variant',
+  args: {
+    variant: 'list',
+    showArtwork: false,
+  },
+};
+
+export const ListVariantFull: Story = {
+  name: 'List Variant (Full Featured)',
+  args: {
+    variant: 'list',
+    showArtwork: false,
+    showDurationIcon: true,
+    showSources: true,
+    fullProviderNames: true,
+    showIsrc: true,
+    inlineIsrc: true,
+    subtleExternalLink: true,
+  },
+};
+
+export const WithSources: Story = {
+  name: 'With Source Badges',
+  args: {
+    showSources: true,
+    artworkUrl: PLACEHOLDER_ALBUM_ART_SM,
+  },
+};
+
+export const WithSourcesFull: Story = {
+  name: 'With Full Provider Names',
+  args: {
+    showSources: true,
+    fullProviderNames: true,
+    artworkUrl: PLACEHOLDER_ALBUM_ART_SM,
+  },
+};
+
+export const WithIsrc: Story = {
+  name: 'With ISRC Below',
+  args: {
+    showIsrc: true,
+    artworkUrl: PLACEHOLDER_ALBUM_ART_SM,
+  },
+};
+
+export const WithIsrcInline: Story = {
+  name: 'With ISRC Inline',
+  args: {
+    showIsrc: true,
+    inlineIsrc: true,
+    artworkUrl: PLACEHOLDER_ALBUM_ART_SM,
+  },
+};
+
+export const WithDurationIcon: Story = {
+  name: 'With Duration Icon',
+  args: {
+    showDurationIcon: true,
+    artworkUrl: PLACEHOLDER_ALBUM_ART_SM,
+  },
+};
+
+export const WithExternalLinkOverlay: Story = {
+  name: 'With External Link Overlay',
+  args: {
+    showExternalLink: true,
+    artworkUrl: PLACEHOLDER_ALBUM_ART_SM,
+  },
+};
+
+export const WithSubtleExternalLink: Story = {
+  name: 'With Subtle External Link',
+  args: {
+    subtleExternalLink: true,
+    artworkUrl: PLACEHOLDER_ALBUM_ART_SM,
+  },
+};
+
+export const FullFeaturedCard: Story = {
+  name: 'Full Featured (Card)',
+  args: {
+    artworkUrl: PLACEHOLDER_ALBUM_ART_SM,
+    track: mockTrackExplicit,
+    showPosition: true,
+    showIsrc: true,
+    showSources: true,
+    showExternalLink: true,
+  },
+};
+
 export const Skeleton: Story = {
   render: () => (
-    <div className="w-[500px]">
+    <div className="w-[500px] space-y-4">
+      <p className="text-sm text-muted-foreground">Card Skeleton:</p>
       <TrackCardSkeleton />
+      <p className="text-sm text-muted-foreground mt-4">Card Skeleton with Sources & ISRC:</p>
+      <TrackCardSkeleton showSources showIsrc />
+      <p className="text-sm text-muted-foreground mt-4">List Skeleton:</p>
+      <TrackCardSkeleton variant="list" showArtwork={false} />
     </div>
   ),
 };
@@ -125,6 +279,37 @@ export const WithInteractiveFeatures: Story = {
         previewSide="bottom"
         previewAlign="start"
       />
+    </div>
+  ),
+};
+
+export const VariantComparison: Story = {
+  name: 'Variant Comparison',
+  render: () => (
+    <div className="w-[600px] space-y-6">
+      <div>
+        <p className="text-sm font-medium mb-2">Card Variant (default):</p>
+        <TrackCard
+          track={mockTrackExplicit}
+          artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
+          showSources
+          showIsrc
+        />
+      </div>
+      <div>
+        <p className="text-sm font-medium mb-2">List Variant:</p>
+        <TrackCard
+          track={mockTrackExplicit}
+          variant="list"
+          showArtwork={false}
+          showSources
+          fullProviderNames
+          showIsrc
+          inlineIsrc
+          showDurationIcon
+          subtleExternalLink
+        />
+      </div>
     </div>
   ),
 };
