@@ -7,6 +7,7 @@ import * as React from 'react';
 
 import { Artwork } from './artwork';
 import { ArtistCredit } from './artist-credit';
+import { ReleaseTypePill } from './common';
 
 export interface ReleaseListItemProps extends React.HTMLAttributes<HTMLDivElement> {
   release: HarmonizedRelease;
@@ -49,12 +50,12 @@ export function ReleaseListItem({
           <h3 className="font-medium text-sm leading-tight truncate group-hover:text-primary transition-colors">
             {release.title}
           </h3>
-          <Badge
+          <ReleaseTypePill
+            releaseType={release.releaseType}
             variant="outline"
-            className="text-[10px] uppercase tracking-wider shrink-0"
-          >
-            {release.releaseType}
-          </Badge>
+            uppercase
+            className="text-[10px] shrink-0"
+          />
         </div>
         <ArtistCredit
           artists={release.artists}

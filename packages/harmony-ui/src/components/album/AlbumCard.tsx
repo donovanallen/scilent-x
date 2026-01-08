@@ -5,7 +5,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Badge,
   Skeleton,
 } from '@scilent-one/ui';
 import type { HarmonizedRelease } from '../../types';
@@ -16,6 +15,7 @@ import {
 } from '../../utils';
 import { AlbumArtwork } from './AlbumArtwork';
 import { InteractiveWrapper } from '../../interactions/InteractiveWrapper';
+import { ReleaseTypePill } from '../common';
 
 export interface AlbumCardProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -38,17 +38,6 @@ export interface AlbumCardProps extends Omit<
   /** Alignment for the hover preview @default 'start' */
   previewAlign: 'start' | 'center' | 'end';
 }
-
-const releaseTypeLabels: Record<string, string> = {
-  album: 'Album',
-  single: 'Single',
-  ep: 'EP',
-  compilation: 'Compilation',
-  soundtrack: 'Soundtrack',
-  live: 'Live',
-  remix: 'Remix',
-  other: 'Release',
-};
 
 export function AlbumCard({
   release,
@@ -88,12 +77,10 @@ export function AlbumCard({
     >
       <div className="relative">
         {showType && (
-          <Badge
-            variant="secondary"
+          <ReleaseTypePill
+            releaseType={release.releaseType}
             className="absolute top-1.5 right-2 text-xs z-10"
-          >
-            {releaseTypeLabels[release.releaseType] || release.releaseType}
-          </Badge>
+          />
         )}
         <AlbumArtwork
           src={imageUrl}
@@ -121,9 +108,10 @@ export function AlbumCard({
             </p>
           )}
           {showType && (
-            <Badge variant="secondary" className="text-xs z-10">
-              {releaseTypeLabels[release.releaseType] || release.releaseType}
-            </Badge>
+            <ReleaseTypePill
+              releaseType={release.releaseType}
+              className="text-xs z-10"
+            />
           )}
         </div>
       </CardContent>

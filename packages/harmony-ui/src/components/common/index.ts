@@ -7,6 +7,15 @@ export {
 } from "./PlatformBadge";
 
 export {
+  ReleaseTypePill,
+  getReleaseTypeLabel,
+  getReleaseTypePluralLabel,
+  releaseTypeLabels,
+  releaseTypePluralLabels,
+  type ReleaseTypePillProps,
+} from "./ReleaseTypePill";
+
+export {
   MetadataTable,
   MetadataGrid,
   MetadataTableSkeleton,

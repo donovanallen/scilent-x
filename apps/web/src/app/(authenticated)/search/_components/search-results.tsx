@@ -12,6 +12,7 @@ import {
   GridSkeleton,
   ListSkeleton,
   PlatformBadgeList,
+  ReleaseTypePill,
   formatDuration,
   formatArtistCredits,
   getFrontArtworkUrl,
@@ -109,12 +110,12 @@ function ReleaseListItem({
             <h3 className='font-medium text-sm leading-tight truncate group-hover:text-primary transition-colors'>
               {release.title}
             </h3>
-            <Badge
+            <ReleaseTypePill
+              releaseType={release.releaseType}
               variant='outline'
-              className='text-[10px] uppercase tracking-wider shrink-0'
-            >
-              {release.releaseType}
-            </Badge>
+              uppercase
+              className='text-[10px] shrink-0'
+            />
           </div>
           <p className='text-sm text-muted-foreground truncate'>
             {formatArtistCredits(release.artists as HarmonizedArtistCredit[])}
