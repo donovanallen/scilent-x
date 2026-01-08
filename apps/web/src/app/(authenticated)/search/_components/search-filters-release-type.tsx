@@ -1,18 +1,19 @@
 'use client';
 
 import type { ReleaseType } from '@scilent-one/harmony-engine';
-import { Badge, cn } from '@scilent-one/ui';
+import { ReleaseTypePill } from '@scilent-one/harmony-ui';
+import { cn } from '@scilent-one/ui';
 
 import type { SearchFilters } from '../actions';
 
-const RELEASE_TYPES: { value: ReleaseType; label: string }[] = [
-  { value: 'album', label: 'Album' },
-  { value: 'single', label: 'Single' },
-  { value: 'ep', label: 'EP' },
-  { value: 'compilation', label: 'Compilation' },
-  { value: 'soundtrack', label: 'Soundtrack' },
-  { value: 'live', label: 'Live' },
-  { value: 'remix', label: 'Remix' },
+const RELEASE_TYPES: ReleaseType[] = [
+  'album',
+  'single',
+  'ep',
+  'compilation',
+  'soundtrack',
+  'live',
+  'remix',
 ];
 
 interface SearchFiltersReleaseTypeProps {
@@ -38,23 +39,21 @@ export function SearchFiltersReleaseType({
 
   return (
     <>
-      {RELEASE_TYPES.map((type) => (
-        <Badge
-          key={type.value}
-          variant={
-            filters.releaseTypes?.includes(type.value) ? 'default' : 'outline'
-          }
-          className={cn(
-            'cursor-pointer transition-colors select-none',
-            filters.releaseTypes?.includes(type.value)
-              ? 'hover:bg-primary/80'
-              : 'hover:bg-accent'
-          )}
-          onClick={() => toggleReleaseType(type.value)}
-        >
-          {type.label}
-        </Badge>
-      ))}
+      {RELEASE_TYPES.map((type) => {
+        const isSelected = filters.releaseTypes?.includes(type);
+        return (
+          <ReleaseTypePill
+            key={type}
+            releaseType={type}
+            variant={isSelected ? 'default' : 'outline'}
+            className={cn(
+              'cursor-pointer transition-colors select-none',
+              isSelected ? 'hover:bg-primary/80' : 'hover:bg-accent'
+            )}
+            onClick={() => toggleReleaseType(type)}
+          />
+        );
+      })}
     </>
   );
 }

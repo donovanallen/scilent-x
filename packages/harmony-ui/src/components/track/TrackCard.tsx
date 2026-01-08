@@ -172,7 +172,7 @@ export function TrackCard({
         </div>
       </div>
 
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center gap-4 shrink-0">
         {showSources && track.sources.length > 0 && (
           <div className="flex items-center gap-1">
             {track.sources.slice(0, maxSources).map((source) => (
@@ -191,8 +191,8 @@ export function TrackCard({
             ))}
           </div>
         )}
-        <span className="text-sm text-muted-foreground tabular-nums flex items-center gap-1">
-          {showDurationIcon && <Clock className="size-3" />}
+        <span className="text-sm text-muted-foreground tabular-nums flex items-center gap-2">
+          {showDurationIcon && <Clock className="size-4" />}
           <span className={showDurationIcon ? 'font-mono' : ''}>
             {formatDuration(track.duration)}
           </span>

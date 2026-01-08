@@ -146,57 +146,55 @@ export function AlbumListItem({
         rounded="md"
       />
 
-      <div className="flex-1 min-w-0 space-y-1">
-        <div className="flex items-start gap-2">
-          <h3 className="font-medium text-sm leading-tight truncate group-hover:text-primary transition-colors">
-            {release.title}
-          </h3>
-          {showType && typePlacement === 'title' && (
-            <ReleaseTypePill
-              releaseType={release.releaseType}
-              variant="outline"
-              uppercase
-              className="text-[10px] shrink-0"
-            />
-          )}
-        </div>
+      <div className="flex flex-col flex-1 min-w-0">
+        <h5 className="truncate group-hover:text-primary transition-colors mb-1">
+          {release.title}
+        </h5>
 
         <ArtistCredit
           artists={release.artists}
           {...(maxArtists !== undefined && { maxDisplay: maxArtists })}
-          className="text-sm line-clamp-1"
+          className="text-base line-clamp-1"
         />
 
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
           {showType && typePlacement === 'metadata' && (
             <ReleaseTypePill
               releaseType={release.releaseType}
               variant="outline"
               uppercase
-              className="text-[10px] shrink-0"
+              className="shrink-0"
             />
           )}
           {showYear && year && (
             <span className="inline-flex items-center gap-1">
-              {showYearIcon && <Calendar className="size-3" />}
+              {showYearIcon && <Calendar className="size-4" />}
               {year}
             </span>
           )}
           {showTrackCount && trackCount > 0 && (
             <span className="inline-flex items-center gap-1">
-              {showTrackCountIcon && <Music className="size-3" />}
+              {showTrackCountIcon && <Music className="size-4" />}
               {trackCount} {trackCount === 1 ? 'track' : 'tracks'}
             </span>
           )}
           {showDuration && totalDuration > 0 && (
             <span className="inline-flex items-center gap-1">
-              {showDurationIcon && <Disc className="size-3" />}
+              {showDurationIcon && <Disc className="size-4" />}
               {formatDuration(totalDuration)}
             </span>
           )}
         </div>
       </div>
 
+      {showType && typePlacement === 'title' && (
+        <ReleaseTypePill
+          releaseType={release.releaseType}
+          variant="outline"
+          uppercase
+          className="shrink-0"
+        />
+      )}
       {showProviders && providers.length > 0 && (
         <PlatformBadgeList
           platforms={providers}

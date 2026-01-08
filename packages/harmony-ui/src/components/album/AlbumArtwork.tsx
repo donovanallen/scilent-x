@@ -109,7 +109,7 @@ export function AlbumArtwork({
         aria-label={alt}
         {...props}
       >
-        <Disc3 className="size-16 text-muted-foreground" />
+        <Disc3 className="text-muted-foreground" />
       </div>
     );
   }

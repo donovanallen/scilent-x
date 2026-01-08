@@ -10,17 +10,13 @@ import {
   AlbumListItem,
   TrackCard,
   ArtistCard,
+  ArtistListItem,
   GridSkeleton,
   ListSkeleton,
-  PlatformBadgeList,
-  formatDuration,
-  formatArtistCredits,
-  InteractiveWrapper,
-  type HarmonizedArtistCredit,
 } from '@scilent-one/harmony-ui';
-import { Badge, cn } from '@scilent-one/ui';
+import { cn } from '@scilent-one/ui';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { AlertCircle, Music2, Search, Clock, User } from 'lucide-react';
+import { AlertCircle, Music2, Search } from 'lucide-react';
 import { useRef, useMemo, useState, useEffect } from 'react';
 
 import type { SearchType } from '../actions';
@@ -45,144 +41,6 @@ const GRID_COLUMNS = {
   lg: 4,
   xl: 5,
 };
-
-// Inline list item components for search results
-// These provide a compact horizontal layout for list view
-
-interface TrackListItemProps {
-  track: HarmonizedTrack;
-  showProviders?: boolean;
-  className?: string;
-}
-
-function TrackListItem({
-  track,
-  showProviders = false,
-  className,
-}: TrackListItemProps) {
-  const providers = track.sources.map((s) => s.provider);
-
-  return (
-    <InteractiveWrapper entityType='track' entity={track} previewSide='bottom'>
-      <div
-        className={cn(
-          'flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors group',
-          className
-        )}
-      >
-        <div className='w-8 text-center text-muted-foreground text-sm font-mono'>
-          {track.position || '-'}
-        </div>
-        <div className='flex-1 min-w-0'>
-          <div className='flex items-center gap-2'>
-            <h4 className='font-medium truncate'>{track.title}</h4>
-            {track.explicit && (
-              <Badge variant='outline' className='text-[10px] px-1 py-0 h-4'>
-                E
-              </Badge>
-            )}
-          </div>
-          <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-            <span className='truncate'>
-              {formatArtistCredits(track.artists as HarmonizedArtistCredit[])}
-            </span>
-            {track.isrc && (
-              <>
-                <span className='text-muted-foreground/50'>·</span>
-                <span className='font-mono text-xs'>{track.isrc}</span>
-              </>
-            )}
-          </div>
-        </div>
-        <div className='flex items-center gap-1 text-sm text-muted-foreground'>
-          <Clock className='size-3' />
-          <span className='font-mono'>{formatDuration(track.duration)}</span>
-        </div>
-        {showProviders && providers.length > 0 && (
-          <PlatformBadgeList platforms={providers} abbreviated />
-        )}
-      </div>
-    </InteractiveWrapper>
-  );
-}
-
-interface ArtistListItemProps {
-  artist: HarmonizedArtist;
-  showProviders?: boolean;
-  className?: string;
-}
-
-function ArtistListItem({
-  artist,
-  showProviders = false,
-  className,
-}: ArtistListItemProps) {
-  const providers = artist.sources.map((s) => s.provider);
-
-  return (
-    <InteractiveWrapper
-      entityType='artist'
-      entity={artist}
-      previewSide='bottom'
-    >
-      <div
-        className={cn(
-          'flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors group',
-          className
-        )}
-      >
-        <div className='size-14 rounded-full bg-linear-to-br from-muted to-muted/50 flex items-center justify-center shrink-0'>
-          <User className='size-6 text-muted-foreground/50' />
-        </div>
-        <div className='flex-1 min-w-0'>
-          <div className='flex items-center gap-2'>
-            <h4 className='font-medium truncate'>{artist.name}</h4>
-            {artist.type && (
-              <Badge
-                variant='outline'
-                className='text-[10px] px-1.5 py-0 h-4 capitalize'
-              >
-                {artist.type}
-              </Badge>
-            )}
-          </div>
-          <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-            {artist.country && <span>{artist.country}</span>}
-            {artist.disambiguation && (
-              <>
-                {artist.country && (
-                  <span className='text-muted-foreground/50'>·</span>
-                )}
-                <span className='truncate'>{artist.disambiguation}</span>
-              </>
-            )}
-          </div>
-          {artist.genres && artist.genres.length > 0 && (
-            <div className='flex items-center gap-1 mt-1'>
-              {artist.genres.slice(0, 3).map((genre) => (
-                <Badge
-                  key={genre}
-                  variant='secondary'
-                  className='text-[10px] px-1.5 py-0 h-4'
-                >
-                  {genre}
-                </Badge>
-              ))}
-              {artist.genres.length > 3 && (
-                <span className='text-xs text-muted-foreground'>
-                  +{artist.genres.length - 3}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-        {showProviders && providers.length > 0 && (
-          <PlatformBadgeList platforms={providers} abbreviated />
-        )}
-      </div>
-    </InteractiveWrapper>
-  );
-}
 
 function EmptyState({
   icon: Icon,
@@ -381,7 +239,12 @@ export function SearchResults({
                     transform: `translateY(${virtualItem.start}px)`,
                   }}
                 >
-                  <ArtistListItem artist={artist} showProviders />
+                  <ArtistListItem
+                    artist={artist}
+                    showProviders
+                    interactive
+                    previewSide='bottom'
+                  />
                 </div>
               );
             }
@@ -404,7 +267,17 @@ export function SearchResults({
                     transform: `translateY(${virtualItem.start}px)`,
                   }}
                 >
-                  <TrackListItem track={track} showProviders />
+                  <TrackCard
+                    track={track}
+                    variant='list'
+                    showArtwork={false}
+                    showSources
+                    showDurationIcon
+                    showIsrc
+                    inlineIsrc
+                    interactive
+                    previewSide='bottom'
+                  />
                 </div>
               );
             }
@@ -478,7 +351,7 @@ export function SearchResults({
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
-                <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 py-2'>
+                <div className='grid grid-cols-2 gap-4 py-2'>
                   {row.map((track) => (
                     <TrackCard
                       key={track.isrc || track.title}
