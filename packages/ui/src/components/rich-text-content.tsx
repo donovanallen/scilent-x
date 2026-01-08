@@ -15,6 +15,9 @@ export interface RichTextContentProps {
 // For exec() loops, we reset lastIndex = 0 before each use.
 const MENTION_REGEX = /@([a-zA-Z][a-zA-Z0-9_]{0,29})/g;
 
+// Regex to match Tiptap data-mention attributes
+const TIPTAP_MENTION_REGEX = /<span[^>]*data-mention-type="([^"]*)"[^>]*data-mention-id="([^"]*)"[^>]*data-mention-label="([^"]*)"[^>]*>@[^<]*<\/span>/g;
+
 /**
  * RichTextContent renders HTML content from the rich text editor
  * with proper styling and mention support.
@@ -33,10 +36,27 @@ export function RichTextContent({
   if (html) {
     // Process HTML to add mention interactivity with accessibility attributes
     const processedHtml = React.useMemo(() => {
-      // String.replace() with global flag handles lastIndex correctly
-      return html.replace(MENTION_REGEX, (match, username) => {
-        return `<button type="button" class="rich-text-mention text-primary hover:underline font-medium" data-mention="${username}" aria-label="View ${username}'s profile">${match}</button>`;
-      });
+      let result = html;
+      
+      // First, handle Tiptap-style mentions (data-mention-* attributes)
+      // Convert them to interactive buttons while preserving the mention data
+      result = result.replace(
+        TIPTAP_MENTION_REGEX,
+        (_match, type, id, label) => {
+          return `<button type="button" class="rich-text-mention tiptap-mention text-primary hover:underline font-medium" data-mention="${label}" data-mention-type="${type}" data-mention-id="${id}" aria-label="View ${label}'s profile">@${label}</button>`;
+        }
+      );
+      
+      // Then handle plain @username mentions (backwards compatibility)
+      // Only replace mentions that aren't already wrapped in buttons
+      result = result.replace(
+        /(?<!<button[^>]*>)@([a-zA-Z][a-zA-Z0-9_]{0,29})(?![^<]*<\/button>)/g,
+        (match, username) => {
+          return `<button type="button" class="rich-text-mention text-primary hover:underline font-medium" data-mention="${username}" aria-label="View ${username}'s profile">${match}</button>`;
+        }
+      );
+      
+      return result;
     }, [html]);
 
     const handleClick = React.useCallback(

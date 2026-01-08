@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Doto:wght,ROND@100..900,30&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-@import 'react-quill-new/dist/quill.snow.css';
 @import 'tailwindcss';
 @source "./**/*.{ts,tsx}";
 @source "../sandbox/**/*.{ts,tsx}";
@@ -207,7 +206,93 @@ code {
   }
 }
 
-/* Rich Text Editor (Quill) Styles */
+/* Rich Text Editor (Tiptap) Styles */
+.tiptap-editor {
+  @apply border-border;
+}
+
+.tiptap-editor .tiptap-toolbar {
+  @apply border-border rounded-t-md bg-muted/50;
+}
+
+.tiptap-editor .ProseMirror {
+  @apply p-3 font-body text-foreground focus:outline-none;
+  min-height: var(--min-height, 100px);
+}
+
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  @apply text-muted-foreground italic pointer-events-none float-left h-0;
+  content: attr(data-placeholder);
+}
+
+.tiptap-editor .ProseMirror p {
+  @apply my-2 first:mt-0 last:mb-0;
+}
+
+.tiptap-editor .ProseMirror strong {
+  @apply font-semibold;
+}
+
+.tiptap-editor .ProseMirror em {
+  @apply italic;
+}
+
+.tiptap-editor .ProseMirror u {
+  @apply underline;
+}
+
+.tiptap-editor .ProseMirror s {
+  @apply line-through;
+}
+
+.tiptap-editor .ProseMirror blockquote {
+  @apply border-l-4 border-muted pl-4 italic text-muted-foreground my-2;
+}
+
+.tiptap-editor .ProseMirror pre {
+  @apply bg-muted rounded-md p-3 my-2 overflow-x-auto;
+}
+
+.tiptap-editor .ProseMirror pre code {
+  @apply bg-transparent p-0;
+}
+
+.tiptap-editor .ProseMirror code {
+  @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.tiptap-editor .ProseMirror ul,
+.tiptap-editor .ProseMirror ol {
+  @apply my-2 pl-6;
+}
+
+.tiptap-editor .ProseMirror ul {
+  @apply list-disc;
+}
+
+.tiptap-editor .ProseMirror ol {
+  @apply list-decimal;
+}
+
+.tiptap-editor .ProseMirror li {
+  @apply my-1;
+}
+
+.tiptap-editor .ProseMirror a {
+  @apply text-primary underline hover:no-underline;
+}
+
+/* Tiptap Mention Styles */
+.tiptap-mention {
+  @apply text-primary font-medium rounded px-0.5 bg-primary/10;
+}
+
+/* Mention Suggestions Popup */
+.tiptap-mention-popup {
+  @apply bg-popover border border-border rounded-md shadow-lg overflow-hidden;
+}
+
+/* Legacy Quill wrapper for backwards compatibility during migration */
 .rich-text-editor .ql-toolbar {
   @apply border-border rounded-t-md bg-muted/50;
 }

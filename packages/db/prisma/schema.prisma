@@ -185,13 +185,22 @@ model Follow {
   @@map("follows")
 }
 
+/// Mention type enum for extensibility
+enum MentionType {
+  USER
+  ARTIST // future
+  ALBUM // future
+  TRACK // future
+}
+
 /// Mention model - @mentions in posts or comments
 model Mention {
-  id        String   @id @default(cuid())
+  id        String      @id @default(cuid())
+  type      MentionType @default(USER)
   userId    String
   postId    String?
   commentId String?
-  createdAt DateTime @default(now())
+  createdAt DateTime    @default(now())
 
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -200,6 +209,7 @@ model Mention {
   @@index([userId])
   @@index([postId])
   @@index([commentId])
+  @@index([type])
   @@map("mentions")
 }
 
