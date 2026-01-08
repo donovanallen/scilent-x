@@ -167,7 +167,7 @@ export default function FeedPage() {
   };
 
   return (
-    <div className='container max-w-2xl py-6 space-y-6'>
+    <div className='container py-6 space-y-6'>
       <h1 className='text-2xl font-bold'>Home</h1>
 
       {currentUser && (

@@ -29,7 +29,9 @@ export interface TiptapEditorProps {
   /** Key to force remount and clear editor state */
   editorKey?: string | number | undefined;
   /** Callback to search for mention suggestions */
-  onMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
+  onMentionQuery?:
+    | ((query: string) => Promise<MentionSuggestion[]>)
+    | undefined;
 }
 
 export function TiptapEditor({
@@ -44,7 +46,9 @@ export function TiptapEditor({
   onMentionQuery,
 }: TiptapEditorProps) {
   const [mentionQuery, setMentionQuery] = React.useState('');
-  const [mentionSuggestions, setMentionSuggestions] = React.useState<MentionSuggestion[]>([]);
+  const [mentionSuggestions, setMentionSuggestions] = React.useState<
+    MentionSuggestion[]
+  >([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
   const [mentionError, setMentionError] = React.useState<string | null>(null);
 
@@ -104,7 +108,7 @@ export function TiptapEditor({
         return [
           'span',
           {
-            'class': options.HTMLAttributes.class,
+            class: options.HTMLAttributes.class,
             'data-mention-type': 'user',
             'data-mention-id': node.attrs.id,
             'data-mention-label': node.attrs.label,
@@ -121,12 +125,18 @@ export function TiptapEditor({
         },
         render: () => {
           let popup: HTMLDivElement | null = null;
-          let reactRoot: ReturnType<typeof import('react-dom/client').createRoot> | null = null;
-          let currentCommand: ((attrs: { id: string; label: string }) => void) | null = null;
+          let reactRoot: ReturnType<
+            typeof import('react-dom/client').createRoot
+          > | null = null;
+          let currentCommand:
+            | ((attrs: { id: string; label: string }) => void)
+            | null = null;
           let currentItems: MentionSuggestion[] = [];
           let currentSelectedIndex = 0;
 
-          const updatePopupPosition = (clientRect: (() => DOMRect | null) | null | undefined) => {
+          const updatePopupPosition = (
+            clientRect: (() => DOMRect | null) | null | undefined
+          ) => {
             const rect = clientRect?.();
             if (!rect || !popup) return;
 
@@ -593,7 +603,9 @@ function TiptapToolbar({ editor }: TiptapToolbarProps) {
         </PopoverContent>
       </Popover>
       <ToolbarButton
-        onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
+        onClick={() =>
+          editor.chain().focus().unsetAllMarks().clearNodes().run()
+        }
         label="Clear Formatting"
       >
         <svg
