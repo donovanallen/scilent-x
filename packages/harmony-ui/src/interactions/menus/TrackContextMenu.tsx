@@ -183,26 +183,26 @@ export function TrackContextMenu({
             </MenuSubTrigger>
             <MenuSubContent>
               {interaction.onCopyLink && (
-                <MenuItem onSelect={handleCopyLink}>
-                  <Link className="mr-2 size-4" />
+                <MenuItem className="gap-2" onSelect={handleCopyLink}>
+                  <Link className="size-4" />
                   Copy Link
                 </MenuItem>
               )}
               {track.isrc && (
-                <MenuItem onSelect={handleCopyISRC}>
-                  <Copy className="mr-2 size-4" />
+                <MenuItem className="gap-2" onSelect={handleCopyISRC}>
+                  <Copy className="size-4" />
                   Copy ISRC
                 </MenuItem>
               )}
               {track.title && (
-                <MenuItem onSelect={handleCopyTitle}>
-                  <Type className="mr-2 size-4" />
+                <MenuItem className="gap-2" onSelect={handleCopyTitle}>
+                  <Type className="size-4" />
                   Copy Title
                 </MenuItem>
               )}
               {track.artists && track.artists.length > 0 && (
-                <MenuItem onSelect={handleCopyArtists}>
-                  <Copy className="mr-2 size-4" />
+                <MenuItem className="gap-2" onSelect={handleCopyArtists}>
+                  <Copy className="size-4" />
                   Copy Artist{track.artists.length > 1 ? 's' : ''}
                 </MenuItem>
               )}

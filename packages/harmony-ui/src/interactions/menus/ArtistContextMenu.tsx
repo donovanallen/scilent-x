@@ -171,14 +171,14 @@ export function ArtistContextMenu({
             </MenuSubTrigger>
             <MenuSubContent>
               {interaction.onCopyLink && (
-                <MenuItem onSelect={handleCopyLink}>
-                  <Link className="mr-2 size-4" />
+                <MenuItem className="gap-2" onSelect={handleCopyLink}>
+                  <Link className="size-4" />
                   Copy Link
                 </MenuItem>
               )}
               {artist.name && (
-                <MenuItem onSelect={handleCopyName}>
-                  <Type className="mr-2 size-4" />
+                <MenuItem className="gap-2" onSelect={handleCopyName}>
+                  <Type className="size-4" />
                   Copy Name
                 </MenuItem>
               )}

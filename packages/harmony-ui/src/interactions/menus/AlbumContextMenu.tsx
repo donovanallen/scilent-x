@@ -216,26 +216,26 @@ export function AlbumContextMenu({
             </MenuSubTrigger>
             <MenuSubContent>
               {interaction.onCopyLink && (
-                <MenuItem onSelect={handleCopyLink}>
-                  <Link className="mr-2 size-4" />
+                <MenuItem onSelect={handleCopyLink} className="gap-2">
+                  <Link className="size-4" />
                   Copy Link
                 </MenuItem>
               )}
               {release.gtin && (
-                <MenuItem onSelect={handleCopyUPC}>
-                  <Copy className="mr-2 size-4" />
+                <MenuItem onSelect={handleCopyUPC} className="gap-2">
+                  <Copy className="size-4" />
                   Copy UPC/GTIN
                 </MenuItem>
               )}
               {release.title && (
-                <MenuItem onSelect={handleCopyTitle}>
-                  <Type className="mr-2 size-4" />
+                <MenuItem onSelect={handleCopyTitle} className="gap-2">
+                  <Type className="size-4" />
                   Copy Title
                 </MenuItem>
               )}
               {release.artists && release.artists.length > 0 && (
-                <MenuItem onSelect={handleCopyArtists}>
-                  <Copy className="mr-2 size-4" />
+                <MenuItem onSelect={handleCopyArtists} className="gap-2">
+                  <Copy className="size-4" />
                   Copy Artist{release.artists.length > 1 ? 's' : ''}
                 </MenuItem>
               )}
