@@ -7,30 +7,20 @@ import type {
 } from '@scilent-one/harmony-engine';
 import {
   AlbumCard,
+  AlbumListItem,
   TrackCard,
   ArtistCard,
   GridSkeleton,
   ListSkeleton,
   PlatformBadgeList,
-  ReleaseTypePill,
   formatDuration,
   formatArtistCredits,
-  getFrontArtworkUrl,
   InteractiveWrapper,
   type HarmonizedArtistCredit,
 } from '@scilent-one/harmony-ui';
 import { Badge, cn } from '@scilent-one/ui';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import {
-  AlertCircle,
-  Music2,
-  Search,
-  Calendar,
-  Disc,
-  Music,
-  Clock,
-  User,
-} from 'lucide-react';
+import { AlertCircle, Music2, Search, Clock, User } from 'lucide-react';
 import { useRef, useMemo, useState, useEffect } from 'react';
 
 import type { SearchType } from '../actions';
@@ -58,96 +48,6 @@ const GRID_COLUMNS = {
 
 // Inline list item components for search results
 // These provide a compact horizontal layout for list view
-
-interface ReleaseListItemProps {
-  release: HarmonizedRelease;
-  showProviders?: boolean;
-  className?: string;
-}
-
-function ReleaseListItem({
-  release,
-  showProviders = false,
-  className,
-}: ReleaseListItemProps) {
-  const artworkUrl = getFrontArtworkUrl(release.artwork);
-  const year = release.releaseDate?.year;
-  const trackCount = release.media.reduce((acc, m) => acc + m.tracks.length, 0);
-  const totalDuration = release.media.reduce(
-    (acc, m) =>
-      acc + m.tracks.reduce((t, track) => t + (track.duration || 0), 0),
-    0
-  );
-  const providers = release.sources.map((s) => s.provider);
-
-  return (
-    <InteractiveWrapper
-      entityType='album'
-      entity={release}
-      previewSide='bottom'
-    >
-      <div
-        className={cn(
-          'group flex items-center gap-4 p-3 rounded-lg transition-colors hover:bg-accent/50 cursor-pointer',
-          className
-        )}
-      >
-        <div className='size-16 rounded-md overflow-hidden bg-muted shrink-0'>
-          {artworkUrl ? (
-            <img
-              src={artworkUrl}
-              alt={release.title}
-              className='size-full object-cover'
-            />
-          ) : (
-            <div className='size-full flex items-center justify-center'>
-              <Disc className='size-6 text-muted-foreground' />
-            </div>
-          )}
-        </div>
-        <div className='flex-1 min-w-0 space-y-1'>
-          <div className='flex items-start gap-2'>
-            <h3 className='font-medium text-sm leading-tight truncate group-hover:text-primary transition-colors'>
-              {release.title}
-            </h3>
-            <ReleaseTypePill
-              releaseType={release.releaseType}
-              variant='outline'
-              uppercase
-              className='text-[10px] shrink-0'
-            />
-          </div>
-          <p className='text-sm text-muted-foreground truncate'>
-            {formatArtistCredits(release.artists as HarmonizedArtistCredit[])}
-          </p>
-          <div className='flex items-center gap-3 text-xs text-muted-foreground'>
-            {year && (
-              <span className='inline-flex items-center gap-1'>
-                <Calendar className='size-3' />
-                {year}
-              </span>
-            )}
-            {trackCount > 0 && (
-              <span className='inline-flex items-center gap-1'>
-                <Music className='size-3' />
-                {trackCount} {trackCount === 1 ? 'track' : 'tracks'}
-              </span>
-            )}
-            {totalDuration > 0 && (
-              <span className='inline-flex items-center gap-1'>
-                <Disc className='size-3' />
-                {formatDuration(totalDuration)}
-              </span>
-            )}
-          </div>
-        </div>
-        {showProviders && providers.length > 0 && (
-          <PlatformBadgeList platforms={providers} abbreviated />
-        )}
-      </div>
-    </InteractiveWrapper>
-  );
-}
 
 interface TrackListItemProps {
   track: HarmonizedTrack;
@@ -524,7 +424,14 @@ export function SearchResults({
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
-                <ReleaseListItem release={release} showProviders />
+                <AlbumListItem
+                  release={release}
+                  showProviders
+                  showDuration
+                  typePlacement='title'
+                  interactive
+                  previewSide='bottom'
+                />
               </div>
             );
           }
