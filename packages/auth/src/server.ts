@@ -18,6 +18,7 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
+import { genericOAuth } from 'better-auth/plugins';
 import { db } from '@scilent-one/db';
 
 /**
@@ -113,6 +114,26 @@ export const auth = betterAuth({
    * nextCookies: Automatically handles cookie setting in Next.js server actions
    */
   plugins: [
+    /**
+     * Generic OAuth Plugin for Streaming Service Account Linking
+     *
+     * Enables users to link their streaming accounts (Tidal, Spotify, etc.)
+     * to their existing Scilent account. Tokens are stored in the Account table
+     * and can be used for user-authenticated API calls.
+     */
+    genericOAuth({
+      config: [
+        {
+          providerId: 'tidal',
+          clientId: process.env.TIDAL_CLIENT_ID ?? '',
+          clientSecret: process.env.TIDAL_CLIENT_SECRET ?? '',
+          authorizationUrl: 'https://login.tidal.com/authorize',
+          tokenUrl: 'https://auth.tidal.com/v1/oauth2/token',
+          scopes: ['r_usr', 'w_usr'], // Read/write user data
+          pkce: true, // Tidal requires PKCE
+        },
+      ],
+    }),
     nextCookies(), // Must be last in the plugins array
   ],
 
