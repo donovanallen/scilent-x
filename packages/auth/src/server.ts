@@ -130,8 +130,8 @@ export const auth = betterAuth({
           authorizationUrl: 'https://login.tidal.com/authorize',
           tokenUrl: 'https://auth.tidal.com/v1/oauth2/token',
           userInfoUrl: 'https://api.tidal.com/v1/sessions',
-          // Tidal doesn't require explicit scopes for basic user auth
-          scopes: [],
+          // Tidal requires specific scopes for user info access
+          scopes: ['user.read', 'playback_r_usr'],
           pkce: true, // Tidal requires PKCE
           // Map Tidal's user info response to Better Auth's expected format
           async getUserInfo(token) {
