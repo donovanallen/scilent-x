@@ -135,22 +135,69 @@ export const auth = betterAuth({
           pkce: true, // Tidal requires PKCE
           // Map Tidal's user info response to Better Auth's expected format
           async getUserInfo(token) {
-            const response = await fetch('https://api.tidal.com/v1/sessions', {
-              headers: {
-                Authorization: `Bearer ${token.accessToken}`,
-              },
-            });
+            // Try the OpenAPI v2 me endpoint first
+            const response = await fetch(
+              'https://openapi.tidal.com/v2/users/me',
+              {
+                headers: {
+                  Authorization: `Bearer ${token.accessToken}`,
+                  Accept: 'application/json',
+                },
+              }
+            );
+
             if (!response.ok) {
-              return null;
+              // Fallback: try legacy sessions endpoint
+              const legacyResponse = await fetch(
+                'https://api.tidal.com/v1/sessions',
+                {
+                  headers: {
+                    Authorization: `Bearer ${token.accessToken}`,
+                    'X-Tidal-Token': process.env.TIDAL_CLIENT_ID ?? '',
+                  },
+                }
+              );
+
+              if (!legacyResponse.ok) {
+                console.error(
+                  'Tidal user info failed:',
+                  legacyResponse.status,
+                  await legacyResponse.text()
+                );
+                return null;
+              }
+
+              const legacyData = (await legacyResponse.json()) as {
+                userId: number;
+                username?: string;
+              };
+
+              return {
+                id: String(legacyData.userId),
+                name: legacyData.username,
+                email: '',
+                emailVerified: false,
+              };
             }
+
             const data = (await response.json()) as {
-              userId: number;
+              data?: {
+                id: string;
+                username?: string;
+                email?: string;
+              };
+              id?: string;
               username?: string;
+              email?: string;
             };
+
+            // Handle both wrapped and unwrapped response formats
+            const userData = data.data || data;
+
             return {
-              id: String(data.userId),
-              name: data.username,
-              email: '', // Tidal doesn't expose email in this endpoint
+              id: String(userData.id),
+              name: userData.username,
+              email: userData.email || '',
               emailVerified: false,
             };
           },
