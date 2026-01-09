@@ -135,71 +135,67 @@ export const auth = betterAuth({
           pkce: true, // Tidal requires PKCE
           // Map Tidal's user info response to Better Auth's expected format
           async getUserInfo(token) {
-            // Try the OpenAPI v2 me endpoint first
-            const response = await fetch(
-              'https://openapi.tidal.com/v2/users/me',
+            // Try OIDC userinfo endpoint first (standard OAuth2)
+            const userinfoResponse = await fetch(
+              'https://login.tidal.com/oauth2/userinfo',
               {
                 headers: {
                   Authorization: `Bearer ${token.accessToken}`,
-                  Accept: 'application/json',
                 },
               }
             );
 
-            if (!response.ok) {
-              // Fallback: try legacy sessions endpoint
-              const legacyResponse = await fetch(
-                'https://api.tidal.com/v1/sessions',
-                {
-                  headers: {
-                    Authorization: `Bearer ${token.accessToken}`,
-                    'X-Tidal-Token': process.env.TIDAL_CLIENT_ID ?? '',
-                  },
-                }
-              );
+            if (userinfoResponse.ok) {
+              const userinfo = (await userinfoResponse.json()) as {
+                sub: string;
+                preferred_username?: string;
+                email?: string;
+                email_verified?: boolean;
+              };
+              console.log('Tidal userinfo response:', userinfo);
+              return {
+                id: userinfo.sub,
+                name: userinfo.preferred_username,
+                email: userinfo.email || '',
+                emailVerified: userinfo.email_verified || false,
+              };
+            }
 
-              if (!legacyResponse.ok) {
-                console.error(
-                  'Tidal user info failed:',
-                  legacyResponse.status,
-                  await legacyResponse.text()
-                );
-                return null;
+            console.log(
+              'Tidal userinfo failed, trying sessions:',
+              userinfoResponse.status
+            );
+
+            // Fallback: try legacy sessions endpoint
+            const sessionsResponse = await fetch(
+              'https://api.tidal.com/v1/sessions',
+              {
+                headers: {
+                  Authorization: `Bearer ${token.accessToken}`,
+                },
               }
+            );
 
-              const legacyData = (await legacyResponse.json()) as {
+            if (sessionsResponse.ok) {
+              const sessionData = (await sessionsResponse.json()) as {
                 userId: number;
                 username?: string;
               };
-
+              console.log('Tidal sessions response:', sessionData);
               return {
-                id: String(legacyData.userId),
-                name: legacyData.username,
+                id: String(sessionData.userId),
+                name: sessionData.username,
                 email: '',
                 emailVerified: false,
               };
             }
 
-            const data = (await response.json()) as {
-              data?: {
-                id: string;
-                username?: string;
-                email?: string;
-              };
-              id?: string;
-              username?: string;
-              email?: string;
-            };
-
-            // Handle both wrapped and unwrapped response formats
-            const userData = data.data || data;
-
-            return {
-              id: String(userData.id),
-              name: userData.username,
-              email: userData.email || '',
-              emailVerified: false,
-            };
+            console.error(
+              'All Tidal user info endpoints failed:',
+              sessionsResponse.status,
+              await sessionsResponse.text()
+            );
+            return null;
           },
         },
       ],
