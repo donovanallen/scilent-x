@@ -158,40 +158,41 @@ export const auth = betterAuth({
               }
             );
 
+            const meText = await meResponse.text();
+
             if (meResponse.ok) {
-              const meData = (await meResponse.json()) as {
-                resource?: {
+              const meData = JSON.parse(meText) as {
+                data?: {
                   id: string;
-                  username?: string;
-                  email?: string;
-                  emailVerified?: boolean;
-                  firstName?: string;
-                  lastName?: string;
+                  type: string;
+                  attributes?: {
+                    username?: string;
+                    email?: string;
+                    emailVerified?: boolean;
+                    firstName?: string;
+                    lastName?: string;
+                    country?: string;
+                  };
                 };
-                id?: string;
-                username?: string;
-                email?: string;
-                emailVerified?: boolean;
               };
               console.log('Tidal /users/me response:', meData);
 
-              // Handle wrapped or unwrapped response
-              const userData = meData.resource || meData;
-              if (userData.id) {
+              // Handle the nested data.attributes structure
+              if (meData.data?.id) {
+                const attrs = meData.data.attributes || {};
+                const name =
+                  [attrs.firstName, attrs.lastName].filter(Boolean).join(' ') ||
+                  attrs.username;
                 return {
-                  id: String(userData.id),
-                  name: userData.username,
-                  email: userData.email || '',
-                  emailVerified: userData.emailVerified || false,
+                  id: String(meData.data.id),
+                  name,
+                  email: attrs.email || '',
+                  emailVerified: attrs.emailVerified || false,
                 };
               }
             }
 
-            console.log(
-              'Tidal /users/me failed:',
-              meResponse.status,
-              await meResponse.text()
-            );
+            console.log('Tidal /users/me failed:', meResponse.status, meText);
 
             // Fallback: try legacy sessions endpoint to get userId, then fetch user
             const sessionsResponse = await fetch(
