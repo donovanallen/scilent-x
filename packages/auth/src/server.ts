@@ -129,7 +129,7 @@ export const auth = betterAuth({
           clientSecret: process.env.TIDAL_CLIENT_SECRET ?? '',
           authorizationUrl: 'https://login.tidal.com/authorize',
           tokenUrl: 'https://auth.tidal.com/v1/oauth2/token',
-          userInfoUrl: 'https://api.tidal.com/v1/sessions',
+          userInfoUrl: 'https://openapi.tidal.com/v2/users/me',
           // Tidal scopes for full user access
           scopes: [
             'user.read',
@@ -148,12 +148,12 @@ export const auth = betterAuth({
           async getUserInfo(token) {
             // Try OpenAPI v2 users/me endpoint (requires user.read scope)
             const meResponse = await fetch(
-              'https://openapi.tidal.com/users/me',
+              'https://openapi.tidal.com/v2/users/me',
               {
                 headers: {
                   Authorization: `Bearer ${token.accessToken}`,
-                  Accept: 'application/vnd.tidal.v1+json',
-                  'Content-Type': 'application/vnd.tidal.v1+json',
+                  Accept: 'application/vnd.api+json',
+                  'Content-Type': 'application/vnd.api+json',
                 },
               }
             );
