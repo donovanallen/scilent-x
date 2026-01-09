@@ -146,38 +146,54 @@ export const auth = betterAuth({
           pkce: true, // Tidal requires PKCE
           // Map Tidal's user info response to Better Auth's expected format
           async getUserInfo(token) {
-            // Try OIDC userinfo endpoint first (standard OAuth2)
-            const userinfoResponse = await fetch(
-              'https://login.tidal.com/oauth2/userinfo',
+            // Try OpenAPI v2 users/me endpoint (requires user.read scope)
+            const meResponse = await fetch(
+              'https://openapi.tidal.com/users/me',
               {
                 headers: {
                   Authorization: `Bearer ${token.accessToken}`,
+                  Accept: 'application/vnd.tidal.v1+json',
+                  'Content-Type': 'application/vnd.tidal.v1+json',
                 },
               }
             );
 
-            if (userinfoResponse.ok) {
-              const userinfo = (await userinfoResponse.json()) as {
-                sub: string;
-                preferred_username?: string;
+            if (meResponse.ok) {
+              const meData = (await meResponse.json()) as {
+                resource?: {
+                  id: string;
+                  username?: string;
+                  email?: string;
+                  emailVerified?: boolean;
+                  firstName?: string;
+                  lastName?: string;
+                };
+                id?: string;
+                username?: string;
                 email?: string;
-                email_verified?: boolean;
+                emailVerified?: boolean;
               };
-              console.log('Tidal userinfo response:', userinfo);
-              return {
-                id: userinfo.sub,
-                name: userinfo.preferred_username,
-                email: userinfo.email || '',
-                emailVerified: userinfo.email_verified || false,
-              };
+              console.log('Tidal /users/me response:', meData);
+
+              // Handle wrapped or unwrapped response
+              const userData = meData.resource || meData;
+              if (userData.id) {
+                return {
+                  id: String(userData.id),
+                  name: userData.username,
+                  email: userData.email || '',
+                  emailVerified: userData.emailVerified || false,
+                };
+              }
             }
 
             console.log(
-              'Tidal userinfo failed, trying sessions:',
-              userinfoResponse.status
+              'Tidal /users/me failed:',
+              meResponse.status,
+              await meResponse.text()
             );
 
-            // Fallback: try legacy sessions endpoint
+            // Fallback: try legacy sessions endpoint to get userId, then fetch user
             const sessionsResponse = await fetch(
               'https://api.tidal.com/v1/sessions',
               {
@@ -190,12 +206,52 @@ export const auth = betterAuth({
             if (sessionsResponse.ok) {
               const sessionData = (await sessionsResponse.json()) as {
                 userId: number;
-                username?: string;
+                countryCode?: string;
               };
               console.log('Tidal sessions response:', sessionData);
+
+              // Try to get full user info with the userId
+              const userResponse = await fetch(
+                `https://api.tidal.com/v1/users/${sessionData.userId}?countryCode=${sessionData.countryCode || 'US'}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token.accessToken}`,
+                  },
+                }
+              );
+
+              if (userResponse.ok) {
+                const userData = (await userResponse.json()) as {
+                  id: number;
+                  username?: string;
+                  email?: string;
+                  firstName?: string;
+                  lastName?: string;
+                };
+                console.log('Tidal user response:', userData);
+                return {
+                  id: String(userData.id),
+                  name:
+                    userData.username ||
+                    [userData.firstName, userData.lastName]
+                      .filter(Boolean)
+                      .join(' ') ||
+                    undefined,
+                  email: userData.email || '',
+                  emailVerified: false,
+                };
+              }
+
+              console.log(
+                'Tidal user fetch failed:',
+                userResponse.status,
+                await userResponse.text()
+              );
+
+              // Last resort: return session data without email
               return {
                 id: String(sessionData.userId),
-                name: sessionData.username,
+                name: undefined,
                 email: '',
                 emailVerified: false,
               };
