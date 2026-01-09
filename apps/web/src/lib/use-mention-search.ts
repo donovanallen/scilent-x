@@ -63,7 +63,7 @@ export function useMentionSearch(
         const data = await response.json();
 
         // Transform API response to MentionSearchResult format
-        return (data.users || []).map(
+        return (data.items || []).map(
           (user: {
             id: string;
             name?: string | null;

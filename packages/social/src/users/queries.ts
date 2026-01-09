@@ -100,6 +100,7 @@ export async function searchUsers(
       OR: [
         { username: { contains: query, mode: 'insensitive' } },
         { name: { contains: query, mode: 'insensitive' } },
+        { id: { contains: query, mode: 'insensitive' } },
       ],
     },
     select: {
