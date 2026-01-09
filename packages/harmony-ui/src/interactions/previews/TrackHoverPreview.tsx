@@ -1,10 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { Badge, cn } from '@scilent-one/ui';
+import { Badge, cn, Separator } from '@scilent-one/ui';
+import { Clock, Disc, Hash, Music, AlertTriangle, Users } from 'lucide-react';
 import type { HarmonizedEntity } from '../types';
 import type { HarmonizedTrack } from '../../types';
-import { formatDuration, formatArtistCredits } from '../../utils';
+import { formatDuration, formatArtistCredits, formatTrackPosition } from '../../utils';
 import { PlatformBadgeList } from '../../components/common';
 
 export interface TrackHoverPreviewProps {
@@ -32,112 +33,173 @@ export function TrackHoverPreview({
     return track.sources?.map((s) => s.provider) ?? [];
   }, [track.sources]);
 
-  // Links only mode
+  // Links only mode - streamlined platform links
   if (mode === 'links') {
     return (
-      <div className={cn('space-y-2', className)}>
-        <p className="font-medium truncate">{track.title}</p>
-        <p className="text-sm text-muted-foreground truncate">
-          {formatArtistCredits(track.artists)}
-        </p>
+      <div className={cn('space-y-3', className)}>
+        <div className="flex items-center gap-3">
+          <div className="size-10 rounded-md bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
+            <Music className="size-5 text-primary" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-medium truncate text-sm">{track.title}</p>
+            <p className="text-xs text-muted-foreground truncate">
+              {formatArtistCredits(track.artists)}
+            </p>
+          </div>
+        </div>
         {platforms.length > 0 && (
-          <PlatformBadgeList platforms={platforms} abbreviated />
+          <PlatformBadgeList platforms={platforms} colored className="pt-1" />
         )}
       </div>
     );
   }
 
-  // Mini mode - compact preview
+  // Mini mode - compact preview with key details
   if (mode === 'mini') {
     return (
       <div className={cn('space-y-3', className)}>
-        <div>
-          <p className="font-medium leading-tight">{track.title}</p>
-          <p className="text-sm text-muted-foreground">
-            {formatArtistCredits(track.artists)}
-          </p>
+        {/* Header with icon */}
+        <div className="flex gap-3">
+          <div className="size-14 rounded-lg bg-gradient-to-br from-primary/20 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-inner">
+            <Music className="size-6 text-primary" />
+          </div>
+          <div className="min-w-0 flex-1 flex flex-col justify-center gap-1">
+            <p className="font-semibold leading-tight line-clamp-2">{track.title}</p>
+            <p className="text-sm text-muted-foreground truncate">
+              {formatArtistCredits(track.artists)}
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        {/* Quick stats row */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground bg-muted/50 rounded-md px-2.5 py-2 flex-wrap">
           {track.duration && (
-            <span>{formatDuration(track.duration)}</span>
+            <div className="flex items-center gap-1">
+              <Clock className="size-3" />
+              <span>{formatDuration(track.duration)}</span>
+            </div>
+          )}
+          {track.position && (
+            <div className="flex items-center gap-1">
+              <Hash className="size-3" />
+              <span>Track {formatTrackPosition(track.position, track.discNumber)}</span>
+            </div>
           )}
           {track.explicit && (
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="destructive" className="text-[10px] px-1.5 py-0 gap-0.5">
+              <AlertTriangle className="size-2.5" />
               Explicit
             </Badge>
           )}
-          {track.isrc && (
-            <span className="text-xs font-mono">{track.isrc}</span>
-          )}
         </div>
 
+        {/* Platform badges */}
         {platforms.length > 0 && (
-          <PlatformBadgeList platforms={platforms} abbreviated />
+          <PlatformBadgeList platforms={platforms} abbreviated maxVisible={4} />
         )}
       </div>
     );
   }
 
-  // Full mode - detailed preview
+  // Full mode - detailed preview with all metadata
   return (
     <div className={cn('space-y-4', className)}>
-      <div>
-        <p className="font-semibold text-base leading-tight">{track.title}</p>
-        <p className="text-sm text-muted-foreground mt-1">
-          {formatArtistCredits(track.artists)}
-        </p>
+      {/* Header with large icon */}
+      <div className="flex items-start gap-4">
+        <div className="size-16 rounded-lg bg-gradient-to-br from-primary/25 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-lg">
+          <Music className="size-7 text-primary" />
+        </div>
+        <div className="min-w-0 flex-1 pt-0.5">
+          <h4 className="font-semibold text-base leading-tight line-clamp-2">
+            {track.title}
+          </h4>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {formatArtistCredits(track.artists)}
+          </p>
+          {track.explicit && (
+            <Badge variant="destructive" className="text-xs mt-2 gap-1">
+              <AlertTriangle className="size-3" />
+              Explicit Content
+            </Badge>
+          )}
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 text-sm">
+      <Separator />
+
+      {/* Metadata grid */}
+      <div className="grid grid-cols-2 gap-3 text-sm">
         {track.duration && (
-          <div>
-            <span className="text-muted-foreground">Duration:</span>
-            <span className="ml-1">{formatDuration(track.duration)}</span>
-          </div>
-        )}
-        {track.position && (
-          <div>
-            <span className="text-muted-foreground">Track:</span>
-            <span className="ml-1">
-              {track.discNumber ? `${track.discNumber}-` : ''}{track.position}
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">
+              Duration
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Clock className="size-3.5 text-muted-foreground" />
+              {formatDuration(track.duration)}
             </span>
           </div>
         )}
-        {track.isrc && (
-          <div className="col-span-2">
-            <span className="text-muted-foreground">ISRC:</span>
-            <span className="ml-1 font-mono text-xs">{track.isrc}</span>
+        {track.position && (
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">
+              Position
+            </span>
+            <span className="flex items-center gap-1.5">
+              {track.discNumber && track.discNumber > 1 ? (
+                <Disc className="size-3.5 text-muted-foreground" />
+              ) : (
+                <Hash className="size-3.5 text-muted-foreground" />
+              )}
+              {formatTrackPosition(track.position, track.discNumber)}
+            </span>
           </div>
         )}
       </div>
 
-      {track.explicit && (
-        <Badge variant="secondary" className="text-xs">
-          Explicit Content
-        </Badge>
+      {/* ISRC code */}
+      {track.isrc && (
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-muted-foreground">ISRC</span>
+          <span className="font-mono text-xs bg-muted px-2 py-1 rounded">
+            {track.isrc}
+          </span>
+        </div>
       )}
 
+      {/* Credits section */}
       {track.credits && track.credits.length > 0 && (
-        <div>
-          <p className="text-sm font-medium mb-1">Credits</p>
-          <div className="text-xs text-muted-foreground space-y-0.5">
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5">
+            <Users className="size-3.5 text-muted-foreground" />
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Credits
+            </p>
+          </div>
+          <div className="space-y-1.5 bg-muted/30 rounded-md p-2.5">
             {track.credits.slice(0, 4).map((credit, i) => (
-              <p key={i}>
-                {credit.name} <span className="text-muted-foreground/60">({credit.role})</span>
-              </p>
+              <div key={i} className="flex justify-between items-center text-sm">
+                <span className="truncate">{credit.name}</span>
+                <Badge variant="outline" className="text-[10px] shrink-0 ml-2">
+                  {credit.role}
+                </Badge>
+              </div>
             ))}
             {track.credits.length > 4 && (
-              <p className="text-muted-foreground/60">
-                +{track.credits.length - 4} more
+              <p className="text-xs text-muted-foreground pt-1">
+                +{track.credits.length - 4} more credits
               </p>
             )}
           </div>
         </div>
       )}
 
+      {/* Platform links */}
       {platforms.length > 0 && (
-        <PlatformBadgeList platforms={platforms} abbreviated />
+        <div className="pt-1">
+          <PlatformBadgeList platforms={platforms} colored maxVisible={5} />
+        </div>
       )}
     </div>
   );
