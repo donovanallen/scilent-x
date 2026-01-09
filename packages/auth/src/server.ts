@@ -129,7 +129,8 @@ export const auth = betterAuth({
           clientSecret: process.env.TIDAL_CLIENT_SECRET ?? '',
           authorizationUrl: 'https://login.tidal.com/authorize',
           tokenUrl: 'https://auth.tidal.com/v1/oauth2/token',
-          scopes: ['r_usr', 'w_usr'], // Read/write user data
+          // Tidal doesn't require explicit scopes for basic user auth
+          scopes: [],
           pkce: true, // Tidal requires PKCE
         },
       ],
