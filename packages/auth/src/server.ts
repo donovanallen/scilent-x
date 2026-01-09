@@ -129,9 +129,31 @@ export const auth = betterAuth({
           clientSecret: process.env.TIDAL_CLIENT_SECRET ?? '',
           authorizationUrl: 'https://login.tidal.com/authorize',
           tokenUrl: 'https://auth.tidal.com/v1/oauth2/token',
+          userInfoUrl: 'https://api.tidal.com/v1/sessions',
           // Tidal doesn't require explicit scopes for basic user auth
           scopes: [],
           pkce: true, // Tidal requires PKCE
+          // Map Tidal's user info response to Better Auth's expected format
+          async getUserInfo(token) {
+            const response = await fetch('https://api.tidal.com/v1/sessions', {
+              headers: {
+                Authorization: `Bearer ${token.accessToken}`,
+              },
+            });
+            if (!response.ok) {
+              return null;
+            }
+            const data = (await response.json()) as {
+              userId: number;
+              username?: string;
+            };
+            return {
+              id: String(data.userId),
+              name: data.username,
+              email: '', // Tidal doesn't expose email in this endpoint
+              emailVerified: false,
+            };
+          },
         },
       ],
     }),
