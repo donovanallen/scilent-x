@@ -52,14 +52,16 @@ export function ArtistHoverPreview({
   }, [artist.sources]);
 
   // Get artist type icon
-  const ArtistIcon = artist.type ? artistTypeIcons[artist.type] ?? User : User;
+  const ArtistIcon = artist.type
+    ? (artistTypeIcons[artist.type] ?? User)
+    : User;
 
   // Links only mode - streamlined platform links
   if (mode === 'links') {
     return (
       <div className={cn('space-y-3', className)}>
         <div className="flex items-center gap-3">
-          <div className="size-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
+          <div className="size-10 rounded-full bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
             <ArtistIcon className="size-5 text-primary" />
           </div>
           <div className="min-w-0 flex-1">
@@ -84,25 +86,29 @@ export function ArtistHoverPreview({
       <div className={cn('space-y-3', className)}>
         {/* Header with icon avatar */}
         <div className="flex gap-3">
-          <div className="size-16 rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-inner">
+          <div className="size-16 rounded-full bg-linear-to-br from-primary/20 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-inner">
             <ArtistIcon className="size-7 text-primary" />
           </div>
           <div className="min-w-0 flex-1 flex flex-col justify-center gap-1">
-            <p className="font-semibold leading-tight line-clamp-2">{artist.name}</p>
+            <div className="flex items-center gap-2 justify-between">
+              <p className="font-semibold leading-tight line-clamp-2">
+                {artist.name}
+              </p>
+              {artist.type && (
+                <Badge variant="secondary" className="">
+                  {artistTypeLabels[artist.type] ?? artist.type}
+                </Badge>
+              )}
+            </div>
             {artist.disambiguation && (
               <p className="text-sm text-muted-foreground truncate">
                 {artist.disambiguation}
               </p>
             )}
             <div className="flex items-center gap-1.5 flex-wrap">
-              {artist.type && (
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                  {artistTypeLabels[artist.type] ?? artist.type}
-                </Badge>
-              )}
               {artist.country && (
-                <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                  <Globe className="size-3" />
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Globe className="size-4" />
                   {artist.country}
                 </span>
               )}
@@ -143,7 +149,7 @@ export function ArtistHoverPreview({
     <div className={cn('space-y-4', className)}>
       {/* Header with large icon */}
       <div className="flex items-start gap-4">
-        <div className="size-20 rounded-full bg-gradient-to-br from-primary/25 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-lg">
+        <div className="size-20 rounded-full bg-linear-to-br from-primary/25 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-lg">
           <ArtistIcon className="size-9 text-primary" />
         </div>
         <div className="min-w-0 flex-1 pt-1">
@@ -236,7 +242,8 @@ export function ArtistHoverPreview({
             {artist.aliases.slice(0, 4).join(', ')}
             {artist.aliases.length > 4 && (
               <span className="text-muted-foreground/70">
-                {' '}+{artist.aliases.length - 4} more
+                {' '}
+                +{artist.aliases.length - 4} more
               </span>
             )}
           </p>

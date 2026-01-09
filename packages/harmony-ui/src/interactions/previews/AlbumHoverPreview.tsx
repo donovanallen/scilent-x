@@ -10,7 +10,11 @@ import {
   formatArtistCredits,
   getFrontArtworkUrl,
 } from '../../utils';
-import { Artwork, PlatformBadgeList, ReleaseTypePill } from '../../components/common';
+import {
+  Artwork,
+  PlatformBadgeList,
+  ReleaseTypePill,
+} from '../../components/common';
 
 export interface AlbumHoverPreviewProps {
   /** The album/release entity */
@@ -40,7 +44,9 @@ export function AlbumHoverPreview({
 
   // Calculate total tracks
   const totalTracks = React.useMemo(() => {
-    return release.media?.reduce((acc, m) => acc + (m.tracks?.length ?? 0), 0) ?? 0;
+    return (
+      release.media?.reduce((acc, m) => acc + (m.tracks?.length ?? 0), 0) ?? 0
+    );
   }, [release.media]);
 
   // Links only mode - streamlined platform links
@@ -82,15 +88,14 @@ export function AlbumHoverPreview({
             className="shadow-md"
           />
           <div className="min-w-0 flex-1 flex flex-col justify-center gap-1.5">
-            <p className="font-semibold leading-tight line-clamp-2">{release.title}</p>
+            <p className="font-semibold leading-tight line-clamp-2">
+              {release.title}
+            </p>
             <p className="text-sm text-muted-foreground truncate">
               {formatArtistCredits(release.artists)}
             </p>
             <div className="flex items-center gap-1.5 flex-wrap">
-              <ReleaseTypePill
-                releaseType={release.releaseType}
-                className="text-[10px] px-1.5 py-0"
-              />
+              <ReleaseTypePill releaseType={release.releaseType} />
               {release.releaseDate?.year && (
                 <span className="text-xs text-muted-foreground">
                   {release.releaseDate.year}
@@ -104,13 +109,15 @@ export function AlbumHoverPreview({
         <div className="flex items-center gap-3 text-xs text-muted-foreground bg-muted/50 rounded-md px-2.5 py-2">
           {totalTracks > 0 && (
             <div className="flex items-center gap-1">
-              <Music className="size-3" />
-              <span>{totalTracks} track{totalTracks !== 1 ? 's' : ''}</span>
+              <Music className="size-4" />
+              <span>
+                {totalTracks} track{totalTracks !== 1 ? 's' : ''}
+              </span>
             </div>
           )}
           {release.labels && release.labels[0] && (
             <div className="flex items-center gap-1 truncate">
-              <Tag className="size-3 shrink-0" />
+              <Tag className="size-4 shrink-0" />
               <span className="truncate">{release.labels[0].name}</span>
             </div>
           )}
@@ -158,19 +165,19 @@ export function AlbumHoverPreview({
       <div className="flex flex-wrap gap-1.5">
         {release.releaseDate?.year && (
           <Badge variant="outline" className="text-xs gap-1">
-            <Calendar className="size-3" />
+            <Calendar className="size-4" />
             {formatPartialDate(release.releaseDate)}
           </Badge>
         )}
         {totalTracks > 0 && (
           <Badge variant="outline" className="text-xs gap-1">
-            <Music className="size-3" />
+            <Music className="size-4" />
             {totalTracks} track{totalTracks !== 1 ? 's' : ''}
           </Badge>
         )}
         {release.media && release.media.length > 1 && (
           <Badge variant="outline" className="text-xs gap-1">
-            <Disc className="size-3" />
+            <Disc className="size-4" />
             {release.media.length} disc{release.media.length !== 1 ? 's' : ''}
           </Badge>
         )}
@@ -183,7 +190,9 @@ export function AlbumHoverPreview({
         {release.labels && release.labels.length > 0 && release.labels[0] && (
           <div className="flex justify-between items-start gap-2">
             <span className="text-muted-foreground shrink-0">Label</span>
-            <span className="text-right truncate">{release.labels[0].name}</span>
+            <span className="text-right truncate">
+              {release.labels[0].name}
+            </span>
           </div>
         )}
         {release.gtin && (

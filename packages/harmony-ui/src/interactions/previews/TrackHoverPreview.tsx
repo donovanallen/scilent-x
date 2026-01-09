@@ -2,10 +2,14 @@
 
 import * as React from 'react';
 import { Badge, cn, Separator } from '@scilent-one/ui';
-import { Clock, Disc, Hash, Music, AlertTriangle, Users } from 'lucide-react';
+import { Clock, Hash, Music, AlertTriangle, Users } from 'lucide-react';
 import type { HarmonizedEntity } from '../types';
 import type { HarmonizedTrack } from '../../types';
-import { formatDuration, formatArtistCredits, formatTrackPosition } from '../../utils';
+import {
+  formatDuration,
+  formatArtistCredits,
+  formatTrackPosition,
+} from '../../utils';
 import { PlatformBadgeList } from '../../components/common';
 
 export interface TrackHoverPreviewProps {
@@ -38,8 +42,8 @@ export function TrackHoverPreview({
     return (
       <div className={cn('space-y-3', className)}>
         <div className="flex items-center gap-3">
-          <div className="size-10 rounded-md bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
-            <Music className="size-5 text-primary" />
+          <div className="size-10 rounded-md bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
+            <Music className="size-4 text-primary" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="font-medium truncate text-sm">{track.title}</p>
@@ -61,11 +65,13 @@ export function TrackHoverPreview({
       <div className={cn('space-y-3', className)}>
         {/* Header with icon */}
         <div className="flex gap-3">
-          <div className="size-14 rounded-lg bg-gradient-to-br from-primary/20 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-inner">
+          <div className="size-14 rounded-lg bg-linear-to-br from-primary/20 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-inner">
             <Music className="size-6 text-primary" />
           </div>
           <div className="min-w-0 flex-1 flex flex-col justify-center gap-1">
-            <p className="font-semibold leading-tight line-clamp-2">{track.title}</p>
+            <p className="font-semibold leading-tight line-clamp-2">
+              {track.title}
+            </p>
             <p className="text-sm text-muted-foreground truncate">
               {formatArtistCredits(track.artists)}
             </p>
@@ -76,19 +82,24 @@ export function TrackHoverPreview({
         <div className="flex items-center gap-3 text-xs text-muted-foreground bg-muted/50 rounded-md px-2.5 py-2 flex-wrap">
           {track.duration && (
             <div className="flex items-center gap-1">
-              <Clock className="size-3" />
+              <Clock className="size-4" />
               <span>{formatDuration(track.duration)}</span>
             </div>
           )}
           {track.position && (
             <div className="flex items-center gap-1">
-              <Hash className="size-3" />
-              <span>Track {formatTrackPosition(track.position, track.discNumber)}</span>
+              <Hash className="size-4" />
+              <span>
+                Track {formatTrackPosition(track.position, track.discNumber)}
+              </span>
             </div>
           )}
           {track.explicit && (
-            <Badge variant="destructive" className="text-[10px] px-1.5 py-0 gap-0.5">
-              <AlertTriangle className="size-2.5" />
+            <Badge
+              variant="destructive"
+              className="text-xs gap-1 flex items-center"
+            >
+              <AlertTriangle className="size-4" />
               Explicit
             </Badge>
           )}
@@ -107,7 +118,7 @@ export function TrackHoverPreview({
     <div className={cn('space-y-4', className)}>
       {/* Header with large icon */}
       <div className="flex items-start gap-4">
-        <div className="size-16 rounded-lg bg-gradient-to-br from-primary/25 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-lg">
+        <div className="size-16 rounded-lg bg-linear-to-br from-primary/25 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-lg">
           <Music className="size-7 text-primary" />
         </div>
         <div className="min-w-0 flex-1 pt-0.5">
@@ -118,8 +129,11 @@ export function TrackHoverPreview({
             {formatArtistCredits(track.artists)}
           </p>
           {track.explicit && (
-            <Badge variant="destructive" className="text-xs mt-2 gap-1">
-              <AlertTriangle className="size-3" />
+            <Badge
+              variant="destructive"
+              className="text-xs flex gap-1 items-center"
+            >
+              <AlertTriangle className="size-4" />
               Explicit Content
             </Badge>
           )}
@@ -136,26 +150,26 @@ export function TrackHoverPreview({
               Duration
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="size-3.5 text-muted-foreground" />
+              <Clock className="size-4 text-muted-foreground" />
               {formatDuration(track.duration)}
             </span>
           </div>
         )}
-        {track.position && (
+        {/* {track.position && (
           <div className="flex flex-col gap-0.5">
             <span className="text-xs text-muted-foreground uppercase tracking-wider">
               Position
             </span>
             <span className="flex items-center gap-1.5">
               {track.discNumber && track.discNumber > 1 ? (
-                <Disc className="size-3.5 text-muted-foreground" />
+                <Disc className="size-4 text-muted-foreground" />
               ) : (
-                <Hash className="size-3.5 text-muted-foreground" />
+                <Hash className="size-4 text-muted-foreground" />
               )}
               {formatTrackPosition(track.position, track.discNumber)}
             </span>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* ISRC code */}
@@ -172,16 +186,19 @@ export function TrackHoverPreview({
       {track.credits && track.credits.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center gap-1.5">
-            <Users className="size-3.5 text-muted-foreground" />
+            <Users className="size-4 text-muted-foreground" />
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Credits
             </p>
           </div>
           <div className="space-y-1.5 bg-muted/30 rounded-md p-2.5">
             {track.credits.slice(0, 4).map((credit, i) => (
-              <div key={i} className="flex justify-between items-center text-sm">
+              <div
+                key={i}
+                className="flex justify-between items-center text-sm"
+              >
                 <span className="truncate">{credit.name}</span>
-                <Badge variant="outline" className="text-[10px] shrink-0 ml-2">
+                <Badge variant="outline" className="text-xs shrink-0 ml-2">
                   {credit.role}
                 </Badge>
               </div>
