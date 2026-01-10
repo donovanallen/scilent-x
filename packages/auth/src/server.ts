@@ -18,6 +18,7 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
+import { genericOAuth } from 'better-auth/plugins';
 import { db } from '@scilent-one/db';
 
 /**
@@ -113,6 +114,182 @@ export const auth = betterAuth({
    * nextCookies: Automatically handles cookie setting in Next.js server actions
    */
   plugins: [
+    /**
+     * Generic OAuth Plugin for Streaming Service Account Linking
+     *
+     * Enables users to link their streaming accounts (Tidal, Spotify, etc.)
+     * to their existing Scilent account. Tokens are stored in the Account table
+     * and can be used for user-authenticated API calls.
+     */
+    genericOAuth({
+      config: [
+        {
+          providerId: 'tidal',
+          clientId: process.env.TIDAL_CLIENT_ID ?? '',
+          clientSecret: process.env.TIDAL_CLIENT_SECRET ?? '',
+          authorizationUrl: 'https://login.tidal.com/authorize',
+          tokenUrl: 'https://auth.tidal.com/v1/oauth2/token',
+          userInfoUrl: 'https://openapi.tidal.com/v2/users/me',
+          // Tidal scopes for full user access
+          scopes: [
+            'user.read',
+            'collection.read',
+            'collection.write',
+            'entitlements.read',
+            'playback',
+            'playlists.read',
+            'playlists.write',
+            'recommendations.read',
+            'search.read',
+            'search.write',
+          ],
+          pkce: true, // Tidal requires PKCE
+          // Map Tidal's user info response to Better Auth's expected format
+          async getUserInfo(token) {
+            // Try OpenAPI v2 users/me endpoint (requires user.read scope)
+            const meResponse = await fetch(
+              'https://openapi.tidal.com/v2/users/me',
+              {
+                headers: {
+                  Authorization: `Bearer ${token.accessToken}`,
+                  Accept: 'application/vnd.api+json',
+                  'Content-Type': 'application/vnd.api+json',
+                },
+              }
+            );
+
+            const meText = await meResponse.text();
+
+            if (meResponse.ok) {
+              try {
+                const meData = JSON.parse(meText) as {
+                  data?: {
+                    id: string;
+                    type: string;
+                    attributes?: {
+                      username?: string;
+                      email?: string;
+                      emailVerified?: boolean;
+                      firstName?: string;
+                      lastName?: string;
+                      country?: string;
+                    };
+                  };
+                };
+                console.log('Tidal /users/me response:', meData);
+
+                // Handle the nested data.attributes structure
+                if (meData.data?.id) {
+                  const attrs = meData.data.attributes || {};
+                  const name =
+                    [attrs.firstName, attrs.lastName]
+                      .filter(Boolean)
+                      .join(' ') || attrs.username;
+                  return {
+                    id: String(meData.data.id),
+                    name,
+                    email: attrs.email || '',
+                    emailVerified: attrs.emailVerified || false,
+                  };
+                }
+              } catch (parseError) {
+                console.log(
+                  'Failed to parse Tidal /users/me response:',
+                  parseError
+                );
+              }
+            }
+
+            console.log('Tidal /users/me failed:', meResponse.status, meText);
+
+            // Fallback: try legacy sessions endpoint to get userId, then fetch user
+            const sessionsResponse = await fetch(
+              'https://api.tidal.com/v1/sessions',
+              {
+                headers: {
+                  Authorization: `Bearer ${token.accessToken}`,
+                },
+              }
+            );
+
+            if (sessionsResponse.ok) {
+              try {
+                const sessionData = (await sessionsResponse.json()) as {
+                  userId: number;
+                  countryCode?: string;
+                };
+                console.log('Tidal sessions response:', sessionData);
+
+                // Try to get full user info with the userId
+                const userResponse = await fetch(
+                  `https://api.tidal.com/v1/users/${sessionData.userId}?countryCode=${sessionData.countryCode || 'US'}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token.accessToken}`,
+                    },
+                  }
+                );
+
+                if (userResponse.ok) {
+                  try {
+                    const userData = (await userResponse.json()) as {
+                      id: number;
+                      username?: string;
+                      email?: string;
+                      firstName?: string;
+                      lastName?: string;
+                    };
+                    console.log('Tidal user response:', userData);
+                    return {
+                      id: String(userData.id),
+                      name:
+                        userData.username ||
+                        [userData.firstName, userData.lastName]
+                          .filter(Boolean)
+                          .join(' ') ||
+                        undefined,
+                      email: userData.email || '',
+                      emailVerified: false,
+                    };
+                  } catch (parseError) {
+                    console.log(
+                      'Failed to parse Tidal user response:',
+                      parseError
+                    );
+                  }
+                }
+
+                console.log(
+                  'Tidal user fetch failed:',
+                  userResponse.status,
+                  await userResponse.text()
+                );
+
+                // Last resort: return session data without email
+                return {
+                  id: String(sessionData.userId),
+                  name: undefined,
+                  email: '',
+                  emailVerified: false,
+                };
+              } catch (parseError) {
+                console.log(
+                  'Failed to parse Tidal sessions response:',
+                  parseError
+                );
+              }
+            }
+
+            console.error(
+              'All Tidal user info endpoints failed:',
+              sessionsResponse.status,
+              await sessionsResponse.text()
+            );
+            return null;
+          },
+        },
+      ],
+    }),
     nextCookies(), // Must be last in the plugins array
   ],
 

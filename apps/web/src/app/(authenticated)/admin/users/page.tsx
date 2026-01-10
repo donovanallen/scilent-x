@@ -1,3 +1,4 @@
+import { PlatformBadgeList } from '@scilent-one/harmony-ui';
 import {
   Badge,
   Card,
@@ -75,6 +76,9 @@ async function UsersTable() {
                   Status
                 </th>
                 <th className='pb-3 font-medium text-muted-foreground'>
+                  Connected
+                </th>
+                <th className='pb-3 font-medium text-muted-foreground'>
                   Created
                 </th>
               </tr>
@@ -113,6 +117,20 @@ async function UsersTable() {
                     >
                       {user.emailVerified ? 'Verified' : 'Unverified'}
                     </Badge>
+                  </td>
+                  <td className='py-3'>
+                    {user.connectedAccounts.length > 0 ? (
+                      <PlatformBadgeList
+                        platforms={user.connectedAccounts.map(
+                          (a) => a.providerId
+                        )}
+                        colored
+                        abbreviated
+                        maxVisible={3}
+                      />
+                    ) : (
+                      <span className='text-muted-foreground text-sm'>—</span>
+                    )}
                   </td>
                   <td className='py-3 text-muted-foreground'>
                     {formatDate(user.createdAt)}
