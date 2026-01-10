@@ -52,60 +52,73 @@ export function UserCard({
       )}
       onClick={onClick}
     >
-      <CardContent className='pt-4'>
-        <div className='flex items-start gap-3'>
+      <CardContent className="pt-4">
+        <div className="flex items-start gap-3">
           <UserAvatar
             name={name}
             username={username}
             avatarUrl={avatarUrl}
             image={image}
-            size='lg'
+            size="lg"
           />
-          <div className='flex-1 min-w-0'>
-            <div className='flex items-start justify-between gap-2'>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
               <div>
-                <h4 className='font-semibold truncate'>
+                <h4 className="font-semibold truncate">
                   {name || username || 'Anonymous'}
                 </h4>
                 {username && (
-                  <p className='text-muted-foreground text-sm'>@{username}</p>
+                  <p className="text-muted-foreground text-sm">@{username}</p>
                 )}
               </div>
               {!isCurrentUser && onFollow && onUnfollow && (
-                <div onClick={(e) => e.stopPropagation()}>
+                <div onClick={(e) => e.stopPropagation()} className="shrink-0">
+                  {/* Icon-only on small screens */}
                   <FollowButton
                     isFollowing={isFollowing}
                     isLoading={isLoading}
                     onFollow={() => onFollow()}
                     onUnfollow={() => onUnfollow()}
-                    size='sm'
+                    iconOnly
+                    className="sm:hidden"
+                  />
+                  {/* Full button on larger screens */}
+                  <FollowButton
+                    isFollowing={isFollowing}
+                    isLoading={isLoading}
+                    onFollow={() => onFollow()}
+                    onUnfollow={() => onUnfollow()}
+                    size="sm"
+                    className="hidden sm:inline-flex"
                   />
                 </div>
               )}
             </div>
             {bio && (
-              <p className='text-sm text-muted-foreground mt-2 line-clamp-2'>
+              <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
                 {bio}
               </p>
             )}
-            {(followersCount !== undefined || followingCount !== undefined || postsCount !== undefined) && (
-              <div className='flex items-center gap-4 mt-3 text-sm'>
+            {(followersCount !== undefined ||
+              followingCount !== undefined ||
+              postsCount !== undefined) && (
+              <div className="flex items-center gap-4 mt-3 text-sm">
                 {postsCount !== undefined && (
                   <div>
-                    <span className='font-semibold'>{postsCount}</span>{' '}
-                    <span className='text-muted-foreground'>posts</span>
+                    <span className="font-semibold">{postsCount}</span>{' '}
+                    <span className="text-muted-foreground">posts</span>
                   </div>
                 )}
                 {followersCount !== undefined && (
                   <div>
-                    <span className='font-semibold'>{followersCount}</span>{' '}
-                    <span className='text-muted-foreground'>followers</span>
+                    <span className="font-semibold">{followersCount}</span>{' '}
+                    <span className="text-muted-foreground">followers</span>
                   </div>
                 )}
                 {followingCount !== undefined && (
                   <div>
-                    <span className='font-semibold'>{followingCount}</span>{' '}
-                    <span className='text-muted-foreground'>following</span>
+                    <span className="font-semibold">{followingCount}</span>{' '}
+                    <span className="text-muted-foreground">following</span>
                   </div>
                 )}
               </div>
