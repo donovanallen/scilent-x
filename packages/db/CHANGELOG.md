@@ -1,5 +1,11 @@
 # @scilent-one/db
 
+## 0.3.0
+
+### Minor Changes
+
+- dd3fbae: Replaces RTF editor
+
 ## 0.2.0
 
 ### Minor Changes

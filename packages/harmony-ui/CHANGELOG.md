@@ -1,5 +1,20 @@
 # @scilent-one/harmony-ui
 
+## 0.3.1
+
+### Patch Changes
+
+- 48cd718: Misc updates
+- 7ea8b69: Styling updates to HoverPreviews and UserCard
+- 6b12ad4: Hover card updates
+- Updated dependencies [3d61287]
+- Updated dependencies [7ea8b69]
+- Updated dependencies [0273008]
+- Updated dependencies [dd3fbae]
+- Updated dependencies [3f688ca]
+- Updated dependencies [ee04bd1]
+  - @scilent-one/ui@0.3.0
+
 ## 0.3.0
 
 ### Minor Changes

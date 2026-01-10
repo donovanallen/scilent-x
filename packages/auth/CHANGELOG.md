@@ -1,5 +1,25 @@
 # @scilent-one/auth
 
+## 0.2.0
+
+### Minor Changes
+
+- 3d61287: Adds support for Tidal account sync
+- ee04bd1: Add Tidal OAuth account linking integration
+  - Add genericOAuth plugin to auth server for Tidal OAuth support
+  - Add genericOAuthClient plugin to auth client for linkSocial/unlinkAccount methods
+  - Add Connected Accounts section to Settings page for linking streaming services
+  - Add connectedPlatforms prop to ProfileHeader component for displaying linked accounts
+  - Update user API endpoints to include connected accounts in response
+  - Add Connected column to Admin Users page showing linked streaming services
+
+### Patch Changes
+
+- 0273008: Tidal OAuth update
+- 3f688ca: Tidal oauth fixes
+- Updated dependencies [dd3fbae]
+  - @scilent-one/db@0.3.0
+
 ## 0.1.4
 
 ### Patch Changes
