@@ -1,8 +1,7 @@
 ---
-"@scilent-one/auth": minor
-"@scilent-one/social": patch
-"@scilent-one/ui": patch
-"web": minor
+'@scilent-one/auth': minor
+'@scilent-one/social': patch
+'@scilent-one/ui': patch
 ---
 
 Add Tidal OAuth account linking integration
