@@ -80,6 +80,7 @@ export default function SettingsPage() {
       });
     } catch (error) {
       console.error(`Failed to link ${providerId}:`, error);
+    } finally {
       setLinkingProvider(null);
     }
   };
