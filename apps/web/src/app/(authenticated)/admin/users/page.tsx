@@ -175,12 +175,9 @@ function LoadingCountCard() {
 
 export default function UsersPage() {
   return (
-    <div className='w-full py-10 space-y-8'>
+    <div className='w-full flex flex-col h-full min-h-0 space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold'>Users</h1>
-        <p className='text-muted-foreground mt-1'>
-          View and manage registered users
-        </p>
+        <h2>Users</h2>
       </div>
 
       <div className='grid gap-6 md:grid-cols-3'>

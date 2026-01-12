@@ -167,8 +167,10 @@ export default function FeedPage() {
   };
 
   return (
-    <div className='container py-6 space-y-6'>
-      <h1 className='text-2xl font-bold'>Home</h1>
+    <div className='flex flex-col h-full min-h-0 space-y-6'>
+      <div>
+        <h2>Home</h2>
+      </div>
 
       {currentUser && (
         <PostForm

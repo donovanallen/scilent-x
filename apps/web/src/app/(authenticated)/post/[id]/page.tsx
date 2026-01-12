@@ -348,11 +348,13 @@ export default function PostPage({
   }
 
   return (
-    <div className='container max-w-2xl py-6 space-y-6'>
-      <Button variant='ghost' onClick={() => router.back()}>
-        <ArrowLeft className='mr-2 h-4 w-4' />
-        Back
-      </Button>
+    <div className='flex flex-col h-full min-h-0 space-y-6'>
+      <div className=''>
+        <Button variant='ghost' onClick={() => router.back()}>
+          <ArrowLeft className='h-4 w-4' />
+          Back
+        </Button>
+      </div>
 
       <PostCard
         {...post}

@@ -170,13 +170,10 @@ function LoadingCard() {
 
 export default function DatabasePage() {
   return (
-    <div className='w-full py-10 space-y-8'>
+    <div className='w-full flex flex-col h-full min-h-0 space-y-6'>
       <div className='flex items-center justify-between'>
         <div>
-          <h1 className='text-3xl font-bold'>Database</h1>
-          <p className='text-muted-foreground mt-1'>
-            Monitor and manage your database connection
-          </p>
+          <h2>Database</h2>
         </div>
         <div className='flex items-center gap-2'>
           <Button variant='outline' asChild>

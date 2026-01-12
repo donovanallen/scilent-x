@@ -118,12 +118,9 @@ export default function SettingsPage() {
   const user = session?.user;
 
   return (
-    <div className='w-full py-10 space-y-8'>
-      <div>
-        <h1 className='text-3xl font-bold'>Settings</h1>
-        <p className='text-muted-foreground mt-1'>
-          Manage your account settings
-        </p>
+    <div className='flex flex-col h-full min-h-0'>
+      <div className='mb-6'>
+        <h2>Settings</h2>
       </div>
 
       <div className='space-y-4'>

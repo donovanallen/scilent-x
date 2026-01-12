@@ -144,8 +144,10 @@ export default function ExplorePage() {
   };
 
   return (
-    <div className='container max-w-2xl py-6 space-y-6'>
-      <h1 className='text-2xl font-bold'>Explore</h1>
+    <div className='flex flex-col h-full min-h-0 space-y-6'>
+      <div>
+        <h2>Explore</h2>
+      </div>
 
       <Tabs
         value={activeTab}

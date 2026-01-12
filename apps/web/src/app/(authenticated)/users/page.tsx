@@ -231,17 +231,9 @@ export default function UsersPage() {
     hasUsername;
 
   return (
-    <div className='container max-w-6xl py-6 space-y-6'>
-      <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-2xl font-bold flex items-center gap-2'>
-            <Users className='h-6 w-6' />
-            Users
-          </h1>
-          <p className='text-muted-foreground mt-1'>
-            Discover and connect with other users
-          </p>
-        </div>
+    <div className='flex flex-col h-full min-h-0 space-y-6'>
+      <div className='mb-6'>
+        <h2>Users</h2>
       </div>
 
       {/* Search and Filters */}

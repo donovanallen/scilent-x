@@ -34,10 +34,9 @@ export default async function ProfilePage() {
   const { user } = session;
 
   return (
-    <div className='w-full py-10 space-y-8'>
-      <div>
-        <h1 className='text-3xl font-bold'>Profile</h1>
-        <p className='text-muted-foreground mt-1'>Your account information</p>
+    <div className='flex flex-col h-full min-h-0'>
+      <div className='mb-6'>
+        <h2>Profile</h2>
       </div>
 
       <div className='grid gap-6 md:grid-cols-2'>

@@ -182,12 +182,9 @@ function LoadingSkeleton() {
 
 export default function HarmonyDashboardPage() {
   return (
-    <div className='w-full space-y-6 py-10'>
+    <div className='w-full flex flex-col h-full min-h-0 space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold'>Harmony Engine</h1>
-        <p className='mt-1 text-muted-foreground'>
-          Music metadata harmonization configuration and status
-        </p>
+        <h2>Harmony Engine</h2>
       </div>
 
       <Suspense fallback={<LoadingSkeleton />}>
