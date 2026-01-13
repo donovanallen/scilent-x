@@ -64,9 +64,9 @@ export function UserCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h4 className="font-semibold truncate">
+                <h5 className="font-semibold truncate">
                   {name || username || 'Anonymous'}
-                </h4>
+                </h5>
                 {username && (
                   <p className="text-muted-foreground text-sm">@{username}</p>
                 )}

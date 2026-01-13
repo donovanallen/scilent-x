@@ -13,7 +13,14 @@ import {
   CollapsibleTrigger,
   Separator,
 } from '@scilent-one/ui';
-import { ChevronDown, Link2, Trash2, Unlink, User } from 'lucide-react';
+import {
+  ChevronDown,
+  Link2,
+  RefreshCw,
+  Trash2,
+  Unlink,
+  User,
+} from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 
 import { authClient, useSession } from '@/lib/auth-client';
@@ -49,6 +56,9 @@ export default function SettingsPage() {
   const [unlinkingProvider, setUnlinkingProvider] = useState<string | null>(
     null
   );
+  const [reconnectingProvider, setReconnectingProvider] = useState<
+    string | null
+  >(null);
 
   const fetchLinkedAccounts = useCallback(async () => {
     try {
@@ -97,6 +107,20 @@ export default function SettingsPage() {
     }
   };
 
+  const handleReconnect = async (providerId: string) => {
+    setReconnectingProvider(providerId);
+    try {
+      await authClient.linkSocial({
+        provider: providerId,
+        callbackURL: '/settings',
+      });
+    } catch (error) {
+      console.error(`Failed to reconnect ${providerId}:`, error);
+    } finally {
+      setReconnectingProvider(null);
+    }
+  };
+
   const isProviderLinked = (providerId: string) => {
     return linkedAccounts.some((account) => account.providerId === providerId);
   };
@@ -118,7 +142,7 @@ export default function SettingsPage() {
   const user = session?.user;
 
   return (
-    <div className='flex flex-col h-full min-h-0'>
+    <div className='flex flex-col h-full min-h-0 pb-6'>
       <div className='mb-6'>
         <h2>Settings</h2>
       </div>
@@ -254,6 +278,8 @@ export default function SettingsPage() {
                       const isLinked = isProviderLinked(provider.id);
                       const isLinking = linkingProvider === provider.id;
                       const isUnlinking = unlinkingProvider === provider.id;
+                      const isReconnecting =
+                        reconnectingProvider === provider.id;
 
                       return (
                         <div
@@ -272,15 +298,33 @@ export default function SettingsPage() {
                             )}
                           </div>
                           {isLinked ? (
-                            <Button
-                              variant='outline'
-                              size='sm'
-                              onClick={() => handleUnlinkAccount(provider.id)}
-                              disabled={isUnlinking}
-                            >
-                              <Unlink className='size-4' />
-                              {isUnlinking ? 'Disconnecting...' : 'Disconnect'}
-                            </Button>
+                            <div className='flex items-center gap-2'>
+                              <Button
+                                variant='ghost'
+                                size='sm'
+                                onClick={() => handleReconnect(provider.id)}
+                                disabled={isReconnecting || isUnlinking}
+                                title='Refresh connection'
+                              >
+                                <RefreshCw
+                                  className={`size-4 ${isReconnecting ? 'animate-spin' : ''}`}
+                                />
+                                {isReconnecting
+                                  ? 'Reconnecting...'
+                                  : 'Reconnect'}
+                              </Button>
+                              <Button
+                                variant='outline'
+                                size='sm'
+                                onClick={() => handleUnlinkAccount(provider.id)}
+                                disabled={isUnlinking || isReconnecting}
+                              >
+                                <Unlink className='size-4' />
+                                {isUnlinking
+                                  ? 'Disconnecting...'
+                                  : 'Disconnect'}
+                              </Button>
+                            </div>
                           ) : (
                             <Button
                               variant='default'
