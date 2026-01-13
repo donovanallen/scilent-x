@@ -5,11 +5,25 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from '@scilent-one/ui';
-import { CheckCircle2, Circle, Zap } from 'lucide-react';
+import {
+  CheckCircle2,
+  Circle,
+  Zap,
+  Disc3,
+  Music2,
+  Mic2,
+  Search,
+  Lock,
+  CircleX,
+} from 'lucide-react';
 import { Suspense } from 'react';
 
-import { getEngineStatus } from '../actions';
+import { getEngineStatus, type ProviderCapabilities } from '../actions';
 
 export const metadata = {
   title: 'Harmony Engine',
@@ -29,6 +43,89 @@ function StatusBadge({ enabled }: { enabled: boolean }) {
   );
 }
 
+const CAPABILITY_CONFIG = {
+  userAuth: {
+    label: 'Profile',
+    description: 'Fetch connected user profile from provider',
+    icon: Lock,
+    requiresUserAuth: true,
+  },
+  releaseLookup: {
+    label: 'Releases',
+    description: 'Release/album lookup by GTIN/UPC',
+    icon: Disc3,
+    requiresUserAuth: false,
+  },
+  trackLookup: {
+    label: 'Tracks',
+    description: 'Track lookup by ISRC',
+    icon: Music2,
+    requiresUserAuth: false,
+  },
+  artistLookup: {
+    label: 'Artists',
+    description: 'Artist lookup and search',
+    icon: Mic2,
+    requiresUserAuth: false,
+  },
+  search: {
+    label: 'Search',
+    description: 'General catalog search',
+    icon: Search,
+    requiresUserAuth: false,
+  },
+} as const;
+
+function CapabilityBadges({
+  capabilities,
+}: {
+  capabilities: ProviderCapabilities;
+}) {
+  return (
+    <TooltipProvider>
+      <div className='flex flex-wrap gap-1.5 mt-2'>
+        {(Object.keys(CAPABILITY_CONFIG) as (keyof ProviderCapabilities)[]).map(
+          (key) => {
+            const config = CAPABILITY_CONFIG[key];
+            const isSupported = capabilities[key];
+            const Icon = config.icon;
+            const isUserAuth = config.requiresUserAuth;
+
+            return (
+              <Tooltip key={key}>
+                <TooltipTrigger asChild>
+                  <Badge
+                    variant={isSupported ? 'outline' : 'secondary'}
+                    className={`gap-1 text-xs ${
+                      isSupported
+                        ? 'border-primary/30 text-primary'
+                        : 'opacity-40'
+                    }`}
+                  >
+                    <Icon className='h-3 w-3' />
+                    {config.label}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent className='flex items-center gap-1'>
+                  {isSupported ? (
+                    <CheckCircle2 className='h-3 w-3' />
+                  ) : (
+                    <CircleX className='h-3 w-3' />
+                  )}
+                  <span className='text-xs'>{config.description}</span>
+                  <span className='text-xs'>
+                    {isUserAuth && ' (requires user OAuth token)'}
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            );
+          }
+        )}
+      </div>
+    </TooltipProvider>
+  );
+}
+
 async function EngineStatusCard() {
   const status = await getEngineStatus();
 
@@ -36,19 +133,16 @@ async function EngineStatusCard() {
     {
       name: 'musicbrainz',
       displayName: 'MusicBrainz',
-      description: 'Open music encyclopedia with comprehensive metadata',
       authType: 'None (rate limited)',
     },
     {
       name: 'spotify',
       displayName: 'Spotify',
-      description: 'Streaming service with extensive catalog data',
       authType: 'OAuth Client Credentials',
     },
     {
       name: 'tidal',
       displayName: 'Tidal',
-      description: 'High-fidelity streaming with detailed metadata',
       authType: 'OAuth Client Credentials',
     },
   ];
@@ -56,7 +150,7 @@ async function EngineStatusCard() {
   const enabledNames = new Set(status.enabledProviders.map((p) => p.name));
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6 pb-6'>
       {/* Summary Card */}
       <Card>
         <CardHeader>
@@ -110,31 +204,32 @@ async function EngineStatusCard() {
               );
 
               return (
-                <div
-                  key={provider.name}
-                  className='flex items-center justify-between py-4 first:pt-0 last:pb-0'
-                >
-                  <div className='space-y-1'>
-                    <div className='flex items-center gap-2'>
-                      <span className='font-medium'>
-                        {provider.displayName}
-                      </span>
-                      <StatusBadge enabled={isEnabled} />
-                    </div>
-                    <p className='text-sm text-muted-foreground'>
-                      {provider.description}
-                    </p>
-                    <p className='text-xs text-muted-foreground'>
-                      Auth: {provider.authType}
-                    </p>
-                  </div>
-                  {isEnabled && enabledInfo && (
-                    <div className='text-right'>
-                      <div className='text-sm font-medium'>
-                        Priority: {enabledInfo.priority}
+                <div key={provider.name} className='py-4 first:pt-0 last:pb-0'>
+                  <div className='flex items-start justify-between'>
+                    <div className='space-y-1 flex-1'>
+                      <div className='flex items-center gap-2'>
+                        <span className='font-medium'>
+                          {provider.displayName}
+                        </span>
+                        <StatusBadge enabled={isEnabled} />
                       </div>
+                      <p className='text-xs text-muted-foreground'>
+                        Auth: {provider.authType}
+                      </p>
+                      {isEnabled && enabledInfo && (
+                        <CapabilityBadges
+                          capabilities={enabledInfo.capabilities}
+                        />
+                      )}
                     </div>
-                  )}
+                    {isEnabled && enabledInfo && (
+                      <div className='text-right shrink-0 ml-4'>
+                        <div className='text-sm font-medium'>
+                          Priority: {enabledInfo.priority}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })}

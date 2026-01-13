@@ -10,11 +10,12 @@ import {
   CardTitle,
   CardContent,
   CardHeader,
-  Badge,
 } from '@scilent-one/ui';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState, use } from 'react';
 import { toast } from 'sonner';
+
+import { TidalProfileCard } from './_components';
 
 interface UserProfile {
   id: string;
@@ -313,22 +314,29 @@ export default function ProfilePage({
           </CardContent>
         </Card>
       </div>
-      <Card className='h-fit'>
-        <CardHeader>
-          <CardTitle>Connected Platforms</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='flex flex-col gap-2'>
-            {profile.connectedPlatforms?.map((platform) => (
-              <Badge key={platform.providerId}>{platform.providerId}</Badge>
-            ))}
-            {(!profile.connectedPlatforms ||
-              profile.connectedPlatforms.length === 0) && (
-              <p className='text-muted-foreground'>No connected platforms</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Connected Platform Profiles */}
+      <div className='space-y-4'>
+        {/* Show Tidal profile card if user has Tidal connected */}
+        {profile.connectedPlatforms?.some((p) => p.providerId === 'tidal') && (
+          <TidalProfileCard userId={profile.id} isCurrentUser={isCurrentUser} />
+        )}
+
+        {/* Placeholder for other platforms - can be extended later */}
+        {(!profile.connectedPlatforms ||
+          profile.connectedPlatforms.length === 0) &&
+          isCurrentUser && (
+            <Card className='h-fit'>
+              <CardHeader>
+                <CardTitle className='text-base'>Connected Platforms</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className='text-sm text-muted-foreground'>
+                  Connect your streaming accounts to see your profiles here.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+      </div>
     </div>
   );
 }

@@ -19,6 +19,8 @@ export {
   type ArtistType,
   HarmonizedArtistSchema,
   type HarmonizedArtist,
+  HarmonizedUserProfileSchema,
+  type HarmonizedUserProfile,
 } from './harmonized.types';
 
 export type {

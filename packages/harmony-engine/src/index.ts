@@ -26,6 +26,14 @@ export {
   type MusicBrainzConfig,
 } from './providers/musicbrainz.provider';
 export {
+  SpotifyProvider,
+  type SpotifyConfig,
+} from './providers/spotify.provider';
+export {
+  TidalProvider,
+  type TidalConfig,
+} from './providers/tidal.provider';
+export {
   LookupCoordinator,
   type LookupRequest,
   type LookupResult,

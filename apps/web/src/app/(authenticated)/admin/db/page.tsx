@@ -17,6 +17,8 @@ import {
   getDbMetadata,
   getDbTables,
   getTableCounts,
+  getAuthProviders,
+  type AuthProviderInfo,
 } from './actions';
 
 export const metadata: Metadata = {
@@ -154,6 +156,89 @@ async function DbTablesCard() {
   );
 }
 
+function ProviderTypeBadge({ type }: { type: AuthProviderInfo['type'] }) {
+  const variants = {
+    email: {
+      label: 'Email',
+      className:
+        'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/20',
+    },
+    social: {
+      label: 'Social',
+      className:
+        'bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/20',
+    },
+    oauth: {
+      label: 'OAuth',
+      className:
+        'bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/20',
+    },
+  };
+
+  const variant = variants[type];
+
+  return (
+    <Badge
+      variant='outline'
+      className={cn(variant.className, 'text-xs px-1.5 py-0.5')}
+    >
+      {variant.label}
+    </Badge>
+  );
+}
+
+async function AuthProvidersCard() {
+  const providers = await getAuthProviders();
+  const configuredCount = providers.filter((p) => p.configured).length;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Auth Providers</CardTitle>
+        <CardDescription>
+          {configuredCount} of {providers.length} providers configured
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className='space-y-2'>
+          {providers.map((provider) => (
+            <div
+              key={provider.id}
+              className={cn(
+                'flex items-center justify-between py-2 px-3 rounded-md',
+                provider.configured ? 'bg-muted/50' : 'bg-muted/20 opacity-60'
+              )}
+            >
+              <div className='flex items-center gap-2'>
+                <span
+                  className={cn(
+                    'font-medium',
+                    !provider.configured && 'text-muted-foreground'
+                  )}
+                >
+                  {provider.name}
+                </span>
+                <ProviderTypeBadge type={provider.type} />
+              </div>
+              <Badge
+                variant={provider.configured ? 'default' : 'secondary'}
+                className={cn(
+                  'rounded-full px-2 py-0.5 text-xs',
+                  provider.configured
+                    ? 'bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/20'
+                    : ''
+                )}
+              >
+                {provider.configured ? 'Configured' : 'Not Configured'}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function LoadingCard() {
   return (
     <Card>
@@ -202,9 +287,13 @@ export default function DatabasePage() {
           </Suspense>
 
           <Suspense fallback={<LoadingCard />}>
-            <DbTablesCard />
+            <AuthProvidersCard />
           </Suspense>
         </div>
+
+        <Suspense fallback={<LoadingCard />}>
+          <DbTablesCard />
+        </Suspense>
       </div>
 
       <Card className='border-dashed'>
