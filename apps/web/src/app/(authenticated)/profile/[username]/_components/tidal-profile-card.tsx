@@ -67,6 +67,7 @@ export function TidalProfileCard({
       });
     } catch (error) {
       console.error('Failed to reconnect Tidal:', error);
+    } finally {
       setIsReconnecting(false);
     }
   };
