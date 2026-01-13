@@ -168,6 +168,37 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  packages/credits-enricher:
+    dependencies:
+      '@scilent-one/harmony-engine':
+        specifier: workspace:*
+        version: link:../harmony-engine
+      ioredis:
+        specifier: ^5.8.2
+        version: 5.8.2
+      p-retry:
+        specifier: ^6.2.1
+        version: 6.2.1
+      pino:
+        specifier: ^9.9.0
+        version: 9.14.0
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@scilent-one/tooling':
+        specifier: workspace:*
+        version: link:../tooling
+      '@types/node':
+        specifier: ^25.0.3
+        version: 25.0.3
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.16
+        version: 4.0.16(@types/node@25.0.3)(@vitest/browser-playwright@4.0.16)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(tsx@4.21.0)
+
   packages/db:
     dependencies:
       '@prisma/adapter-pg':
