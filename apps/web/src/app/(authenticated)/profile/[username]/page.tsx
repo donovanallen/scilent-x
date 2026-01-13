@@ -322,7 +322,8 @@ export default function ProfilePage({
             {profile.connectedPlatforms?.map((platform) => (
               <Badge key={platform.providerId}>{platform.providerId}</Badge>
             ))}
-            {profile.connectedPlatforms?.length === 0 && (
+            {(!profile.connectedPlatforms ||
+              profile.connectedPlatforms.length === 0) && (
               <p className='text-muted-foreground'>No connected platforms</p>
             )}
           </div>
