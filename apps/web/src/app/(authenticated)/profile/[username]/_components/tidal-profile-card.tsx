@@ -33,29 +33,43 @@ export function TidalProfileCard({
   const [isReconnecting, setIsReconnecting] = useState(false);
 
   useEffect(() => {
+    let isCancelled = false;
+
     async function fetchProfile() {
       // Only fetch if viewing own profile (privacy)
       if (!isCurrentUser) {
-        setIsLoading(false);
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
         return;
       }
 
       try {
         const data = await getProviderProfile(userId, 'tidal');
-        setResult(data);
+        if (!isCancelled) {
+          setResult(data);
+        }
       } catch (error) {
         console.error('Failed to fetch Tidal profile:', error);
-        setResult({
-          success: false,
-          error: 'Failed to fetch profile',
-          errorCode: 'PROVIDER_ERROR',
-        });
+        if (!isCancelled) {
+          setResult({
+            success: false,
+            error: 'Failed to fetch profile',
+            errorCode: 'PROVIDER_ERROR',
+          });
+        }
       } finally {
-        setIsLoading(false);
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
       }
     }
 
     fetchProfile();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [userId, isCurrentUser]);
 
   const handleReconnect = async () => {

@@ -759,12 +759,13 @@ export class TidalProvider extends BaseProvider {
       displayName,
       country: attrs.country,
       profileImage,
-      subscription: attrs.subscription
-        ? {
-            type: attrs.subscription.type ?? 'unknown',
-            status: attrs.subscription.status,
-          }
-        : undefined,
+      subscription:
+        attrs.subscription && attrs.subscription.type != null
+          ? {
+              type: attrs.subscription.type,
+              status: attrs.subscription.status,
+            }
+          : undefined,
       createdAt: attrs.created ? new Date(attrs.created) : undefined,
       provider: this.name,
       fetchedAt: new Date(),

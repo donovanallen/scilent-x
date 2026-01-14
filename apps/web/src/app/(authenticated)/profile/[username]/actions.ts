@@ -11,10 +11,10 @@ export interface ProviderProfileResult {
   profile?: HarmonizedUserProfile;
   error?: string;
   errorCode?:
-    | 'UNAUTHORIZED'
     | 'NOT_CONNECTED'
     | 'TOKEN_EXPIRED'
     | 'PROVIDER_ERROR';
+}
 }
 
 /**
