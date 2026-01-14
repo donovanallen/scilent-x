@@ -97,7 +97,6 @@ export function AlbumListItem({
   typePlacement = 'metadata',
   maxArtists = 3,
   showProviders = false,
-  abbreviatedProviders = true,
   coloredProviders = false,
   maxProviders,
   onClick,
@@ -198,7 +197,6 @@ export function AlbumListItem({
       {showProviders && providers.length > 0 && (
         <PlatformBadgeList
           platforms={providers}
-          abbreviated={abbreviatedProviders}
           colored={coloredProviders}
           maxVisible={maxProviders}
           className="shrink-0"

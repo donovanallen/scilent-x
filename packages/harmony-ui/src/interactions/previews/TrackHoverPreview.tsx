@@ -107,7 +107,7 @@ export function TrackHoverPreview({
 
         {/* Platform badges */}
         {platforms.length > 0 && (
-          <PlatformBadgeList platforms={platforms} abbreviated maxVisible={4} />
+          <PlatformBadgeList platforms={platforms} maxVisible={4} />
         )}
       </div>
     );

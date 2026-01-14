@@ -175,3 +175,44 @@ export {
   type ProviderActions,
   type EnabledProvider,
 } from './interactions';
+
+// Provider Icons
+export {
+  // Base component
+  ProviderIcon,
+  PROVIDER_METADATA,
+  getSupportedProviders,
+  isProviderSupported,
+  getProviderIconMetadata,
+  // Provider-specific components
+  SpotifyIcon,
+  AppleMusicIcon,
+  TidalIcon,
+  // Metadata
+  spotifyIconMetadata,
+  appleMusicIconMetadata,
+  tidalIconMetadata,
+  // URL helpers
+  getSpotifyIconUrl,
+  getAppleMusicIconUrl,
+  getTidalIconUrl,
+  // Types
+  type Provider as IconProvider,
+  type IconVariant,
+  type IconColor,
+  type IconSize,
+  type IconFormat,
+  type BaseIconProps,
+  type ProviderIconProps,
+  type ProviderSpecificIconProps,
+  type ProviderIconMetadata,
+  type SpotifyIconProps,
+  type AppleMusicIconProps,
+  type TidalIconProps,
+  // Constants
+  SIZE_PRESETS,
+  PROVIDER_LABELS,
+  PROVIDER_BRAND_COLORS,
+  resolveSize,
+  resolveFillColor,
+} from './icons';
