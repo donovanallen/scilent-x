@@ -40,7 +40,8 @@
     "storybook": "^10.1.11",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
-    "vite": "^7.0.3"
+    "vite": "^7.0.3",
+    "vite-plugin-svgr": "^4.5.0"
   },
   "peerDependencies": {
     "lucide-react": ">=0.400.0",

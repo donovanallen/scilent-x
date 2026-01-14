@@ -52,7 +52,6 @@ export interface ArtistListItemProps {
 export function ArtistListItem({
   artist,
   showProviders = false,
-  abbreviatedProviders = true,
   showExternalLink = true,
   maxGenres = 3,
   interactive = false,
@@ -135,10 +134,7 @@ export function ArtistListItem({
 
       {/* Providers */}
       {showProviders && providers.length > 0 && (
-        <PlatformBadgeList
-          platforms={providers}
-          abbreviated={abbreviatedProviders}
-        />
+        <PlatformBadgeList platforms={providers} />
       )}
 
       {/* External link */}
