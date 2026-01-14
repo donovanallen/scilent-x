@@ -61,32 +61,32 @@ export function PostForm({
   return (
     <Card className={cn('', className)}>
       <form onSubmit={handleSubmit}>
-        <CardContent className='pt-4'>
-          <div className='flex gap-3'>
+        <CardContent className="pt-4">
+          <div className="flex gap-3">
             {user && (
               <UserAvatar
                 name={user.name}
                 username={user.username}
                 avatarUrl={user.avatarUrl}
                 image={user.image}
-                size='md'
+                size="md"
               />
             )}
-            <div className='flex-1'>
+            <div className="flex-1">
               <TiptapEditor
                 value={contentHtml}
                 onChange={handleEditorChange}
                 placeholder={placeholder}
                 readOnly={isSubmitting}
                 maxLength={maxLength}
-                className='border-0'
+                className="border-0"
                 editorKey={editorKey}
                 onMentionQuery={onMentionQuery}
               />
             </div>
           </div>
         </CardContent>
-        <CardFooter className='flex items-center justify-between border-t pt-3'>
+        <CardFooter className="flex items-center justify-between border-t pt-3">
           <div
             className={cn(
               'text-sm text-muted-foreground',
@@ -99,7 +99,7 @@ export function PostForm({
             )}
           </div>
           <Button
-            type='submit'
+            type="submit"
             disabled={!content.trim() || isOverLimit || isSubmitting}
           >
             {isSubmitting ? 'Posting...' : 'Post'}

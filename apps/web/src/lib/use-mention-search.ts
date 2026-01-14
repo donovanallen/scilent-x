@@ -63,21 +63,31 @@ export function useMentionSearch(
         const data = await response.json();
 
         // Transform API response to MentionSearchResult format
-        return (data.items || []).map(
-          (user: {
-            id: string;
-            name?: string | null;
-            username?: string | null;
-            avatarUrl?: string | null;
-            image?: string | null;
-          }) => ({
-            id: user.id,
-            label: user.name || user.username || 'Unknown',
-            username: user.username || undefined,
-            avatarUrl: user.avatarUrl,
-            image: user.image,
-          })
-        );
+        return (data.items || [])
+          .filter(
+            (user: {
+              id: string;
+              name?: string | null;
+              username?: string | null;
+              avatarUrl?: string | null;
+              image?: string | null;
+            }) => Boolean(user.username)
+          )
+          .map(
+            (user: {
+              id: string;
+              name?: string | null;
+              username?: string | null;
+              avatarUrl?: string | null;
+              image?: string | null;
+            }) => ({
+              id: user.id,
+              label: user.name || user.username || 'Unknown',
+              username: user.username || undefined,
+              avatarUrl: user.avatarUrl,
+              image: user.image,
+            })
+          );
       } catch (err) {
         const error =
           err instanceof Error ? err : new Error('Failed to search users');

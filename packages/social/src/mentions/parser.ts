@@ -7,8 +7,14 @@ const VALID_MENTION_TYPES: MentionType[] = ['USER', 'ARTIST', 'ALBUM', 'TRACK'];
 /**
  * Validates if a string is a valid MentionType
  */
-function isValidMentionType(type: string | undefined | null): type is MentionType {
-  return type !== null && type !== undefined && VALID_MENTION_TYPES.includes(type as MentionType);
+function isValidMentionType(
+  type: string | undefined | null
+): type is MentionType {
+  return (
+    type !== null &&
+    type !== undefined &&
+    VALID_MENTION_TYPES.includes(type as MentionType)
+  );
 }
 
 // Regex to match @username mentions
@@ -173,7 +179,6 @@ export async function createMentions(
 
   // Create mention records using userId field
   const mentionData = userMentions.map((mention) => ({
-    type: 'USER' as const,
     userId: mention.entityId,
     postId: context.postId ?? null,
     commentId: context.commentId ?? null,

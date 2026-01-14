@@ -109,7 +109,7 @@ export function TiptapEditor({
           'span',
           {
             class: options.HTMLAttributes.class,
-            'data-mention-type': 'user',
+            'data-mention-type': 'USER',
             'data-mention-id': node.attrs.id,
             'data-mention-label': node.attrs.label,
           },
@@ -178,7 +178,8 @@ export function TiptapEditor({
 
             const wrappedCommand = (item: MentionSuggestion) => {
               if (currentCommand) {
-                currentCommand({ id: item.id, label: item.label });
+                const mentionLabel = item.username ?? item.label;
+                currentCommand({ id: item.id, label: mentionLabel });
               }
             };
 
@@ -250,9 +251,11 @@ export function TiptapEditor({
                 event.preventDefault();
                 const selectedItem = currentItems[currentSelectedIndex];
                 if (selectedItem && currentCommand) {
+                  const mentionLabel =
+                    selectedItem.username ?? selectedItem.label;
                   currentCommand({
                     id: selectedItem.id,
-                    label: selectedItem.label,
+                    label: mentionLabel,
                   });
                 }
                 return true;

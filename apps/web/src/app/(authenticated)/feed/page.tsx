@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
+import { useMentionSearch } from '@/lib/use-mention-search';
+
 interface FeedPost extends PostCardProps {
   _count?: {
     likes: number;
@@ -32,6 +34,7 @@ interface CurrentUser {
 
 export default function FeedPage() {
   const router = useRouter();
+  const { searchUsers } = useMentionSearch();
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
@@ -180,6 +183,7 @@ export default function FeedPage() {
           }}
           onSubmit={handleCreatePost}
           isSubmitting={isSubmitting}
+          onMentionQuery={searchUsers}
         />
       )}
 

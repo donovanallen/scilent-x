@@ -218,6 +218,8 @@ code {
 .tiptap-editor .ProseMirror {
   @apply p-3 font-body text-foreground focus:outline-none;
   min-height: var(--min-height, 100px);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {

@@ -12,8 +12,19 @@ import {
   AvatarImage,
   AvatarFallback,
   Button,
+  Separator,
+  CardFooter,
 } from '@scilent-one/ui';
-import { Music2, User, Globe, Crown, RefreshCw } from 'lucide-react';
+import {
+  Music2,
+  User,
+  Globe,
+  Crown,
+  RefreshCw,
+  AtSign,
+  ExternalLink,
+} from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { authClient } from '@/lib/auth-client';
@@ -138,11 +149,13 @@ export function TidalProfileCard({
 
   return (
     <Card>
-      <CardHeader className='pb-3'>
+      <CardHeader className='pb-0'>
         <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <ProviderIcon provider='tidal' />
-            <CardTitle className='text-base'>Tidal</CardTitle>
+          <div className='flex items-center gap-4'>
+            <ProviderIcon provider='tidal' color='white' />
+            <CardTitle>
+              <h5>Tidal</h5>
+            </CardTitle>
           </div>
           {profile.subscription && (
             <Badge variant='secondary' className='text-xs'>
@@ -152,7 +165,8 @@ export function TidalProfileCard({
           )}
         </div>
       </CardHeader>
-      <CardContent className='space-y-4'>
+      <CardContent>
+        <Separator className='my-4' />
         {/* Profile Info */}
         <div className='flex items-center gap-3'>
           <Avatar className='h-12 w-12'>
@@ -166,33 +180,42 @@ export function TidalProfileCard({
               <User className='h-6 w-6' />
             </AvatarFallback>
           </Avatar>
-          <div className='flex-1 min-w-0'>
-            <p className='font-medium truncate'>
+          <div className='flex flex-col flex-1 min-w-0'>
+            <span className='font-medium truncate'>
               {profile.displayName ?? profile.username ?? 'Tidal User'}
-            </p>
+            </span>
             {profile.username && (
-              <p className='text-sm text-muted-foreground truncate'>
-                @{profile.username}
-              </p>
+              <div className='flex items-center gap-1 text-muted-foreground'>
+                <AtSign className='size-3' />
+                <span className='text-xs text-muted-foreground truncate'>
+                  {profile.username}
+                </span>
+              </div>
+            )}
+            {profile.country && (
+              <div className='flex items-center gap-1 text-muted-foreground'>
+                <Globe className='size-3' />
+                <span className='text-xs'>{profile.country}</span>
+              </div>
             )}
           </div>
         </div>
-
-        {/* Additional Info */}
-        <div className='flex flex-wrap gap-2 text-xs text-muted-foreground'>
-          {profile.country && (
-            <div className='flex items-center gap-1'>
-              <Globe className='h-3 w-3' />
-              <span>{profile.country}</span>
-            </div>
-          )}
-          {profile.email && (
-            <div className='flex items-center gap-1 truncate'>
-              <span className='truncate'>{profile.email}</span>
-            </div>
-          )}
-        </div>
       </CardContent>
+      <CardFooter>
+        <Button
+          variant='outline'
+          size='sm'
+          className='w-full flex items-center gap-2'
+        >
+          <Link
+            href={`https://tidal.com/profile/${profile.username}`}
+            target='_blank'
+          >
+            View on Tidal
+          </Link>
+          <ExternalLink className='size-4' />
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
