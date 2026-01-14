@@ -11,10 +11,10 @@ export interface ProviderProfileResult {
   profile?: HarmonizedUserProfile;
   error?: string;
   errorCode?:
+    | 'UNAUTHORIZED'
     | 'NOT_CONNECTED'
     | 'TOKEN_EXPIRED'
     | 'PROVIDER_ERROR';
-}
 }
 
 /**
@@ -103,6 +103,13 @@ export async function getProviderProfile(
 export async function getAllProviderProfiles(
   userId: string
 ): Promise<Record<string, ProviderProfileResult>> {
+  // Check authorization - only allow viewing own profiles
+  const canView = await canViewProviderProfiles(userId);
+  if (!canView) {
+    // Return empty results when unauthorized
+    return {};
+  }
+
   // Get all connected accounts for the user (excluding credential accounts)
   const accounts = await db.account.findMany({
     where: {
