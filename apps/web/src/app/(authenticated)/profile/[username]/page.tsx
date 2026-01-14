@@ -6,10 +6,16 @@ import {
   useInfiniteScroll,
   Skeleton,
   type PostCardProps,
+  Card,
+  CardTitle,
+  CardContent,
+  CardHeader,
 } from '@scilent-one/ui';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState, use } from 'react';
 import { toast } from 'sonner';
+
+import { TidalProfileCard } from './_components';
 
 interface UserProfile {
   id: string;
@@ -28,6 +34,7 @@ interface UserProfile {
         following: number;
       }
     | undefined;
+  connectedPlatforms?: { providerId: string; connectedAt: Date }[];
 }
 
 interface FeedPost extends PostCardProps {
@@ -81,7 +88,9 @@ export default function ProfilePage({
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const res = await fetch(`/api/v1/users/${username}`);
+        const res = await fetch(
+          `/api/v1/users/${username}?includeConnectedAccounts=true`
+        );
         if (!res.ok) {
           if (res.status === 404) {
             router.push('/feed');
@@ -261,44 +270,72 @@ export default function ProfilePage({
   const isCurrentUser = currentUser?.id === profile.id;
 
   return (
-    <div className='container max-w-2xl py-6 space-y-6'>
-      <ProfileHeader
-        id={profile.id}
-        name={profile.name}
-        username={profile.username}
-        bio={profile.bio}
-        avatarUrl={profile.avatarUrl}
-        image={profile.image}
-        postsCount={profile._count?.posts ?? 0}
-        followersCount={profile._count?.followers ?? 0}
-        followingCount={profile._count?.following ?? 0}
-        isFollowing={profile.isFollowing}
-        isCurrentUser={isCurrentUser}
-        isLoading={isFollowLoading}
-        onFollow={handleFollow}
-        onUnfollow={handleUnfollow}
-        onEditProfile={() => router.push('/settings/profile')}
-        onFollowersClick={() => router.push(`/profile/${username}/followers`)}
-        onFollowingClick={() => router.push(`/profile/${username}/following`)}
-      />
-
-      <div className='space-y-4'>
-        <h2 className='text-lg font-semibold'>Posts</h2>
-
-        <Feed
-          posts={posts.map((post) => ({
-            ...post,
-            likesCount: post._count?.likes ?? post.likesCount ?? 0,
-            commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
-          }))}
-          currentUserId={currentUser?.id}
-          isLoading={postsLoading}
-          hasMore={hasMore}
-          loadMoreRef={sentinelRef}
-          onLikePost={handleLikePost}
-          onUnlikePost={handleUnlikePost}
-          onPostClick={(postId) => router.push(`/post/${postId}`)}
+    <div className='w-full h-full min-h-0 grid grid-cols-3 gap-6'>
+      <div className='flex flex-col space-y-6 col-span-2'>
+        <ProfileHeader
+          id={profile.id}
+          name={profile.name}
+          username={profile.username}
+          bio={profile.bio}
+          avatarUrl={profile.avatarUrl}
+          image={profile.image}
+          postsCount={profile._count?.posts ?? 0}
+          followersCount={profile._count?.followers ?? 0}
+          followingCount={profile._count?.following ?? 0}
+          isFollowing={profile.isFollowing}
+          isCurrentUser={isCurrentUser}
+          isLoading={isFollowLoading}
+          onFollow={handleFollow}
+          onUnfollow={handleUnfollow}
+          onEditProfile={() => router.push('/settings/profile')}
+          onFollowersClick={() => router.push(`/profile/${username}/followers`)}
+          onFollowingClick={() => router.push(`/profile/${username}/following`)}
         />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Posts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Feed
+              posts={posts.map((post) => ({
+                ...post,
+                likesCount: post._count?.likes ?? post.likesCount ?? 0,
+                commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
+              }))}
+              currentUserId={currentUser?.id}
+              isLoading={postsLoading}
+              hasMore={hasMore}
+              loadMoreRef={sentinelRef}
+              onLikePost={handleLikePost}
+              onUnlikePost={handleUnlikePost}
+              onPostClick={(postId) => router.push(`/post/${postId}`)}
+            />
+          </CardContent>
+        </Card>
+      </div>
+      {/* Connected Platform Profiles */}
+      <div className='space-y-4'>
+        {/* Show Tidal profile card if user has Tidal connected */}
+        {profile.connectedPlatforms?.some((p) => p.providerId === 'tidal') && (
+          <TidalProfileCard userId={profile.id} isCurrentUser={isCurrentUser} />
+        )}
+
+        {/* Placeholder for other platforms - can be extended later */}
+        {(!profile.connectedPlatforms ||
+          profile.connectedPlatforms.length === 0) &&
+          isCurrentUser && (
+            <Card className='h-fit'>
+              <CardHeader>
+                <CardTitle className='text-base'>Connected Platforms</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className='text-sm text-muted-foreground'>
+                  Connect your streaming accounts to see your profiles here.
+                </p>
+              </CardContent>
+            </Card>
+          )}
       </div>
     </div>
   );
