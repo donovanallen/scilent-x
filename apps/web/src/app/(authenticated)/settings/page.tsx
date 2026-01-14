@@ -1,6 +1,6 @@
 'use client';
 
-import { PlatformBadge } from '@scilent-one/harmony-ui';
+import { ProviderIcon, type IconProvider } from '@scilent-one/harmony-ui';
 import {
   Button,
   Card,
@@ -287,18 +287,19 @@ export default function SettingsPage() {
                           className='flex items-center justify-between py-2'
                         >
                           <div className='flex items-center gap-3'>
-                            <PlatformBadge
-                              platform={provider.id}
-                              colored={isLinked}
+                            <ProviderIcon
+                              provider={provider.id as IconProvider}
+                              size='sm'
                             />
-                            {isLinked && (
-                              <span className='text-sm text-muted-foreground'>
-                                Connected
-                              </span>
-                            )}
+                            <span className='text-sm font-medium'>
+                              {provider.name}
+                            </span>
                           </div>
                           {isLinked ? (
                             <div className='flex items-center gap-2'>
+                              <span className='text-sm text-muted-foreground'>
+                                Connected
+                              </span>
                               <Button
                                 variant='ghost'
                                 size='sm'

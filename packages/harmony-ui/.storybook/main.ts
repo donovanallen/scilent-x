@@ -32,15 +32,11 @@ const config: StorybookConfig = {
     config.plugins.push(
       svgr({
         svgrOptions: {
-          // Keep viewBox for proper scaling
           svgoConfig: {
-            plugins: [
-              { name: 'removeViewBox', active: false },
-              { name: 'removeDimensions', active: true },
-            ],
+            plugins: ['removeDimensions'],
           },
         },
-        include: '**/*.svg', // Apply to all SVG imports
+        include: '**/*.svg',
       })
     );
     return config;

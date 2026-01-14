@@ -5,6 +5,14 @@ const nextConfig: NextConfig = {
   // Configure pageExtensions to include mdx
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
   devIndicators: false,
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
+  },
 };
 
 const withMDX = createMDX({

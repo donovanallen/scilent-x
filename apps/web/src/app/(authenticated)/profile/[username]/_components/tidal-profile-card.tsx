@@ -1,5 +1,6 @@
 'use client';
 
+import { ProviderIcon } from '@scilent-one/harmony-ui';
 import {
   Card,
   CardContent,
@@ -140,7 +141,7 @@ export function TidalProfileCard({
       <CardHeader className='pb-3'>
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-2'>
-            <Music2 className='h-5 w-5 text-[#00FFFF]' />
+            <ProviderIcon provider='tidal' />
             <CardTitle className='text-base'>Tidal</CardTitle>
           </div>
           {profile.subscription && (

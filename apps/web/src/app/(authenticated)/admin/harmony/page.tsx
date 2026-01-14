@@ -1,3 +1,4 @@
+import { ProviderIcon, type IconProvider } from '@scilent-one/harmony-ui';
 import {
   Badge,
   Card,
@@ -205,7 +206,8 @@ async function EngineStatusCard() {
 
               return (
                 <div key={provider.name} className='py-4 first:pt-0 last:pb-0'>
-                  <div className='flex items-start justify-between'>
+                  <div className='flex items-start justify-between gap-2'>
+                    <ProviderIcon provider={provider.name as IconProvider} />
                     <div className='space-y-1 flex-1'>
                       <div className='flex items-center gap-2'>
                         <span className='font-medium'>

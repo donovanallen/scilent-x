@@ -125,7 +125,7 @@ async function UsersTable() {
                           (a) => a.providerId
                         )}
                         colored
-                        abbreviated
+                        display='icon'
                         maxVisible={3}
                       />
                     ) : (
