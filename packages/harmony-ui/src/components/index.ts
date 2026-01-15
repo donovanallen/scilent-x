@@ -48,10 +48,12 @@ export {
   ArtistHeaderSkeleton,
   ArtistDiscography,
   ArtistDiscographySkeleton,
+  ArtistMention,
   type ArtistCardProps,
   type ArtistHeaderProps,
   type ArtistDiscographyProps,
   type ArtistDiscographySkeletonProps,
+  type ArtistMentionProps,
 } from "./artist";
 
 // Album components

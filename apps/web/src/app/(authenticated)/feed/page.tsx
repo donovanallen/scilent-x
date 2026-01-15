@@ -1,5 +1,6 @@
 'use client';
 
+import { ArtistMention } from '@scilent-one/harmony-ui';
 import {
   Feed,
   PostForm,
@@ -202,6 +203,7 @@ export default function FeedPage() {
         onUnlikePost={handleUnlikePost}
         onPostClick={(postId) => router.push(`/post/${postId}`)}
         onDeletePost={handleDeletePost}
+        renderArtistMention={(props) => <ArtistMention {...props} />}
       />
     </div>
   );

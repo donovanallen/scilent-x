@@ -95,6 +95,7 @@ export {
   ArtistListItem,
   ArtistListItemSkeleton,
   ArtistCredit,
+  ArtistMention,
   type ArtistCardProps,
   type ArtistHeaderProps,
   type ArtistDiscographyProps,
@@ -102,6 +103,7 @@ export {
   type ArtistListItemProps,
   type ArtistListItemSkeletonProps,
   type ArtistCreditProps,
+  type ArtistMentionProps,
 } from './components/artist';
 
 // Album components

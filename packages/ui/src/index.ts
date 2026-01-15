@@ -9,6 +9,7 @@ export {
 export {
   RichTextContent,
   type RichTextContentProps,
+  type ArtistMentionRenderProps,
 } from './components/rich-text-content';
 export {
   TiptapEditor,

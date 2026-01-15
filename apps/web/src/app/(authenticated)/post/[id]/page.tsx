@@ -1,5 +1,6 @@
 'use client';
 
+import { ArtistMention } from '@scilent-one/harmony-ui';
 import {
   Button,
   PostCard,
@@ -364,6 +365,7 @@ export default function PostPage({
         onLike={handleLikePost}
         onUnlike={handleUnlikePost}
         onDelete={handleDeletePost}
+        renderArtistMention={(props) => <ArtistMention {...props} />}
       />
 
       <div className='space-y-4'>

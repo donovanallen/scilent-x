@@ -1,13 +1,45 @@
 'use client';
 
 import * as React from 'react';
+import parse, {
+  type HTMLReactParserOptions,
+  type DOMNode,
+  Element,
+} from 'html-react-parser';
 import { cn } from '../utils';
+
+/**
+ * Props passed to the renderArtistMention function
+ */
+export interface ArtistMentionRenderProps {
+  /** Artist ID (provider-specific) */
+  id: string;
+  /** Artist name to display */
+  name: string;
+  /** Provider name (e.g., 'tidal', 'musicbrainz') */
+  provider: string;
+  /** React key for the element */
+  key: string;
+  /** Click handler */
+  onClick?: ((artistId: string, provider: string) => void) | undefined;
+  /** Content to render inside the mention */
+  children: React.ReactNode;
+}
 
 export interface RichTextContentProps {
   html?: string | null | undefined;
   content?: string;
   className?: string;
+  /** Callback when a user mention (@username) is clicked */
   onMentionClick?: ((username: string) => void) | undefined;
+  /** Callback when an artist mention (#artist) is clicked */
+  onArtistMentionClick?: ((artistId: string, provider: string) => void) | undefined;
+  /**
+   * Custom renderer for artist mentions.
+   * If not provided, artist mentions render as simple styled buttons.
+   * Use this to wrap artist mentions with interactive behaviors (context menus, hover previews).
+   */
+  renderArtistMention?: ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
 }
 
 // Regex to match @username mentions (global flag for replace/exec)
@@ -15,15 +47,51 @@ export interface RichTextContentProps {
 // For exec() loops, we reset lastIndex = 0 before each use.
 const MENTION_REGEX = /@([a-zA-Z][a-zA-Z0-9_]{0,29})/g;
 
-// Regex to match Tiptap data-mention attributes
-const TIPTAP_MENTION_REGEX =
-  /<span[^>]*data-mention-type="([^"]*)"[^>]*data-mention-id="([^"]*)"[^>]*data-mention-label="([^"]*)"[^>]*>[^<]*<\/span>/g;
+/**
+ * Parse the provider and ID from a mention ID string
+ * Format: "provider:id" (e.g., "tidal:12345")
+ */
+function parseMentionId(mentionId: string): { provider: string; id: string } {
+  const colonIndex = mentionId.indexOf(':');
+  if (colonIndex === -1) {
+    return { provider: 'unknown', id: mentionId };
+  }
+  return {
+    provider: mentionId.slice(0, colonIndex),
+    id: mentionId.slice(colonIndex + 1),
+  };
+}
+
+/**
+ * Default artist mention renderer - simple styled button
+ */
+function DefaultArtistMention({
+  name,
+  id,
+  provider,
+  onClick,
+  children,
+}: ArtistMentionRenderProps) {
+  return (
+    <button
+      type="button"
+      className="rich-text-mention tiptap-mention text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      aria-label={`View artist ${name}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.(id, provider);
+      }}
+    >
+      {children}
+    </button>
+  );
+}
 
 /**
  * RichTextContent renders HTML content from the rich text editor
  * with proper styling and mention support.
  *
- * If html is provided, it renders the HTML content.
+ * If html is provided, it renders the HTML content with interactive mentions.
  * If only content (plain text) is provided, it falls back to plain text
  * with mention highlighting.
  */
@@ -32,60 +100,78 @@ export function RichTextContent({
   content,
   className,
   onMentionClick,
+  onArtistMentionClick,
+  renderArtistMention,
 }: RichTextContentProps) {
-  // If we have HTML content, render it
+  // Use custom renderer or default
+  const ArtistMentionRenderer = renderArtistMention ?? DefaultArtistMention;
+
+  // Parser options for html-react-parser
+  const parserOptions = React.useMemo<HTMLReactParserOptions>(() => ({
+    replace: (domNode: DOMNode) => {
+      // Only process Element nodes
+      if (!(domNode instanceof Element)) {
+        return;
+      }
+
+      const { attribs } = domNode;
+
+      // Check if this is a Tiptap mention span
+      if (domNode.name === 'span' && attribs['data-mention-type']) {
+        const mentionType = attribs['data-mention-type'];
+        const mentionId = attribs['data-mention-id'] ?? '';
+        const mentionLabel = attribs['data-mention-label'] ?? '';
+
+        // Handle artist mentions
+        if (mentionType === 'ARTIST') {
+          const { provider, id } = parseMentionId(mentionId);
+          const rendered = ArtistMentionRenderer({
+            key: `artist-${mentionId}`,
+            id,
+            name: mentionLabel,
+            provider,
+            onClick: onArtistMentionClick,
+            children: `#${mentionLabel}`,
+          });
+          // Wrap in fragment to satisfy html-react-parser's expected return type
+          return <>{rendered}</>;
+        }
+
+        // Handle user mentions as interactive buttons
+        if (mentionType === 'USER') {
+          return (
+            <button
+              key={`user-${mentionId}`}
+              type="button"
+              className="rich-text-mention tiptap-mention text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              aria-label={`View ${mentionLabel}'s profile`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onMentionClick?.(mentionLabel);
+              }}
+            >
+              @{mentionLabel}
+            </button>
+          );
+        }
+      }
+
+      // For other elements, return undefined to let the default behavior handle them
+      return;
+    },
+  }), [onMentionClick, onArtistMentionClick, ArtistMentionRenderer]);
+
+  // If we have HTML content, parse and render it
   if (html) {
-    // Process HTML to add mention interactivity with accessibility attributes
-    const processedHtml = React.useMemo(() => {
-      let result = html;
-      
-      // First, handle Tiptap-style mentions (data-mention-* attributes)
-      // Convert them to interactive buttons while preserving the mention data
-      result = result.replace(
-        TIPTAP_MENTION_REGEX,
-        (_match, type, id, label) => {
-          const mentionPrefix = type === 'ARTIST' ? '#' : '@';
-          const ariaLabel =
-            type === 'ARTIST'
-              ? `View artist ${label}`
-              : `View ${label}'s profile`;
-          return `<button type="button" class="rich-text-mention tiptap-mention text-primary hover:underline font-medium" data-mention="${label}" data-mention-type="${type}" data-mention-id="${id}" aria-label="${ariaLabel}">${mentionPrefix}${label}</button>`;
-        }
-      );
-      
-      // Then handle plain @username mentions (backwards compatibility)
-      // Only replace mentions that aren't already wrapped in buttons
-      result = result.replace(
-        /(?<!<button[^>]*>)@([a-zA-Z][a-zA-Z0-9_]{0,29})(?![^<]*<\/button>)/g,
-        (match, username) => {
-          return `<button type="button" class="rich-text-mention text-primary hover:underline font-medium" data-mention="${username}" aria-label="View ${username}'s profile">${match}</button>`;
-        }
-      );
-      
-      return result;
-    }, [html]);
-
-    const handleClick = React.useCallback(
-      (e: React.MouseEvent) => {
-        const target = e.target as HTMLElement;
-        if (target.classList.contains('rich-text-mention')) {
-          e.stopPropagation();
-          const username = target.getAttribute('data-mention');
-          const mentionType = target.getAttribute('data-mention-type');
-          if (mentionType === 'USER' && username && onMentionClick) {
-            onMentionClick(username);
-          }
-        }
-      },
-      [onMentionClick]
-    );
-
     return (
       <div
-        className={cn('rich-text-content prose prose-sm dark:prose-invert max-w-none', className)}
-        dangerouslySetInnerHTML={{ __html: processedHtml }}
-        onClick={handleClick}
-      />
+        className={cn(
+          'rich-text-content prose prose-sm dark:prose-invert max-w-none',
+          className
+        )}
+      >
+        {parse(html, parserOptions)}
+      </div>
     );
   }
 

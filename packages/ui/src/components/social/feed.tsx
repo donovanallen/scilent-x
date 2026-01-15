@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { PostCard, type PostCardProps } from './post-card';
+import { type ArtistMentionRenderProps } from '../rich-text-content';
 import { Skeleton } from '../skeleton';
 import { cn } from '../../utils';
 
@@ -17,6 +18,9 @@ export interface FeedProps {
   onEditPost?: (postId: string) => void;
   onDeletePost?: (postId: string) => void;
   onPostClick?: (postId: string) => void;
+  onArtistMentionClick?: ((artistId: string, provider: string) => void) | undefined;
+  /** Custom renderer for artist mentions (for interactive behaviors) */
+  renderArtistMention?: ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
   className?: string;
 }
 
@@ -51,6 +55,8 @@ export function Feed({
   onEditPost,
   onDeletePost,
   onPostClick,
+  onArtistMentionClick,
+  renderArtistMention,
   className,
 }: FeedProps) {
   return (
@@ -66,6 +72,8 @@ export function Feed({
           onEdit={() => onEditPost?.(post.id)}
           onDelete={() => onDeletePost?.(post.id)}
           onClick={() => onPostClick?.(post.id)}
+          onArtistMentionClick={onArtistMentionClick}
+          renderArtistMention={renderArtistMention}
         />
       ))}
 
