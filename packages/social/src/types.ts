@@ -100,6 +100,14 @@ export interface ActivityWithDetails extends Activity {
 // Mention types
 export type MentionType = 'USER' | 'ARTIST' | 'ALBUM' | 'TRACK';
 
+export interface ArtistMentionEntity {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+  provider: string;
+  externalIds: Record<string, string>;
+}
+
 export interface ParsedMention {
   type: MentionType;
   entityId: string;

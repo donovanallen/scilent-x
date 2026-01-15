@@ -263,4 +263,10 @@ export interface InteractiveWrapperProps {
    * @default 'start'
    */
   previewAlign?: 'start' | 'center' | 'end';
+  /**
+   * Prevent text selection on the wrapped element.
+   * Useful for interactive elements where accidental text selection is undesirable.
+   * @default true
+   */
+  preventTextSelection?: boolean;
 }

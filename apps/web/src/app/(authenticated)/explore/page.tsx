@@ -1,5 +1,6 @@
 'use client';
 
+import { ArtistMention } from '@scilent-one/harmony-ui';
 import {
   Feed,
   useInfiniteScroll,
@@ -172,6 +173,7 @@ export default function ExplorePage() {
             onLikePost={handleLikePost}
             onUnlikePost={handleUnlikePost}
             onPostClick={(postId) => router.push(`/post/${postId}`)}
+            renderArtistMention={(props) => <ArtistMention {...props} />}
           />
         </TabsContent>
 
@@ -189,6 +191,7 @@ export default function ExplorePage() {
             onLikePost={handleLikePost}
             onUnlikePost={handleUnlikePost}
             onPostClick={(postId) => router.push(`/post/${postId}`)}
+            renderArtistMention={(props) => <ArtistMention {...props} />}
           />
         </TabsContent>
       </Tabs>

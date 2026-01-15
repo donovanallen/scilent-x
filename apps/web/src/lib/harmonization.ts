@@ -1,6 +1,8 @@
 // apps/web/src/lib/harmonization.ts
 import {
   HarmonizationEngine,
+  TidalProvider,
+  type HarmonizedArtist,
   type ProviderRegistryConfig,
 } from '@scilent-one/harmony-engine';
 
@@ -85,4 +87,33 @@ export function getHarmonizationEngine() {
     });
   }
   return engine;
+}
+
+export async function searchArtistsWithUserProvider(
+  query: string,
+  accessToken: string | null,
+  providerId: string | null,
+  limit = 10
+): Promise<HarmonizedArtist[]> {
+  if (!query.trim()) return [];
+
+  const engine = getHarmonizationEngine();
+  const normalizedProvider = providerId?.toLowerCase() ?? null;
+
+  if (normalizedProvider === 'tidal' && accessToken) {
+    const provider = engine.getProvider('tidal');
+    if (provider instanceof TidalProvider) {
+      try {
+        return await provider.searchArtistsWithUserToken(
+          query,
+          accessToken,
+          limit
+        );
+      } catch (error) {
+        console.warn('Tidal artist search failed, falling back:', error);
+      }
+    }
+  }
+
+  return engine.searchArtists(query, ['musicbrainz'], limit);
 }

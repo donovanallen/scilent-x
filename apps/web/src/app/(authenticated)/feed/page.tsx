@@ -1,5 +1,6 @@
 'use client';
 
+import { ArtistMention } from '@scilent-one/harmony-ui';
 import {
   Feed,
   PostForm,
@@ -34,7 +35,7 @@ interface CurrentUser {
 
 export default function FeedPage() {
   const router = useRouter();
-  const { searchUsers } = useMentionSearch();
+  const { searchUsers, searchArtists } = useMentionSearch();
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
@@ -184,6 +185,7 @@ export default function FeedPage() {
           onSubmit={handleCreatePost}
           isSubmitting={isSubmitting}
           onMentionQuery={searchUsers}
+          onArtistMentionQuery={searchArtists}
         />
       )}
 
@@ -201,6 +203,7 @@ export default function FeedPage() {
         onUnlikePost={handleUnlikePost}
         onPostClick={(postId) => router.push(`/post/${postId}`)}
         onDeletePost={handleDeletePost}
+        renderArtistMention={(props) => <ArtistMention {...props} />}
       />
     </div>
   );

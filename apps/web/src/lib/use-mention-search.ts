@@ -8,6 +8,20 @@ export interface MentionSearchResult {
   username?: string;
   avatarUrl?: string | null;
   image?: string | null;
+  type?: 'user' | 'artist';
+  imageUrl?: string | null;
+  subtitle?: string | null;
+  provider?: string | null;
+  externalIds?: Record<string, string>;
+}
+
+export interface ArtistMentionResult {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+  provider: string;
+  externalIds: Record<string, string>;
+  subtitle?: string | null;
 }
 
 export interface UseMentionSearchOptions {
@@ -20,6 +34,8 @@ export interface UseMentionSearchOptions {
 export interface UseMentionSearchReturn {
   /** Search function to be passed to TiptapEditor's onMentionQuery */
   searchUsers: (query: string) => Promise<MentionSearchResult[]>;
+  /** Search function to be passed to TiptapEditor's onArtistMentionQuery */
+  searchArtists: (query: string) => Promise<MentionSearchResult[]>;
   /** Loading state */
   isLoading: boolean;
   /** Error state */
@@ -84,6 +100,7 @@ export function useMentionSearch(
               id: user.id,
               label: user.name || user.username || 'Unknown',
               username: user.username || undefined,
+              type: 'user',
               avatarUrl: user.avatarUrl,
               image: user.image,
             })
@@ -101,8 +118,56 @@ export function useMentionSearch(
     [minQueryLength, limit]
   );
 
+  const searchArtists = React.useCallback(
+    async (query: string): Promise<MentionSearchResult[]> => {
+      if (query.length < minQueryLength) {
+        return [];
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams({
+          q: query,
+          limit: limit.toString(),
+        });
+
+        const response = await fetch(`/api/v1/artists/search?${params}`);
+
+        if (!response.ok) {
+          throw new Error(`Artist search failed: ${response.statusText}`);
+        }
+
+        const data = (await response.json()) as {
+          items?: ArtistMentionResult[];
+        };
+
+        return (data.items || []).map((artist) => ({
+          id: artist.id,
+          label: artist.name,
+          type: 'artist',
+          imageUrl: artist.imageUrl ?? null,
+          subtitle: artist.subtitle ?? null,
+          provider: artist.provider,
+          externalIds: artist.externalIds,
+        }));
+      } catch (err) {
+        const error =
+          err instanceof Error ? err : new Error('Failed to search artists');
+        setError(error);
+        console.error('Artist mention search error:', error);
+        return [];
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [minQueryLength, limit]
+  );
+
   return {
     searchUsers,
+    searchArtists,
     isLoading,
     error,
   };

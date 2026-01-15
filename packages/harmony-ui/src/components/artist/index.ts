@@ -23,3 +23,5 @@ export {
 } from './ArtistListItem';
 
 export { ArtistCredit, type ArtistCreditProps } from './ArtistCredit';
+
+export { ArtistMention, type ArtistMentionProps } from './ArtistMention';

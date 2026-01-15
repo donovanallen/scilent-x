@@ -50,7 +50,7 @@ export const ROUTES = {
   },
   profile: {
     href: '/profile',
-    label: 'Profile',
+    label: 'My Profile',
     icon: User,
     protected: true,
     isAdmin: false,

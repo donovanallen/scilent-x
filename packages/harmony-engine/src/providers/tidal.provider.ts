@@ -461,6 +461,34 @@ export class TidalProvider extends BaseProvider {
     return artists.map((artist) => this.transformArtist(artist));
   }
 
+  /**
+   * Search artists using a user's OAuth access token.
+   * Falls back to the same transformation pipeline as public search.
+   */
+  async searchArtistsWithUserToken(
+    query: string,
+    accessToken: string,
+    limit = 25
+  ): Promise<HarmonizedArtist[]> {
+    const encodedQuery = encodeURIComponent(query);
+    const data = await this.fetchUserApi<TidalSearchResultsResponse>(
+      `/searchResults/${encodedQuery}`,
+      accessToken,
+      {
+        include: 'artists',
+        limit: String(limit),
+      }
+    );
+
+    if (!data?.included) return [];
+
+    const artists = data.included.filter(
+      (item): item is TidalArtist => item.type === 'artists'
+    );
+
+    return artists.map((artist) => this.transformArtist(artist));
+  }
+
   protected async _searchTracks(
     query: string,
     limit = 25

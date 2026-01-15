@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown-menu';
 import { UserAvatar } from './user-avatar';
-import { RichTextContent } from '../rich-text-content';
+import { RichTextContent, type ArtistMentionRenderProps } from '../rich-text-content';
 import { cn } from '../../utils';
 
 export interface PostCardAuthor {
@@ -39,6 +39,9 @@ export interface PostCardProps {
   onDelete?: () => void;
   onClick?: () => void;
   onMentionClick?: (username: string) => void;
+  onArtistMentionClick?: ((artistId: string, provider: string) => void) | undefined;
+  /** Custom renderer for artist mentions (for interactive behaviors) */
+  renderArtistMention?: ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
   className?: string;
 }
 
@@ -75,6 +78,8 @@ export function PostCard({
   onDelete,
   onClick,
   onMentionClick,
+  onArtistMentionClick,
+  renderArtistMention,
   className,
 }: PostCardProps) {
   const handleLikeClick = (e: React.MouseEvent) => {
@@ -153,6 +158,8 @@ export function PostCard({
           html={contentHtml}
           content={content}
           onMentionClick={onMentionClick}
+          onArtistMentionClick={onArtistMentionClick}
+          renderArtistMention={renderArtistMention}
         />
       </CardContent>
       <CardFooter className='pt-0'>
