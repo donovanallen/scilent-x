@@ -300,6 +300,8 @@ export default function MyProfilePage() {
               onLikePost={handleLikePost}
               onUnlikePost={handleUnlikePost}
               onPostClick={(postId) => router.push(`/post/${postId}`)}
+              onAuthorClick={(username) => router.push(`/profile/${username}`)}
+              onMentionClick={(username) => router.push(`/profile/${username}`)}
               renderArtistMention={(props) => <ArtistMention {...props} />}
             />
           </CardContent>

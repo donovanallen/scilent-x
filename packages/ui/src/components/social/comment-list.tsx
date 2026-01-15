@@ -23,6 +23,8 @@ export interface CommentListProps {
   onReplyComment?: (commentId: string, content: string) => void;
   onEditComment?: (commentId: string) => void;
   onDeleteComment?: (commentId: string) => void;
+  /** Callback when a user mention (@username) is clicked */
+  onMentionClick?: ((username: string) => void) | undefined;
   className?: string;
 }
 
@@ -37,6 +39,7 @@ export function CommentList({
   onReplyComment,
   onEditComment,
   onDeleteComment,
+  onMentionClick,
   className,
 }: CommentListProps) {
   const [replyingTo, setReplyingTo] = React.useState<string | null>(null);
@@ -53,6 +56,7 @@ export function CommentList({
             onReply={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
             onEdit={() => onEditComment?.(comment.id)}
             onDelete={() => onDeleteComment?.(comment.id)}
+            onMentionClick={onMentionClick}
           />
 
           {/* Replies */}
@@ -68,6 +72,7 @@ export function CommentList({
                   onUnlike={() => onUnlikeComment?.(reply.id)}
                   onEdit={() => onEditComment?.(reply.id)}
                   onDelete={() => onDeleteComment?.(reply.id)}
+                  onMentionClick={onMentionClick}
                 />
               ))}
             </div>

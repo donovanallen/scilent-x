@@ -1,7 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { Heart, MessageCircle, MoreHorizontal, Trash2, Pencil } from 'lucide-react';
+import {
+  Heart,
+  MessageCircle,
+  MoreHorizontal,
+  Trash2,
+  Pencil,
+} from 'lucide-react';
 import { Button } from '../button';
 import {
   DropdownMenu,
@@ -36,6 +42,8 @@ export interface CommentCardProps {
   onReply?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  /** Callback when a user mention (@username) is clicked */
+  onMentionClick?: ((username: string) => void) | undefined;
   className?: string;
 }
 
@@ -56,7 +64,7 @@ function formatRelativeTime(date: Date | string): string {
 }
 
 export function CommentCard({
-  id,
+  // id,
   content,
   author,
   createdAt,
@@ -70,6 +78,7 @@ export function CommentCard({
   onReply,
   onEdit,
   onDelete,
+  onMentionClick,
   className,
 }: CommentCardProps) {
   const handleLikeClick = () => {
@@ -82,11 +91,7 @@ export function CommentCard({
 
   return (
     <div
-      className={cn(
-        'flex gap-3',
-        isReply && 'ml-8 pl-4 border-l',
-        className
-      )}
+      className={cn('flex gap-3', isReply && 'ml-8 pl-4 border-l', className)}
     >
       <UserAvatar
         name={author.name}
@@ -95,35 +100,42 @@ export function CommentCard({
         image={author.image}
         size={isReply ? 'sm' : 'md'}
       />
-      <div className='flex-1 min-w-0'>
-        <div className='flex items-center gap-2'>
-          <span className='font-semibold text-sm truncate'>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-sm truncate">
             {author.name || author.username || 'Anonymous'}
           </span>
           {author.username && (
-            <span className='text-muted-foreground text-xs truncate'>
+            <span className="text-muted-foreground text-xs truncate">
               @{author.username}
             </span>
           )}
-          <span className='text-muted-foreground text-xs'>·</span>
-          <span className='text-muted-foreground text-xs whitespace-nowrap'>
+          <span className="text-muted-foreground text-xs">·</span>
+          <span className="text-muted-foreground text-xs whitespace-nowrap">
             {formatRelativeTime(createdAt)}
           </span>
           {isOwner && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant='ghost' size='sm' className='h-6 w-6 p-0 ml-auto'>
-                  <MoreHorizontal className='h-3 w-3' />
-                  <span className='sr-only'>Open menu</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 ml-auto"
+                >
+                  <MoreHorizontal className="h-3 w-3" />
+                  <span className="sr-only">Open menu</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
+              <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={onEdit}>
-                  <Pencil className='mr-2 h-4 w-4' />
+                  <Pencil className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem className='text-destructive' onClick={onDelete}>
-                  <Trash2 className='mr-2 h-4 w-4' />
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={onDelete}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -132,12 +144,13 @@ export function CommentCard({
         </div>
         <MentionText
           content={content}
-          className='text-sm whitespace-pre-wrap break-words mt-1'
+          className="text-sm whitespace-pre-wrap break-words mt-1"
+          onMentionClick={onMentionClick}
         />
-        <div className='flex items-center gap-3 mt-2'>
+        <div className="flex items-center gap-3 mt-2">
           <Button
-            variant='ghost'
-            size='sm'
+            variant="ghost"
+            size="sm"
             className={cn(
               'h-7 gap-1 px-2 text-xs',
               isLiked && 'text-red-500 hover:text-red-600'
@@ -149,12 +162,12 @@ export function CommentCard({
           </Button>
           {!isReply && (
             <Button
-              variant='ghost'
-              size='sm'
-              className='h-7 gap-1 px-2 text-xs'
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1 px-2 text-xs"
               onClick={onReply}
             >
-              <MessageCircle className='h-3 w-3' />
+              <MessageCircle className="h-3 w-3" />
               <span>{repliesCount}</span>
             </Button>
           )}
