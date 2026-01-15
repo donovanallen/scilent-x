@@ -1,0 +1,55 @@
+name: Renovate Changesets
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  add-changeset:
+    if: github.actor == 'renovate[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.21.1
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for existing changeset
+        id: check
+        run: |
+          # Count changeset files (excluding config.json and README.md)
+          CHANGESET_COUNT=$(find .changeset -name "*.md" ! -name "README.md" | wc -l | tr -d ' ')
+          echo "count=$CHANGESET_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Add empty changeset
+        if: steps.check.outputs.count == '0'
+        run: |
+          pnpm changeset add --empty
+
+      - name: Commit and push changeset
+        if: steps.check.outputs.count == '0'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .changeset
+          git commit -m "chore: add empty changeset for renovate"
+          git push
