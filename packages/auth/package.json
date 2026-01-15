@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@scilent-one/db": "workspace:*",
+    "@scilent-one/logger": "workspace:*",
     "better-auth": "catalog:better-auth"
   },
   "devDependencies": {
