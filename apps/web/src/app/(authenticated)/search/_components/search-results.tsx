@@ -234,7 +234,7 @@ export function SearchResults({
                   data-index={virtualItem.index}
                   ref={listVirtualizer.measureElement}
                   className={cn(
-                    'absolute top-0 left-0 w-full',
+                    'search-result-item absolute top-0 left-0 w-full',
                     virtualItem.index % 2 === 0
                       ? 'bg-transparent'
                       : 'bg-muted/30'
@@ -262,7 +262,7 @@ export function SearchResults({
                   data-index={virtualItem.index}
                   ref={listVirtualizer.measureElement}
                   className={cn(
-                    'absolute top-0 left-0 w-full',
+                    'search-result-item absolute top-0 left-0 w-full',
                     virtualItem.index % 2 === 0
                       ? 'bg-transparent'
                       : 'bg-muted/30'
@@ -294,7 +294,7 @@ export function SearchResults({
                 data-index={virtualItem.index}
                 ref={listVirtualizer.measureElement}
                 className={cn(
-                  'absolute top-0 left-0 w-full',
+                  'search-result-item absolute top-0 left-0 w-full',
                   virtualItem.index % 2 === 0 ? 'bg-transparent' : 'bg-muted/30'
                 )}
                 style={{

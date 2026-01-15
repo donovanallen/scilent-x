@@ -5,6 +5,13 @@ const nextConfig: NextConfig = {
   // Configure pageExtensions to include mdx
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
   devIndicators: false,
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      'date-fns',
+      '@radix-ui/react-dialog',
+    ],
+  },
   turbopack: {
     rules: {
       '*.svg': {

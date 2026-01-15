@@ -27,8 +27,12 @@ import {
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import useSWR from 'swr';
+import useSWRInfinite from 'swr/infinite';
+
+import { fetcher } from '@/lib/swr';
 
 interface UserProfile {
   id: string;
@@ -67,11 +71,6 @@ const sortFieldLabels: Record<SortField, string> = {
 
 export default function UsersPage() {
   const router = useRouter();
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
 
   // Search and filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -88,71 +87,74 @@ export default function UsersPage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Fetch current user
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await fetch('/api/v1/users/me');
-        if (res.ok) {
-          const user = await res.json();
-          setCurrentUser(user);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-      }
-    }
-    fetchUser();
-  }, []);
-
-  // Fetch users
-  const fetchUsers = useCallback(
-    async (cursorParam?: string) => {
-      setIsLoading(true);
-      try {
-        const url = new URL('/api/v1/users', window.location.origin);
-        if (cursorParam) {
-          url.searchParams.set('cursor', cursorParam);
-        }
-        if (debouncedQuery) {
-          url.searchParams.set('q', debouncedQuery);
-        }
-        url.searchParams.set('sortBy', sortBy);
-        url.searchParams.set('sortOrder', sortOrder);
-        if (hasUsername) {
-          url.searchParams.set('hasUsername', 'true');
-        }
-
-        const res = await fetch(url.toString());
-        if (!res.ok) throw new Error('Failed to fetch users');
-
-        const data: PaginatedResponse = await res.json();
-
-        setUsers((prev) =>
-          cursorParam ? [...prev, ...data.items] : data.items
-        );
-        setHasMore(data.hasMore);
-        setCursor(data.nextCursor);
-      } catch (error) {
-        console.error('Failed to load users:', error);
-        toast.error('Failed to load users');
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [debouncedQuery, sortBy, sortOrder, hasUsername]
+  const { data: currentUser } = useSWR<CurrentUser>(
+    '/api/v1/users/me',
+    fetcher
   );
 
-  // Reset and fetch when filters change
+  const buildUsersKey = (cursorParam?: string) => {
+    const params = new URLSearchParams();
+    if (cursorParam) {
+      params.set('cursor', cursorParam);
+    }
+    if (debouncedQuery) {
+      params.set('q', debouncedQuery);
+    }
+    params.set('sortBy', sortBy);
+    params.set('sortOrder', sortOrder);
+    if (hasUsername) {
+      params.set('hasUsername', 'true');
+    }
+
+    const query = params.toString();
+    return query ? `/api/v1/users?${query}` : '/api/v1/users';
+  };
+
+  const getKey = (
+    pageIndex: number,
+    previousPageData: PaginatedResponse | null
+  ) => {
+    if (pageIndex === 0) {
+      return buildUsersKey();
+    }
+    if (!previousPageData?.hasMore || !previousPageData.nextCursor) {
+      return null;
+    }
+    return buildUsersKey(previousPageData.nextCursor);
+  };
+
+  const {
+    data: userPages,
+    error: usersError,
+    isLoading,
+    isValidating,
+    setSize,
+    mutate,
+  } = useSWRInfinite<PaginatedResponse>(getKey, fetcher);
+
   useEffect(() => {
-    setUsers([]);
-    setCursor(null);
-    fetchUsers();
-  }, [fetchUsers]);
+    if (!usersError) return;
+    console.error('Failed to load users:', usersError);
+    toast.error('Failed to load users');
+  }, [usersError]);
+
+  useEffect(() => {
+    setSize(1);
+  }, [debouncedQuery, sortBy, sortOrder, hasUsername, setSize]);
+
+  const users = useMemo(
+    () => userPages?.flatMap((page) => page.items) ?? [],
+    [userPages]
+  );
+  const lastPage = userPages?.[userPages.length - 1];
+  const hasMore = lastPage?.hasMore ?? false;
+  const isUsersLoading = isLoading && !userPages;
+  const isPageLoading = isLoading || isValidating;
 
   const { sentinelRef } = useInfiniteScroll({
     hasMore,
-    isLoading,
-    onLoadMore: () => cursor && fetchUsers(cursor),
+    isLoading: isPageLoading,
+    onLoadMore: () => setSize((size) => size + 1),
   });
 
   const handleFollow = async (username: string | null | undefined) => {
@@ -168,16 +170,21 @@ export default function UsersPage() {
       });
       if (!res.ok) throw new Error('Failed to follow user');
 
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.username === username
-            ? {
-                ...user,
-                isFollowing: true,
-                followersCount: user.followersCount + 1,
-              }
-            : user
-        )
+      mutate(
+        (pages) =>
+          pages?.map((page) => ({
+            ...page,
+            items: page.items.map((user) =>
+              user.username === username
+                ? {
+                    ...user,
+                    isFollowing: true,
+                    followersCount: user.followersCount + 1,
+                  }
+                : user
+            ),
+          })),
+        { revalidate: false }
       );
       toast.success(`Following @${username}`);
     } catch (error) {
@@ -199,16 +206,21 @@ export default function UsersPage() {
       });
       if (!res.ok) throw new Error('Failed to unfollow user');
 
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.username === username
-            ? {
-                ...user,
-                isFollowing: false,
-                followersCount: user.followersCount - 1,
-              }
-            : user
-        )
+      mutate(
+        (pages) =>
+          pages?.map((page) => ({
+            ...page,
+            items: page.items.map((user) =>
+              user.username === username
+                ? {
+                    ...user,
+                    isFollowing: false,
+                    followersCount: user.followersCount - 1,
+                  }
+                : user
+            ),
+          })),
+        { revalidate: false }
       );
       toast.success(`Unfollowed @${username}`);
     } catch (error) {
@@ -348,7 +360,7 @@ export default function UsersPage() {
       </Card>
 
       {/* Users Grid */}
-      {isLoading && users.length === 0 ? (
+      {isUsersLoading && users.length === 0 ? (
         <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className='h-40' />
@@ -400,7 +412,7 @@ export default function UsersPage() {
           </div>
           {hasMore && (
             <div ref={sentinelRef} className='flex justify-center py-4'>
-              {isLoading && <Skeleton className='h-40 w-full max-w-sm' />}
+              {isPageLoading && <Skeleton className='h-40 w-full max-w-sm' />}
             </div>
           )}
         </>
