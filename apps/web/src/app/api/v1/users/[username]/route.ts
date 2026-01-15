@@ -22,9 +22,13 @@ export async function GET(request: Request, { params }: RouteParams) {
     const user = await getCurrentUser();
     const { searchParams } = new URL(request.url);
     const includePosts = searchParams.get('includePosts') === 'true';
+    const includeConnectedAccounts =
+      searchParams.get('includeConnectedAccounts') === 'true';
     const paginationParams = parseSearchParams(request) as PaginationParams;
 
-    const profile = await getUserByUsername(username, user?.id);
+    const profile = await getUserByUsername(username, user?.id, {
+      includeConnectedAccounts,
+    });
 
     if (includePosts) {
       const posts = await getProfileFeed(

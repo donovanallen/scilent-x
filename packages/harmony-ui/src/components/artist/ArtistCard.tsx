@@ -80,10 +80,10 @@ export function ArtistCard({
         )}
       </div>
 
-      <CardHeader className="p-4 pb-2">
-        <CardTitle className="text-lg truncate">{artist.name}</CardTitle>
+      <CardHeader className="p-4">
+        <CardTitle className="truncate">{artist.name}</CardTitle>
         {artist.disambiguation && (
-          <p className="text-sm text-muted-foreground truncate">
+          <p className="text-muted-foreground truncate">
             {artist.disambiguation}
           </p>
         )}

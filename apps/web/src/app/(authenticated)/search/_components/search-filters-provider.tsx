@@ -1,6 +1,7 @@
 'use client';
 
-import { Badge, cn } from '@scilent-one/ui';
+import { PlatformBadge } from '@scilent-one/harmony-ui';
+import { cn } from '@scilent-one/ui';
 
 import type { SearchFilters } from '../actions';
 
@@ -26,25 +27,24 @@ export function SearchFiltersProvider({
       providers: newProviders.length > 0 ? newProviders : undefined,
     });
   };
+
   return (
     <>
-      {providers.map((provider) => (
-        <Badge
-          key={provider.name}
-          variant={
-            filters.providers?.includes(provider.name) ? 'default' : 'outline'
-          }
-          className={cn(
-            'cursor-pointer transition-colors select-none',
-            filters.providers?.includes(provider.name)
-              ? 'hover:bg-primary/80'
-              : 'hover:bg-accent'
-          )}
-          onClick={() => toggleProvider(provider.name)}
-        >
-          {provider.displayName}
-        </Badge>
-      ))}
+      {providers.map((provider) => {
+        const isSelected = filters.providers?.includes(provider.name);
+        return (
+          <PlatformBadge
+            key={provider.name}
+            platform={provider.name}
+            variant={isSelected ? 'default' : 'outline'}
+            className={cn(
+              'cursor-pointer transition-colors select-none',
+              isSelected ? 'hover:bg-primary/80' : 'hover:bg-accent'
+            )}
+            onClick={() => toggleProvider(provider.name)}
+          />
+        );
+      })}
     </>
   );
 }

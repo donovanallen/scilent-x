@@ -1,7 +1,7 @@
 import { db } from '@scilent-one/db';
 import type { CreateCommentInput, UpdateCommentInput, CommentWithAuthor } from '../types';
 import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errors';
-import { parseMentions, createMentions } from '../mentions/parser';
+import { parseMentions, createMentionsFromUsernames } from '../mentions/parser';
 
 const authorSelect = {
   id: true,
@@ -68,7 +68,7 @@ export async function createComment(
   // Parse and create mentions
   const mentions = parseMentions(input.content);
   if (mentions.length > 0) {
-    await createMentions(mentions, { commentId: comment.id });
+    await createMentionsFromUsernames(mentions, { commentId: comment.id });
   }
 
   // Create activity for post author if different from commenter
@@ -141,7 +141,7 @@ export async function updateComment(
   // Parse and create new mentions
   const mentions = parseMentions(input.content);
   if (mentions.length > 0) {
-    await createMentions(mentions, { commentId: comment.id });
+    await createMentionsFromUsernames(mentions, { commentId: comment.id });
   }
 
   return {

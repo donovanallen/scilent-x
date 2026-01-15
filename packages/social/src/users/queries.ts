@@ -5,7 +5,8 @@ import { NotFoundError } from '../utils/errors';
 
 export async function getUserById(
   userId: string,
-  currentUserId?: string
+  currentUserId?: string,
+  options?: { includeConnectedAccounts?: boolean }
 ): Promise<UserProfile> {
   const user = await db.user.findUnique({
     where: { id: userId },
@@ -31,6 +32,12 @@ export async function getUserById(
             take: 1,
           }
         : false,
+      accounts: options?.includeConnectedAccounts
+        ? {
+            where: { providerId: { not: 'credential' } },
+            select: { providerId: true, createdAt: true },
+          }
+        : false,
     },
   });
 
@@ -38,16 +45,42 @@ export async function getUserById(
     throw new NotFoundError('User');
   }
 
-  return {
-    ...user,
-    isFollowing: currentUserId ? user.followers.length > 0 : false,
-    followers: undefined as unknown as never,
-  } as UserProfile;
+  const typedUser = user as typeof user & {
+    accounts?: { providerId: string; createdAt: Date }[];
+  };
+
+  const result: UserProfile & {
+    connectedPlatforms?: { providerId: string; connectedAt: Date }[];
+  } = {
+    id: typedUser.id,
+    email: typedUser.email,
+    name: typedUser.name,
+    username: typedUser.username,
+    bio: typedUser.bio,
+    avatarUrl: typedUser.avatarUrl,
+    image: typedUser.image,
+    createdAt: typedUser.createdAt,
+    _count: typedUser._count,
+    isFollowing: currentUserId
+      ? (typedUser.followers as { followerId: string }[]).length > 0
+      : false,
+  };
+
+  // Add connected platforms if requested
+  if (options?.includeConnectedAccounts && typedUser.accounts) {
+    result.connectedPlatforms = typedUser.accounts.map((a) => ({
+      providerId: a.providerId,
+      connectedAt: a.createdAt,
+    }));
+  }
+
+  return result;
 }
 
 export async function getUserByUsername(
   username: string,
-  currentUserId?: string
+  currentUserId?: string,
+  options?: { includeConnectedAccounts?: boolean }
 ): Promise<UserProfile> {
   const user = await db.user.findUnique({
     where: { username },
@@ -73,6 +106,12 @@ export async function getUserByUsername(
             take: 1,
           }
         : false,
+      accounts: options?.includeConnectedAccounts
+        ? {
+            where: { providerId: { not: 'credential' } },
+            select: { providerId: true, createdAt: true },
+          }
+        : false,
     },
   });
 
@@ -80,11 +119,36 @@ export async function getUserByUsername(
     throw new NotFoundError('User');
   }
 
-  return {
-    ...user,
-    isFollowing: currentUserId ? user.followers.length > 0 : false,
-    followers: undefined as unknown as never,
-  } as UserProfile;
+  const typedUser = user as typeof user & {
+    accounts?: { providerId: string; createdAt: Date }[];
+  };
+
+  const result: UserProfile & {
+    connectedPlatforms?: { providerId: string; connectedAt: Date }[];
+  } = {
+    id: typedUser.id,
+    email: typedUser.email,
+    name: typedUser.name,
+    username: typedUser.username,
+    bio: typedUser.bio,
+    avatarUrl: typedUser.avatarUrl,
+    image: typedUser.image,
+    createdAt: typedUser.createdAt,
+    _count: typedUser._count,
+    isFollowing: currentUserId
+      ? (typedUser.followers as { followerId: string }[]).length > 0
+      : false,
+  };
+
+  // Add connected platforms if requested
+  if (options?.includeConnectedAccounts && typedUser.accounts) {
+    result.connectedPlatforms = typedUser.accounts.map((a) => ({
+      providerId: a.providerId,
+      connectedAt: a.createdAt,
+    }));
+  }
+
+  return result;
 }
 
 export async function searchUsers(
@@ -100,6 +164,7 @@ export async function searchUsers(
       OR: [
         { username: { contains: query, mode: 'insensitive' } },
         { name: { contains: query, mode: 'insensitive' } },
+        { id: { contains: query, mode: 'insensitive' } },
       ],
     },
     select: {

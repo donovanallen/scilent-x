@@ -4,7 +4,7 @@ import type { PartialDate, HarmonizedArtistCredit } from "../types";
  * Format duration from milliseconds to a human-readable string (MM:SS or HH:MM:SS)
  */
 export function formatDuration(ms: number | undefined): string {
-  if (!ms) return "--:--";
+  if (!ms || !Number.isFinite(ms)) return "--:--";
 
   const totalSeconds = Math.floor(ms / 1000);
   const hours = Math.floor(totalSeconds / 3600);
@@ -79,6 +79,18 @@ export function getPrimaryArtistName(
   const first = credits[0];
   if (!first) return "Unknown Artist";
   return first.creditedName || first.name;
+}
+
+/**
+ * Format artist credits to a simple comma-separated list of names
+ * (simpler version of formatArtistCredits without join phrases)
+ */
+export function formatArtistNames(
+  credits: HarmonizedArtistCredit[]
+): string {
+  return credits
+    .map((credit) => credit.creditedName || credit.name)
+    .join(", ");
 }
 
 /**

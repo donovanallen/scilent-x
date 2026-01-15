@@ -4,9 +4,16 @@ import * as React from 'react';
 import { Settings } from 'lucide-react';
 import { Card, CardContent } from '../card';
 import { Button } from '../button';
+import { Badge } from '../badge';
 import { UserAvatar } from './user-avatar';
 import { FollowButton } from './follow-button';
 import { cn } from '../../utils';
+
+/** Connected streaming platform information */
+export interface ConnectedPlatform {
+  providerId: string;
+  connectedAt?: Date;
+}
 
 export interface ProfileHeaderProps {
   id: string;
@@ -18,6 +25,8 @@ export interface ProfileHeaderProps {
   followersCount: number;
   followingCount: number;
   postsCount: number;
+  /** Connected streaming platforms (Tidal, Spotify, etc.) */
+  connectedPlatforms?: ConnectedPlatform[] | undefined;
   isFollowing?: boolean | undefined;
   isCurrentUser?: boolean | undefined;
   isLoading?: boolean | undefined;
@@ -29,6 +38,22 @@ export interface ProfileHeaderProps {
   className?: string | undefined;
 }
 
+/** Platform display labels and colors */
+const platformConfig: Record<string, { label: string; color: string }> = {
+  tidal: {
+    label: 'Tidal',
+    color: 'bg-black text-white',
+  },
+  spotify: {
+    label: 'Spotify',
+    color: 'bg-[#1DB954] text-white',
+  },
+  apple_music: {
+    label: 'Apple Music',
+    color: 'bg-[#FA243C] text-white',
+  },
+};
+
 export function ProfileHeader({
   id,
   name,
@@ -39,6 +64,7 @@ export function ProfileHeader({
   followersCount,
   followingCount,
   postsCount,
+  connectedPlatforms = [],
   isFollowing = false,
   isCurrentUser = false,
   isLoading = false,
@@ -68,6 +94,25 @@ export function ProfileHeader({
                 </h1>
                 {username && (
                   <p className='text-muted-foreground'>@{username}</p>
+                )}
+                {connectedPlatforms.length > 0 && (
+                  <div className='flex flex-wrap gap-1.5 mt-2'>
+                    {connectedPlatforms.map((platform) => {
+                      const config = platformConfig[platform.providerId] || {
+                        label: platform.providerId,
+                        color: 'bg-muted text-muted-foreground',
+                      };
+                      return (
+                        <Badge
+                          key={platform.providerId}
+                          variant='secondary'
+                          className={cn('text-xs', config.color)}
+                        >
+                          {config.label}
+                        </Badge>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
               {isCurrentUser ? (

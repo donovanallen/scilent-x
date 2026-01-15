@@ -188,6 +188,7 @@ export type FollowScalarFieldEnum = (typeof FollowScalarFieldEnum)[keyof typeof 
 
 export const MentionScalarFieldEnum = {
   id: 'id',
+  type: 'type',
   userId: 'userId',
   postId: 'postId',
   commentId: 'commentId',

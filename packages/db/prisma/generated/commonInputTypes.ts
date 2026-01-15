@@ -148,6 +148,23 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type EnumMentionTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.MentionType | Prisma.EnumMentionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.MentionType[] | Prisma.ListEnumMentionTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MentionType[] | Prisma.ListEnumMentionTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMentionTypeFilter<$PrismaModel> | $Enums.MentionType
+}
+
+export type EnumMentionTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MentionType | Prisma.EnumMentionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.MentionType[] | Prisma.ListEnumMentionTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MentionType[] | Prisma.ListEnumMentionTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMentionTypeWithAggregatesFilter<$PrismaModel> | $Enums.MentionType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMentionTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMentionTypeFilter<$PrismaModel>
+}
+
 export type EnumActivityTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.ActivityType | Prisma.EnumActivityTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ActivityType[] | Prisma.ListEnumActivityTypeFieldRefInput<$PrismaModel>
@@ -310,6 +327,23 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumMentionTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.MentionType | Prisma.EnumMentionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.MentionType[] | Prisma.ListEnumMentionTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MentionType[] | Prisma.ListEnumMentionTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMentionTypeFilter<$PrismaModel> | $Enums.MentionType
+}
+
+export type NestedEnumMentionTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MentionType | Prisma.EnumMentionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.MentionType[] | Prisma.ListEnumMentionTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MentionType[] | Prisma.ListEnumMentionTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMentionTypeWithAggregatesFilter<$PrismaModel> | $Enums.MentionType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMentionTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMentionTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumActivityTypeFilter<$PrismaModel = never> = {

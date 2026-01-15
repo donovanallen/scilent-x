@@ -20,7 +20,9 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${sourceSans.variable} ${doto.variable} ${spaceMono.variable} antialiased bg-background text-foreground`}
       >
         <ThemeProvider>
-          <div className='flex flex-col h-screen'>{children}</div>
+          <div className='flex flex-col h-screen overflow-hidden'>
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>

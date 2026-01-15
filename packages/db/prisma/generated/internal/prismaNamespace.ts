@@ -1301,6 +1301,7 @@ export type FollowScalarFieldEnum = (typeof FollowScalarFieldEnum)[keyof typeof 
 
 export const MentionScalarFieldEnum = {
   id: 'id',
+  type: 'type',
   userId: 'userId',
   postId: 'postId',
   commentId: 'commentId',
@@ -1385,6 +1386,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'MentionType'
+ */
+export type EnumMentionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MentionType'>
+    
+
+
+/**
+ * Reference to a field of type 'MentionType[]'
+ */
+export type ListEnumMentionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MentionType[]'>
     
 
 

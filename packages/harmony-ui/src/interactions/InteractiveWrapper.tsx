@@ -8,6 +8,7 @@ import {
   HoverCard,
   HoverCardTrigger,
   HoverCardContent,
+  cn,
 } from '@scilent-one/ui';
 import { useHarmonyInteraction } from './provider';
 import type {
@@ -105,6 +106,7 @@ export function InteractiveWrapper({
   disabled = false,
   previewSide = 'right',
   previewAlign = 'start',
+  preventTextSelection = true,
 }: InteractiveWrapperProps) {
   const interaction = useHarmonyInteraction();
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -147,9 +149,12 @@ export function InteractiveWrapper({
     ? getMenuContent(entityType, entity, handleMenuClose, 'context')
     : null;
 
-  // Wrap children in a span if className is provided, or keep as-is
-  const wrappedChildren = className ? (
-    <span className={className}>{children}</span>
+  // Wrap children in a span if className or preventTextSelection is needed
+  const needsWrapper = className || preventTextSelection;
+  const wrappedChildren = needsWrapper ? (
+    <span className={cn(preventTextSelection && 'select-none', className)}>
+      {children}
+    </span>
   ) : (
     children
   );

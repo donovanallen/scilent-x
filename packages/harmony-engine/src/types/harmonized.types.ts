@@ -183,3 +183,68 @@ export const HarmonizedArtistSchema = z.object({
 });
 
 export type HarmonizedArtist = z.infer<typeof HarmonizedArtistSchema>;
+
+/**
+ * Harmonized user profile from a streaming provider.
+ * Contains normalized common fields plus raw provider data for extensibility.
+ */
+export const HarmonizedUserProfileSchema = z.object({
+  // Normalized common fields (type-safe, consistent API)
+  id: z.string(),
+  username: z.string().optional(),
+  email: z.string().optional(),
+  emailVerified: z.boolean().optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  displayName: z.string().optional(),
+  country: z.string().optional(),
+  profileImage: z
+    .object({
+      url: z.string().url(),
+      width: z.number().optional(),
+      height: z.number().optional(),
+    })
+    .optional(),
+  subscription: z
+    .object({
+      type: z.string(),
+      status: z.string().optional(),
+    })
+    .optional(),
+  createdAt: z.coerce.date().optional(),
+
+  // Provider metadata
+  provider: z.string(),
+  fetchedAt: z.coerce.date(),
+
+  // Raw provider response - preserves all original data for provider-specific features
+  // Access via profile.providerData?.subscription?.audioQuality for Tidal-specific fields
+  providerData: z.record(z.unknown()).optional(),
+});
+
+export type HarmonizedUserProfile = z.infer<typeof HarmonizedUserProfileSchema>;
+
+/**
+ * Paginated result for user collections (followed artists, saved albums, etc.)
+ */
+export const PaginatedCollectionSchema = z.object({
+  items: z.array(z.unknown()),
+  nextCursor: z.string().nullable(),
+  hasMore: z.boolean(),
+  total: z.number().optional(),
+});
+
+export type PaginatedCollection<T> = {
+  items: T[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  total?: number;
+};
+
+/**
+ * Parameters for fetching paginated collections
+ */
+export interface CollectionParams {
+  limit?: number;
+  cursor?: string;
+}

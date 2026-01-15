@@ -23,8 +23,20 @@ const ALLOWED_TAGS = [
 
 /**
  * Allowed HTML attributes for rich text content.
+ * Includes data-mention-* attributes for Tiptap mentions.
  */
-const ALLOWED_ATTR = ['href', 'target', 'rel', 'class'];
+const ALLOWED_ATTR = [
+  'href',
+  'target',
+  'rel',
+  'class',
+  'data-mention-type',
+  'data-mention-id',
+  'data-mention-label',
+  'data-type',
+  'data-id',
+  'data-label',
+];
 
 /**
  * Maximum allowed length for contentHtml (in characters).
@@ -52,6 +64,7 @@ export function sanitizeHtml(html: string | undefined | null): string | null {
   const clean = DOMPurify.sanitize(html, {
     ALLOWED_TAGS,
     ALLOWED_ATTR,
+    // Allow specific data-mention-* attributes (already in ALLOWED_ATTR)
     ALLOW_DATA_ATTR: false,
     // Add rel="noopener noreferrer" to links for security
     ADD_ATTR: ['target'],

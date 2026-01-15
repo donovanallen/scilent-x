@@ -9,7 +9,18 @@ export {
 export {
   RichTextContent,
   type RichTextContentProps,
+  type ArtistMentionRenderProps,
 } from './components/rich-text-content';
+export {
+  TiptapEditor,
+  type TiptapEditorProps,
+} from './components/tiptap-editor';
+export {
+  MentionList,
+  type MentionListProps,
+  type MentionListRef,
+  type MentionSuggestion,
+} from './components/mention-list';
 
 // Hooks
 export { useIsMobile } from './hooks/use-mobile';
@@ -29,6 +40,11 @@ export {
   type UseFollowOptions,
   type UseFollowReturn,
 } from './hooks/use-optimistic-action';
+export {
+  useEditPost,
+  type UseEditPostOptions,
+  type UseEditPostReturn,
+} from './hooks/use-edit-post';
 
 // Components
 export { Avatar, AvatarImage, AvatarFallback } from './components/avatar';

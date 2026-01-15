@@ -2,7 +2,10 @@ import type {
   HarmonizedRelease,
   HarmonizedTrack,
   HarmonizedArtist,
+  HarmonizedUserProfile,
   ProviderSource,
+  PaginatedCollection,
+  CollectionParams,
 } from '../types/index';
 import type {
   ProviderConfig,
@@ -13,11 +16,20 @@ import { Logger } from '../utils/logger';
 import { RateLimiter } from '../utils/rate-limiter';
 import { withRetry } from '../utils/retry';
 import { normalizeString } from '../utils/validation';
+import { UserAuthNotSupportedError } from '../errors/index';
 
 export abstract class BaseProvider {
   abstract readonly name: string;
   abstract readonly displayName: string;
   abstract readonly priority: number;
+
+  /**
+   * Whether this provider supports user-authenticated API calls.
+   * Override in subclass to return true if the provider implements getCurrentUser.
+   */
+  get supportsUserAuth(): boolean {
+    return false;
+  }
 
   protected logger: Logger;
   protected rateLimiter: RateLimiter;
@@ -136,6 +148,60 @@ export abstract class BaseProvider {
 
   async searchTracks(query: string, limit = 25): Promise<HarmonizedTrack[]> {
     return this.withRateLimitAndRetry(() => this._searchTracks(query, limit));
+  }
+
+  // User-authenticated methods (optional - override in subclasses that support user auth)
+
+  /**
+   * Get the current user's profile using their OAuth access token.
+   * Override this method in providers that support user authentication.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @throws UserAuthNotSupportedError if the provider doesn't support user auth
+   */
+  protected async _getCurrentUser(
+    _accessToken: string
+  ): Promise<HarmonizedUserProfile> {
+    throw new UserAuthNotSupportedError(this.name);
+  }
+
+  /**
+   * Get the current user's profile using their OAuth access token.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @returns The harmonized user profile with normalized fields and raw provider data
+   * @throws UserAuthNotSupportedError if the provider doesn't support user auth
+   */
+  async getCurrentUser(accessToken: string): Promise<HarmonizedUserProfile> {
+    return this.withRateLimitAndRetry(() => this._getCurrentUser(accessToken));
+  }
+
+  /**
+   * Get the user's followed/favorite artists from the provider.
+   * Override this method in providers that support user collections.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @param params - Pagination parameters (limit, cursor)
+   * @throws UserAuthNotSupportedError if the provider doesn't support user auth
+   */
+  protected async _getFollowedArtists(
+    _accessToken: string,
+    _params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedArtist>> {
+    throw new UserAuthNotSupportedError(this.name);
+  }
+
+  /**
+   * Get the user's followed/favorite artists from the provider.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @param params - Pagination parameters (limit, cursor)
+   * @returns Paginated list of harmonized artists the user follows
+   * @throws UserAuthNotSupportedError if the provider doesn't support user auth
+   */
+  async getFollowedArtists(
+    accessToken: string,
+    params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedArtist>> {
+    return this.withRateLimitAndRetry(() =>
+      this._getFollowedArtists(accessToken, params)
+    );
   }
 
   // Helper for wrapping calls

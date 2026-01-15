@@ -7,6 +7,7 @@ import {
   getFrontArtworkUrl,
 } from '../../utils';
 import { AlbumArtwork, AlbumArtworkSkeleton } from './AlbumArtwork';
+import { getReleaseTypeLabel } from '../common';
 import type { ProviderSource } from '@scilent-one/harmony-engine';
 
 export interface AlbumDetailsProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -23,17 +24,6 @@ export interface AlbumDetailsProps extends React.HTMLAttributes<HTMLDivElement> 
   /** Whether to show confidence score */
   showConfidence?: boolean | undefined;
 }
-
-const releaseTypeLabels: Record<string, string> = {
-  album: 'Album',
-  single: 'Single',
-  ep: 'EP',
-  compilation: 'Compilation',
-  soundtrack: 'Soundtrack',
-  live: 'Live Album',
-  remix: 'Remix Album',
-  other: 'Release',
-};
 
 const statusLabels: Record<string, string> = {
   official: 'Official',
@@ -76,7 +66,7 @@ export function AlbumDetails({
         <div className="flex-1 space-y-4">
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground uppercase tracking-wider">
-              {releaseTypeLabels[release.releaseType] || release.releaseType}
+              {getReleaseTypeLabel(release.releaseType)}
             </p>
             <h1 className="text-4xl font-bold tracking-tight">
               {release.title}

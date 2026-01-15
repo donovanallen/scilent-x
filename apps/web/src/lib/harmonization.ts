@@ -1,7 +1,11 @@
 // apps/web/src/lib/harmonization.ts
 import {
   HarmonizationEngine,
+  TidalProvider,
+  type HarmonizedArtist,
   type ProviderRegistryConfig,
+  type PaginatedCollection,
+  type CollectionParams,
 } from '@scilent-one/harmony-engine';
 
 // Singleton instance
@@ -85,4 +89,63 @@ export function getHarmonizationEngine() {
     });
   }
   return engine;
+}
+
+export async function searchArtistsWithUserProvider(
+  query: string,
+  accessToken: string | null,
+  providerId: string | null,
+  limit = 10
+): Promise<HarmonizedArtist[]> {
+  if (!query.trim()) return [];
+
+  const engine = getHarmonizationEngine();
+  const normalizedProvider = providerId?.toLowerCase() ?? null;
+
+  if (normalizedProvider === 'tidal' && accessToken) {
+    const provider = engine.getProvider('tidal');
+    if (provider instanceof TidalProvider) {
+      try {
+        return await provider.searchArtistsWithUserToken(
+          query,
+          accessToken,
+          limit
+        );
+      } catch (error) {
+        console.warn('Tidal artist search failed, falling back:', error);
+      }
+    }
+  }
+
+  return engine.searchArtists(query, ['musicbrainz'], limit);
+}
+
+/**
+ * Get followed/favorite artists from the user's connected provider.
+ * Currently supports Tidal, with more providers to be added.
+ *
+ * @param accessToken - The user's OAuth access token for the provider
+ * @param providerId - The provider identifier (e.g., 'tidal', 'spotify')
+ * @param params - Pagination parameters (limit, cursor)
+ * @returns Paginated list of harmonized artists the user follows
+ */
+export async function getFollowedArtistsFromProvider(
+  accessToken: string,
+  providerId: string,
+  params?: CollectionParams
+): Promise<PaginatedCollection<HarmonizedArtist>> {
+  const engine = getHarmonizationEngine();
+  const normalizedProvider = providerId.toLowerCase();
+
+  if (normalizedProvider === 'tidal') {
+    const provider = engine.getProvider('tidal');
+    if (provider instanceof TidalProvider) {
+      return provider.getFollowedArtists(accessToken, params);
+    }
+  }
+
+  // Add more providers here as they are implemented
+  // if (normalizedProvider === 'spotify') { ... }
+
+  throw new Error(`Provider '${providerId}' does not support followed artists`);
 }

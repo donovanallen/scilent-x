@@ -28,6 +28,7 @@ export {
   formatDuration,
   formatPartialDate,
   formatArtistCredits,
+  formatArtistNames,
   getPrimaryArtistName,
   formatTrackPosition,
   getFrontArtworkUrl,
@@ -37,6 +38,11 @@ export {
 export {
   PlatformBadge,
   PlatformBadgeList,
+  ReleaseTypePill,
+  getReleaseTypeLabel,
+  getReleaseTypePluralLabel,
+  releaseTypeLabels,
+  releaseTypePluralLabels,
   MetadataTable,
   MetadataGrid,
   MetadataTableSkeleton,
@@ -45,9 +51,11 @@ export {
   HeroSkeleton,
   PageSkeleton,
   InlineSkeleton,
+  Artwork,
   type PlatformName,
   type PlatformBadgeProps,
   type PlatformBadgeListProps,
+  type ReleaseTypePillProps,
   type MetadataItem,
   type MetadataTableProps,
   type MetadataGridProps,
@@ -57,6 +65,7 @@ export {
   type HeroSkeletonProps,
   type PageSkeletonProps,
   type InlineSkeletonProps,
+  type ArtworkProps,
 } from './components/common';
 
 // Track components
@@ -83,10 +92,18 @@ export {
   ArtistHeaderSkeleton,
   ArtistDiscography,
   ArtistDiscographySkeleton,
+  ArtistListItem,
+  ArtistListItemSkeleton,
+  ArtistCredit,
+  ArtistMention,
   type ArtistCardProps,
   type ArtistHeaderProps,
   type ArtistDiscographyProps,
   type ArtistDiscographySkeletonProps,
+  type ArtistListItemProps,
+  type ArtistListItemSkeletonProps,
+  type ArtistCreditProps,
+  type ArtistMentionProps,
 } from './components/artist';
 
 // Album components
@@ -95,6 +112,8 @@ export {
   AlbumArtworkSkeleton,
   AlbumCard,
   AlbumCardSkeleton,
+  AlbumListItem,
+  AlbumListItemSkeleton,
   AlbumTrackList,
   AlbumTrackListSkeleton,
   AlbumDetails,
@@ -102,6 +121,8 @@ export {
   type AlbumArtworkProps,
   type AlbumArtworkSkeletonProps,
   type AlbumCardProps,
+  type AlbumListItemProps,
+  type AlbumListItemSkeletonProps,
   type AlbumTrackListProps,
   type AlbumTrackListSkeletonProps,
   type AlbumDetailsProps,
@@ -120,6 +141,8 @@ export {
   TrackContextMenu,
   AlbumContextMenu,
   ArtistContextMenu,
+  ProviderActionsGroup,
+  ProviderMenuItem,
   // Previews
   EntityPreview,
   TrackHoverPreview,
@@ -141,8 +164,57 @@ export {
   type TrackContextMenuProps,
   type AlbumContextMenuProps,
   type ArtistContextMenuProps,
+  type ProviderActionsGroupProps,
+  type ProviderMenuItemProps,
   type EntityPreviewProps,
   type TrackHoverPreviewProps,
   type AlbumHoverPreviewProps,
   type ArtistHoverPreviewProps,
+  // Provider action types
+  type ProviderActionType,
+  type ProviderName,
+  type ProviderAction,
+  type ProviderActions,
+  type EnabledProvider,
 } from './interactions';
+
+// Provider Icons
+export {
+  // Base component
+  ProviderIcon,
+  PROVIDER_METADATA,
+  getSupportedProviders,
+  isProviderSupported,
+  getProviderIconMetadata,
+  // Provider-specific components
+  SpotifyIcon,
+  AppleMusicIcon,
+  TidalIcon,
+  // Metadata
+  spotifyIconMetadata,
+  appleMusicIconMetadata,
+  tidalIconMetadata,
+  // URL helpers
+  getSpotifyIconUrl,
+  getAppleMusicIconUrl,
+  getTidalIconUrl,
+  // Types
+  type Provider as IconProvider,
+  type IconVariant,
+  type IconColor,
+  type IconSize,
+  type IconFormat,
+  type BaseIconProps,
+  type ProviderIconProps,
+  type ProviderSpecificIconProps,
+  type ProviderIconMetadata,
+  type SpotifyIconProps,
+  type AppleMusicIconProps,
+  type TidalIconProps,
+  // Constants
+  SIZE_PRESETS,
+  PROVIDER_LABELS,
+  PROVIDER_BRAND_COLORS,
+  resolveSize,
+  resolveFillColor,
+} from './icons';

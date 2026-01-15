@@ -1,5 +1,6 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import tailwindcss from '@tailwindcss/vite';
+import svgr from 'vite-plugin-svgr';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import type { UserConfig as ViteConfig } from 'vite';
@@ -28,6 +29,16 @@ const config: StorybookConfig = {
   viteFinal: async (config: ViteConfig) => {
     config.plugins = config.plugins || [];
     config.plugins.push(tailwindcss());
+    config.plugins.push(
+      svgr({
+        svgrOptions: {
+          svgoConfig: {
+            plugins: ['removeDimensions'],
+          },
+        },
+        include: '**/*.svg',
+      })
+    );
     return config;
   },
 };

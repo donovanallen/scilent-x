@@ -4,7 +4,8 @@ import * as React from 'react';
 import { Card, CardContent, CardFooter } from '../card';
 import { Button } from '../button';
 import { UserAvatar } from './user-avatar';
-import { RichTextEditor } from '../rich-text-editor';
+import { TiptapEditor } from '../tiptap-editor';
+import { type MentionSuggestion } from '../mention-list';
 import { cn } from '../../utils';
 
 export interface PostFormProps {
@@ -19,6 +20,10 @@ export interface PostFormProps {
   isSubmitting?: boolean;
   onSubmit: (content: string, contentHtml: string) => void | Promise<void>;
   className?: string;
+  /** Callback to search for mention suggestions */
+  onMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
+  /** Callback to search for artist mention suggestions */
+  onArtistMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
 }
 
 export function PostForm({
@@ -28,10 +33,12 @@ export function PostForm({
   isSubmitting = false,
   onSubmit,
   className,
+  onMentionQuery,
+  onArtistMentionQuery,
 }: PostFormProps) {
   const [content, setContent] = React.useState('');
   const [contentHtml, setContentHtml] = React.useState('');
-  // Key to force remount of the editor after submission to clear Quill's internal state
+  // Key to force remount of the editor after submission to clear Tiptap's internal state
   const [editorKey, setEditorKey] = React.useState(0);
 
   const handleEditorChange = React.useCallback((text: string, html: string) => {
@@ -46,7 +53,7 @@ export function PostForm({
     await onSubmit(content, contentHtml);
     setContent('');
     setContentHtml('');
-    // Increment key to force editor remount and clear Quill's internal state
+    // Increment key to force editor remount and clear Tiptap's internal state
     setEditorKey((prev) => prev + 1);
   };
 
@@ -57,31 +64,35 @@ export function PostForm({
   return (
     <Card className={cn('', className)}>
       <form onSubmit={handleSubmit}>
-        <CardContent className='pt-4'>
-          <div className='flex gap-3'>
+        <CardContent className="pt-4">
+          <div className="flex gap-3">
             {user && (
               <UserAvatar
                 name={user.name}
                 username={user.username}
                 avatarUrl={user.avatarUrl}
                 image={user.image}
-                size='md'
+                size="md"
               />
             )}
-            <div className='flex-1'>
-              <RichTextEditor
+            <div className="flex-1">
+              <TiptapEditor
                 value={contentHtml}
                 onChange={handleEditorChange}
                 placeholder={placeholder}
                 readOnly={isSubmitting}
                 maxLength={maxLength}
-                className='border-0'
+                className="border-0"
                 editorKey={editorKey}
+                onMentionQuery={onMentionQuery}
+                onArtistMentionQuery={onArtistMentionQuery}
+                mentionPlaceholder="Search for a user"
+                artistMentionPlaceholder="Search for an artist"
               />
             </div>
           </div>
         </CardContent>
-        <CardFooter className='flex items-center justify-between border-t pt-3'>
+        <CardFooter className="flex items-center justify-between border-t pt-3">
           <div
             className={cn(
               'text-sm text-muted-foreground',
@@ -94,7 +105,7 @@ export function PostForm({
             )}
           </div>
           <Button
-            type='submit'
+            type="submit"
             disabled={!content.trim() || isOverLimit || isSubmitting}
           >
             {isSubmitting ? 'Posting...' : 'Post'}
