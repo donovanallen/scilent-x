@@ -60,6 +60,15 @@ export {
   unfollowUser,
 } from './follows';
 
+// Artist Follows
+export {
+  getFollowedArtists,
+  isFollowingArtist,
+  getArtistFollowersCount,
+  followArtist,
+  unfollowArtist,
+} from './artist-follows';
+
 // Mentions
 export {
   parseMentions,

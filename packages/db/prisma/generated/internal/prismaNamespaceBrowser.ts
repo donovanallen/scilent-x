@@ -60,7 +60,8 @@ export const ModelName = {
   Like: 'Like',
   Follow: 'Follow',
   Mention: 'Mention',
-  Activity: 'Activity'
+  Activity: 'Activity',
+  ArtistFollow: 'ArtistFollow'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -188,6 +189,7 @@ export type FollowScalarFieldEnum = (typeof FollowScalarFieldEnum)[keyof typeof 
 
 export const MentionScalarFieldEnum = {
   id: 'id',
+  type: 'type',
   userId: 'userId',
   postId: 'postId',
   commentId: 'commentId',
@@ -208,6 +210,19 @@ export const ActivityScalarFieldEnum = {
 } as const
 
 export type ActivityScalarFieldEnum = (typeof ActivityScalarFieldEnum)[keyof typeof ActivityScalarFieldEnum]
+
+
+export const ArtistFollowScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  artistId: 'artistId',
+  provider: 'provider',
+  artistName: 'artistName',
+  artistImage: 'artistImage',
+  createdAt: 'createdAt'
+} as const
+
+export type ArtistFollowScalarFieldEnum = (typeof ArtistFollowScalarFieldEnum)[keyof typeof ArtistFollowScalarFieldEnum]
 
 
 export const SortOrder = {

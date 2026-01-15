@@ -26,6 +26,7 @@ export type AggregateMention = {
 
 export type MentionMinAggregateOutputType = {
   id: string | null
+  type: $Enums.MentionType | null
   userId: string | null
   postId: string | null
   commentId: string | null
@@ -34,6 +35,7 @@ export type MentionMinAggregateOutputType = {
 
 export type MentionMaxAggregateOutputType = {
   id: string | null
+  type: $Enums.MentionType | null
   userId: string | null
   postId: string | null
   commentId: string | null
@@ -42,6 +44,7 @@ export type MentionMaxAggregateOutputType = {
 
 export type MentionCountAggregateOutputType = {
   id: number
+  type: number
   userId: number
   postId: number
   commentId: number
@@ -52,6 +55,7 @@ export type MentionCountAggregateOutputType = {
 
 export type MentionMinAggregateInputType = {
   id?: true
+  type?: true
   userId?: true
   postId?: true
   commentId?: true
@@ -60,6 +64,7 @@ export type MentionMinAggregateInputType = {
 
 export type MentionMaxAggregateInputType = {
   id?: true
+  type?: true
   userId?: true
   postId?: true
   commentId?: true
@@ -68,6 +73,7 @@ export type MentionMaxAggregateInputType = {
 
 export type MentionCountAggregateInputType = {
   id?: true
+  type?: true
   userId?: true
   postId?: true
   commentId?: true
@@ -149,6 +155,7 @@ export type MentionGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type MentionGroupByOutputType = {
   id: string
+  type: $Enums.MentionType
   userId: string
   postId: string | null
   commentId: string | null
@@ -178,6 +185,7 @@ export type MentionWhereInput = {
   OR?: Prisma.MentionWhereInput[]
   NOT?: Prisma.MentionWhereInput | Prisma.MentionWhereInput[]
   id?: Prisma.StringFilter<"Mention"> | string
+  type?: Prisma.EnumMentionTypeFilter<"Mention"> | $Enums.MentionType
   userId?: Prisma.StringFilter<"Mention"> | string
   postId?: Prisma.StringNullableFilter<"Mention"> | string | null
   commentId?: Prisma.StringNullableFilter<"Mention"> | string | null
@@ -189,6 +197,7 @@ export type MentionWhereInput = {
 
 export type MentionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   postId?: Prisma.SortOrderInput | Prisma.SortOrder
   commentId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -203,6 +212,7 @@ export type MentionWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.MentionWhereInput | Prisma.MentionWhereInput[]
   OR?: Prisma.MentionWhereInput[]
   NOT?: Prisma.MentionWhereInput | Prisma.MentionWhereInput[]
+  type?: Prisma.EnumMentionTypeFilter<"Mention"> | $Enums.MentionType
   userId?: Prisma.StringFilter<"Mention"> | string
   postId?: Prisma.StringNullableFilter<"Mention"> | string | null
   commentId?: Prisma.StringNullableFilter<"Mention"> | string | null
@@ -214,6 +224,7 @@ export type MentionWhereUniqueInput = Prisma.AtLeast<{
 
 export type MentionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   postId?: Prisma.SortOrderInput | Prisma.SortOrder
   commentId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -228,6 +239,7 @@ export type MentionScalarWhereWithAggregatesInput = {
   OR?: Prisma.MentionScalarWhereWithAggregatesInput[]
   NOT?: Prisma.MentionScalarWhereWithAggregatesInput | Prisma.MentionScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Mention"> | string
+  type?: Prisma.EnumMentionTypeWithAggregatesFilter<"Mention"> | $Enums.MentionType
   userId?: Prisma.StringWithAggregatesFilter<"Mention"> | string
   postId?: Prisma.StringNullableWithAggregatesFilter<"Mention"> | string | null
   commentId?: Prisma.StringNullableWithAggregatesFilter<"Mention"> | string | null
@@ -236,6 +248,7 @@ export type MentionScalarWhereWithAggregatesInput = {
 
 export type MentionCreateInput = {
   id?: string
+  type?: $Enums.MentionType
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutMentionsInput
   post?: Prisma.PostCreateNestedOneWithoutMentionsInput
@@ -244,6 +257,7 @@ export type MentionCreateInput = {
 
 export type MentionUncheckedCreateInput = {
   id?: string
+  type?: $Enums.MentionType
   userId: string
   postId?: string | null
   commentId?: string | null
@@ -252,6 +266,7 @@ export type MentionUncheckedCreateInput = {
 
 export type MentionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutMentionsNestedInput
   post?: Prisma.PostUpdateOneWithoutMentionsNestedInput
@@ -260,6 +275,7 @@ export type MentionUpdateInput = {
 
 export type MentionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -268,6 +284,7 @@ export type MentionUncheckedUpdateInput = {
 
 export type MentionCreateManyInput = {
   id?: string
+  type?: $Enums.MentionType
   userId: string
   postId?: string | null
   commentId?: string | null
@@ -276,11 +293,13 @@ export type MentionCreateManyInput = {
 
 export type MentionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MentionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -299,6 +318,7 @@ export type MentionOrderByRelationAggregateInput = {
 
 export type MentionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   postId?: Prisma.SortOrder
   commentId?: Prisma.SortOrder
@@ -307,6 +327,7 @@ export type MentionCountOrderByAggregateInput = {
 
 export type MentionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   postId?: Prisma.SortOrder
   commentId?: Prisma.SortOrder
@@ -315,6 +336,7 @@ export type MentionMaxOrderByAggregateInput = {
 
 export type MentionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   postId?: Prisma.SortOrder
   commentId?: Prisma.SortOrder
@@ -447,8 +469,13 @@ export type MentionUncheckedUpdateManyWithoutCommentNestedInput = {
   deleteMany?: Prisma.MentionScalarWhereInput | Prisma.MentionScalarWhereInput[]
 }
 
+export type EnumMentionTypeFieldUpdateOperationsInput = {
+  set?: $Enums.MentionType
+}
+
 export type MentionCreateWithoutUserInput = {
   id?: string
+  type?: $Enums.MentionType
   createdAt?: Date | string
   post?: Prisma.PostCreateNestedOneWithoutMentionsInput
   comment?: Prisma.CommentCreateNestedOneWithoutMentionsInput
@@ -456,6 +483,7 @@ export type MentionCreateWithoutUserInput = {
 
 export type MentionUncheckedCreateWithoutUserInput = {
   id?: string
+  type?: $Enums.MentionType
   postId?: string | null
   commentId?: string | null
   createdAt?: Date | string
@@ -492,6 +520,7 @@ export type MentionScalarWhereInput = {
   OR?: Prisma.MentionScalarWhereInput[]
   NOT?: Prisma.MentionScalarWhereInput | Prisma.MentionScalarWhereInput[]
   id?: Prisma.StringFilter<"Mention"> | string
+  type?: Prisma.EnumMentionTypeFilter<"Mention"> | $Enums.MentionType
   userId?: Prisma.StringFilter<"Mention"> | string
   postId?: Prisma.StringNullableFilter<"Mention"> | string | null
   commentId?: Prisma.StringNullableFilter<"Mention"> | string | null
@@ -500,6 +529,7 @@ export type MentionScalarWhereInput = {
 
 export type MentionCreateWithoutPostInput = {
   id?: string
+  type?: $Enums.MentionType
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutMentionsInput
   comment?: Prisma.CommentCreateNestedOneWithoutMentionsInput
@@ -507,6 +537,7 @@ export type MentionCreateWithoutPostInput = {
 
 export type MentionUncheckedCreateWithoutPostInput = {
   id?: string
+  type?: $Enums.MentionType
   userId: string
   commentId?: string | null
   createdAt?: Date | string
@@ -540,6 +571,7 @@ export type MentionUpdateManyWithWhereWithoutPostInput = {
 
 export type MentionCreateWithoutCommentInput = {
   id?: string
+  type?: $Enums.MentionType
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutMentionsInput
   post?: Prisma.PostCreateNestedOneWithoutMentionsInput
@@ -547,6 +579,7 @@ export type MentionCreateWithoutCommentInput = {
 
 export type MentionUncheckedCreateWithoutCommentInput = {
   id?: string
+  type?: $Enums.MentionType
   userId: string
   postId?: string | null
   createdAt?: Date | string
@@ -580,6 +613,7 @@ export type MentionUpdateManyWithWhereWithoutCommentInput = {
 
 export type MentionCreateManyUserInput = {
   id?: string
+  type?: $Enums.MentionType
   postId?: string | null
   commentId?: string | null
   createdAt?: Date | string
@@ -587,6 +621,7 @@ export type MentionCreateManyUserInput = {
 
 export type MentionUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   post?: Prisma.PostUpdateOneWithoutMentionsNestedInput
   comment?: Prisma.CommentUpdateOneWithoutMentionsNestedInput
@@ -594,6 +629,7 @@ export type MentionUpdateWithoutUserInput = {
 
 export type MentionUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -601,6 +637,7 @@ export type MentionUncheckedUpdateWithoutUserInput = {
 
 export type MentionUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -608,6 +645,7 @@ export type MentionUncheckedUpdateManyWithoutUserInput = {
 
 export type MentionCreateManyPostInput = {
   id?: string
+  type?: $Enums.MentionType
   userId: string
   commentId?: string | null
   createdAt?: Date | string
@@ -615,6 +653,7 @@ export type MentionCreateManyPostInput = {
 
 export type MentionUpdateWithoutPostInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutMentionsNestedInput
   comment?: Prisma.CommentUpdateOneWithoutMentionsNestedInput
@@ -622,6 +661,7 @@ export type MentionUpdateWithoutPostInput = {
 
 export type MentionUncheckedUpdateWithoutPostInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -629,6 +669,7 @@ export type MentionUncheckedUpdateWithoutPostInput = {
 
 export type MentionUncheckedUpdateManyWithoutPostInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   commentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -636,6 +677,7 @@ export type MentionUncheckedUpdateManyWithoutPostInput = {
 
 export type MentionCreateManyCommentInput = {
   id?: string
+  type?: $Enums.MentionType
   userId: string
   postId?: string | null
   createdAt?: Date | string
@@ -643,6 +685,7 @@ export type MentionCreateManyCommentInput = {
 
 export type MentionUpdateWithoutCommentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutMentionsNestedInput
   post?: Prisma.PostUpdateOneWithoutMentionsNestedInput
@@ -650,6 +693,7 @@ export type MentionUpdateWithoutCommentInput = {
 
 export type MentionUncheckedUpdateWithoutCommentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -657,6 +701,7 @@ export type MentionUncheckedUpdateWithoutCommentInput = {
 
 export type MentionUncheckedUpdateManyWithoutCommentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumMentionTypeFieldUpdateOperationsInput | $Enums.MentionType
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -666,6 +711,7 @@ export type MentionUncheckedUpdateManyWithoutCommentInput = {
 
 export type MentionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  type?: boolean
   userId?: boolean
   postId?: boolean
   commentId?: boolean
@@ -677,6 +723,7 @@ export type MentionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 
 export type MentionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  type?: boolean
   userId?: boolean
   postId?: boolean
   commentId?: boolean
@@ -688,6 +735,7 @@ export type MentionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 
 export type MentionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  type?: boolean
   userId?: boolean
   postId?: boolean
   commentId?: boolean
@@ -699,13 +747,14 @@ export type MentionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 
 export type MentionSelectScalar = {
   id?: boolean
+  type?: boolean
   userId?: boolean
   postId?: boolean
   commentId?: boolean
   createdAt?: boolean
 }
 
-export type MentionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "postId" | "commentId" | "createdAt", ExtArgs["result"]["mention"]>
+export type MentionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "userId" | "postId" | "commentId" | "createdAt", ExtArgs["result"]["mention"]>
 export type MentionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   post?: boolean | Prisma.Mention$postArgs<ExtArgs>
@@ -731,6 +780,7 @@ export type $MentionPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    type: $Enums.MentionType
     userId: string
     postId: string | null
     commentId: string | null
@@ -1162,6 +1212,7 @@ export interface Prisma__MentionClient<T, Null = never, ExtArgs extends runtime.
  */
 export interface MentionFieldRefs {
   readonly id: Prisma.FieldRef<"Mention", 'String'>
+  readonly type: Prisma.FieldRef<"Mention", 'MentionType'>
   readonly userId: Prisma.FieldRef<"Mention", 'String'>
   readonly postId: Prisma.FieldRef<"Mention", 'String'>
   readonly commentId: Prisma.FieldRef<"Mention", 'String'>

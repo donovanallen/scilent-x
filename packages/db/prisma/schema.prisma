@@ -35,13 +35,14 @@ model User {
   sessions Session[]
 
   // Social relations
-  posts         Post[]
-  comments      Comment[]
-  likes         Like[]
-  followers     Follow[]    @relation("following")
-  following     Follow[]    @relation("follower")
-  mentions      Mention[]
-  activities    Activity[]
+  posts          Post[]
+  comments       Comment[]
+  likes          Like[]
+  followers      Follow[]       @relation("following")
+  following      Follow[]       @relation("follower")
+  mentions       Mention[]
+  activities     Activity[]
+  artistFollows  ArtistFollow[]
 
   @@index([username])
   @@map("users")
@@ -238,4 +239,24 @@ model Activity {
   @@index([userId])
   @@index([createdAt])
   @@map("activities")
+}
+
+/// ArtistFollow model - User following artist relationships
+model ArtistFollow {
+  id         String   @id @default(cuid())
+  userId     String
+  artistId   String   // Provider-prefixed ID (e.g., "tidal:12345" or "musicbrainz:abc-123")
+  provider   String   // Provider name (e.g., "tidal", "spotify", "musicbrainz")
+  artistName String   // Cached artist name for display
+  artistImage String? // Cached artist image URL
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, artistId])
+  @@index([userId])
+  @@index([artistId])
+  @@index([provider])
+  @@index([createdAt])
+  @@map("artist_follows")
 }

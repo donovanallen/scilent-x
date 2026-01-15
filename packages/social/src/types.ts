@@ -92,6 +92,24 @@ export interface FollowWithUser extends Follow {
   following: Pick<User, 'id' | 'name' | 'username' | 'avatarUrl' | 'image'>;
 }
 
+// Artist Follow types
+export interface ArtistFollowData {
+  id: string;
+  userId: string;
+  artistId: string;
+  provider: string;
+  artistName: string;
+  artistImage: string | null;
+  createdAt: Date;
+}
+
+export interface FollowArtistInput {
+  artistId: string;
+  provider: string;
+  artistName: string;
+  artistImage?: string | null;
+}
+
 // Activity types
 export interface ActivityWithDetails extends Activity {
   actor?: Pick<User, 'id' | 'name' | 'username' | 'avatarUrl' | 'image'>;
