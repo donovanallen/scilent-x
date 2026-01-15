@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from '@scilent-one/auth/client';
+// import { useSession } from '@scilent-one/auth/client';
 import {
   SidebarInset,
   SidebarProvider,
@@ -17,8 +17,7 @@ export default function AuthenticatedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session } = useSession();
-  console.log(session);
+  // const { data: session } = useSession();
 
   return (
     <SidebarProvider>

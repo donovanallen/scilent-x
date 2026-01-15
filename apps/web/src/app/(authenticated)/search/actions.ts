@@ -78,9 +78,7 @@ function sortReleases(
   releases: HarmonizedRelease[],
   sort: SortOption
 ): HarmonizedRelease[] {
-  const sorted = [...releases];
-
-  sorted.sort((a, b) => {
+  const sorted = releases.toSorted((a, b) => {
     let comparison = 0;
 
     switch (sort.field) {
@@ -296,8 +294,7 @@ export async function searchTracks(
 
     // Apply sorting for tracks
     if (sort && sort.field !== 'relevance') {
-      const sorted = [...filteredResults];
-      sorted.sort((a, b) => {
+      const sorted = filteredResults.toSorted((a, b) => {
         let comparison = 0;
 
         switch (sort.field) {
@@ -392,8 +389,7 @@ export async function searchArtists(
 
     // Apply sorting for artists
     if (sort && sort.field !== 'relevance') {
-      const sorted = [...filteredResults];
-      sorted.sort((a, b) => {
+      const sorted = filteredResults.toSorted((a, b) => {
         let comparison = 0;
 
         switch (sort.field) {
