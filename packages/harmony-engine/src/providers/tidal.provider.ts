@@ -130,6 +130,25 @@ interface TidalTokenResponse {
 }
 
 /**
+ * Response from /userCollections/{id}/relationships/artists endpoint.
+ * Returns artist relationships with pagination via links.next cursor.
+ */
+interface TidalUserCollectionArtistsResponse {
+  data: Array<{
+    id: string;
+    type: 'artists';
+    meta?: {
+      addedAt?: string;
+    };
+  }>;
+  included?: Array<TidalArtist | TidalTrack | TidalAlbum>;
+  links?: {
+    self: string;
+    next?: string;
+  };
+}
+
+/**
  * Tidal user profile attributes from the /users/me endpoint.
  * @see https://tidal-music.github.io/tidal-api-reference/#/users
  */
@@ -600,7 +619,8 @@ export class TidalProvider extends BaseProvider {
 
   /**
    * Get the user's followed/favorite artists from Tidal.
-   * Uses the /users/me/favorites/artists endpoint.
+   * Uses the /userCollections/{id}/relationships/artists endpoint.
+   * @see https://developer.tidal.com/apiref#tag/User-Collections
    * @param accessToken - The user's OAuth access token
    * @param params - Pagination parameters (limit, cursor)
    * @returns Paginated list of harmonized artists the user follows
@@ -609,20 +629,25 @@ export class TidalProvider extends BaseProvider {
     accessToken: string,
     params?: CollectionParams
   ): Promise<PaginatedCollection<HarmonizedArtist>> {
-    const limit = params?.limit ?? 20;
+    // First, get the user's ID to construct the collection endpoint
+    const userProfile = await this._getCurrentUser(accessToken);
+    const userId = userProfile.id;
 
     const queryParams: Record<string, string> = {
       include: 'artists',
-      limit: String(limit),
+      countryCode: this.countryCode,
     };
 
-    // Tidal API v2 uses offset-based pagination for favorites
+    // Tidal API v2 uses cursor-based pagination via page[cursor]
     if (params?.cursor) {
-      queryParams['offset'] = params.cursor;
+      queryParams['page[cursor]'] = params.cursor;
     }
 
-    const data = await this.fetchUserApi<TidalListResponse<{ id: string; type: 'userArtistFavorites' }>>(
-      '/users/me/favorites/artists',
+    // Sort by most recently added first
+    queryParams['sort'] = '-artists.addedAt';
+
+    const data = await this.fetchUserApi<TidalUserCollectionArtistsResponse>(
+      `/userCollections/${userId}/relationships/artists`,
       accessToken,
       queryParams
     );
@@ -633,9 +658,6 @@ export class TidalProvider extends BaseProvider {
         nextCursor: null,
         hasMore: false,
       };
-      if (data?.meta?.total !== undefined) {
-        emptyResult.total = data.meta.total;
-      }
       return emptyResult;
     }
 
@@ -646,17 +668,17 @@ export class TidalProvider extends BaseProvider {
 
     const harmonizedArtists = artists.map((artist) => this.transformArtist(artist));
 
-    // Calculate next cursor based on offset pagination
-    const currentOffset = params?.cursor ? parseInt(params.cursor, 10) : 0;
-    const nextOffset = currentOffset + artists.length;
-    const total = data.meta?.total ?? 0;
-    const hasMore = nextOffset < total;
+    // Extract next cursor from links.next URL if present
+    let nextCursor: string | null = null;
+    if (data.links?.next) {
+      const nextUrl = new URL(data.links.next, 'https://openapi.tidal.com');
+      nextCursor = nextUrl.searchParams.get('page[cursor]');
+    }
 
     return {
       items: harmonizedArtists,
-      nextCursor: hasMore ? String(nextOffset) : null,
-      hasMore,
-      total,
+      nextCursor,
+      hasMore: nextCursor !== null,
     };
   }
 
