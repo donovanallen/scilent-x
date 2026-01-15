@@ -12,6 +12,8 @@ import type {
   HarmonizedUserProfile,
   ReleaseType,
   PartialDate,
+  PaginatedCollection,
+  CollectionParams,
 } from '../types/index';
 import { HttpError, ProviderError } from '../errors/index';
 
@@ -125,6 +127,28 @@ interface TidalTokenResponse {
   token_type: string;
   expires_in: number;
   scope?: string;
+}
+
+/**
+ * Response from /userCollections/{id}/relationships/artists endpoint.
+ * Returns artist relationships with pagination via links.next cursor.
+ */
+interface TidalUserCollectionArtistsResponse {
+  data: Array<{
+    id: string;
+    type: 'artists';
+    meta?: {
+      addedAt?: string;
+    };
+  }>;
+  included?: Array<TidalArtist | TidalTrack | TidalAlbum>;
+  links?: {
+    self: string;
+    next?: string;
+  };
+  meta?: {
+    total?: number;
+  };
 }
 
 /**
@@ -587,13 +611,86 @@ export class TidalProvider extends BaseProvider {
     );
 
     if (!data?.data) {
-      throw new ProviderError(
-        'Failed to fetch Tidal user profile',
-        this.name
-      );
+      throw new ProviderError('Failed to fetch Tidal user profile', this.name);
     }
 
     return this.transformUserProfile(data.data);
+  }
+
+  /**
+   * Get the user's followed/favorite artists from Tidal.
+   * Uses the /userCollections/{id}/relationships/artists endpoint.
+   * @see https://developer.tidal.com/apiref#tag/User-Collections
+   * @param accessToken - The user's OAuth access token
+   * @param params - Pagination parameters (limit, cursor)
+   * @returns Paginated list of harmonized artists the user follows
+   */
+  protected override async _getFollowedArtists(
+    accessToken: string,
+    params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedArtist>> {
+    // First, get the user's ID to construct the collection endpoint
+    const userProfile = await this._getCurrentUser(accessToken);
+    const userId = userProfile.id;
+
+    const queryParams: Record<string, string> = {
+      include: 'artists',
+      countryCode: this.countryCode,
+    };
+
+    // Tidal API v2 uses cursor-based pagination via page[cursor]
+    if (params?.cursor) {
+      queryParams['page[cursor]'] = params.cursor;
+    }
+
+    // Sort by most recently added first
+    queryParams['sort'] = '-artists.addedAt';
+
+    const data = await this.fetchUserApi<TidalUserCollectionArtistsResponse>(
+      `/userCollections/${userId}/relationships/artists`,
+      accessToken,
+      queryParams
+    );
+
+    if (!data?.included) {
+      const emptyResult: PaginatedCollection<HarmonizedArtist> = {
+        items: [],
+        total: 0,
+        nextCursor: null,
+        hasMore: false,
+      };
+      return emptyResult;
+    }
+
+    // Extract artists from the included resources
+    const artists = data.included.filter(
+      (item): item is TidalArtist => item.type === 'artists'
+    );
+
+    const harmonizedArtists = artists.map((artist) =>
+      this.transformArtist(artist)
+    );
+
+    // Extract next cursor from links.next URL if present
+    let nextCursor: string | null = null;
+    if (data.links?.next) {
+      const nextUrl = new URL(data.links.next, 'https://openapi.tidal.com');
+      nextCursor = nextUrl.searchParams.get('page[cursor]');
+    }
+
+    // The data array contains the relationship entries for the current page
+    // Use it to determine the total followed artists count
+    // This works because the relationships endpoint returns all relationship IDs
+    // while `included` contains only the detailed artist objects for the page
+    const total = data.meta?.total ?? data.data.length;
+    const hasMore = nextCursor !== null;
+
+    return {
+      items: harmonizedArtists,
+      total,
+      nextCursor,
+      hasMore,
+    };
   }
 
   // Transformation methods

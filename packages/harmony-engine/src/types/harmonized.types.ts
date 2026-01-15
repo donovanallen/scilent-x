@@ -223,3 +223,28 @@ export const HarmonizedUserProfileSchema = z.object({
 });
 
 export type HarmonizedUserProfile = z.infer<typeof HarmonizedUserProfileSchema>;
+
+/**
+ * Paginated result for user collections (followed artists, saved albums, etc.)
+ */
+export const PaginatedCollectionSchema = z.object({
+  items: z.array(z.unknown()),
+  nextCursor: z.string().nullable(),
+  hasMore: z.boolean(),
+  total: z.number().optional(),
+});
+
+export type PaginatedCollection<T> = {
+  items: T[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  total?: number;
+};
+
+/**
+ * Parameters for fetching paginated collections
+ */
+export interface CollectionParams {
+  limit?: number;
+  cursor?: string;
+}
