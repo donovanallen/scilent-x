@@ -4,6 +4,8 @@ import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { cache } from 'react';
 
+import { apiLogger } from './logger';
+
 export const getCurrentUser = cache(async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -23,7 +25,17 @@ export async function requireAuth() {
 }
 
 export function handleApiError(error: unknown) {
-  console.error('API Error:', error);
+  // Log error with structured context
+  if (error instanceof Error) {
+    apiLogger.error('API request failed', error, {
+      errorType: error.constructor.name,
+    });
+  } else {
+    apiLogger.error('API request failed', {
+      error: String(error),
+      errorType: 'unknown',
+    });
+  }
 
   if (error instanceof SocialError) {
     return NextResponse.json(

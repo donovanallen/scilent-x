@@ -7,6 +7,7 @@ import type {
   ReleaseType,
   ReleaseStatus,
 } from '@scilent-one/harmony-engine';
+import { withLogging } from '@scilent-one/logger/next';
 
 import { getHarmonizationEngine } from '@/lib/harmonization';
 
@@ -180,7 +181,7 @@ function extractAvailableFilters(releases: HarmonizedRelease[]) {
   };
 }
 
-export async function searchReleases(
+async function searchReleasesImpl(
   query: string,
   filters?: SearchFilters,
   sort?: SortOption,
@@ -249,7 +250,12 @@ export async function searchReleases(
   }
 }
 
-export async function searchTracks(
+export const searchReleases = withLogging(
+  'search:releases',
+  searchReleasesImpl
+);
+
+async function searchTracksImpl(
   query: string,
   filters?: SearchFilters,
   sort?: SortOption,
@@ -344,7 +350,9 @@ export async function searchTracks(
   }
 }
 
-export async function searchArtists(
+export const searchTracks = withLogging('search:tracks', searchTracksImpl);
+
+async function searchArtistsImpl(
   query: string,
   filters?: SearchFilters,
   sort?: SortOption,
@@ -435,6 +443,8 @@ export async function searchArtists(
     };
   }
 }
+
+export const searchArtists = withLogging('search:artists', searchArtistsImpl);
 
 export async function getEnabledProviders() {
   const engine = getHarmonizationEngine();
