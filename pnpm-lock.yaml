@@ -8,7 +8,7 @@ catalogs:
   better-auth:
     better-auth:
       specifier: latest
-      version: 1.4.12
+      version: 1.4.13
   prisma:
     prisma:
       specifier: latest
@@ -33,6 +33,9 @@ importers:
       eslint-plugin-storybook:
         specifier: ^10.1.11
         version: 10.1.11(eslint@9.39.2(jiti@2.6.1))(storybook@10.1.11(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
+      pino-pretty:
+        specifier: ^13.1.3
+        version: 13.1.3
       prettier:
         specifier: ^3.7.4
         version: 3.7.4
@@ -75,6 +78,9 @@ importers:
       '@scilent-one/harmony-ui':
         specifier: workspace:*
         version: link:../../packages/harmony-ui
+      '@scilent-one/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@scilent-one/social':
         specifier: workspace:*
         version: link:../../packages/social
@@ -86,7 +92,7 @@ importers:
         version: 3.13.16(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       better-auth:
         specifier: catalog:better-auth
-        version: 1.4.12(@prisma/client@7.2.0(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3))(mysql2@3.15.3)(next@16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.16.3)(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vitest@4.0.16)
+        version: 1.4.13(@prisma/client@7.2.0(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3))(mysql2@3.15.3)(next@16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.16.3)(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vitest@4.0.16)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -154,9 +160,12 @@ importers:
       '@scilent-one/db':
         specifier: workspace:*
         version: link:../db
+      '@scilent-one/logger':
+        specifier: workspace:*
+        version: link:../logger
       better-auth:
         specifier: catalog:better-auth
-        version: 1.4.12(@prisma/client@7.2.0(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3))(mysql2@3.15.3)(next@16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.16.3)(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vitest@4.0.16)
+        version: 1.4.13(@prisma/client@7.2.0(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3))(mysql2@3.15.3)(next@16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.16.3)(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vitest@4.0.16)
       react:
         specifier: ^18.0.0 || ^19.0.0
         version: 19.2.3
@@ -179,6 +188,9 @@ importers:
       '@prisma/client':
         specifier: ^7.2.0
         version: 7.2.0(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3)
+      '@scilent-one/logger':
+        specifier: workspace:*
+        version: link:../logger
       dotenv:
         specifier: ^16.6.1
         version: 16.6.1
@@ -1201,8 +1213,8 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
-  '@better-auth/core@1.4.12':
-    resolution: {integrity: sha512-VfqZwMAEl9rnGx092BIZ2Q5z8rt7jjN2OAbvPqehufSKZGmh8JsdtZRBMl/CHQir9bwi2Ev0UF4+7TQp+DXEMg==}
+  '@better-auth/core@1.4.13':
+    resolution: {integrity: sha512-+8OrU/9T9mkNNKCfTv9UMlNhl9qBKsXIS8d1JNrtuCkud8Ps0+jYvbBlwa90nFmDy8X96c9UIsq+eMhPs1SDXA==}
     peerDependencies:
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
@@ -1211,10 +1223,10 @@ packages:
       kysely: ^0.28.5
       nanostores: ^1.0.1
 
-  '@better-auth/telemetry@1.4.12':
-    resolution: {integrity: sha512-4q504Og42PzkUbZjXDt+FyeYaS0WZmAlEOC3nbBCZDObTVCRUnGgJW52B2maJ7BCVvAQgBGLEeQmQzU5+63J0A==}
+  '@better-auth/telemetry@1.4.13':
+    resolution: {integrity: sha512-bH77Scx0K0lRIuRuHUUBLLMJ/rd9T2Tties1RniDLU8kclVwjboJQbfUY5FIamZwdayf2o0psNgS4rkaZUq+Qg==}
     peerDependencies:
-      '@better-auth/core': 1.4.12
+      '@better-auth/core': 1.4.13
 
   '@better-auth/utils@0.3.0':
     resolution: {integrity: sha512-W+Adw6ZA6mgvnSnhOki270rwJ42t4XzSK6YWGF//BbVXL6SwCLWfyzBc1lN2m/4RM28KubdBKQ4X5VMoLRNPQw==}
@@ -3657,13 +3669,13 @@ packages:
     resolution: {integrity: sha512-RkaJzeJKDbaDWTIPiJwubyljaEPwpVWkm9Rt5h9Nd6h7tEXTJ3VB4qxdZBioV7JO5yLUaOKwz7vDOzlncUsegw==}
     engines: {node: '>=10.0.0'}
 
-  better-auth@1.4.12:
-    resolution: {integrity: sha512-FsFMnWgk+AGrxsIGbpWLCibgYcbm6uNhPHln3ohXFDXSRa0gk39Beuh54Q+x6ml2qYodF0snxf/tPtDpBI/JiA==}
+  better-auth@1.4.13:
+    resolution: {integrity: sha512-frGQmYT0rglidLpx91SP9n4ztaNBFGBb0JrWSdMTAHvhBkmQlUT/43e0IboMK2mPrAZFlvhdcMV8jCnqpYVE9A==}
     peerDependencies:
       '@lynx-js/react': '*'
       '@prisma/client': ^5.0.0 || ^6.0.0 || ^7.0.0
       '@sveltejs/kit': ^2.0.0
-      '@tanstack/react-start': ^1.0.0
+      '@tanstack/start-server-core': ^1.0.0
       better-sqlite3: ^12.0.0
       drizzle-kit: '>=0.31.4'
       drizzle-orm: '>=0.41.0'
@@ -3685,7 +3697,7 @@ packages:
         optional: true
       '@sveltejs/kit':
         optional: true
-      '@tanstack/react-start':
+      '@tanstack/start-server-core':
         optional: true
       better-sqlite3:
         optional: true
@@ -8024,7 +8036,7 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@better-auth/core@1.4.12(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.4))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)':
+  '@better-auth/core@1.4.13(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.4))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)':
     dependencies:
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
@@ -8035,9 +8047,9 @@ snapshots:
       nanostores: 1.1.0
       zod: 4.3.4
 
-  '@better-auth/telemetry@1.4.12(@better-auth/core@1.4.12(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.4))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0))':
+  '@better-auth/telemetry@1.4.13(@better-auth/core@1.4.13(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.4))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0))':
     dependencies:
-      '@better-auth/core': 1.4.12(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.4))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)
+      '@better-auth/core': 1.4.13(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.4))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
 
@@ -10582,10 +10594,10 @@ snapshots:
 
   basic-ftp@5.1.0: {}
 
-  better-auth@1.4.12(@prisma/client@7.2.0(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3))(mysql2@3.15.3)(next@16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.16.3)(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vitest@4.0.16):
+  better-auth@1.4.13(@prisma/client@7.2.0(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3))(mysql2@3.15.3)(next@16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.16.3)(prisma@7.2.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vitest@4.0.16):
     dependencies:
-      '@better-auth/core': 1.4.12(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.4))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)
-      '@better-auth/telemetry': 1.4.12(@better-auth/core@1.4.12(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.4))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0))
+      '@better-auth/core': 1.4.13(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.4))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)
+      '@better-auth/telemetry': 1.4.13(@better-auth/core@1.4.13(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.4))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0))
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
       '@noble/ciphers': 2.1.1

@@ -5,7 +5,7 @@
  */
 
 import type { NextRequest, NextResponse } from 'next/server';
-import { Logger, type LogContext } from '../logger.js';
+import { Logger, type LogContext } from '../logger';
 
 const logger = new Logger({ namespace: 'middleware' });
 
@@ -32,7 +32,7 @@ function generateRequestId(): string {
  */
 function getRequestContext(request: NextRequest): RequestLogContext {
   const requestId = request.headers.get('x-request-id') ?? generateRequestId();
-  
+
   return {
     requestId,
     method: request.method,
@@ -105,11 +105,15 @@ export function withRequestLogging(
     } catch (error) {
       const duration = Date.now() - startTime;
 
-      childLogger.error('Request failed', error instanceof Error ? error : undefined, {
-        method: context.method,
-        path: context.path,
-        duration,
-      });
+      childLogger.error(
+        'Request failed',
+        error instanceof Error ? error : undefined,
+        {
+          method: context.method,
+          path: context.path,
+          duration,
+        }
+      );
 
       throw error;
     }

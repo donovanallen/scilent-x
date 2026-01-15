@@ -59,4 +59,4 @@ export {
   type LogLevel,
   type LogContext,
   type LoggerOptions,
-} from './logger.js';
+} from './logger';

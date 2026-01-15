@@ -2,40 +2,51 @@
  * @scilent-one/logger/auth - Better Auth Logging Hooks
  *
  * Provides hooks for logging authentication events from Better Auth.
+ * Uses the createAuthMiddleware API for proper integration.
  */
 
-import { Logger, type LogContext } from '../logger.js';
+import { Logger, type LogContext } from '../logger';
 
 const logger = new Logger({ namespace: 'auth' });
 
 /**
- * Better Auth hook context types.
- * These match the hook signatures from better-auth.
+ * Better Auth middleware context type (internal).
+ * We use a loose type to be compatible with Better Auth's complex middleware context.
  */
-export interface AuthHookContext {
-  user?: {
-    id: string;
-    email?: string;
-    name?: string | null;
-  };
-  session?: {
-    id: string;
-    userId: string;
-    expiresAt: Date;
+interface AuthContext {
+  path: string;
+  method: string;
+  body?: unknown;
+  headers?: unknown;
+  request?: unknown;
+  context: {
+    newSession?: {
+      user: {
+        id: string;
+        email?: string;
+        name?: string | null;
+      };
+    } | null;
+    [key: string]: unknown;
   };
   [key: string]: unknown;
 }
 
-export interface AuthHookRequest {
-  method: string;
-  url: string;
-  headers: Headers;
-}
+/**
+ * Generic middleware handler type that accepts any auth context.
+ * Uses a function signature compatible with Better Auth's createAuthMiddleware.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type MiddlewareHandler = (ctx: any) => Promise<void | unknown>;
 
 /**
  * Extract safe user info for logging (no sensitive data).
  */
-function getSafeUserInfo(user?: AuthHookContext['user']): LogContext | undefined {
+function getSafeUserInfo(user?: {
+  id: string;
+  email?: string;
+  name?: string | null;
+}): LogContext | undefined {
   if (!user) return undefined;
   return {
     userId: user.id,
@@ -44,131 +55,224 @@ function getSafeUserInfo(user?: AuthHookContext['user']): LogContext | undefined
 }
 
 /**
- * Extract request info for logging.
+ * Create the after hook middleware function for logging auth events.
+ * This logs sign-in, sign-up, sign-out, and session events.
  */
-function getRequestInfo(request?: AuthHookRequest): LogContext | undefined {
-  if (!request) return undefined;
-  return {
-    method: request.method,
-    path: new URL(request.url).pathname,
+function createAfterHookLogger(): MiddlewareHandler {
+  return async (rawCtx) => {
+    const ctx = rawCtx as AuthContext;
+    const path = ctx.path;
+    const method = ctx.method;
+
+    // Sign-in events
+    if (path.startsWith('/sign-in')) {
+      const newSession = ctx.context.newSession;
+      if (newSession) {
+        logger.info('User signed in', {
+          ...getSafeUserInfo(newSession.user),
+          method,
+          path,
+        });
+      }
+      return;
+    }
+
+    // Sign-up events
+    if (path.startsWith('/sign-up')) {
+      const newSession = ctx.context.newSession;
+      if (newSession) {
+        logger.info('User signed up', {
+          ...getSafeUserInfo(newSession.user),
+          method,
+          path,
+        });
+      }
+      return;
+    }
+
+    // Sign-out events
+    if (path.startsWith('/sign-out')) {
+      logger.info('User signed out', {
+        method,
+        path,
+      });
+      return;
+    }
+
+    // OAuth callback events
+    if (path.startsWith('/callback/')) {
+      const provider =
+        path.replace('/callback/', '').split('/')[0] ?? 'unknown';
+      const newSession = ctx.context.newSession;
+      if (newSession) {
+        logger.info('OAuth callback completed', {
+          provider,
+          ...getSafeUserInfo(newSession.user),
+          path,
+        });
+      }
+      return;
+    }
+  };
+}
+
+/**
+ * Create the before hook middleware function for logging auth requests.
+ * This logs the start of authentication attempts.
+ */
+function createBeforeHookLogger(): MiddlewareHandler {
+  return async (rawCtx) => {
+    const ctx = rawCtx as AuthContext;
+    const path = ctx.path;
+    const method = ctx.method;
+
+    // Only log important auth endpoints at debug level
+    if (
+      path.startsWith('/sign-in') ||
+      path.startsWith('/sign-up') ||
+      path.startsWith('/sign-out')
+    ) {
+      logger.debug('Auth request started', {
+        method,
+        path,
+        hasBody: !!ctx.body,
+      });
+    }
   };
 }
 
 /**
  * Better Auth hooks for logging authentication events.
+ * These are raw hook functions - you need to wrap them with createAuthMiddleware.
  *
  * @example
  * ```ts
  * // packages/auth/src/server.ts
  * import { betterAuth } from 'better-auth';
+ * import { createAuthMiddleware } from 'better-auth/api';
  * import { authLoggerHooks } from '@scilent-one/logger/auth';
  *
  * export const auth = betterAuth({
- *   hooks: authLoggerHooks,
+ *   hooks: {
+ *     before: createAuthMiddleware(authLoggerHooks.before),
+ *     after: createAuthMiddleware(authLoggerHooks.after),
+ *   },
  *   // ... other config
  * });
  * ```
  */
 export const authLoggerHooks = {
-  /**
-   * Called after a user successfully signs in.
-   */
-  after: [
-    {
-      matcher: (context: { path: string }) => context.path.startsWith('/sign-in'),
-      handler: async (ctx: {
-        context: AuthHookContext;
-        request?: AuthHookRequest;
-      }) => {
-        logger.info('User signed in', {
-          ...getSafeUserInfo(ctx.context.user),
-          ...getRequestInfo(ctx.request),
-        });
-      },
-    },
-    {
-      matcher: (context: { path: string }) => context.path.startsWith('/sign-up'),
-      handler: async (ctx: {
-        context: AuthHookContext;
-        request?: AuthHookRequest;
-      }) => {
-        logger.info('User signed up', {
-          ...getSafeUserInfo(ctx.context.user),
-          ...getRequestInfo(ctx.request),
-        });
-      },
-    },
-    {
-      matcher: (context: { path: string }) => context.path.startsWith('/sign-out'),
-      handler: async (ctx: {
-        context: AuthHookContext;
-        request?: AuthHookRequest;
-      }) => {
-        logger.info('User signed out', {
-          ...getSafeUserInfo(ctx.context.user),
-          ...getRequestInfo(ctx.request),
-        });
-      },
-    },
-  ],
+  before: createBeforeHookLogger(),
+  after: createAfterHookLogger(),
 };
 
 /**
- * Create custom auth logging hooks with additional context.
+ * Create custom auth logging hooks with additional callbacks.
  *
  * @example
  * ```ts
+ * import { createAuthMiddleware } from 'better-auth/api';
+ * import { createAuthHooks } from '@scilent-one/logger/auth';
+ *
  * const hooks = createAuthHooks({
- *   onSignIn: (user) => {
+ *   onSignIn: async (user) => {
  *     // Custom sign-in handling
  *   },
- *   onSignOut: (user) => {
- *     // Custom sign-out handling
+ * });
+ *
+ * export const auth = betterAuth({
+ *   hooks: {
+ *     before: createAuthMiddleware(hooks.before),
+ *     after: createAuthMiddleware(hooks.after),
  *   },
  * });
  * ```
  */
 export interface AuthHookCallbacks {
-  onSignIn?: (user: AuthHookContext['user']) => void | Promise<void>;
-  onSignUp?: (user: AuthHookContext['user']) => void | Promise<void>;
-  onSignOut?: (user: AuthHookContext['user']) => void | Promise<void>;
-  onError?: (error: Error, context: AuthHookContext) => void | Promise<void>;
+  onSignIn?: (user: {
+    id: string;
+    email?: string;
+    name?: string | null;
+  }) => void | Promise<void>;
+  onSignUp?: (user: {
+    id: string;
+    email?: string;
+    name?: string | null;
+  }) => void | Promise<void>;
+  onSignOut?: () => void | Promise<void>;
+  onOAuthCallback?: (
+    provider: string,
+    user: { id: string; email?: string; name?: string | null }
+  ) => void | Promise<void>;
 }
 
-export function createAuthHooks(callbacks: AuthHookCallbacks = {}) {
+export function createAuthHooks(callbacks: AuthHookCallbacks = {}): {
+  before: MiddlewareHandler;
+  after: MiddlewareHandler;
+} {
+  const afterHook: MiddlewareHandler = async (rawCtx) => {
+    const ctx = rawCtx as AuthContext;
+    const path = ctx.path;
+    const method = ctx.method;
+
+    // Sign-in events
+    if (path.startsWith('/sign-in')) {
+      const newSession = ctx.context.newSession;
+      if (newSession) {
+        logger.info('User signed in', {
+          ...getSafeUserInfo(newSession.user),
+          method,
+          path,
+        });
+        await callbacks.onSignIn?.(newSession.user);
+      }
+      return;
+    }
+
+    // Sign-up events
+    if (path.startsWith('/sign-up')) {
+      const newSession = ctx.context.newSession;
+      if (newSession) {
+        logger.info('User signed up', {
+          ...getSafeUserInfo(newSession.user),
+          method,
+          path,
+        });
+        await callbacks.onSignUp?.(newSession.user);
+      }
+      return;
+    }
+
+    // Sign-out events
+    if (path.startsWith('/sign-out')) {
+      logger.info('User signed out', {
+        method,
+        path,
+      });
+      await callbacks.onSignOut?.();
+      return;
+    }
+
+    // OAuth callback events
+    if (path.startsWith('/callback/')) {
+      const provider =
+        path.replace('/callback/', '').split('/')[0] ?? 'unknown';
+      const newSession = ctx.context.newSession;
+      if (newSession) {
+        logger.info('OAuth callback completed', {
+          provider,
+          ...getSafeUserInfo(newSession.user),
+          path,
+        });
+        await callbacks.onOAuthCallback?.(provider, newSession.user);
+      }
+      return;
+    }
+  };
+
   return {
-    after: [
-      {
-        matcher: (context: { path: string }) => context.path.startsWith('/sign-in'),
-        handler: async (ctx: { context: AuthHookContext; request?: AuthHookRequest }) => {
-          logger.info('User signed in', {
-            ...getSafeUserInfo(ctx.context.user),
-            ...getRequestInfo(ctx.request),
-          });
-          await callbacks.onSignIn?.(ctx.context.user);
-        },
-      },
-      {
-        matcher: (context: { path: string }) => context.path.startsWith('/sign-up'),
-        handler: async (ctx: { context: AuthHookContext; request?: AuthHookRequest }) => {
-          logger.info('User signed up', {
-            ...getSafeUserInfo(ctx.context.user),
-            ...getRequestInfo(ctx.request),
-          });
-          await callbacks.onSignUp?.(ctx.context.user);
-        },
-      },
-      {
-        matcher: (context: { path: string }) => context.path.startsWith('/sign-out'),
-        handler: async (ctx: { context: AuthHookContext; request?: AuthHookRequest }) => {
-          logger.info('User signed out', {
-            ...getSafeUserInfo(ctx.context.user),
-            ...getRequestInfo(ctx.request),
-          });
-          await callbacks.onSignOut?.(ctx.context.user);
-        },
-      },
-    ],
+    before: createBeforeHookLogger(),
+    after: afterHook,
   };
 }
 

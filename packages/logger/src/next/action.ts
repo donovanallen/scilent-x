@@ -4,7 +4,7 @@
  * Provides a wrapper for Next.js server actions with automatic logging.
  */
 
-import { Logger, type LogContext } from '../logger.js';
+import { Logger, type LogContext } from '../logger';
 
 const logger = new Logger({ namespace: 'action' });
 
@@ -58,7 +58,10 @@ export function withLogging<TArgs extends unknown[], TResult>(
   return async (...args: TArgs): Promise<TResult> => {
     const startTime = Date.now();
 
-    actionLogger.debug('Action started', options.logArgs ? { args } : undefined);
+    actionLogger.debug(
+      'Action started',
+      options.logArgs ? { args } : undefined
+    );
 
     try {
       const result = await action(...args);

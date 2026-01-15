@@ -16,10 +16,15 @@
  */
 
 import { betterAuth } from 'better-auth';
+import { createAuthMiddleware } from 'better-auth/api';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
 import { genericOAuth } from 'better-auth/plugins';
 import { db } from '@scilent-one/db';
+import { createLogger } from '@scilent-one/logger';
+import { authLoggerHooks } from '@scilent-one/logger/auth';
+
+const logger = createLogger('auth:server');
 
 /**
  * Generates a unique username for new users.
@@ -28,6 +33,8 @@ import { db } from '@scilent-one/db';
  */
 async function generateUniqueUsername(): Promise<string> {
   const maxAttempts = 10;
+
+  logger.debug('Generating unique username', { maxAttempts });
 
   for (let i = 0; i < maxAttempts; i++) {
     // Generate 8 random hex characters
@@ -44,14 +51,19 @@ async function generateUniqueUsername(): Promise<string> {
     });
 
     if (!existing) {
+      logger.debug('Generated unique username', { username, attempt: i + 1 });
       return username;
     }
+
+    logger.debug('Username collision, retrying', { username, attempt: i + 1 });
   }
 
   // Fallback: use timestamp + random for guaranteed uniqueness
   const timestamp = Date.now().toString(36);
   const random = Math.random().toString(36).substring(2, 6);
-  return `u_${timestamp}${random}`;
+  const fallbackUsername = `u_${timestamp}${random}`;
+  logger.warn('Used fallback username generation', { username: fallbackUsername });
+  return fallbackUsername;
 }
 
 /**
@@ -80,9 +92,15 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
+          logger.debug('User creation hook triggered', {
+            hasUsername: !!user.username,
+            email: user.email ? `${user.email.substring(0, 3)}...` : undefined,
+          });
+
           // Only generate username if not already provided
           if (!user.username) {
             const username = await generateUniqueUsername();
+            logger.info('Auto-generated username for new user', { username });
             return {
               data: {
                 ...user,
@@ -94,6 +112,15 @@ export const auth = betterAuth({
         },
       },
     },
+  },
+
+  /**
+   * Better Auth Hooks
+   * Logs authentication events (sign-in, sign-up, sign-out)
+   */
+  hooks: {
+    before: createAuthMiddleware(authLoggerHooks.before),
+    after: createAuthMiddleware(authLoggerHooks.after),
   },
 
   /**
@@ -203,6 +230,9 @@ export const auth = betterAuth({
           pkce: true, // Tidal requires PKCE
           // Map Tidal's user info response to Better Auth's expected format
           async getUserInfo(token) {
+            const tidalLogger = createLogger('auth:tidal');
+            tidalLogger.debug('Fetching Tidal user info');
+
             // Try OpenAPI v2 users/me endpoint (requires user.read scope)
             const meResponse = await fetch(
               'https://openapi.tidal.com/v2/users/me',
@@ -233,7 +263,6 @@ export const auth = betterAuth({
                     };
                   };
                 };
-                console.log('Tidal /users/me response:', meData);
 
                 // Handle the nested data.attributes structure
                 if (meData.data?.id) {
@@ -242,6 +271,12 @@ export const auth = betterAuth({
                     [attrs.firstName, attrs.lastName]
                       .filter(Boolean)
                       .join(' ') || attrs.username;
+
+                  tidalLogger.info('Tidal user info retrieved via /users/me', {
+                    tidalUserId: meData.data.id,
+                    hasEmail: !!attrs.email,
+                  });
+
                   return {
                     id: String(meData.data.id),
                     name,
@@ -250,14 +285,15 @@ export const auth = betterAuth({
                   };
                 }
               } catch (parseError) {
-                console.log(
-                  'Failed to parse Tidal /users/me response:',
-                  parseError
-                );
+                tidalLogger.warn('Failed to parse Tidal /users/me response', {
+                  error: parseError instanceof Error ? parseError.message : String(parseError),
+                });
               }
             }
 
-            console.log('Tidal /users/me failed:', meResponse.status, meText);
+            tidalLogger.debug('Tidal /users/me endpoint failed, trying sessions fallback', {
+              status: meResponse.status,
+            });
 
             // Fallback: try legacy sessions endpoint to get userId, then fetch user
             const sessionsResponse = await fetch(
@@ -275,7 +311,10 @@ export const auth = betterAuth({
                   userId: number;
                   countryCode?: string;
                 };
-                console.log('Tidal sessions response:', sessionData);
+                tidalLogger.debug('Tidal session retrieved', {
+                  tidalUserId: sessionData.userId,
+                  countryCode: sessionData.countryCode,
+                });
 
                 // Try to get full user info with the userId
                 const userResponse = await fetch(
@@ -296,7 +335,12 @@ export const auth = betterAuth({
                       firstName?: string;
                       lastName?: string;
                     };
-                    console.log('Tidal user response:', userData);
+
+                    tidalLogger.info('Tidal user info retrieved via sessions API', {
+                      tidalUserId: userData.id,
+                      hasEmail: !!userData.email,
+                    });
+
                     return {
                       id: String(userData.id),
                       name:
@@ -309,18 +353,16 @@ export const auth = betterAuth({
                       emailVerified: false,
                     };
                   } catch (parseError) {
-                    console.log(
-                      'Failed to parse Tidal user response:',
-                      parseError
-                    );
+                    tidalLogger.warn('Failed to parse Tidal user response', {
+                      error: parseError instanceof Error ? parseError.message : String(parseError),
+                    });
                   }
                 }
 
-                console.log(
-                  'Tidal user fetch failed:',
-                  userResponse.status,
-                  await userResponse.text()
-                );
+                tidalLogger.warn('Tidal user fetch failed, using session data only', {
+                  status: userResponse.status,
+                  tidalUserId: sessionData.userId,
+                });
 
                 // Last resort: return session data without email
                 return {
@@ -330,18 +372,15 @@ export const auth = betterAuth({
                   emailVerified: false,
                 };
               } catch (parseError) {
-                console.log(
-                  'Failed to parse Tidal sessions response:',
-                  parseError
-                );
+                tidalLogger.warn('Failed to parse Tidal sessions response', {
+                  error: parseError instanceof Error ? parseError.message : String(parseError),
+                });
               }
             }
 
-            console.error(
-              'All Tidal user info endpoints failed:',
-              sessionsResponse.status,
-              await sessionsResponse.text()
-            );
+            tidalLogger.error('All Tidal user info endpoints failed', {
+              sessionsStatus: sessionsResponse.status,
+            });
             return null;
           },
         },
