@@ -212,7 +212,7 @@ export function RichTextContent({
     }, [content]);
 
     return (
-      <p className={cn('whitespace-pre-wrap wrap-break-word', className)}>
+      <p className={cn('whitespace-pre-wrap break-words', className)}>
         {parts.map((part, index) => {
           if (part.type === 'mention') {
             return (
