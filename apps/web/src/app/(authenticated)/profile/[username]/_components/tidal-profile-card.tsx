@@ -220,12 +220,10 @@ export function TidalProfileCard({
           <>
             <Separator className='my-4' />
             <div className='space-y-3'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-                  <Users className='size-4' />
-                  <span>Followed Artists</span>
-                </div>
-                {artistsResult.total !== undefined && (
+              <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                <Users className='size-4' />
+                <span>Followed Artists</span>
+                {artistsResult.total && (
                   <Badge variant='secondary' className='text-xs'>
                     {artistsResult.total.toLocaleString()}
                   </Badge>

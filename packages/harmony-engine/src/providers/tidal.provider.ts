@@ -146,6 +146,9 @@ interface TidalUserCollectionArtistsResponse {
     self: string;
     next?: string;
   };
+  meta?: {
+    total?: number;
+  };
 }
 
 /**
@@ -608,10 +611,7 @@ export class TidalProvider extends BaseProvider {
     );
 
     if (!data?.data) {
-      throw new ProviderError(
-        'Failed to fetch Tidal user profile',
-        this.name
-      );
+      throw new ProviderError('Failed to fetch Tidal user profile', this.name);
     }
 
     return this.transformUserProfile(data.data);
@@ -655,6 +655,7 @@ export class TidalProvider extends BaseProvider {
     if (!data?.included) {
       const emptyResult: PaginatedCollection<HarmonizedArtist> = {
         items: [],
+        total: 0,
         nextCursor: null,
         hasMore: false,
       };
@@ -666,7 +667,9 @@ export class TidalProvider extends BaseProvider {
       (item): item is TidalArtist => item.type === 'artists'
     );
 
-    const harmonizedArtists = artists.map((artist) => this.transformArtist(artist));
+    const harmonizedArtists = artists.map((artist) =>
+      this.transformArtist(artist)
+    );
 
     // Extract next cursor from links.next URL if present
     let nextCursor: string | null = null;
@@ -675,10 +678,18 @@ export class TidalProvider extends BaseProvider {
       nextCursor = nextUrl.searchParams.get('page[cursor]');
     }
 
+    // The data array contains the relationship entries for the current page
+    // Use it to determine the total followed artists count
+    // This works because the relationships endpoint returns all relationship IDs
+    // while `included` contains only the detailed artist objects for the page
+    const total = data.meta?.total ?? data.data.length;
+    const hasMore = nextCursor !== null;
+
     return {
       items: harmonizedArtists,
+      total,
       nextCursor,
-      hasMore: nextCursor !== null,
+      hasMore,
     };
   }
 
