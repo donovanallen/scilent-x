@@ -1,7 +1,11 @@
 import { db } from '@scilent-one/db';
 import { NextResponse } from 'next/server';
 
-import { getCurrentUser, handleApiError, parseSearchParams } from '@/lib/api-utils';
+import {
+  getCurrentUser,
+  handleApiError,
+  parseSearchParams,
+} from '@/lib/api-utils';
 import { getFollowedArtistsFromProvider } from '@/lib/harmonization';
 
 // GET /api/v1/artists/following - Get list of followed artists from connected provider
@@ -49,7 +53,7 @@ export async function GET(request: Request) {
     }
 
     const paginationParams = parseSearchParams(request);
-    
+
     const result = await getFollowedArtistsFromProvider(
       account.accessToken,
       account.providerId,

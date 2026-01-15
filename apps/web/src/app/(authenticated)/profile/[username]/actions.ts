@@ -1,10 +1,16 @@
 'use server';
 
 import { db } from '@scilent-one/db';
-import type { HarmonizedUserProfile, HarmonizedArtist } from '@scilent-one/harmony-engine';
+import type {
+  HarmonizedUserProfile,
+  HarmonizedArtist,
+} from '@scilent-one/harmony-engine';
 
 import { getCurrentUser } from '@/lib/api-utils';
-import { getHarmonizationEngine, getFollowedArtistsFromProvider } from '@/lib/harmonization';
+import {
+  getHarmonizationEngine,
+  getFollowedArtistsFromProvider,
+} from '@/lib/harmonization';
 
 export interface ProviderProfileResult {
   success: boolean;
@@ -222,7 +228,7 @@ export async function getFollowedArtists(
     if (cursor) {
       params.cursor = cursor;
     }
-    
+
     const result = await getFollowedArtistsFromProvider(
       account.accessToken,
       providerId,
@@ -235,11 +241,11 @@ export async function getFollowedArtists(
       hasMore: result.hasMore,
       nextCursor: result.nextCursor,
     };
-    
+
     if (result.total !== undefined) {
       response.total = result.total;
     }
-    
+
     return response;
   } catch (error) {
     console.error(`Failed to fetch ${providerId} followed artists:`, error);

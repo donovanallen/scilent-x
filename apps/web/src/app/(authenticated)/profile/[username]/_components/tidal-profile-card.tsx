@@ -30,7 +30,12 @@ import { useEffect, useState } from 'react';
 
 import { authClient } from '@/lib/auth-client';
 
-import { getProviderProfile, getFollowedArtists, type ProviderProfileResult, type FollowedArtistsResult } from '../actions';
+import {
+  getProviderProfile,
+  getFollowedArtists,
+  type ProviderProfileResult,
+  type FollowedArtistsResult,
+} from '../actions';
 
 interface TidalProfileCardProps {
   userId: string;
@@ -42,7 +47,8 @@ export function TidalProfileCard({
   isCurrentUser,
 }: TidalProfileCardProps) {
   const [result, setResult] = useState<ProviderProfileResult | null>(null);
-  const [artistsResult, setArtistsResult] = useState<FollowedArtistsResult | null>(null);
+  const [artistsResult, setArtistsResult] =
+    useState<FollowedArtistsResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isReconnecting, setIsReconnecting] = useState(false);
 
@@ -64,7 +70,7 @@ export function TidalProfileCard({
           getProviderProfile(userId, 'tidal'),
           getFollowedArtists(userId, 'tidal', 5), // Fetch first 5 for preview
         ]);
-        
+
         if (!isCancelled) {
           setResult(profileData);
           setArtistsResult(artistsData);
@@ -225,21 +231,24 @@ export function TidalProfileCard({
                   </Badge>
                 )}
               </div>
-              
+
               {/* Preview of followed artists */}
               {artistsResult.artists && artistsResult.artists.length > 0 && (
                 <div className='flex flex-wrap gap-1'>
                   {artistsResult.artists.slice(0, 5).map((artist) => (
-                    <Badge 
-                      key={artist.externalIds.tidal ?? artist.name} 
-                      variant='outline' 
+                    <Badge
+                      key={artist.externalIds.tidal ?? artist.name}
+                      variant='outline'
                       className='text-xs'
                     >
                       {artist.name}
                     </Badge>
                   ))}
                   {artistsResult.hasMore && (
-                    <Badge variant='outline' className='text-xs text-muted-foreground'>
+                    <Badge
+                      variant='outline'
+                      className='text-xs text-muted-foreground'
+                    >
                       +more
                     </Badge>
                   )}
