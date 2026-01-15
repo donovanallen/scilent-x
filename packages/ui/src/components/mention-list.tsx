@@ -10,6 +10,10 @@ export interface MentionSuggestion {
   username?: string;
   avatarUrl?: string | null;
   image?: string | null;
+  type?: 'user' | 'artist';
+  imageUrl?: string | null;
+  subtitle?: string | null;
+  provider?: string | null;
 }
 
 export interface MentionListProps {
@@ -17,6 +21,8 @@ export interface MentionListProps {
   command: (item: MentionSuggestion) => void;
   isLoading?: boolean;
   error?: string | null;
+  placeholder?: string | null | undefined;
+  hasQuery?: boolean;
   /** Controlled selected index from parent */
   selectedIndex?: number;
   /** Callback when selection changes */
@@ -30,7 +36,19 @@ export interface MentionListRef {
 }
 
 export const MentionList = React.forwardRef<MentionListRef, MentionListProps>(
-  ({ items, command, isLoading, error, selectedIndex = 0, onSelect }, ref) => {
+  (
+    {
+      items,
+      command,
+      isLoading,
+      error,
+      placeholder,
+      hasQuery = false,
+      selectedIndex = 0,
+      onSelect,
+    },
+    ref
+  ) => {
     const [internalSelectedIndex, setInternalSelectedIndex] =
       React.useState(selectedIndex);
 
@@ -115,6 +133,20 @@ export const MentionList = React.forwardRef<MentionListRef, MentionListProps>(
       );
     }
 
+    if (items.length === 0 && !hasQuery && placeholder) {
+      return (
+        <div
+          className="bg-popover border border-border rounded-md shadow-md p-2 min-w-[200px]"
+          role="listbox"
+          aria-label="Mention suggestions"
+        >
+          <div className="p-2 text-muted-foreground text-sm">
+            {placeholder}
+          </div>
+        </div>
+      );
+    }
+
     if (items.length === 0) {
       return (
         <div
@@ -123,7 +155,7 @@ export const MentionList = React.forwardRef<MentionListRef, MentionListProps>(
           aria-label="No results"
         >
           <div className="p-2 text-muted-foreground text-sm">
-            No users found
+            No results found
           </div>
         </div>
       );
@@ -152,11 +184,7 @@ export const MentionList = React.forwardRef<MentionListRef, MentionListProps>(
             <MentionAvatar item={item} />
             <div className="flex flex-col min-w-0">
               <span className="font-medium truncate">{item.label}</span>
-              {item.username && (
-                <span className="text-sm text-muted-foreground truncate">
-                  @{item.username}
-                </span>
-              )}
+              <MentionMeta item={item} />
             </div>
           </button>
         ))}
@@ -168,7 +196,7 @@ export const MentionList = React.forwardRef<MentionListRef, MentionListProps>(
 MentionList.displayName = 'MentionList';
 
 function MentionAvatar({ item }: { item: MentionSuggestion }) {
-  const avatarSrc = item.avatarUrl || item.image;
+  const avatarSrc = item.imageUrl || item.avatarUrl || item.image;
   const initials = item.label
     ?.split(' ')
     .map((n) => n[0])
@@ -195,4 +223,32 @@ function MentionAvatar({ item }: { item: MentionSuggestion }) {
       {initials || '?'}
     </div>
   );
+}
+
+function MentionMeta({ item }: { item: MentionSuggestion }) {
+  const subtitle = item.username ? `@${item.username}` : item.subtitle;
+  const providerLabel = formatProviderLabel(item.provider);
+  const showProvider = item.type === 'artist' && Boolean(providerLabel);
+
+  if (!subtitle && !showProvider) return null;
+
+  return (
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      {subtitle ? <span className="truncate">{subtitle}</span> : null}
+      {showProvider ? (
+        <span className="rounded-full border border-border px-2 py-0.5 text-xs uppercase tracking-wide">
+          {providerLabel}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function formatProviderLabel(provider?: string | null) {
+  if (!provider) return null;
+  const normalized = provider.toLowerCase();
+  if (normalized === 'musicbrainz') return 'MusicBrainz';
+  if (normalized === 'tidal') return 'Tidal';
+  if (normalized === 'spotify') return 'Spotify';
+  return provider;
 }

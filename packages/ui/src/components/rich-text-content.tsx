@@ -16,7 +16,8 @@ export interface RichTextContentProps {
 const MENTION_REGEX = /@([a-zA-Z][a-zA-Z0-9_]{0,29})/g;
 
 // Regex to match Tiptap data-mention attributes
-const TIPTAP_MENTION_REGEX = /<span[^>]*data-mention-type="([^"]*)"[^>]*data-mention-id="([^"]*)"[^>]*data-mention-label="([^"]*)"[^>]*>@[^<]*<\/span>/g;
+const TIPTAP_MENTION_REGEX =
+  /<span[^>]*data-mention-type="([^"]*)"[^>]*data-mention-id="([^"]*)"[^>]*data-mention-label="([^"]*)"[^>]*>[^<]*<\/span>/g;
 
 /**
  * RichTextContent renders HTML content from the rich text editor
@@ -43,7 +44,12 @@ export function RichTextContent({
       result = result.replace(
         TIPTAP_MENTION_REGEX,
         (_match, type, id, label) => {
-          return `<button type="button" class="rich-text-mention tiptap-mention text-primary hover:underline font-medium" data-mention="${label}" data-mention-type="${type}" data-mention-id="${id}" aria-label="View ${label}'s profile">@${label}</button>`;
+          const mentionPrefix = type === 'ARTIST' ? '#' : '@';
+          const ariaLabel =
+            type === 'ARTIST'
+              ? `View artist ${label}`
+              : `View ${label}'s profile`;
+          return `<button type="button" class="rich-text-mention tiptap-mention text-primary hover:underline font-medium" data-mention="${label}" data-mention-type="${type}" data-mention-id="${id}" aria-label="${ariaLabel}">${mentionPrefix}${label}</button>`;
         }
       );
       
@@ -65,7 +71,8 @@ export function RichTextContent({
         if (target.classList.contains('rich-text-mention')) {
           e.stopPropagation();
           const username = target.getAttribute('data-mention');
-          if (username && onMentionClick) {
+          const mentionType = target.getAttribute('data-mention-type');
+          if (mentionType === 'USER' && username && onMentionClick) {
             onMentionClick(username);
           }
         }
@@ -119,7 +126,7 @@ export function RichTextContent({
     }, [content]);
 
     return (
-      <p className={cn('whitespace-pre-wrap break-words', className)}>
+      <p className={cn('whitespace-pre-wrap wrap-break-word', className)}>
         {parts.map((part, index) => {
           if (part.type === 'mention') {
             return (

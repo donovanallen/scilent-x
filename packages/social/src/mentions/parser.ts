@@ -21,6 +21,9 @@ function isValidMentionType(
 // Username can contain letters, numbers, underscores, but must start with a letter
 const MENTION_REGEX = /@([a-zA-Z][a-zA-Z0-9_]{0,29})/g;
 
+// Regex to match #artist mentions in plain text (future use)
+export const ARTIST_MENTION_REGEX = /#([^#\s]{1,80})/g;
+
 // Regex to match Tiptap data-mention attributes in HTML
 const HTML_MENTION_REGEX =
   /<span[^>]*data-mention-type="([^"]*)"[^>]*data-mention-id="([^"]*)"[^>]*data-mention-label="([^"]*)"[^>]*>/g;

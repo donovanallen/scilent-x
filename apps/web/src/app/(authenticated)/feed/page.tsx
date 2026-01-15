@@ -34,7 +34,7 @@ interface CurrentUser {
 
 export default function FeedPage() {
   const router = useRouter();
-  const { searchUsers } = useMentionSearch();
+  const { searchUsers, searchArtists } = useMentionSearch();
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
@@ -184,6 +184,7 @@ export default function FeedPage() {
           onSubmit={handleCreatePost}
           isSubmitting={isSubmitting}
           onMentionQuery={searchUsers}
+          onArtistMentionQuery={searchArtists}
         />
       )}
 

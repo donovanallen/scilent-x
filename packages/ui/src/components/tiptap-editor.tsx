@@ -32,6 +32,14 @@ export interface TiptapEditorProps {
   onMentionQuery?:
     | ((query: string) => Promise<MentionSuggestion[]>)
     | undefined;
+  /** Callback to search for artist mention suggestions */
+  onArtistMentionQuery?:
+    | ((query: string) => Promise<MentionSuggestion[]>)
+    | undefined;
+  /** Placeholder text for user mention suggestions */
+  mentionPlaceholder?: string | undefined;
+  /** Placeholder text for artist mention suggestions */
+  artistMentionPlaceholder?: string | undefined;
 }
 
 export function TiptapEditor({
@@ -44,19 +52,35 @@ export function TiptapEditor({
   maxLength,
   editorKey,
   onMentionQuery,
+  onArtistMentionQuery,
+  mentionPlaceholder,
+  artistMentionPlaceholder,
 }: TiptapEditorProps) {
   const [mentionQuery, setMentionQuery] = React.useState('');
+  const [artistQuery, setArtistQuery] = React.useState('');
   const [mentionSuggestions, setMentionSuggestions] = React.useState<
     MentionSuggestion[]
   >([]);
+  const [artistSuggestions, setArtistSuggestions] = React.useState<
+    MentionSuggestion[]
+  >([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
+  const [isLoadingArtistSuggestions, setIsLoadingArtistSuggestions] =
+    React.useState(false);
   const [mentionError, setMentionError] = React.useState<string | null>(null);
+  const [artistMentionError, setArtistMentionError] = React.useState<
+    string | null
+  >(null);
 
   // Use refs to avoid stale closure issues in the mention extension
   const mentionSuggestionsRef = React.useRef<MentionSuggestion[]>([]);
+  const artistSuggestionsRef = React.useRef<MentionSuggestion[]>([]);
   const isLoadingRef = React.useRef(false);
+  const isLoadingArtistRef = React.useRef(false);
   const mentionErrorRef = React.useRef<string | null>(null);
+  const artistMentionErrorRef = React.useRef<string | null>(null);
   const mentionListRef = React.useRef<MentionListRef>(null);
+  const artistMentionListRef = React.useRef<MentionListRef>(null);
 
   // Keep refs in sync with state
   React.useEffect(() => {
@@ -64,18 +88,47 @@ export function TiptapEditor({
   }, [mentionSuggestions]);
 
   React.useEffect(() => {
+    artistSuggestionsRef.current = artistSuggestions;
+  }, [artistSuggestions]);
+
+  React.useEffect(() => {
     isLoadingRef.current = isLoadingSuggestions;
   }, [isLoadingSuggestions]);
 
   React.useEffect(() => {
+    isLoadingArtistRef.current = isLoadingArtistSuggestions;
+  }, [isLoadingArtistSuggestions]);
+
+  React.useEffect(() => {
     mentionErrorRef.current = mentionError;
   }, [mentionError]);
+
+  React.useEffect(() => {
+    artistMentionErrorRef.current = artistMentionError;
+  }, [artistMentionError]);
+
+  type SuggestionRectProps = {
+    clientRect?: (() => DOMRect | null) | null | undefined;
+    editor: {
+      view: {
+        coordsAtPos: (pos: number) => {
+          left: number;
+          right: number;
+          top: number;
+          bottom: number;
+        };
+      };
+    };
+    range: { from: number };
+    query?: string | null | undefined;
+  };
 
   // Debounce the mention query
   React.useEffect(() => {
     if (!mentionQuery || !onMentionQuery) {
       setMentionSuggestions([]);
       setMentionError(null);
+      setIsLoadingSuggestions(false);
       return;
     }
 
@@ -99,8 +152,42 @@ export function TiptapEditor({
     return () => clearTimeout(timeoutId);
   }, [mentionQuery, onMentionQuery]);
 
+  // Debounce the artist mention query
+  React.useEffect(() => {
+    if (!artistQuery || !onArtistMentionQuery) {
+      setArtistSuggestions([]);
+      setArtistMentionError(null);
+      setIsLoadingArtistSuggestions(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsLoadingArtistSuggestions(true);
+      setArtistMentionError(null);
+      try {
+        const results = await onArtistMentionQuery(artistQuery);
+        setArtistSuggestions(results);
+      } catch (error) {
+        console.error('Failed to fetch artist suggestions:', error);
+        setArtistSuggestions([]);
+        setArtistMentionError(
+          error instanceof Error ? error.message : 'Failed to search artists'
+        );
+      } finally {
+        setIsLoadingArtistSuggestions(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [artistQuery, onArtistMentionQuery]);
+
   const mentionExtension = React.useMemo(() => {
-    return Mention.configure({
+    return Mention.extend({
+      name: 'userMention',
+      parseHTML() {
+        return [{ tag: 'span[data-mention-type="USER"]' }];
+      },
+    }).configure({
       HTMLAttributes: {
         class: 'tiptap-mention',
       },
@@ -115,6 +202,9 @@ export function TiptapEditor({
           },
           `@${node.attrs.label ?? node.attrs.id}`,
         ];
+      },
+      renderText({ node }) {
+        return `@${node.attrs.label ?? node.attrs.id}`;
       },
       suggestion: {
         char: '@',
@@ -133,11 +223,23 @@ export function TiptapEditor({
             | null = null;
           let currentItems: MentionSuggestion[] = [];
           let currentSelectedIndex = 0;
+          let currentQuery = '';
 
-          const updatePopupPosition = (
-            clientRect: (() => DOMRect | null) | null | undefined
-          ) => {
-            const rect = clientRect?.();
+          const resolveClientRect = (
+            props: SuggestionRectProps
+          ): DOMRect | null => {
+            const rect = props.clientRect?.();
+            if (rect) return rect;
+            const coords = props.editor.view.coordsAtPos(props.range.from);
+            return new DOMRect(
+              coords.left,
+              coords.top,
+              coords.right - coords.left,
+              coords.bottom - coords.top
+            );
+          };
+
+          const updatePopupPosition = (rect: DOMRect | null) => {
             if (!rect || !popup) return;
 
             const popupHeight = popup.offsetHeight || 300;
@@ -194,6 +296,8 @@ export function TiptapEditor({
                 command: wrappedCommand,
                 isLoading: isLoadingRef.current,
                 error: mentionErrorRef.current,
+                placeholder: mentionPlaceholder,
+                hasQuery: currentQuery.length > 0,
                 selectedIndex: currentSelectedIndex,
                 onSelect: handleSelect,
               })
@@ -205,6 +309,7 @@ export function TiptapEditor({
               popup = document.createElement('div');
               popup.className = 'tiptap-mention-popup';
               document.body.appendChild(popup);
+              updatePopupPosition(resolveClientRect(props));
 
               // Create React root once
               import('react-dom/client').then(({ createRoot }) => {
@@ -213,15 +318,19 @@ export function TiptapEditor({
                   currentItems = props.items as MentionSuggestion[];
                   currentCommand = props.command;
                   currentSelectedIndex = 0;
+                  currentQuery = props.query ?? '';
                   renderMentionList();
-                  updatePopupPosition(props.clientRect);
+                  requestAnimationFrame(() => {
+                    updatePopupPosition(resolveClientRect(props));
+                  });
                 }
               });
             },
             onUpdate: (props) => {
-              updatePopupPosition(props.clientRect);
+              updatePopupPosition(resolveClientRect(props));
               currentItems = props.items as MentionSuggestion[];
               currentCommand = props.command;
+              currentQuery = props.query ?? '';
               renderMentionList();
             },
             onKeyDown: ({ event }) => {
@@ -272,6 +381,204 @@ export function TiptapEditor({
               popup?.remove();
               popup = null;
               setMentionQuery('');
+              setIsLoadingSuggestions(false);
+            },
+          };
+        },
+      },
+    });
+  }, []);
+
+  const artistMentionExtension = React.useMemo(() => {
+    return Mention.extend({
+      name: 'artistMention',
+      parseHTML() {
+        return [{ tag: 'span[data-mention-type="ARTIST"]' }];
+      },
+    }).configure({
+      HTMLAttributes: {
+        class: 'tiptap-mention',
+      },
+      renderHTML({ options, node }) {
+        return [
+          'span',
+          {
+            class: options.HTMLAttributes.class,
+            'data-mention-type': 'ARTIST',
+            'data-mention-id': node.attrs.id,
+            'data-mention-label': node.attrs.label,
+          },
+          `#${node.attrs.label ?? node.attrs.id}`,
+        ];
+      },
+      renderText({ node }) {
+        return `#${node.attrs.label ?? node.attrs.id}`;
+      },
+      suggestion: {
+        char: '#',
+        items: ({ query }) => {
+          setArtistQuery(query);
+          return artistSuggestionsRef.current;
+        },
+        render: () => {
+          let popup: HTMLDivElement | null = null;
+          let reactRoot: ReturnType<
+            typeof import('react-dom/client').createRoot
+          > | null = null;
+          let currentCommand:
+            | ((attrs: { id: string; label: string }) => void)
+            | null = null;
+          let currentItems: MentionSuggestion[] = [];
+          let currentSelectedIndex = 0;
+          let currentQuery = '';
+
+          const resolveClientRect = (
+            props: SuggestionRectProps
+          ): DOMRect | null => {
+            const rect = props.clientRect?.();
+            if (rect) return rect;
+            const coords = props.editor.view.coordsAtPos(props.range.from);
+            return new DOMRect(
+              coords.left,
+              coords.top,
+              coords.right - coords.left,
+              coords.bottom - coords.top
+            );
+          };
+
+          const updatePopupPosition = (rect: DOMRect | null) => {
+            if (!rect || !popup) return;
+
+            const popupHeight = popup.offsetHeight || 300;
+            const popupWidth = popup.offsetWidth || 200;
+            const viewportHeight = window.innerHeight;
+            const viewportWidth = window.innerWidth;
+            const scrollY = window.scrollY;
+            const scrollX = window.scrollX;
+
+            let top = rect.bottom + scrollY + 8;
+            let left = rect.left + scrollX;
+
+            if (rect.bottom + popupHeight + 8 > viewportHeight) {
+              top = rect.top + scrollY - popupHeight - 8;
+            }
+
+            if (left + popupWidth > viewportWidth + scrollX) {
+              left = viewportWidth + scrollX - popupWidth - 8;
+            }
+
+            if (left < scrollX + 8) {
+              left = scrollX + 8;
+            }
+
+            popup.style.position = 'absolute';
+            popup.style.left = `${left}px`;
+            popup.style.top = `${top}px`;
+            popup.style.zIndex = '50';
+          };
+
+          const renderMentionList = () => {
+            if (!popup || !reactRoot) return;
+
+            const wrappedCommand = (item: MentionSuggestion) => {
+              if (currentCommand) {
+                currentCommand({ id: item.id, label: item.label });
+              }
+            };
+
+            const handleSelect = (index: number) => {
+              currentSelectedIndex = index;
+            };
+
+            reactRoot.render(
+              React.createElement(MentionList, {
+                ref: artistMentionListRef,
+                items: currentItems,
+                command: wrappedCommand,
+                isLoading: isLoadingArtistRef.current,
+                error: artistMentionErrorRef.current,
+                placeholder: artistMentionPlaceholder,
+                hasQuery: currentQuery.length > 0,
+                selectedIndex: currentSelectedIndex,
+                onSelect: handleSelect,
+              })
+            );
+          };
+
+          return {
+            onStart: (props) => {
+              popup = document.createElement('div');
+              popup.className = 'tiptap-mention-popup';
+              document.body.appendChild(popup);
+              updatePopupPosition(resolveClientRect(props));
+
+              import('react-dom/client').then(({ createRoot }) => {
+                if (popup) {
+                  reactRoot = createRoot(popup);
+                  currentItems = props.items as MentionSuggestion[];
+                  currentCommand = props.command;
+                  currentSelectedIndex = 0;
+                  currentQuery = props.query ?? '';
+                  renderMentionList();
+                  requestAnimationFrame(() => {
+                    updatePopupPosition(resolveClientRect(props));
+                  });
+                }
+              });
+            },
+            onUpdate: (props) => {
+              updatePopupPosition(resolveClientRect(props));
+              currentItems = props.items as MentionSuggestion[];
+              currentCommand = props.command;
+              currentQuery = props.query ?? '';
+              renderMentionList();
+            },
+            onKeyDown: ({ event }) => {
+              if (event.key === 'Escape') {
+                popup?.remove();
+                return true;
+              }
+
+              if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                currentSelectedIndex =
+                  (currentSelectedIndex - 1 + currentItems.length) %
+                  currentItems.length;
+                renderMentionList();
+                return true;
+              }
+
+              if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                currentSelectedIndex =
+                  (currentSelectedIndex + 1) % currentItems.length;
+                renderMentionList();
+                return true;
+              }
+
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                const selectedItem = currentItems[currentSelectedIndex];
+                if (selectedItem && currentCommand) {
+                  currentCommand({
+                    id: selectedItem.id,
+                    label: selectedItem.label,
+                  });
+                }
+                return true;
+              }
+
+              return false;
+            },
+            onExit: () => {
+              if (reactRoot) {
+                reactRoot.unmount();
+                reactRoot = null;
+              }
+              popup?.remove();
+              popup = null;
+              setArtistQuery('');
+              setIsLoadingArtistSuggestions(false);
             },
           };
         },
@@ -307,6 +614,7 @@ export function TiptapEditor({
           ]
         : []),
       mentionExtension,
+      artistMentionExtension,
     ],
     content: value,
     editable: !readOnly,

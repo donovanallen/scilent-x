@@ -22,6 +22,8 @@ export interface PostFormProps {
   className?: string;
   /** Callback to search for mention suggestions */
   onMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
+  /** Callback to search for artist mention suggestions */
+  onArtistMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
 }
 
 export function PostForm({
@@ -32,6 +34,7 @@ export function PostForm({
   onSubmit,
   className,
   onMentionQuery,
+  onArtistMentionQuery,
 }: PostFormProps) {
   const [content, setContent] = React.useState('');
   const [contentHtml, setContentHtml] = React.useState('');
@@ -82,6 +85,9 @@ export function PostForm({
                 className="border-0"
                 editorKey={editorKey}
                 onMentionQuery={onMentionQuery}
+                onArtistMentionQuery={onArtistMentionQuery}
+                mentionPlaceholder="Search for a user"
+                artistMentionPlaceholder="Search for an artist"
               />
             </div>
           </div>
