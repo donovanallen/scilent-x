@@ -1,10 +1,10 @@
 'use server';
 
 import { db } from '@scilent-one/db';
-import type { HarmonizedUserProfile } from '@scilent-one/harmony-engine';
+import type { HarmonizedUserProfile, HarmonizedArtist } from '@scilent-one/harmony-engine';
 
 import { getCurrentUser } from '@/lib/api-utils';
-import { getHarmonizationEngine } from '@/lib/harmonization';
+import { getHarmonizationEngine, getFollowedArtistsFromProvider } from '@/lib/harmonization';
 
 export interface ProviderProfileResult {
   success: boolean;
@@ -145,4 +145,108 @@ export async function canViewProviderProfiles(
 ): Promise<boolean> {
   const currentUser = await getCurrentUser();
   return currentUser?.id === targetUserId;
+}
+
+export interface FollowedArtistsResult {
+  success: boolean;
+  artists?: HarmonizedArtist[];
+  total?: number;
+  hasMore?: boolean;
+  nextCursor?: string | null;
+  error?: string;
+  errorCode?:
+    | 'UNAUTHORIZED'
+    | 'NOT_CONNECTED'
+    | 'TOKEN_EXPIRED'
+    | 'PROVIDER_ERROR';
+}
+
+/**
+ * Get a user's followed/favorite artists from a connected streaming provider.
+ * @param userId - The user ID to fetch followed artists for
+ * @param providerId - The provider ID (e.g., 'tidal', 'spotify')
+ * @param limit - Maximum number of artists to return (default: 10)
+ * @param cursor - Pagination cursor for fetching more results
+ */
+export async function getFollowedArtists(
+  userId: string,
+  providerId: string,
+  limit = 10,
+  cursor?: string
+): Promise<FollowedArtistsResult> {
+  try {
+    // Check authorization - only allow viewing own data
+    const canView = await canViewProviderProfiles(userId);
+    if (!canView) {
+      return {
+        success: false,
+        error: 'Unauthorized',
+        errorCode: 'UNAUTHORIZED',
+      };
+    }
+
+    // Get the user's connected account with access token
+    const account = await db.account.findFirst({
+      where: {
+        userId,
+        providerId,
+      },
+      select: {
+        accessToken: true,
+        accessTokenExpiresAt: true,
+      },
+    });
+
+    if (!account?.accessToken) {
+      return {
+        success: false,
+        error: `${providerId} account not connected`,
+        errorCode: 'NOT_CONNECTED',
+      };
+    }
+
+    // Check if token is expired
+    if (
+      account.accessTokenExpiresAt &&
+      account.accessTokenExpiresAt < new Date()
+    ) {
+      return {
+        success: false,
+        error: `${providerId} token expired`,
+        errorCode: 'TOKEN_EXPIRED',
+      };
+    }
+
+    // Fetch followed artists from the provider
+    const params: { limit: number; cursor?: string } = { limit };
+    if (cursor) {
+      params.cursor = cursor;
+    }
+    
+    const result = await getFollowedArtistsFromProvider(
+      account.accessToken,
+      providerId,
+      params
+    );
+
+    const response: FollowedArtistsResult = {
+      success: true,
+      artists: result.items,
+      hasMore: result.hasMore,
+      nextCursor: result.nextCursor,
+    };
+    
+    if (result.total !== undefined) {
+      response.total = result.total;
+    }
+    
+    return response;
+  } catch (error) {
+    console.error(`Failed to fetch ${providerId} followed artists:`, error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorCode: 'PROVIDER_ERROR',
+    };
+  }
 }

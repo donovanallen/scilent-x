@@ -23,13 +23,14 @@ import {
   RefreshCw,
   AtSign,
   ExternalLink,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { authClient } from '@/lib/auth-client';
 
-import { getProviderProfile, type ProviderProfileResult } from '../actions';
+import { getProviderProfile, getFollowedArtists, type ProviderProfileResult, type FollowedArtistsResult } from '../actions';
 
 interface TidalProfileCardProps {
   userId: string;
@@ -41,6 +42,7 @@ export function TidalProfileCard({
   isCurrentUser,
 }: TidalProfileCardProps) {
   const [result, setResult] = useState<ProviderProfileResult | null>(null);
+  const [artistsResult, setArtistsResult] = useState<FollowedArtistsResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isReconnecting, setIsReconnecting] = useState(false);
 
@@ -57,9 +59,15 @@ export function TidalProfileCard({
       }
 
       try {
-        const data = await getProviderProfile(userId, 'tidal');
+        // Fetch profile and followed artists in parallel
+        const [profileData, artistsData] = await Promise.all([
+          getProviderProfile(userId, 'tidal'),
+          getFollowedArtists(userId, 'tidal', 5), // Fetch first 5 for preview
+        ]);
+        
         if (!isCancelled) {
-          setResult(data);
+          setResult(profileData);
+          setArtistsResult(artistsData);
         }
       } catch (error) {
         console.error('Failed to fetch Tidal profile:', error);
@@ -200,6 +208,46 @@ export function TidalProfileCard({
             )}
           </div>
         </div>
+
+        {/* Artist Collection Stats */}
+        {artistsResult?.success && (
+          <>
+            <Separator className='my-4' />
+            <div className='space-y-3'>
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                  <Users className='size-4' />
+                  <span>Followed Artists</span>
+                </div>
+                {artistsResult.total !== undefined && (
+                  <Badge variant='secondary' className='text-xs'>
+                    {artistsResult.total.toLocaleString()}
+                  </Badge>
+                )}
+              </div>
+              
+              {/* Preview of followed artists */}
+              {artistsResult.artists && artistsResult.artists.length > 0 && (
+                <div className='flex flex-wrap gap-1'>
+                  {artistsResult.artists.slice(0, 5).map((artist) => (
+                    <Badge 
+                      key={artist.externalIds.tidal ?? artist.name} 
+                      variant='outline' 
+                      className='text-xs'
+                    >
+                      {artist.name}
+                    </Badge>
+                  ))}
+                  {artistsResult.hasMore && (
+                    <Badge variant='outline' className='text-xs text-muted-foreground'>
+                      +more
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </CardContent>
       <CardFooter>
         <Button
