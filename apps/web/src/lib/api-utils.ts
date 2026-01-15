@@ -2,14 +2,15 @@ import { auth } from '@scilent-one/auth/server';
 import { SocialError } from '@scilent-one/social';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { cache } from 'react';
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   return session?.user ?? null;
-}
+});
 
 export async function requireAuth() {
   const user = await getCurrentUser();

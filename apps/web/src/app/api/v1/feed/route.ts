@@ -10,7 +10,9 @@ import {
 // GET /api/v1/feed - Get home feed (posts from followed users)
 export async function GET(request: Request) {
   try {
-    const user = await getCurrentUser();
+    const userPromise = getCurrentUser();
+    const params = parseSearchParams(request) as PaginationParams;
+    const user = await userPromise;
 
     if (!user) {
       return NextResponse.json(
@@ -19,7 +21,6 @@ export async function GET(request: Request) {
       );
     }
 
-    const params = parseSearchParams(request) as PaginationParams;
     const result = await getHomeFeed(user.id, params);
 
     return NextResponse.json(result);
