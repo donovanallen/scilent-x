@@ -29,10 +29,7 @@ export {
   SpotifyProvider,
   type SpotifyConfig,
 } from './providers/spotify.provider';
-export {
-  TidalProvider,
-  type TidalConfig,
-} from './providers/tidal.provider';
+export { TidalProvider, type TidalConfig } from './providers/tidal.provider';
 export {
   LookupCoordinator,
   type LookupRequest,

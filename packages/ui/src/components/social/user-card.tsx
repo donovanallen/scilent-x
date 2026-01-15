@@ -15,7 +15,6 @@ export interface UserCardProps {
   image: string | null;
   followersCount?: number | undefined;
   followingCount?: number | undefined;
-  postsCount?: number | undefined;
   isFollowing?: boolean | undefined;
   isCurrentUser?: boolean | undefined;
   isLoading?: boolean | undefined;
@@ -26,7 +25,7 @@ export interface UserCardProps {
 }
 
 export function UserCard({
-  id,
+  // id,
   name,
   username,
   bio,
@@ -34,7 +33,6 @@ export function UserCard({
   image,
   followersCount,
   followingCount,
-  postsCount,
   isFollowing = false,
   isCurrentUser = false,
   isLoading = false,
@@ -46,13 +44,13 @@ export function UserCard({
   return (
     <Card
       className={cn(
-        'transition-colors',
+        'transition-colors overflow-hidden',
         onClick && 'cursor-pointer hover:bg-muted/50',
         className
       )}
       onClick={onClick}
     >
-      <CardContent className="pt-4">
+      <CardContent className="pt-4 overflow-hidden">
         <div className="flex items-start gap-3">
           <UserAvatar
             name={name}
@@ -63,24 +61,26 @@ export function UserCard({
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <div>
+              <div className="min-w-0 flex-1">
                 <h5 className="font-semibold truncate">
                   {name || username || 'Anonymous'}
                 </h5>
                 {username && (
-                  <p className="text-muted-foreground text-sm">@{username}</p>
+                  <p className="text-muted-foreground text-sm truncate">
+                    @{username}
+                  </p>
                 )}
               </div>
               {!isCurrentUser && onFollow && onUnfollow && (
                 <div onClick={(e) => e.stopPropagation()} className="shrink-0">
-                  {/* Icon-only on small screens */}
+                  {/* Icon-only on small/medium screens */}
                   <FollowButton
                     isFollowing={isFollowing}
                     isLoading={isLoading}
                     onFollow={() => onFollow()}
                     onUnfollow={() => onUnfollow()}
                     iconOnly
-                    className="sm:hidden"
+                    className="lg:hidden"
                   />
                   {/* Full button on larger screens */}
                   <FollowButton
@@ -89,7 +89,7 @@ export function UserCard({
                     onFollow={() => onFollow()}
                     onUnfollow={() => onUnfollow()}
                     size="sm"
-                    className="hidden sm:inline-flex"
+                    className="hidden lg:inline-flex"
                   />
                 </div>
               )}
@@ -99,24 +99,16 @@ export function UserCard({
                 {bio}
               </p>
             )}
-            {(followersCount !== undefined ||
-              followingCount !== undefined ||
-              postsCount !== undefined) && (
-              <div className="flex items-center gap-4 mt-3 text-sm">
-                {postsCount !== undefined && (
-                  <div>
-                    <span className="font-semibold">{postsCount}</span>{' '}
-                    <span className="text-muted-foreground">posts</span>
-                  </div>
-                )}
+            {(followersCount !== undefined || followingCount !== undefined) && (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3 text-sm">
                 {followersCount !== undefined && (
-                  <div>
+                  <div className="whitespace-nowrap">
                     <span className="font-semibold">{followersCount}</span>{' '}
                     <span className="text-muted-foreground">followers</span>
                   </div>
                 )}
                 {followingCount !== undefined && (
-                  <div>
+                  <div className="whitespace-nowrap">
                     <span className="font-semibold">{followingCount}</span>{' '}
                     <span className="text-muted-foreground">following</span>
                   </div>

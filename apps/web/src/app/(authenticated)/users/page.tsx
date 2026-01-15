@@ -385,7 +385,6 @@ export default function UsersPage() {
                   image={user.image}
                   followersCount={user.followersCount}
                   followingCount={user.followingCount}
-                  postsCount={user.postsCount}
                   isFollowing={user.isFollowing}
                   isCurrentUser={currentUser?.id === user.id}
                   onFollow={username ? () => handleFollow(username) : undefined}

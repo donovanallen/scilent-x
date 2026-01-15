@@ -22,6 +22,39 @@ import { genericOAuth } from 'better-auth/plugins';
 import { db } from '@scilent-one/db';
 
 /**
+ * Generates a unique username for new users.
+ * Format: u_<8-char-hex> (e.g., u_a1b2c3d4)
+ * Uses crypto for randomness and checks for uniqueness.
+ */
+async function generateUniqueUsername(): Promise<string> {
+  const maxAttempts = 10;
+
+  for (let i = 0; i < maxAttempts; i++) {
+    // Generate 8 random hex characters
+    const randomBytes = crypto.getRandomValues(new Uint8Array(4));
+    const hex = Array.from(randomBytes)
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+    const username = `u_${hex}`;
+
+    // Check if username already exists
+    const existing = await db.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return username;
+    }
+  }
+
+  // Fallback: use timestamp + random for guaranteed uniqueness
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 6);
+  return `u_${timestamp}${random}`;
+}
+
+/**
  * Better Auth instance configured for the application.
  *
  * Features:
@@ -38,6 +71,30 @@ export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: 'postgresql',
   }),
+
+  /**
+   * Database Hooks
+   * Auto-generate username for new users to ensure profile routes work
+   */
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          // Only generate username if not already provided
+          if (!user.username) {
+            const username = await generateUniqueUsername();
+            return {
+              data: {
+                ...user,
+                username,
+              },
+            };
+          }
+          return { data: user };
+        },
+      },
+    },
+  },
 
   /**
    * Email and Password Authentication

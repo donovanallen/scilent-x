@@ -14,7 +14,7 @@ import {
   GridSkeleton,
   ListSkeleton,
 } from '@scilent-one/harmony-ui';
-import { cn } from '@scilent-one/ui';
+import { cn, ScrollArea } from '@scilent-one/ui';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { AlertCircle, Music2, Search } from 'lucide-react';
 import { useRef, useMemo, useState, useEffect } from 'react';
@@ -210,7 +210,11 @@ export function SearchResults({
   }
 
   return (
-    <div ref={scrollRef} className='flex-1 overflow-auto -mx-1 px-1'>
+    <ScrollArea
+      viewportRef={scrollRef}
+      showShadow
+      className='flex-1 -mx-1 px-1'
+    >
       <div
         style={{
           height: `${listVirtualizer.getTotalSize()}px`,
@@ -395,6 +399,6 @@ export function SearchResults({
           );
         })}
       </div>
-    </div>
+    </ScrollArea>
   );
 }

@@ -26,6 +26,8 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   // Social profile fields
+  // Username is auto-generated on signup (format: u_<hex>) and can be changed by user later
+  // Kept as nullable for backwards compatibility, but always set by auth hooks
   username      String?   @unique
   bio           String?   @db.Text
   avatarUrl     String?
