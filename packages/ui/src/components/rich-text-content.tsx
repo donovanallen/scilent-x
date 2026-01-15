@@ -18,8 +18,6 @@ export interface ArtistMentionRenderProps {
   name: string;
   /** Provider name (e.g., 'tidal', 'musicbrainz') */
   provider: string;
-  /** React key for the element */
-  key: string;
   /** Click handler */
   onClick?: ((artistId: string, provider: string) => void) | undefined;
   /** Content to render inside the mention */
@@ -33,13 +31,17 @@ export interface RichTextContentProps {
   /** Callback when a user mention (@username) is clicked */
   onMentionClick?: ((username: string) => void) | undefined;
   /** Callback when an artist mention (#artist) is clicked */
-  onArtistMentionClick?: ((artistId: string, provider: string) => void) | undefined;
+  onArtistMentionClick?:
+    | ((artistId: string, provider: string) => void)
+    | undefined;
   /**
    * Custom renderer for artist mentions.
    * If not provided, artist mentions render as simple styled buttons.
    * Use this to wrap artist mentions with interactive behaviors (context menus, hover previews).
    */
-  renderArtistMention?: ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
+  renderArtistMention?:
+    | ((props: ArtistMentionRenderProps) => React.ReactNode)
+    | undefined;
 }
 
 // Regex to match @username mentions (global flag for replace/exec)
@@ -107,59 +109,63 @@ export function RichTextContent({
   const ArtistMentionRenderer = renderArtistMention ?? DefaultArtistMention;
 
   // Parser options for html-react-parser
-  const parserOptions = React.useMemo<HTMLReactParserOptions>(() => ({
-    replace: (domNode: DOMNode) => {
-      // Only process Element nodes
-      if (!(domNode instanceof Element)) {
+  const parserOptions = React.useMemo<HTMLReactParserOptions>(
+    () => ({
+      replace: (domNode: DOMNode) => {
+        // Only process Element nodes
+        if (!(domNode instanceof Element)) {
+          return;
+        }
+
+        const { attribs } = domNode;
+
+        // Check if this is a Tiptap mention span
+        if (domNode.name === 'span' && attribs['data-mention-type']) {
+          const mentionType = attribs['data-mention-type'];
+          const mentionId = attribs['data-mention-id'] ?? '';
+          const mentionLabel = attribs['data-mention-label'] ?? '';
+
+          // Handle artist mentions
+          if (mentionType === 'ARTIST') {
+            const { provider, id } = parseMentionId(mentionId);
+            // Render as JSX element so React can properly handle the key
+            return (
+              <ArtistMentionRenderer
+                id={id}
+                name={mentionLabel}
+                provider={provider}
+                onClick={onArtistMentionClick}
+              >
+                {`#${mentionLabel}`}
+              </ArtistMentionRenderer>
+            );
+          }
+
+          // Handle user mentions as interactive buttons
+          if (mentionType === 'USER') {
+            return (
+              <button
+                key={`user-${mentionId}`}
+                type="button"
+                className="rich-text-mention tiptap-mention text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-label={`View ${mentionLabel}'s profile`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMentionClick?.(mentionLabel);
+                }}
+              >
+                @{mentionLabel}
+              </button>
+            );
+          }
+        }
+
+        // For other elements, return undefined to let the default behavior handle them
         return;
-      }
-
-      const { attribs } = domNode;
-
-      // Check if this is a Tiptap mention span
-      if (domNode.name === 'span' && attribs['data-mention-type']) {
-        const mentionType = attribs['data-mention-type'];
-        const mentionId = attribs['data-mention-id'] ?? '';
-        const mentionLabel = attribs['data-mention-label'] ?? '';
-
-        // Handle artist mentions
-        if (mentionType === 'ARTIST') {
-          const { provider, id } = parseMentionId(mentionId);
-          const rendered = ArtistMentionRenderer({
-            key: `artist-${mentionId}`,
-            id,
-            name: mentionLabel,
-            provider,
-            onClick: onArtistMentionClick,
-            children: `#${mentionLabel}`,
-          });
-          // Wrap in fragment to satisfy html-react-parser's expected return type
-          return <>{rendered}</>;
-        }
-
-        // Handle user mentions as interactive buttons
-        if (mentionType === 'USER') {
-          return (
-            <button
-              key={`user-${mentionId}`}
-              type="button"
-              className="rich-text-mention tiptap-mention text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              aria-label={`View ${mentionLabel}'s profile`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onMentionClick?.(mentionLabel);
-              }}
-            >
-              @{mentionLabel}
-            </button>
-          );
-        }
-      }
-
-      // For other elements, return undefined to let the default behavior handle them
-      return;
-    },
-  }), [onMentionClick, onArtistMentionClick, ArtistMentionRenderer]);
+      },
+    }),
+    [onMentionClick, onArtistMentionClick, ArtistMentionRenderer]
+  );
 
   // If we have HTML content, parse and render it
   if (html) {

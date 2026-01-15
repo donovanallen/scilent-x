@@ -40,6 +40,11 @@ export {
   type UseFollowOptions,
   type UseFollowReturn,
 } from './hooks/use-optimistic-action';
+export {
+  useEditPost,
+  type UseEditPostOptions,
+  type UseEditPostReturn,
+} from './hooks/use-edit-post';
 
 // Components
 export { Avatar, AvatarImage, AvatarFallback } from './components/avatar';

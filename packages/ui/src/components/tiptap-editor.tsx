@@ -185,7 +185,18 @@ export function TiptapEditor({
     return Mention.extend({
       name: 'userMention',
       parseHTML() {
-        return [{ tag: 'span[data-mention-type="USER"]' }];
+        return [
+          {
+            tag: 'span[data-mention-type="USER"]',
+            getAttrs: (element) => {
+              const el = element as HTMLElement;
+              return {
+                id: el.getAttribute('data-mention-id'),
+                label: el.getAttribute('data-mention-label'),
+              };
+            },
+          },
+        ];
       },
     }).configure({
       HTMLAttributes: {
@@ -393,7 +404,18 @@ export function TiptapEditor({
     return Mention.extend({
       name: 'artistMention',
       parseHTML() {
-        return [{ tag: 'span[data-mention-type="ARTIST"]' }];
+        return [
+          {
+            tag: 'span[data-mention-type="ARTIST"]',
+            getAttrs: (element) => {
+              const el = element as HTMLElement;
+              return {
+                id: el.getAttribute('data-mention-id'),
+                label: el.getAttribute('data-mention-label'),
+              };
+            },
+          },
+        ];
       },
     }).configure({
       HTMLAttributes: {
