@@ -4,6 +4,8 @@ import type {
   HarmonizedArtist,
   HarmonizedUserProfile,
   ProviderSource,
+  PaginatedCollection,
+  CollectionParams,
 } from '../types/index';
 import type {
   ProviderConfig,
@@ -170,6 +172,36 @@ export abstract class BaseProvider {
    */
   async getCurrentUser(accessToken: string): Promise<HarmonizedUserProfile> {
     return this.withRateLimitAndRetry(() => this._getCurrentUser(accessToken));
+  }
+
+  /**
+   * Get the user's followed/favorite artists from the provider.
+   * Override this method in providers that support user collections.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @param params - Pagination parameters (limit, cursor)
+   * @throws UserAuthNotSupportedError if the provider doesn't support user auth
+   */
+  protected async _getFollowedArtists(
+    _accessToken: string,
+    _params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedArtist>> {
+    throw new UserAuthNotSupportedError(this.name);
+  }
+
+  /**
+   * Get the user's followed/favorite artists from the provider.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @param params - Pagination parameters (limit, cursor)
+   * @returns Paginated list of harmonized artists the user follows
+   * @throws UserAuthNotSupportedError if the provider doesn't support user auth
+   */
+  async getFollowedArtists(
+    accessToken: string,
+    params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedArtist>> {
+    return this.withRateLimitAndRetry(() =>
+      this._getFollowedArtists(accessToken, params)
+    );
   }
 
   // Helper for wrapping calls

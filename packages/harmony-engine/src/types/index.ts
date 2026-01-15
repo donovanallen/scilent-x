@@ -21,6 +21,9 @@ export {
   type HarmonizedArtist,
   HarmonizedUserProfileSchema,
   type HarmonizedUserProfile,
+  PaginatedCollectionSchema,
+  type PaginatedCollection,
+  type CollectionParams,
 } from './harmonized.types';
 
 export type {

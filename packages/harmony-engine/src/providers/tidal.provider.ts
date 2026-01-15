@@ -12,6 +12,8 @@ import type {
   HarmonizedUserProfile,
   ReleaseType,
   PartialDate,
+  PaginatedCollection,
+  CollectionParams,
 } from '../types/index';
 import { HttpError, ProviderError } from '../errors/index';
 
@@ -594,6 +596,68 @@ export class TidalProvider extends BaseProvider {
     }
 
     return this.transformUserProfile(data.data);
+  }
+
+  /**
+   * Get the user's followed/favorite artists from Tidal.
+   * Uses the /users/me/favorites/artists endpoint.
+   * @param accessToken - The user's OAuth access token
+   * @param params - Pagination parameters (limit, cursor)
+   * @returns Paginated list of harmonized artists the user follows
+   */
+  protected override async _getFollowedArtists(
+    accessToken: string,
+    params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedArtist>> {
+    const limit = params?.limit ?? 20;
+
+    const queryParams: Record<string, string> = {
+      include: 'artists',
+      limit: String(limit),
+    };
+
+    // Tidal API v2 uses offset-based pagination for favorites
+    if (params?.cursor) {
+      queryParams['offset'] = params.cursor;
+    }
+
+    const data = await this.fetchUserApi<TidalListResponse<{ id: string; type: 'userArtistFavorites' }>>(
+      '/users/me/favorites/artists',
+      accessToken,
+      queryParams
+    );
+
+    if (!data?.included) {
+      const emptyResult: PaginatedCollection<HarmonizedArtist> = {
+        items: [],
+        nextCursor: null,
+        hasMore: false,
+      };
+      if (data?.meta?.total !== undefined) {
+        emptyResult.total = data.meta.total;
+      }
+      return emptyResult;
+    }
+
+    // Extract artists from the included resources
+    const artists = data.included.filter(
+      (item): item is TidalArtist => item.type === 'artists'
+    );
+
+    const harmonizedArtists = artists.map((artist) => this.transformArtist(artist));
+
+    // Calculate next cursor based on offset pagination
+    const currentOffset = params?.cursor ? parseInt(params.cursor, 10) : 0;
+    const nextOffset = currentOffset + artists.length;
+    const total = data.meta?.total ?? 0;
+    const hasMore = nextOffset < total;
+
+    return {
+      items: harmonizedArtists,
+      nextCursor: hasMore ? String(nextOffset) : null,
+      hasMore,
+      total,
+    };
   }
 
   // Transformation methods

@@ -393,8 +393,7 @@ export const ModelName = {
   Like: 'Like',
   Follow: 'Follow',
   Mention: 'Mention',
-  Activity: 'Activity',
-  ArtistFollow: 'ArtistFollow'
+  Activity: 'Activity'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -410,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verification" | "post" | "comment" | "like" | "follow" | "mention" | "activity" | "artistFollow"
+    modelProps: "user" | "account" | "session" | "verification" | "post" | "comment" | "like" | "follow" | "mention" | "activity"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1154,80 +1153,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ArtistFollow: {
-      payload: Prisma.$ArtistFollowPayload<ExtArgs>
-      fields: Prisma.ArtistFollowFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ArtistFollowFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtistFollowPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ArtistFollowFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtistFollowPayload>
-        }
-        findFirst: {
-          args: Prisma.ArtistFollowFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtistFollowPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ArtistFollowFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtistFollowPayload>
-        }
-        findMany: {
-          args: Prisma.ArtistFollowFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtistFollowPayload>[]
-        }
-        create: {
-          args: Prisma.ArtistFollowCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtistFollowPayload>
-        }
-        createMany: {
-          args: Prisma.ArtistFollowCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ArtistFollowCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtistFollowPayload>[]
-        }
-        delete: {
-          args: Prisma.ArtistFollowDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtistFollowPayload>
-        }
-        update: {
-          args: Prisma.ArtistFollowUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtistFollowPayload>
-        }
-        deleteMany: {
-          args: Prisma.ArtistFollowDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ArtistFollowUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ArtistFollowUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtistFollowPayload>[]
-        }
-        upsert: {
-          args: Prisma.ArtistFollowUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtistFollowPayload>
-        }
-        aggregate: {
-          args: Prisma.ArtistFollowAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateArtistFollow>
-        }
-        groupBy: {
-          args: Prisma.ArtistFollowGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ArtistFollowGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ArtistFollowCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ArtistFollowCountAggregateOutputType> | number
-        }
-      }
-    }
   }
 } & {
   other: {
@@ -1397,19 +1322,6 @@ export const ActivityScalarFieldEnum = {
 } as const
 
 export type ActivityScalarFieldEnum = (typeof ActivityScalarFieldEnum)[keyof typeof ActivityScalarFieldEnum]
-
-
-export const ArtistFollowScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  artistId: 'artistId',
-  provider: 'provider',
-  artistName: 'artistName',
-  artistImage: 'artistImage',
-  createdAt: 'createdAt'
-} as const
-
-export type ArtistFollowScalarFieldEnum = (typeof ArtistFollowScalarFieldEnum)[keyof typeof ArtistFollowScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1623,7 +1535,6 @@ export type GlobalOmitConfig = {
   follow?: Prisma.FollowOmit
   mention?: Prisma.MentionOmit
   activity?: Prisma.ActivityOmit
-  artistFollow?: Prisma.ArtistFollowOmit
 }
 
 /* Types for Logging */

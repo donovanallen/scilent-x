@@ -231,7 +231,6 @@ export type UserWhereInput = {
   following?: Prisma.FollowListRelationFilter
   mentions?: Prisma.MentionListRelationFilter
   activities?: Prisma.ActivityListRelationFilter
-  artistFollows?: Prisma.ArtistFollowListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -254,7 +253,6 @@ export type UserOrderByWithRelationInput = {
   following?: Prisma.FollowOrderByRelationAggregateInput
   mentions?: Prisma.MentionOrderByRelationAggregateInput
   activities?: Prisma.ActivityOrderByRelationAggregateInput
-  artistFollows?: Prisma.ArtistFollowOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -280,7 +278,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   following?: Prisma.FollowListRelationFilter
   mentions?: Prisma.MentionListRelationFilter
   activities?: Prisma.ActivityListRelationFilter
-  artistFollows?: Prisma.ArtistFollowListRelationFilter
 }, "id" | "email" | "username">
 
 export type UserOrderByWithAggregationInput = {
@@ -335,7 +332,6 @@ export type UserCreateInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -358,7 +354,6 @@ export type UserUncheckedCreateInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -381,7 +376,6 @@ export type UserUpdateInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -404,7 +398,6 @@ export type UserUncheckedUpdateInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -632,20 +625,6 @@ export type UserUpdateOneRequiredWithoutActivitiesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutActivitiesInput, Prisma.UserUpdateWithoutActivitiesInput>, Prisma.UserUncheckedUpdateWithoutActivitiesInput>
 }
 
-export type UserCreateNestedOneWithoutArtistFollowsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutArtistFollowsInput, Prisma.UserUncheckedCreateWithoutArtistFollowsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutArtistFollowsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutArtistFollowsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutArtistFollowsInput, Prisma.UserUncheckedCreateWithoutArtistFollowsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutArtistFollowsInput
-  upsert?: Prisma.UserUpsertWithoutArtistFollowsInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutArtistFollowsInput, Prisma.UserUpdateWithoutArtistFollowsInput>, Prisma.UserUncheckedUpdateWithoutArtistFollowsInput>
-}
-
 export type UserCreateWithoutAccountsInput = {
   id?: string
   email: string
@@ -665,7 +644,6 @@ export type UserCreateWithoutAccountsInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -687,7 +665,6 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -725,7 +702,6 @@ export type UserUpdateWithoutAccountsInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -747,7 +723,6 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -769,7 +744,6 @@ export type UserCreateWithoutSessionsInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -791,7 +765,6 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -829,7 +802,6 @@ export type UserUpdateWithoutSessionsInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -851,7 +823,6 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPostsInput = {
@@ -873,7 +844,6 @@ export type UserCreateWithoutPostsInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPostsInput = {
@@ -895,7 +865,6 @@ export type UserUncheckedCreateWithoutPostsInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPostsInput = {
@@ -933,7 +902,6 @@ export type UserUpdateWithoutPostsInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPostsInput = {
@@ -955,7 +923,6 @@ export type UserUncheckedUpdateWithoutPostsInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCommentsInput = {
@@ -977,7 +944,6 @@ export type UserCreateWithoutCommentsInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCommentsInput = {
@@ -999,7 +965,6 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCommentsInput = {
@@ -1037,7 +1002,6 @@ export type UserUpdateWithoutCommentsInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommentsInput = {
@@ -1059,7 +1023,6 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLikesInput = {
@@ -1081,7 +1044,6 @@ export type UserCreateWithoutLikesInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLikesInput = {
@@ -1103,7 +1065,6 @@ export type UserUncheckedCreateWithoutLikesInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLikesInput = {
@@ -1141,7 +1102,6 @@ export type UserUpdateWithoutLikesInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLikesInput = {
@@ -1163,7 +1123,6 @@ export type UserUncheckedUpdateWithoutLikesInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFollowingInput = {
@@ -1185,7 +1144,6 @@ export type UserCreateWithoutFollowingInput = {
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   mentions?: Prisma.MentionCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowingInput = {
@@ -1207,7 +1165,6 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowingInput = {
@@ -1234,7 +1191,6 @@ export type UserCreateWithoutFollowersInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowersInput = {
@@ -1256,7 +1212,6 @@ export type UserUncheckedCreateWithoutFollowersInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutUserInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowersInput = {
@@ -1294,7 +1249,6 @@ export type UserUpdateWithoutFollowingInput = {
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowingInput = {
@@ -1316,7 +1270,6 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutFollowersInput = {
@@ -1349,7 +1302,6 @@ export type UserUpdateWithoutFollowersInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowersInput = {
@@ -1371,7 +1323,6 @@ export type UserUncheckedUpdateWithoutFollowersInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutUserNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMentionsInput = {
@@ -1393,7 +1344,6 @@ export type UserCreateWithoutMentionsInput = {
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMentionsInput = {
@@ -1415,7 +1365,6 @@ export type UserUncheckedCreateWithoutMentionsInput = {
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMentionsInput = {
@@ -1453,7 +1402,6 @@ export type UserUpdateWithoutMentionsInput = {
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMentionsInput = {
@@ -1475,7 +1423,6 @@ export type UserUncheckedUpdateWithoutMentionsInput = {
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutActivitiesInput = {
@@ -1497,7 +1444,6 @@ export type UserCreateWithoutActivitiesInput = {
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutActivitiesInput = {
@@ -1519,7 +1465,6 @@ export type UserUncheckedCreateWithoutActivitiesInput = {
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutUserInput
-  artistFollows?: Prisma.ArtistFollowUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutActivitiesInput = {
@@ -1557,7 +1502,6 @@ export type UserUpdateWithoutActivitiesInput = {
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActivitiesInput = {
@@ -1579,111 +1523,6 @@ export type UserUncheckedUpdateWithoutActivitiesInput = {
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutUserNestedInput
-  artistFollows?: Prisma.ArtistFollowUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutArtistFollowsInput = {
-  id?: string
-  email: string
-  emailVerified?: boolean
-  name?: string | null
-  image?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  username?: string | null
-  bio?: string | null
-  avatarUrl?: string | null
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-  posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
-  comments?: Prisma.CommentCreateNestedManyWithoutAuthorInput
-  likes?: Prisma.LikeCreateNestedManyWithoutUserInput
-  followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
-  following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
-  mentions?: Prisma.MentionCreateNestedManyWithoutUserInput
-  activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutArtistFollowsInput = {
-  id?: string
-  email: string
-  emailVerified?: boolean
-  name?: string | null
-  image?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  username?: string | null
-  bio?: string | null
-  avatarUrl?: string | null
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-  posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
-  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutAuthorInput
-  likes?: Prisma.LikeUncheckedCreateNestedManyWithoutUserInput
-  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
-  following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
-  mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutUserInput
-  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutArtistFollowsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutArtistFollowsInput, Prisma.UserUncheckedCreateWithoutArtistFollowsInput>
-}
-
-export type UserUpsertWithoutArtistFollowsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutArtistFollowsInput, Prisma.UserUncheckedUpdateWithoutArtistFollowsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutArtistFollowsInput, Prisma.UserUncheckedCreateWithoutArtistFollowsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutArtistFollowsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutArtistFollowsInput, Prisma.UserUncheckedUpdateWithoutArtistFollowsInput>
-}
-
-export type UserUpdateWithoutArtistFollowsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-  posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
-  comments?: Prisma.CommentUpdateManyWithoutAuthorNestedInput
-  likes?: Prisma.LikeUpdateManyWithoutUserNestedInput
-  followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
-  following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
-  mentions?: Prisma.MentionUpdateManyWithoutUserNestedInput
-  activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutArtistFollowsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-  posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
-  comments?: Prisma.CommentUncheckedUpdateManyWithoutAuthorNestedInput
-  likes?: Prisma.LikeUncheckedUpdateManyWithoutUserNestedInput
-  followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
-  following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
-  mentions?: Prisma.MentionUncheckedUpdateManyWithoutUserNestedInput
-  activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1701,7 +1540,6 @@ export type UserCountOutputType = {
   following: number
   mentions: number
   activities: number
-  artistFollows: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1714,7 +1552,6 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   following?: boolean | UserCountOutputTypeCountFollowingArgs
   mentions?: boolean | UserCountOutputTypeCountMentionsArgs
   activities?: boolean | UserCountOutputTypeCountActivitiesArgs
-  artistFollows?: boolean | UserCountOutputTypeCountArtistFollowsArgs
 }
 
 /**
@@ -1790,13 +1627,6 @@ export type UserCountOutputTypeCountActivitiesArgs<ExtArgs extends runtime.Types
   where?: Prisma.ActivityWhereInput
 }
 
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountArtistFollowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ArtistFollowWhereInput
-}
-
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1818,7 +1648,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   following?: boolean | Prisma.User$followingArgs<ExtArgs>
   mentions?: boolean | Prisma.User$mentionsArgs<ExtArgs>
   activities?: boolean | Prisma.User$activitiesArgs<ExtArgs>
-  artistFollows?: boolean | Prisma.User$artistFollowsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1872,7 +1701,6 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   following?: boolean | Prisma.User$followingArgs<ExtArgs>
   mentions?: boolean | Prisma.User$mentionsArgs<ExtArgs>
   activities?: boolean | Prisma.User$activitiesArgs<ExtArgs>
-  artistFollows?: boolean | Prisma.User$artistFollowsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1890,7 +1718,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     following: Prisma.$FollowPayload<ExtArgs>[]
     mentions: Prisma.$MentionPayload<ExtArgs>[]
     activities: Prisma.$ActivityPayload<ExtArgs>[]
-    artistFollows: Prisma.$ArtistFollowPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2306,7 +2133,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   following<T extends Prisma.User$followingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$followingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FollowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   mentions<T extends Prisma.User$mentionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mentionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MentionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   activities<T extends Prisma.User$activitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  artistFollows<T extends Prisma.User$artistFollowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$artistFollowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtistFollowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2947,30 +2773,6 @@ export type User$activitiesArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.ActivityScalarFieldEnum | Prisma.ActivityScalarFieldEnum[]
-}
-
-/**
- * User.artistFollows
- */
-export type User$artistFollowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ArtistFollow
-   */
-  select?: Prisma.ArtistFollowSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ArtistFollow
-   */
-  omit?: Prisma.ArtistFollowOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ArtistFollowInclude<ExtArgs> | null
-  where?: Prisma.ArtistFollowWhereInput
-  orderBy?: Prisma.ArtistFollowOrderByWithRelationInput | Prisma.ArtistFollowOrderByWithRelationInput[]
-  cursor?: Prisma.ArtistFollowWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ArtistFollowScalarFieldEnum | Prisma.ArtistFollowScalarFieldEnum[]
 }
 
 /**

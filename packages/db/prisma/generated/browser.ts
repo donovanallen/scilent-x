@@ -67,8 +67,3 @@ export type Mention = Prisma.MentionModel
  * Activity model - Activity feed for users
  */
 export type Activity = Prisma.ActivityModel
-/**
- * Model ArtistFollow
- * ArtistFollow model - User following artist relationships
- */
-export type ArtistFollow = Prisma.ArtistFollowModel
