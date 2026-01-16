@@ -1,5 +1,21 @@
 # @scilent-one/social
 
+## 0.3.1
+
+### Patch Changes
+
+- 17c0c67: Add support for interactive Artist mentions in Posts
+- af1ae2c: Unit tests (UI, HUI)
+- 6a6a068: Unit tests (social)
+- af1ae2c: Unit tests (HUI, UI)
+- f94f082: Fix to user mentions in posts
+- Updated dependencies [c98f668]
+- Updated dependencies [af1ae2c]
+- Updated dependencies [6a6a068]
+- Updated dependencies [af1ae2c]
+- Updated dependencies [d0acd8a]
+  - @scilent-one/db@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes

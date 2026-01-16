@@ -1,5 +1,20 @@
 # @scilent-one/auth
 
+## 0.2.1
+
+### Patch Changes
+
+- c98f668: Artist follows update and autogen usernames
+- d0acd8a: Adds logging to Auth flow and Auth, DB packages
+- Updated dependencies [01f7fde]
+- Updated dependencies [c98f668]
+- Updated dependencies [af1ae2c]
+- Updated dependencies [6a6a068]
+- Updated dependencies [af1ae2c]
+- Updated dependencies [d0acd8a]
+  - @scilent-one/logger@0.2.0
+  - @scilent-one/db@0.3.1
+
 ## 0.2.0
 
 ### Minor Changes
