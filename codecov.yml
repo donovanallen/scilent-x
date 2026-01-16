@@ -23,16 +23,25 @@ comment:
   behavior: default
   require_changes: true  # Only comment when coverage changes
 
-# Flags for grouping coverage by package (future use)
-# flags:
-#   social:
-#     paths:
-#       - packages/social/
-#     carryforward: true
-#   harmony-engine:
-#     paths:
-#       - packages/harmony-engine/
-#     carryforward: true
+# Flags for grouping coverage by package
+flags:
+  social:
+    paths:
+      - packages/social/
+    carryforward: true
+  harmony-ui:
+    paths:
+      - packages/harmony-ui/
+    carryforward: true
+  ui:
+    paths:
+      - packages/ui/
+    carryforward: true
+  # Future: Add more packages as they get tests
+  # harmony-engine:
+  #   paths:
+  #     - packages/harmony-engine/
+  #   carryforward: true
 
 # Ignore certain paths from coverage
 ignore:

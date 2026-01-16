@@ -374,6 +374,68 @@ import {
 } from '@scilent-one/harmony-ui';
 ```
 
+## Testing
+
+This package includes unit tests for utility functions using [Vitest](https://vitest.dev/).
+
+### Running Tests
+
+```bash
+# Run tests in watch mode (development)
+pnpm test
+
+# Run tests once
+pnpm test:run
+
+# Run tests with coverage report
+pnpm test:coverage
+```
+
+From the monorepo root:
+
+```bash
+# Run tests for this package only
+pnpm turbo test --filter=@scilent-one/harmony-ui
+
+# Run tests for all packages
+pnpm test
+```
+
+### Test Structure
+
+```
+src/
+└── utils/
+    ├── __tests__/
+    │   └── format.test.ts    # Tests for formatting utilities
+    ├── format.ts
+    └── index.ts
+```
+
+### What's Tested
+
+| Module | Coverage | Description |
+|--------|----------|-------------|
+| `utils/format.ts` | 100% | Duration, date, artist, and platform formatting |
+
+Functions tested include:
+- `formatDuration()` - Milliseconds to MM:SS or HH:MM:SS
+- `formatPartialDate()` - Partial date objects to readable strings
+- `formatArtistCredits()` - Artist array to credited string with join phrases
+- `formatArtistNames()` - Simple comma-separated artist names
+- `getPrimaryArtistName()` - Extract first artist name
+- `formatTrackPosition()` - Track position with optional disc number
+- `getFrontArtworkUrl()` - Extract front cover from artwork array
+- `formatPlatformName()` - Platform ID to display name
+
+### Coverage Reporting
+
+Coverage is tracked via [Codecov](https://codecov.io). PR comments show coverage changes automatically.
+
+### Local Coverage Report
+
+Run `pnpm test:coverage` to generate a local report. Results are saved to `coverage/`.
+
 ## License
 
 Private - @scilent-one

@@ -15,7 +15,24 @@ const dirname =
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   test: {
+    // Coverage config at root level for all projects
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary', 'json'],
+      include: ['src/utils.ts', 'src/hooks/**/*.ts'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.stories.tsx'],
+    },
     projects: [
+      // Unit tests for utils and hooks
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['src/**/*.test.ts'],
+          environment: 'node',
+        },
+      },
+      // Storybook component tests
       {
         extends: true,
         plugins: [
