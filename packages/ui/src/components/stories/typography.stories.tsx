@@ -17,9 +17,9 @@ function TypographyDemo() {
         </div>
 
         <div className="mt-10 space-y-12">
-          <section>
+          <section aria-labelledby="display-heading">
             <div className="flex items-baseline justify-between gap-6 border-b border-border pb-3">
-              <h4>Display/Hero</h4>
+              <h4 id="display-heading">Display/Hero</h4>
               <p className="text-sm text-muted-foreground font-mono">
                 font-display
               </p>
@@ -29,9 +29,9 @@ function TypographyDemo() {
               Quick Brown Fox
             </span>
           </section>
-          <section className="space-y-6">
+          <section aria-labelledby="headings-section" className="space-y-6">
             <div className="flex items-baseline justify-between gap-6 border-b border-border pb-3">
-              <h4>Headings</h4>
+              <h4 id="headings-section">Headings</h4>
               <p className="text-sm text-muted-foreground font-mono">
                 h1–h6 (global styles)
               </p>
@@ -65,9 +65,9 @@ function TypographyDemo() {
             </div>
           </section>
 
-          <section className="space-y-6">
+          <section aria-labelledby="body-section" className="space-y-6">
             <div className="flex items-baseline justify-between gap-6 border-b border-border pb-3">
-              <h4>Body, lists, and code</h4>
+              <h4 id="body-section">Body, lists, and code</h4>
               <p className="text-sm text-muted-foreground font-mono">
                 p / strong / ul / ol / code (global styles)
               </p>
@@ -113,9 +113,9 @@ function TypographyDemo() {
             </div>
           </section>
 
-          <section className="space-y-6">
+          <section aria-labelledby="fonts-section" className="space-y-6">
             <div className="flex items-baseline justify-between gap-6 border-b border-border pb-3">
-              <h4>Font utilities</h4>
+              <h4 id="fonts-section">Font utilities</h4>
               <p className="text-sm text-muted-foreground font-mono">
                 font-display / font-heading / font-body / font-mono
               </p>
