@@ -1,5 +1,17 @@
 # @scilent-one/harmony-ui
 
+## 0.4.1
+
+### Patch Changes
+
+- 1094f0e: Minor dependency updates
+- 3fbaef5: Deps continued
+- Updated dependencies [1479e4a]
+- Updated dependencies [dbcbbc6]
+- Updated dependencies [1094f0e]
+- Updated dependencies [b2e96c9]
+  - @scilent-one/ui@0.4.0
+
 ## 0.4.0
 
 ### Minor Changes
