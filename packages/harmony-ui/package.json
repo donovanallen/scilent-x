@@ -22,7 +22,9 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "storybook": "storybook dev -p 6007",
-    "storybook:build": "storybook build -o storybook-static"
+    "storybook:build": "storybook build -o storybook-static",
+    "storybook:test": "test-storybook --url http://127.0.0.1:6007",
+    "storybook:test:ci": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm storybook --ci\" \"wait-on http://127.0.0.1:6007 && pnpm storybook:test\""
   },
   "dependencies": {
     "@scilent-one/harmony-engine": "workspace:*",
@@ -32,21 +34,26 @@
   "devDependencies": {
     "@chromatic-com/storybook": "^4.1.3",
     "@scilent-one/tooling": "workspace:*",
-    "@vitest/coverage-v8": "^4.0.16",
     "@storybook/addon-a11y": "^10.1.11",
     "@storybook/addon-docs": "^10.1.11",
     "@storybook/react": "^10.1.11",
     "@storybook/react-vite": "^10.1.11",
+    "@storybook/test-runner": "^0.24.2",
     "@tailwindcss/vite": "^4.1.18",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.5.2",
+    "@vitest/coverage-v8": "^4.0.16",
+    "axe-playwright": "^2.2.2",
+    "concurrently": "^9.2.1",
+    "playwright": "^1.57.0",
     "storybook": "^10.1.11",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
     "vite": "^7.0.3",
     "vite-plugin-svgr": "^4.5.0",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "wait-on": "^9.0.3"
   },
   "peerDependencies": {
     "lucide-react": ">=0.400.0",

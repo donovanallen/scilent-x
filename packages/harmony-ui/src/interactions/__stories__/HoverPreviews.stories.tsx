@@ -59,19 +59,19 @@ export const TrackAllModes: StoryObj<typeof TrackHoverPreview> = {
   render: () => (
     <div className="flex gap-4">
       <div className="w-80">
-        <h3 className="text-sm font-medium mb-2">Mini</h3>
+        <p className="text-sm font-medium mb-2">Mini</p>
         <div className="border rounded-md p-4 bg-popover">
           <TrackHoverPreview entity={mockTrackExplicit} mode="mini" />
         </div>
       </div>
       <div className="w-80">
-        <h3 className="text-sm font-medium mb-2">Full</h3>
+        <p className="text-sm font-medium mb-2">Full</p>
         <div className="border rounded-md p-4 bg-popover">
           <TrackHoverPreview entity={mockTrackExplicit} mode="full" />
         </div>
       </div>
       <div className="w-80">
-        <h3 className="text-sm font-medium mb-2">Links</h3>
+        <p className="text-sm font-medium mb-2">Links</p>
         <div className="border rounded-md p-4 bg-popover">
           <TrackHoverPreview entity={mockTrackExplicit} mode="links" />
         </div>
@@ -113,19 +113,24 @@ export const AlbumAllModes: StoryObj<typeof AlbumHoverPreview> = {
   render: () => (
     <div className="flex gap-4 flex-wrap">
       <div className="w-80">
-        <h3 className="text-sm font-medium mb-2">Mini</h3>
+        <p className="text-sm font-medium mb-2">Mini</p>
         <div className="border rounded-md p-4 bg-popover">
           <AlbumHoverPreview entity={mockRelease} mode="mini" />
         </div>
       </div>
       <div className="w-80">
-        <h3 className="text-sm font-medium mb-2">Full</h3>
-        <div className="border rounded-md p-4 bg-popover max-h-96 overflow-auto">
+        <p className="text-sm font-medium mb-2">Full</p>
+        <div
+          className="border rounded-md p-4 bg-popover max-h-96 overflow-auto"
+          tabIndex={0}
+          role="region"
+          aria-label="Album full preview scrollable content"
+        >
           <AlbumHoverPreview entity={mockRelease} mode="full" />
         </div>
       </div>
       <div className="w-80">
-        <h3 className="text-sm font-medium mb-2">Links</h3>
+        <p className="text-sm font-medium mb-2">Links</p>
         <div className="border rounded-md p-4 bg-popover">
           <AlbumHoverPreview entity={mockRelease} mode="links" />
         </div>
@@ -167,19 +172,19 @@ export const ArtistAllModes: StoryObj<typeof ArtistHoverPreview> = {
   render: () => (
     <div className="flex gap-4">
       <div className="w-80">
-        <h3 className="text-sm font-medium mb-2">Mini</h3>
+        <p className="text-sm font-medium mb-2">Mini</p>
         <div className="border rounded-md p-4 bg-popover">
           <ArtistHoverPreview entity={mockArtist} mode="mini" />
         </div>
       </div>
       <div className="w-80">
-        <h3 className="text-sm font-medium mb-2">Full</h3>
+        <p className="text-sm font-medium mb-2">Full</p>
         <div className="border rounded-md p-4 bg-popover">
           <ArtistHoverPreview entity={mockArtist} mode="full" />
         </div>
       </div>
       <div className="w-80">
-        <h3 className="text-sm font-medium mb-2">Links</h3>
+        <p className="text-sm font-medium mb-2">Links</p>
         <div className="border rounded-md p-4 bg-popover">
           <ArtistHoverPreview entity={mockArtist} mode="links" />
         </div>

@@ -139,9 +139,9 @@ export function ArtistHeader({
         <>
           <Separator />
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
+            <h2 className="text-sm font-medium text-muted-foreground">
               Also known as
-            </h3>
+            </h2>
             <div className="flex flex-wrap gap-2">
               {artist.aliases.map((alias: string) => (
                 <Badge key={alias} variant="outline">

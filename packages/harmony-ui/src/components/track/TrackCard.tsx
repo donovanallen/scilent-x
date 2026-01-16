@@ -193,7 +193,7 @@ export function TrackCard({
         )}
         <span className="text-sm text-muted-foreground tabular-nums flex items-center gap-2">
           {showDurationIcon && <Clock className="size-4" />}
-          <span className={showDurationIcon ? 'font-mono' : ''}>
+          <span className={cn(showDurationIcon ? 'font-mono' : '', 'text-muted-foreground')}>
             {formatDuration(track.duration)}
           </span>
         </span>
@@ -215,8 +215,9 @@ export function TrackCard({
   );
 
   // ISRC shown below content (non-inline mode)
+  // Using text-muted-foreground instead of /70 opacity for better color contrast
   const isrcBelow = !inlineIsrc && showIsrc && track.isrc && (
-    <div className="px-3 pb-2 text-[10px] font-mono text-muted-foreground/70">
+    <div className="px-3 pb-2 text-[10px] font-mono text-muted-foreground">
       {track.isrc}
     </div>
   );
@@ -281,7 +282,7 @@ export function TrackCard({
       >
         {content}
         {isrcBelow && (
-          <div className="absolute bottom-0 left-3 text-[10px] font-mono text-muted-foreground/70">
+          <div className="absolute bottom-0 left-3 text-[10px] font-mono text-muted-foreground">
             {track.isrc}
           </div>
         )}

@@ -114,9 +114,9 @@ export function AlbumDetails({
         <>
           <Separator />
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
+            <h2 className="text-sm font-medium text-muted-foreground">
               Label{release.labels.length > 1 ? 's' : ''}
-            </h3>
+            </h2>
             <div className="flex flex-wrap gap-4 text-sm">
               {release.labels.map(
                 (label: (typeof release.labels)[number], idx: number) => (
@@ -139,9 +139,9 @@ export function AlbumDetails({
         <>
           <Separator />
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
+            <h2 className="text-sm font-medium text-muted-foreground">
               Sources
-            </h3>
+            </h2>
             <div className="flex flex-wrap gap-2">
               {release.sources.map((source: ProviderSource, idx: number) => (
                 <Badge key={idx} variant="outline">
@@ -157,9 +157,9 @@ export function AlbumDetails({
         <>
           <Separator />
           <div className="space-y-1">
-            <h3 className="text-sm font-medium text-muted-foreground">
+            <h2 className="text-sm font-medium text-muted-foreground">
               Barcode (GTIN)
-            </h3>
+            </h2>
             <p className="font-mono text-sm">{release.gtin}</p>
           </div>
         </>

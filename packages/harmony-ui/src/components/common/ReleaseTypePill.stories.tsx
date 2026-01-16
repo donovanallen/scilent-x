@@ -325,13 +325,21 @@ export const LabelMappings: Story = {
     <div className="space-y-4 w-[500px]">
       <div>
         <h4 className="font-medium mb-2">releaseTypeLabels</h4>
-        <pre className="text-xs bg-muted p-3 rounded overflow-auto">
+        <pre
+          className="text-xs bg-muted p-3 rounded overflow-auto"
+          tabIndex={0}
+          aria-label="Release type labels JSON"
+        >
           {JSON.stringify(releaseTypeLabels, null, 2)}
         </pre>
       </div>
       <div>
         <h4 className="font-medium mb-2">releaseTypePluralLabels</h4>
-        <pre className="text-xs bg-muted p-3 rounded overflow-auto">
+        <pre
+          className="text-xs bg-muted p-3 rounded overflow-auto"
+          tabIndex={0}
+          aria-label="Release type plural labels JSON"
+        >
           {JSON.stringify(releaseTypePluralLabels, null, 2)}
         </pre>
       </div>
