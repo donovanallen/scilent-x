@@ -1,4 +1,4 @@
-# @scilent-one/harmony-ui
+# @scilent-one/scilent-ui
 
 ## 0.4.1
 

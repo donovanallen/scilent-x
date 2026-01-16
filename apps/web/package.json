@@ -24,7 +24,7 @@
     "@scilent-one/auth": "workspace:*",
     "@scilent-one/db": "workspace:*",
     "@scilent-one/harmony-engine": "workspace:*",
-    "@scilent-one/harmony-ui": "workspace:*",
+    "@scilent-one/scilent-ui": "workspace:*",
     "@scilent-one/logger": "workspace:*",
     "@scilent-one/social": "workspace:*",
     "@scilent-one/ui": "workspace:*",

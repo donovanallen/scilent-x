@@ -1,6 +1,6 @@
 'use client';
 
-import { ProviderIcon, type IconProvider } from '@scilent-one/harmony-ui';
+import { ProviderIcon, type IconProvider } from '@scilent-one/scilent-ui';
 import {
   Button,
   Card,

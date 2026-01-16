@@ -1,4 +1,4 @@
-# @scilent-one/harmony-ui
+# @scilent-one/scilent-ui
 
 Composite UI components for displaying harmonized music metadata. Built on top of `@scilent-one/ui` and designed to work seamlessly with data from `@scilent-one/harmony-engine`.
 
@@ -13,7 +13,7 @@ Composite UI components for displaying harmonized music metadata. Built on top o
 ## Installation
 
 ```bash
-pnpm add @scilent-one/harmony-ui
+pnpm add @scilent-one/scilent-ui
 ```
 
 ### Peer Dependencies
@@ -27,7 +27,7 @@ pnpm add react react-dom lucide-react
 ### Basic Usage (Without Interactions)
 
 ```tsx
-import { TrackCard, AlbumCard, ArtistCard } from '@scilent-one/harmony-ui';
+import { TrackCard, AlbumCard, ArtistCard } from '@scilent-one/scilent-ui';
 
 function MusicLibrary({ track, album, artist }) {
   return (
@@ -50,7 +50,7 @@ import {
   TrackCard,
   AlbumCard,
   ArtistCard,
-} from '@scilent-one/harmony-ui';
+} from '@scilent-one/scilent-ui';
 
 function App() {
   return (
@@ -125,7 +125,7 @@ The interactions system provides configurable context menus and hover previews f
 The provider configures interaction behaviors for all nested components.
 
 ```tsx
-import { HarmonyInteractionProvider } from '@scilent-one/harmony-ui';
+import { HarmonyInteractionProvider } from '@scilent-one/scilent-ui';
 
 <HarmonyInteractionProvider
   config={{
@@ -203,7 +203,7 @@ The simplest way to enable interactions is with the `interactive` prop:
 For more control, wrap any component with `InteractiveWrapper`:
 
 ```tsx
-import { InteractiveWrapper } from '@scilent-one/harmony-ui';
+import { InteractiveWrapper } from '@scilent-one/scilent-ui';
 
 <InteractiveWrapper entityType="track" entity={track}>
   <CustomTrackComponent track={track} />
@@ -220,7 +220,7 @@ import {
   EntityPreview,
   TrackContextMenu,
   TrackHoverPreview,
-} from '@scilent-one/harmony-ui';
+} from '@scilent-one/scilent-ui';
 
 // Use EntityMenu for platform-adaptive menus
 <EntityMenu entityType="track" entity={track}>
@@ -238,7 +238,7 @@ import {
 Access the interaction configuration in custom components:
 
 ```tsx
-import { useHarmonyInteraction } from '@scilent-one/harmony-ui';
+import { useHarmonyInteraction } from '@scilent-one/scilent-ui';
 
 function CustomComponent() {
   const interaction = useHarmonyInteraction();
@@ -281,7 +281,7 @@ Each entity type supports three preview modes:
 You can also provide a custom component:
 
 ```tsx
-import type { EntityPreviewContentProps } from '@scilent-one/harmony-ui';
+import type { EntityPreviewContentProps } from '@scilent-one/scilent-ui';
 
 function CustomTrackPreview({ entity, entityType }: EntityPreviewContentProps) {
   const track = entity as HarmonizedTrack;
@@ -328,7 +328,7 @@ function CustomTrackPreview({ entity, entityType }: EntityPreviewContentProps) {
 Run Storybook to see all components and interactions in action:
 
 ```bash
-pnpm dev:harmony-ui:storybook
+pnpm dev:scilent-ui:storybook
 ```
 
 Then open http://localhost:6007
@@ -358,7 +358,7 @@ import type {
   AlbumCardProps,
   ArtistCardProps,
   InteractiveWrapperProps,
-} from '@scilent-one/harmony-ui';
+} from '@scilent-one/scilent-ui';
 ```
 
 ## Utility Functions
@@ -371,7 +371,7 @@ import {
   getPrimaryArtistName,// Get first artist name
   formatTrackPosition, // Format "1" or "1-3" (disc-track)
   getFrontArtworkUrl,  // Get front cover URL from artwork array
-} from '@scilent-one/harmony-ui';
+} from '@scilent-one/scilent-ui';
 ```
 
 ## Testing
@@ -395,7 +395,7 @@ From the monorepo root:
 
 ```bash
 # Run tests for this package only
-pnpm turbo test --filter=@scilent-one/harmony-ui
+pnpm turbo test --filter=@scilent-one/scilent-ui
 
 # Run tests for all packages
 pnpm test

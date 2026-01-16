@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReleaseType } from '@scilent-one/harmony-engine';
-import { ReleaseTypePill } from '@scilent-one/harmony-ui';
+import { ReleaseTypePill } from '@scilent-one/scilent-ui';
 import { cn } from '@scilent-one/ui';
 
 import type { SearchFilters } from '../actions';

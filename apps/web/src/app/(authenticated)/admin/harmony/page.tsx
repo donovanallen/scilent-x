@@ -1,4 +1,4 @@
-import { ProviderIcon, type IconProvider } from '@scilent-one/harmony-ui';
+import { ProviderIcon, type IconProvider } from '@scilent-one/scilent-ui';
 import {
   Badge,
   Card,

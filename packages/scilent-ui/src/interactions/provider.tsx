@@ -32,7 +32,7 @@ export interface HarmonyInteractionProviderProps {
 }
 
 /**
- * Provider component that enables interaction behaviors for harmony-ui components.
+ * Provider component that enables interaction behaviors for scilent-ui components.
  * 
  * Wraps your app or a section of it to enable context menus, hover previews,
  * and other interactive features on entity cards and components.

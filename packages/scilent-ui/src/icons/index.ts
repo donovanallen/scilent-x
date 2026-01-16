@@ -7,7 +7,7 @@
  *
  * @example
  * ```tsx
- * import { ProviderIcon, SpotifyIcon, AppleMusicIcon, TidalIcon } from '@scilent-one/harmony-ui';
+ * import { ProviderIcon, SpotifyIcon, AppleMusicIcon, TidalIcon } from '@scilent-one/scilent-ui';
  *
  * // Use the unified component for dynamic provider selection
  * <ProviderIcon provider="spotify" size="lg" color="brand" />

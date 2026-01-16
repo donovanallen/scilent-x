@@ -1,6 +1,6 @@
 'use client';
 
-import { ArtistMention } from '@scilent-one/harmony-ui';
+import { ArtistMention } from '@scilent-one/scilent-ui';
 import {
   Feed,
   PostForm,
