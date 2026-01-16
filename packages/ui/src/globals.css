@@ -150,15 +150,15 @@ h3,
 h4,
 h5,
 h6 {
-  @apply font-heading font-semibold tracking-tight;
+  @apply font-heading;
 }
 
 h1 {
-  @apply text-5xl md:text-6xl font-bold;
+  @apply text-5xl md:text-6xl;
 }
 
 h2 {
-  @apply text-4xl md:text-5xl font-bold;
+  @apply text-4xl md:text-5xl;
 }
 
 h3 {
