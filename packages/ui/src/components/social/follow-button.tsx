@@ -36,6 +36,14 @@ export function FollowButton({
   const iconClass = iconOnly ? 'h-4 w-4' : 'mr-2 h-4 w-4';
   const buttonSize = iconOnly ? 'icon' : size;
 
+  // Get accessible label for icon-only buttons
+  const getAriaLabel = () => {
+    if (!iconOnly) return undefined;
+    if (isLoading) return 'Loading';
+    if (isFollowing) return isHovered ? 'Unfollow' : 'Following';
+    return 'Follow';
+  };
+
   if (isFollowing) {
     return (
       <Button
@@ -43,6 +51,7 @@ export function FollowButton({
         size={buttonSize}
         className={cn(!iconOnly && 'min-w-[100px]', className)}
         disabled={isLoading}
+        aria-label={getAriaLabel()}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleClick}
@@ -74,6 +83,7 @@ export function FollowButton({
       size={buttonSize}
       className={cn(!iconOnly && 'min-w-[100px]', className)}
       disabled={isLoading}
+      aria-label={getAriaLabel()}
       onClick={handleClick}
       {...props}
     >
