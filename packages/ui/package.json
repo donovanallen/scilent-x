@@ -19,6 +19,10 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "vitest --project unit",
+    "test:run": "vitest run --project unit",
+    "test:coverage": "vitest run --project unit --coverage",
+    "test:storybook": "vitest --project storybook",
     "ui:add": "npx shadcn@latest add",
     "sandbox": "vite --config sandbox/vite.config.ts",
     "storybook": "storybook dev -p 6006",

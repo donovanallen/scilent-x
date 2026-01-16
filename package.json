@@ -11,6 +11,8 @@
     "lint": "turbo lint",
     "format": "turbo format",
     "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "test:coverage": "turbo test:coverage",
     "fix": "turbo lint && turbo format && turbo typecheck",
     "version": "pnpm exec changeset version",
     "release": "pnpm exec changeset publish",
