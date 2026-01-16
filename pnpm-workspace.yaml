@@ -7,6 +7,14 @@ catalogs:
     better-auth: latest
   prisma:
     prisma: latest
+  vitest:
+    vitest: latest
+  typescript:
+    typescript: ^5.9.3
+    tslib: ^2.8.1
+  react:
+    '@types/react': ^19.2.8
+    '@types/react-dom': ^19.2.3
 
 # Only allow these packages to run their build scripts
 # All other packages with install scripts will be ignored
