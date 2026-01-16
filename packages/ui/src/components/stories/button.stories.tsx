@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Button } from './button';
+import { Button } from '../button';
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
@@ -112,7 +112,9 @@ export const AllSizes: Story = {
       <Button size="sm">Small</Button>
       <Button size="default">Default</Button>
       <Button size="lg">Large</Button>
-      <Button size="icon">🔔</Button>
+      <Button size="icon" aria-label="Notification bell">
+        <span aria-hidden="true">🔔</span>
+      </Button>
     </div>
   ),
 };

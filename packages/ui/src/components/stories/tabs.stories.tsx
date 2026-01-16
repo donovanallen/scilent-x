@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
-import { Button } from './button';
-import { Input } from './input';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../tabs';
+import { Button } from '../button';
+import { Input } from '../input';
+import { Label } from '../label';
 
 const meta: Meta<typeof Tabs> = {
   title: 'Components/Tabs',
@@ -24,7 +25,7 @@ type Story = StoryObj<typeof Tabs>;
 export const Default: Story = {
   render: () => (
     <Tabs defaultValue="account" className="w-[400px]">
-      <TabsList>
+      <TabsList aria-label="Account settings">
         <TabsTrigger value="account">Account</TabsTrigger>
         <TabsTrigger value="password">Password</TabsTrigger>
       </TabsList>
@@ -45,7 +46,7 @@ export const Default: Story = {
 export const WithCards: Story = {
   render: () => (
     <Tabs defaultValue="account" className="w-[400px]">
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className="grid w-full grid-cols-2" aria-label="Account settings">
         <TabsTrigger value="account">Account</TabsTrigger>
         <TabsTrigger value="password">Password</TabsTrigger>
       </TabsList>
@@ -59,15 +60,11 @@ export const WithCards: Story = {
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium">
-                Name
-              </label>
+              <Label htmlFor="name">Name</Label>
               <Input id="name" defaultValue="John Doe" />
             </div>
             <div className="space-y-2">
-              <label htmlFor="username" className="text-sm font-medium">
-                Username
-              </label>
+              <Label htmlFor="username">Username</Label>
               <Input id="username" defaultValue="@johndoe" />
             </div>
           </div>
@@ -84,15 +81,11 @@ export const WithCards: Story = {
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="current" className="text-sm font-medium">
-                Current password
-              </label>
+              <Label htmlFor="current">Current password</Label>
               <Input id="current" type="password" />
             </div>
             <div className="space-y-2">
-              <label htmlFor="new" className="text-sm font-medium">
-                New password
-              </label>
+              <Label htmlFor="new">New password</Label>
               <Input id="new" type="password" />
             </div>
           </div>
@@ -106,7 +99,7 @@ export const WithCards: Story = {
 export const ThreeTabs: Story = {
   render: () => (
     <Tabs defaultValue="overview" className="w-[500px]">
-      <TabsList>
+      <TabsList aria-label="Dashboard sections">
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="analytics">Analytics</TabsTrigger>
         <TabsTrigger value="reports">Reports</TabsTrigger>
@@ -136,7 +129,7 @@ export const ThreeTabs: Story = {
 export const DisabledTab: Story = {
   render: () => (
     <Tabs defaultValue="active" className="w-[400px]">
-      <TabsList>
+      <TabsList aria-label="Tab options">
         <TabsTrigger value="active">Active</TabsTrigger>
         <TabsTrigger value="disabled" disabled>
           Disabled

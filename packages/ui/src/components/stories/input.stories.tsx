@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Input } from './input';
+import { Input } from '../input';
+import { Label } from '../label';
 
 const meta: Meta<typeof Input> = {
   title: 'Components/Input',
@@ -29,12 +30,17 @@ const meta: Meta<typeof Input> = {
 export default meta;
 type Story = StoryObj<typeof Input>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    'aria-label': 'Default input',
+  },
+};
 
 export const Email: Story = {
   args: {
     type: 'email',
     placeholder: 'Enter your email',
+    'aria-label': 'Email address',
   },
 };
 
@@ -42,6 +48,7 @@ export const Password: Story = {
   args: {
     type: 'password',
     placeholder: 'Enter password',
+    'aria-label': 'Password',
   },
 };
 
@@ -49,21 +56,21 @@ export const Disabled: Story = {
   args: {
     disabled: true,
     placeholder: 'Disabled input',
+    'aria-label': 'Disabled input',
   },
 };
 
 export const WithValue: Story = {
   args: {
     defaultValue: 'Hello, World!',
+    'aria-label': 'Input with value',
   },
 };
 
 export const WithLabel: Story = {
   render: () => (
     <div className="grid w-full max-w-sm items-center gap-1.5">
-      <label htmlFor="email" className="text-sm font-medium">
-        Email
-      </label>
+      <Label htmlFor="email">Email</Label>
       <Input type="email" id="email" placeholder="Enter your email" />
     </div>
   ),
@@ -72,9 +79,7 @@ export const WithLabel: Story = {
 export const File: Story = {
   render: () => (
     <div className="grid w-full max-w-sm items-center gap-1.5">
-      <label htmlFor="picture" className="text-sm font-medium">
-        Picture
-      </label>
+      <Label htmlFor="picture">Picture</Label>
       <Input id="picture" type="file" />
     </div>
   ),
@@ -85,6 +90,7 @@ export const Search: Story = {
     type: 'search',
     placeholder: 'Search...',
     className: 'w-[300px]',
+    'aria-label': 'Search',
   },
 };
 
@@ -92,24 +98,24 @@ export const AllTypes: Story = {
   render: () => (
     <div className="flex flex-col gap-4 w-[300px]">
       <div className="grid gap-1.5">
-        <label className="text-sm font-medium">Text</label>
-        <Input type="text" placeholder="Text input" />
+        <Label htmlFor="text-input">Text</Label>
+        <Input id="text-input" type="text" placeholder="Text input" />
       </div>
       <div className="grid gap-1.5">
-        <label className="text-sm font-medium">Email</label>
-        <Input type="email" placeholder="email@example.com" />
+        <Label htmlFor="email-input">Email</Label>
+        <Input id="email-input" type="email" placeholder="email@example.com" />
       </div>
       <div className="grid gap-1.5">
-        <label className="text-sm font-medium">Password</label>
-        <Input type="password" placeholder="••••••••" />
+        <Label htmlFor="password-input">Password</Label>
+        <Input id="password-input" type="password" placeholder="••••••••" />
       </div>
       <div className="grid gap-1.5">
-        <label className="text-sm font-medium">Number</label>
-        <Input type="number" placeholder="0" />
+        <Label htmlFor="number-input">Number</Label>
+        <Input id="number-input" type="number" placeholder="0" />
       </div>
       <div className="grid gap-1.5">
-        <label className="text-sm font-medium">Search</label>
-        <Input type="search" placeholder="Search..." />
+        <Label htmlFor="search-input">Search</Label>
+        <Input id="search-input" type="search" placeholder="Search..." />
       </div>
     </div>
   ),

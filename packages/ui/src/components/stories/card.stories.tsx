@@ -6,8 +6,10 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from './card';
-import { Button } from './button';
+} from '../card';
+import { Button } from '../button';
+import { Input } from '../input';
+import { Label } from '../label';
 
 const meta: Meta<typeof Card> = {
   title: 'Components/Card',
@@ -49,14 +51,8 @@ export const WithForm: Story = {
         <form>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
-              <label htmlFor="name" className="text-sm font-medium">
-                Name
-              </label>
-              <input
-                id="name"
-                placeholder="Name of your project"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              />
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" placeholder="Name of your project" />
             </div>
           </div>
         </form>
@@ -78,7 +74,10 @@ export const Notification: Story = {
       </CardHeader>
       <CardContent className="grid gap-4">
         <div className="flex items-start gap-4 rounded-md border p-4">
-          <span className="flex h-2 w-2 translate-y-1 rounded-full bg-primary" />
+          <span
+            className="flex h-2 w-2 translate-y-1 rounded-full bg-primary"
+            aria-hidden="true"
+          />
           <div className="space-y-1">
             <p className="text-sm font-medium leading-none">
               Your call has been confirmed.
@@ -87,7 +86,10 @@ export const Notification: Story = {
           </div>
         </div>
         <div className="flex items-start gap-4 rounded-md border p-4">
-          <span className="flex h-2 w-2 translate-y-1 rounded-full bg-primary" />
+          <span
+            className="flex h-2 w-2 translate-y-1 rounded-full bg-primary"
+            aria-hidden="true"
+          />
           <div className="space-y-1">
             <p className="text-sm font-medium leading-none">
               You have a new message!

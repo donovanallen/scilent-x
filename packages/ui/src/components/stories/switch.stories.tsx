@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
-import { Switch } from './switch';
+import { Switch } from '../switch';
+import { Label } from '../label';
 
 const meta: Meta<typeof Switch> = {
   title: 'Components/Switch',
@@ -21,17 +22,23 @@ const meta: Meta<typeof Switch> = {
 export default meta;
 type Story = StoryObj<typeof Switch>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    'aria-label': 'Toggle setting',
+  },
+};
 
 export const Checked: Story = {
   args: {
     defaultChecked: true,
+    'aria-label': 'Toggle setting',
   },
 };
 
 export const Disabled: Story = {
   args: {
     disabled: true,
+    'aria-label': 'Disabled toggle',
   },
 };
 
@@ -39,6 +46,7 @@ export const DisabledChecked: Story = {
   args: {
     disabled: true,
     defaultChecked: true,
+    'aria-label': 'Disabled checked toggle',
   },
 };
 
@@ -46,12 +54,7 @@ export const WithLabel: Story = {
   render: () => (
     <div className="flex items-center space-x-2">
       <Switch id="airplane-mode" />
-      <label
-        htmlFor="airplane-mode"
-        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-      >
-        Airplane Mode
-      </label>
+      <Label htmlFor="airplane-mode">Airplane Mode</Label>
     </div>
   ),
 };
@@ -67,9 +70,7 @@ export const Controlled: Story = {
             checked={checked}
             onCheckedChange={setChecked}
           />
-          <label htmlFor="controlled" className="text-sm font-medium">
-            Dark Mode
-          </label>
+          <Label htmlFor="controlled">Dark Mode</Label>
         </div>
         <p className="text-sm text-muted-foreground">
           Current state: {checked ? 'On' : 'Off'}
@@ -84,30 +85,30 @@ export const Settings: Story = {
     <div className="space-y-4 w-[300px]">
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <label className="text-sm font-medium">Notifications</label>
+          <Label htmlFor="notifications">Notifications</Label>
           <p className="text-xs text-muted-foreground">
             Receive push notifications
           </p>
         </div>
-        <Switch defaultChecked />
+        <Switch id="notifications" defaultChecked />
       </div>
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <label className="text-sm font-medium">Marketing emails</label>
+          <Label htmlFor="marketing">Marketing emails</Label>
           <p className="text-xs text-muted-foreground">
             Receive emails about new products
           </p>
         </div>
-        <Switch />
+        <Switch id="marketing" />
       </div>
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <label className="text-sm font-medium">Security alerts</label>
+          <Label htmlFor="security">Security alerts</Label>
           <p className="text-xs text-muted-foreground">
             Get notified about security issues
           </p>
         </div>
-        <Switch defaultChecked />
+        <Switch id="security" defaultChecked />
       </div>
     </div>
   ),
