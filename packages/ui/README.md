@@ -58,20 +58,30 @@ import '@scilent-one/ui/globals.css';
 | `Badge` | Status and label badges |
 | `Button` | Primary action buttons |
 | `Card` | Content container |
+| `Collapsible` | Expandable/collapsible sections |
+| `Command` | Command palette (cmdk) |
+| `ContextMenu` | Right-click context menu |
 | `Dialog` | Modal dialogs |
 | `DropdownMenu` | Dropdown menu |
+| `Empty` | Empty state placeholder |
 | `HoverCard` | Hover-triggered popover |
 | `Input` | Text input field |
 | `Label` | Form labels |
+| `NavigationMenu` | Navigation menu component |
 | `Popover` | Triggered popover |
 | `ScrollArea` | Custom scrollable area |
 | `Select` | Select dropdown |
 | `Separator` | Visual separator |
 | `Sheet` | Slide-out panel |
+| `Sidebar` | Application sidebar with collapsible groups |
+| `Skeleton` | Loading placeholder |
+| `Spinner` | Loading spinner |
 | `Switch` | Toggle switch |
 | `Tabs` | Tabbed interface |
 | `Textarea` | Multi-line text input |
+| `Toaster` | Toast notifications (sonner) |
 | `Toggle` | Toggle button |
+| `ToggleGroup` | Group of toggle buttons |
 | `Tooltip` | Hover tooltip |
 
 ### Rich Text
@@ -79,6 +89,7 @@ import '@scilent-one/ui/globals.css';
 | Component | Description |
 |-----------|-------------|
 | `TiptapEditor` | Rich text editor with mentions |
+| `RichTextEditor` | Rich text editor wrapper |
 | `RichTextContent` | Render rich text HTML |
 | `MentionList` | Autocomplete for @mentions |
 
@@ -93,6 +104,7 @@ import '@scilent-one/ui/globals.css';
 | `CommentList` | Threaded comments |
 | `Feed` | Infinite scroll feed |
 | `FollowButton` | Follow/unfollow toggle |
+| `MentionText` | Render text with @mention links |
 | `ProfileHeader` | User profile header |
 | `UserAvatar` | User avatar with link |
 | `UserCard` | User info card |
@@ -163,6 +175,36 @@ return (
 );
 ```
 
+### `useEditPost`
+
+Manage post editing state with optimistic updates:
+
+```tsx
+import { useEditPost } from '@scilent-one/ui';
+
+const { editingPostId, isSavingEdit, startEditing, cancelEditing, saveEdit } = useEditPost({
+  posts,
+  setPosts,
+  onSave: async (postId, content, contentHtml) => {
+    await updatePost(postId, { content, contentHtml });
+  },
+  onSuccess: () => toast.success('Post updated'),
+  onError: (error) => toast.error(error.message),
+});
+```
+
+### `useIsMobile`
+
+Responsive hook for detecting mobile viewport:
+
+```tsx
+import { useIsMobile } from '@scilent-one/ui';
+
+const isMobile = useIsMobile();
+
+return isMobile ? <MobileNav /> : <DesktopNav />;
+```
+
 ## Storybook
 
 Run Storybook to see all components:
@@ -207,6 +249,9 @@ src/
 ├── __tests__/
 │   └── utils.test.ts      # Tests for cn() utility
 ├── hooks/
+│   ├── use-edit-post.ts
+│   ├── use-infinite-scroll.ts
+│   ├── use-mobile.tsx
 │   └── use-optimistic-action.ts
 └── utils.ts
 ```
