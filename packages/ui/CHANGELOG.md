@@ -1,5 +1,18 @@
 # @scilent-one/ui
 
+## 0.3.1
+
+### Patch Changes
+
+- 17c0c67: Add support for interactive Artist mentions in Posts
+- c98f668: Artist follows update and autogen usernames
+- c087095: Removes font weight from heading defaults
+- af1ae2c: Unit tests (UI, HUI)
+- af1ae2c: Unit tests (HUI, UI)
+- da2c4a8: Adds support for Provider cUser
+- f94f082: Fix to user mentions in posts
+- f7ed7e3: Fixes post edit functionality
+
 ## 0.3.0
 
 ### Minor Changes

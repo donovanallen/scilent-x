@@ -1,5 +1,18 @@
 # @scilent-one/db
 
+## 0.3.1
+
+### Patch Changes
+
+- c98f668: Artist follows update and autogen usernames
+- af1ae2c: Unit tests (UI, HUI)
+- 6a6a068: Unit tests (social)
+- af1ae2c: Unit tests (HUI, UI)
+- d0acd8a: Adds logging to Auth flow and Auth, DB packages
+- Updated dependencies [01f7fde]
+- Updated dependencies [d0acd8a]
+  - @scilent-one/logger@0.2.0
+
 ## 0.3.0
 
 ### Minor Changes

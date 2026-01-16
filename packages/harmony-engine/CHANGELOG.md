@@ -1,5 +1,23 @@
 # @scilent-one/harmony-engine
 
+## 0.3.0
+
+### Minor Changes
+
+- 4c226e1: Add followed artists API support
+  - Add `PaginatedCollection<T>` and `CollectionParams` types for paginated user collections
+  - Add `getFollowedArtists(accessToken, params)` method to `BaseProvider` class
+  - Implement `_getFollowedArtists` in `TidalProvider` using `/userCollections/{id}/relationships/artists` endpoint
+  - Support cursor-based pagination with `page[cursor]` parameter
+  - Return harmonized artist data with total count and pagination info
+
+- da2c4a8: Adds support for Provider cUser
+
+### Patch Changes
+
+- 17c0c67: Add support for interactive Artist mentions in Posts
+- c98f668: Artist follows update and autogen usernames
+
 ## 0.2.2
 
 ### Patch Changes

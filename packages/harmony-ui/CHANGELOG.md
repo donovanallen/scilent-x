@@ -1,5 +1,29 @@
 # @scilent-one/harmony-ui
 
+## 0.4.0
+
+### Minor Changes
+
+- 8909708: Adds Provider Icon support
+
+### Patch Changes
+
+- 17c0c67: Add support for interactive Artist mentions in Posts
+- 0b9fc06: Add PlatformProfileCard component
+- af1ae2c: Unit tests (UI, HUI)
+- af1ae2c: Unit tests (HUI, UI)
+- Updated dependencies [17c0c67]
+- Updated dependencies [4c226e1]
+- Updated dependencies [c98f668]
+- Updated dependencies [c087095]
+- Updated dependencies [af1ae2c]
+- Updated dependencies [af1ae2c]
+- Updated dependencies [da2c4a8]
+- Updated dependencies [f94f082]
+- Updated dependencies [f7ed7e3]
+  - @scilent-one/harmony-engine@0.3.0
+  - @scilent-one/ui@0.3.1
+
 ## 0.3.1
 
 ### Patch Changes
