@@ -10,6 +10,8 @@ export {
   HeroSkeleton,
   PageSkeleton,
   InlineSkeleton,
+  PlatformProfileCard,
+  PlatformProfileCardSkeleton,
   type PlatformName,
   type PlatformBadgeProps,
   type PlatformBadgeListProps,
@@ -22,6 +24,14 @@ export {
   type HeroSkeletonProps,
   type PageSkeletonProps,
   type InlineSkeletonProps,
+  type PlatformProfileCardProps,
+  type PlatformProfileCardSkeletonProps,
+  type PlatformProfile,
+  type ProfileImage,
+  type SubscriptionInfo,
+  type FollowedArtist,
+  type FollowedArtistsData,
+  type ProfileError,
 } from "./common";
 
 // Track components

@@ -52,6 +52,8 @@ export {
   PageSkeleton,
   InlineSkeleton,
   Artwork,
+  PlatformProfileCard,
+  PlatformProfileCardSkeleton,
   type PlatformName,
   type PlatformBadgeProps,
   type PlatformBadgeListProps,
@@ -66,6 +68,14 @@ export {
   type PageSkeletonProps,
   type InlineSkeletonProps,
   type ArtworkProps,
+  type PlatformProfileCardProps,
+  type PlatformProfileCardSkeletonProps,
+  type PlatformProfile,
+  type ProfileImage,
+  type SubscriptionInfo,
+  type FollowedArtist,
+  type FollowedArtistsData,
+  type ProfileError,
 } from './components/common';
 
 // Track components

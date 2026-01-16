@@ -39,3 +39,16 @@ export {
 } from './LoadingSkeletons';
 
 export { Artwork, type ArtworkProps } from './Artwork';
+
+export {
+  PlatformProfileCard,
+  PlatformProfileCardSkeleton,
+  type PlatformProfileCardProps,
+  type PlatformProfileCardSkeletonProps,
+  type PlatformProfile,
+  type ProfileImage,
+  type SubscriptionInfo,
+  type FollowedArtist,
+  type FollowedArtistsData,
+  type ProfileError,
+} from './PlatformProfileCard';
