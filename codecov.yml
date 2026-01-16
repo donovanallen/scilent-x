@@ -1,0 +1,48 @@
+# Codecov Configuration
+# Docs: https://docs.codecov.com/docs/codecov-yaml
+
+# Coverage thresholds (commented out for now)
+# Uncomment and adjust once baseline coverage is established
+# coverage:
+#   status:
+#     project:
+#       default:
+#         # Require coverage to not drop below this percentage
+#         target: 70%
+#         # Allow coverage to drop by this amount without failing
+#         threshold: 2%
+#     patch:
+#       default:
+#         # Require new code to have at least this coverage
+#         target: 80%
+
+# Comment configuration for PR comments
+comment:
+  # Post a coverage comment on PRs
+  layout: 'reach,diff,flags,files'
+  behavior: default
+  require_changes: true  # Only comment when coverage changes
+
+# Flags for grouping coverage by package (future use)
+# flags:
+#   social:
+#     paths:
+#       - packages/social/
+#     carryforward: true
+#   harmony-engine:
+#     paths:
+#       - packages/harmony-engine/
+#     carryforward: true
+
+# Ignore certain paths from coverage
+ignore:
+  - '**/*.test.ts'
+  - '**/*.stories.tsx'
+  - '**/node_modules/**'
+  - '**/__tests__/**'
+  - '**/coverage/**'
+
+# Parsers configuration
+parsers:
+  javascript:
+    enable_partials: true

@@ -13,7 +13,10 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@scilent-one/db": "workspace:*",
@@ -22,6 +25,8 @@
   "devDependencies": {
     "@scilent-one/tooling": "workspace:*",
     "@types/node": "^25.0.3",
-    "typescript": "^5.9.3"
+    "@vitest/coverage-v8": "^4.0.16",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
   }
 }
