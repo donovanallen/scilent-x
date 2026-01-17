@@ -64,6 +64,7 @@ export const Following: Story = {
     isFollowing: true,
     isCurrentUser: false,
     isLoading: false,
+    showFollowButton: true,
   },
 };
 

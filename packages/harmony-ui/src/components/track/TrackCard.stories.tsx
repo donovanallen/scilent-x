@@ -17,12 +17,16 @@ const meta: Meta<typeof TrackCard> = {
   argTypes: {
     variant: {
       control: 'radio',
-      options: ['card', 'list'],
-      description: 'Visual variant - card or list row',
+      options: ['card', 'list', 'compact'],
+      description: 'Visual variant - card, list row, or compact row',
     },
     showPosition: {
       control: 'boolean',
       description: 'Show track position number',
+    },
+    index: {
+      control: 'number',
+      description: 'Optional display index (1-based)',
     },
     showDiscNumber: {
       control: 'boolean',
@@ -64,6 +68,14 @@ const meta: Meta<typeof TrackCard> = {
       control: 'boolean',
       description: 'Show subtle external link icon on hover',
     },
+    showRemove: {
+      control: 'boolean',
+      description: 'Show remove button on hover',
+    },
+    showDragHandle: {
+      control: 'boolean',
+      description: 'Show drag handle for sortable lists',
+    },
     isPlaying: {
       control: 'boolean',
       description: 'Highlight as currently playing',
@@ -76,7 +88,7 @@ const meta: Meta<typeof TrackCard> = {
   args: {
     track: mockTrack,
     variant: 'card',
-    showPosition: true,
+    showPosition: false,
     showDiscNumber: false,
     showArtwork: true,
     showIsrc: false,
@@ -86,6 +98,8 @@ const meta: Meta<typeof TrackCard> = {
     showDurationIcon: false,
     showExternalLink: false,
     subtleExternalLink: false,
+    showRemove: false,
+    showDragHandle: false,
     isPlaying: false,
     interactive: false,
   },
@@ -135,7 +149,7 @@ export const ListVariant: Story = {
   name: 'List Variant',
   args: {
     variant: 'list',
-    showArtwork: false,
+    showArtwork: true,
   },
 };
 
@@ -143,13 +157,51 @@ export const ListVariantFull: Story = {
   name: 'List Variant (Full Featured)',
   args: {
     variant: 'list',
-    showArtwork: false,
+    showArtwork: true,
     showDurationIcon: true,
     showSources: true,
     fullProviderNames: true,
     showIsrc: true,
     inlineIsrc: true,
     subtleExternalLink: true,
+  },
+};
+
+export const CompactVariant: Story = {
+  name: 'Compact Variant',
+  args: {
+    variant: 'compact',
+    showArtwork: true,
+  },
+};
+
+export const WithDragHandle: Story = {
+  name: 'With Drag Handle',
+  args: {
+    variant: 'list',
+    showArtwork: true,
+    showDragHandle: true,
+  },
+};
+
+export const WithRemoveButton: Story = {
+  name: 'With Remove Button',
+  args: {
+    variant: 'list',
+    showArtwork: true,
+    showRemove: true,
+    onRemove: (id) => {
+      alert(`Remove track: ${id}`);
+    },
+  },
+};
+
+export const WithIndex: Story = {
+  name: 'With Display Index',
+  args: {
+    variant: 'list',
+    showArtwork: true,
+    index: 1,
   },
 };
 
@@ -300,14 +352,35 @@ export const VariantComparison: Story = {
         <p className="text-sm font-medium mb-2">List Variant:</p>
         <TrackCard
           track={mockTrackExplicit}
+          artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
           variant="list"
-          showArtwork={false}
+          showArtwork
           showSources
           fullProviderNames
           showIsrc
           inlineIsrc
           showDurationIcon
           subtleExternalLink
+        />
+      </div>
+      <div>
+        <p className="text-sm font-medium mb-2">Compact Variant:</p>
+        <TrackCard
+          track={mockTrackExplicit}
+          artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
+          variant="compact"
+          showArtwork
+        />
+      </div>
+      <div>
+        <p className="text-sm font-medium mb-2">List with Drag Handle & Remove:</p>
+        <TrackCard
+          track={mockTrackExplicit}
+          artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
+          variant="list"
+          showArtwork
+          showDragHandle
+          showRemove
         />
       </div>
     </div>

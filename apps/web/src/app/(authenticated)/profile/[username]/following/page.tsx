@@ -167,6 +167,7 @@ export default function FollowingPage({
             <UserCard
               key={user.id}
               {...user}
+              showFollowButton={true}
               followersCount={user._count?.followers}
               followingCount={user._count?.following}
               isCurrentUser={currentUser?.id === user.id}
