@@ -1,5 +1,15 @@
 # @scilent-one/ui
 
+## 0.5.0
+
+### Minor Changes
+
+- e2565e4: Design improvements, Track component updates
+
+### Patch Changes
+
+- d3ae508: Docs
+
 ## 0.4.0
 
 ### Minor Changes
