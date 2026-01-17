@@ -609,6 +609,7 @@ export function TiptapEditor({
   }, []);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: false,
@@ -682,7 +683,7 @@ export function TiptapEditor({
         ['--min-height' as string]: minHeight,
       }}
     >
-      <TiptapToolbar editor={editor} />
+      {editor && <TiptapToolbar editor={editor} />}
       <EditorContent editor={editor} />
       {maxLength && (
         <div

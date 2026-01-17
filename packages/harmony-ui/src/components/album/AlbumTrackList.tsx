@@ -1,10 +1,9 @@
-import * as React from "react";
-import { cn, Separator, Skeleton } from "@scilent-one/ui";
-import type { HarmonizedRelease, HarmonizedTrack } from "../../types";
-import { TrackList, TrackListSkeleton } from "../track/TrackList";
+import * as React from 'react';
+import { cn, Separator, Skeleton } from '@scilent-one/ui';
+import type { HarmonizedRelease, HarmonizedTrack } from '../../types';
+import { TrackList, TrackListSkeleton } from '../track/TrackList';
 
-export interface AlbumTrackListProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface AlbumTrackListProps extends React.HTMLAttributes<HTMLDivElement> {
   /** The harmonized release data */
   release: HarmonizedRelease;
   /** Optional map of track ISRCs/IDs to artwork URLs */
@@ -22,7 +21,7 @@ export function AlbumTrackList({
   trackArtworkMap = {},
   showPositions = true,
   playingTrackId,
-  onTrackPlay,
+  // onTrackPlay,
   className,
   ...props
 }: AlbumTrackListProps) {
@@ -55,10 +54,10 @@ export function AlbumTrackList({
   };
 
   return (
-    <div className={cn("space-y-4", className)} {...props}>
+    <div className={cn('space-y-4', className)} {...props}>
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
-          {totalTracks} {totalTracks === 1 ? "track" : "tracks"}
+          {totalTracks} {totalTracks === 1 ? 'track' : 'tracks'}
         </span>
         {totalDuration > 0 && <span>{formatTotalDuration(totalDuration)}</span>}
       </div>
@@ -70,7 +69,7 @@ export function AlbumTrackList({
               <>
                 <div className="flex items-center gap-3">
                   <h3 className="text-sm font-medium text-muted-foreground">
-                    {medium.format ? `${medium.format} ` : "Disc "}
+                    {medium.format ? `${medium.format} ` : 'Disc '}
                     {medium.position}
                   </h3>
                   <Separator className="flex-1" />
@@ -83,7 +82,7 @@ export function AlbumTrackList({
               showPositions={showPositions}
               groupByDisc={false}
               playingTrackId={playingTrackId}
-              onTrackPlay={onTrackPlay}
+              // onTrackPlay={onTrackPlay}
             />
           </div>
         ))}
@@ -92,8 +91,7 @@ export function AlbumTrackList({
   );
 }
 
-export interface AlbumTrackListSkeletonProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface AlbumTrackListSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   trackCount?: number;
 }
 
@@ -103,7 +101,7 @@ export function AlbumTrackListSkeleton({
   ...props
 }: AlbumTrackListSkeletonProps) {
   return (
-    <div className={cn("space-y-4", className)} {...props}>
+    <div className={cn('space-y-4', className)} {...props}>
       <div className="flex items-center justify-between">
         <Skeleton className="h-4 w-20" />
         <Skeleton className="h-4 w-16" />

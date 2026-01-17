@@ -8,10 +8,12 @@ import type {
 import {
   AlbumCard,
   AlbumListItem,
+  AlbumCardSkeleton,
   TrackCard,
+  TrackCardSkeleton,
   ArtistCard,
+  ArtistCardSkeleton,
   ArtistListItem,
-  GridSkeleton,
   ListSkeleton,
 } from '@scilent-one/harmony-ui';
 import { cn, ScrollArea } from '@scilent-one/ui';
@@ -33,13 +35,17 @@ interface SearchResultsProps {
 }
 
 // Estimated sizes for virtualization
-const LIST_ITEM_HEIGHT = 88; // ~80px + padding
+const LIST_ITEM_HEIGHT = 80; // Track/item row height with spacing
 const GRID_ITEM_HEIGHT = 280; // Card height
+
+// Grid columns must match the CSS grid-cols-* classes used in rendering
+// Different content types may use different column layouts
 const GRID_COLUMNS = {
-  sm: 2,
-  md: 3,
-  lg: 4,
-  xl: 5,
+  // For releases: grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5
+  release: { sm: 2, md: 3, lg: 4, xl: 5 },
+  // For tracks/artists: grid-cols-2 lg:grid-cols-4 xl:grid-cols-4
+  track: { sm: 2, md: 2, lg: 4, xl: 4 },
+  artist: { sm: 2, md: 2, lg: 4, xl: 4 },
 };
 
 function EmptyState({
@@ -62,18 +68,63 @@ function EmptyState({
   );
 }
 
-function LoadingGrid() {
+function LoadingGrid({ searchType }: { searchType: SearchType }) {
+  if (searchType === 'track') {
+    return (
+      <div className='p-1'>
+        <div className='grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4'>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <TrackCardSkeleton key={i} variant='card' showArtwork />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (searchType === 'artist') {
+    return (
+      <div className='p-1'>
+        <div className='grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4'>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <ArtistCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Release/album grid
   return (
     <div className='p-1'>
-      <GridSkeleton count={10} columns={5} aspectRatio='square' showContent />
+      <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'>
+        {Array.from({ length: 10 }).map((_, i) => (
+          <AlbumCardSkeleton key={i} />
+        ))}
+      </div>
     </div>
   );
 }
 
-function LoadingList() {
+function LoadingList({ searchType }: { searchType: SearchType }) {
+  if (searchType === 'track') {
+    return (
+      <div className='p-1 space-y-1'>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <TrackCardSkeleton key={i} variant='list' showArtwork />
+        ))}
+      </div>
+    );
+  }
+
+  // Artists and releases use the generic list skeleton
   return (
     <div className='p-1'>
-      <ListSkeleton count={8} showAvatar avatarShape='square' lines={3} />
+      <ListSkeleton
+        count={8}
+        showAvatar
+        avatarShape={searchType === 'artist' ? 'circle' : 'square'}
+        lines={searchType === 'artist' ? 2 : 3}
+      />
     </div>
   );
 }
@@ -89,27 +140,31 @@ export function SearchResults({
   hasSearched,
 }: SearchResultsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [columnCount, setColumnCount] = useState(GRID_COLUMNS.lg);
+  const [columnCount, setColumnCount] = useState(4);
 
-  // Responsive column count based on window width
+  // Get the column config for the current search type
+  const columnConfig = GRID_COLUMNS[searchType];
+
+  // Responsive column count based on window width AND search type
+  // This MUST match the CSS grid-cols-* classes used in the grid rendering
   useEffect(() => {
     const updateColumns = () => {
       const width = window.innerWidth;
       if (width >= 1280) {
-        setColumnCount(GRID_COLUMNS.xl);
+        setColumnCount(columnConfig.xl);
       } else if (width >= 1024) {
-        setColumnCount(GRID_COLUMNS.lg);
+        setColumnCount(columnConfig.lg);
       } else if (width >= 768) {
-        setColumnCount(GRID_COLUMNS.md);
+        setColumnCount(columnConfig.md);
       } else {
-        setColumnCount(GRID_COLUMNS.sm);
+        setColumnCount(columnConfig.sm);
       }
     };
 
     updateColumns();
     window.addEventListener('resize', updateColumns);
     return () => window.removeEventListener('resize', updateColumns);
-  }, []);
+  }, [columnConfig]);
 
   // Get the appropriate results count based on search type
   const resultCount = useMemo(() => {
@@ -189,7 +244,11 @@ export function SearchResults({
 
   // Loading state
   if (isLoading && resultCount === 0) {
-    return view === 'grid' ? <LoadingGrid /> : <LoadingList />;
+    return view === 'grid' ? (
+      <LoadingGrid searchType={searchType} />
+    ) : (
+      <LoadingList searchType={searchType} />
+    );
   }
 
   // No results
@@ -233,12 +292,7 @@ export function SearchResults({
                   key={virtualItem.key}
                   data-index={virtualItem.index}
                   ref={listVirtualizer.measureElement}
-                  className={cn(
-                    'search-result-item absolute top-0 left-0 w-full',
-                    virtualItem.index % 2 === 0
-                      ? 'bg-transparent'
-                      : 'bg-muted/30'
-                  )}
+                  className='search-result-item absolute top-0 left-0 w-full py-1'
                   style={{
                     transform: `translateY(${virtualItem.start}px)`,
                   }}
@@ -248,6 +302,7 @@ export function SearchResults({
                     showProviders
                     interactive
                     previewSide='bottom'
+                    className={cn(virtualItem.index % 2 !== 0 && 'bg-muted/30')}
                   />
                 </div>
               );
@@ -261,12 +316,7 @@ export function SearchResults({
                   key={virtualItem.key}
                   data-index={virtualItem.index}
                   ref={listVirtualizer.measureElement}
-                  className={cn(
-                    'search-result-item absolute top-0 left-0 w-full',
-                    virtualItem.index % 2 === 0
-                      ? 'bg-transparent'
-                      : 'bg-muted/30'
-                  )}
+                  className='search-result-item absolute top-0 left-0 w-full py-1.5'
                   style={{
                     transform: `translateY(${virtualItem.start}px)`,
                   }}
@@ -274,13 +324,14 @@ export function SearchResults({
                   <TrackCard
                     track={track}
                     variant='list'
-                    showArtwork={false}
+                    showArtwork
                     showSources
                     showDurationIcon
                     showIsrc
                     inlineIsrc
                     interactive
                     previewSide='bottom'
+                    className={cn(virtualItem.index % 2 !== 0 && 'bg-muted/30')}
                   />
                 </div>
               );
@@ -293,10 +344,7 @@ export function SearchResults({
                 key={virtualItem.key}
                 data-index={virtualItem.index}
                 ref={listVirtualizer.measureElement}
-                className={cn(
-                  'search-result-item absolute top-0 left-0 w-full',
-                  virtualItem.index % 2 === 0 ? 'bg-transparent' : 'bg-muted/30'
-                )}
+                className='search-result-item absolute top-0 left-0 w-full py-1'
                 style={{
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
@@ -308,6 +356,7 @@ export function SearchResults({
                   typePlacement='title'
                   interactive
                   previewSide='bottom'
+                  className={cn(virtualItem.index % 2 !== 0 && 'bg-muted/30')}
                 />
               </div>
             );
@@ -327,7 +376,7 @@ export function SearchResults({
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
-                <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 py-2'>
+                <div className='grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 py-2'>
                   {row.map((artist) => (
                     <ArtistCard
                       key={artist.externalIds?.musicbrainz || artist.name}
@@ -355,14 +404,15 @@ export function SearchResults({
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
-                <div className='grid grid-cols-2 gap-4 py-2'>
+                <div className='grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 py-2'>
                   {row.map((track) => (
                     <TrackCard
                       key={track.isrc || track.title}
                       track={track}
+                      showArtwork
                       interactive
                       previewSide='bottom'
-                      previewAlign='start'
+                      previewAlign='center'
                     />
                   ))}
                 </div>

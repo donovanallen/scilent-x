@@ -3,7 +3,7 @@ import type { DecoratorFunction } from 'storybook/internal/types';
 import '@scilent-one/ui/globals.css';
 
 const withDarkMode: DecoratorFunction = (Story, context) => {
-  const isDark = context.globals?.backgrounds?.value === 'hsl(240 10% 3.9%)';
+  const isDark = context.globals?.backgrounds?.value === 'oklch(0.09 0 0)';
   document.documentElement.classList.toggle('dark', isDark);
   return (
     <div>

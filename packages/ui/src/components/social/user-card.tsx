@@ -13,6 +13,7 @@ export interface UserCardProps {
   bio: string | null;
   avatarUrl: string | null;
   image: string | null;
+  showFollowButton?: boolean | undefined;
   followersCount?: number | undefined;
   followingCount?: number | undefined;
   isFollowing?: boolean | undefined;
@@ -31,6 +32,7 @@ export function UserCard({
   bio,
   avatarUrl,
   image,
+  showFollowButton = false,
   followersCount,
   followingCount,
   isFollowing = false,
@@ -71,7 +73,7 @@ export function UserCard({
                   </p>
                 )}
               </div>
-              {!isCurrentUser && onFollow && onUnfollow && (
+              {!isCurrentUser && showFollowButton && onFollow && onUnfollow && (
                 <div onClick={(e) => e.stopPropagation()} className="shrink-0">
                   {/* Icon-only on small/medium screens */}
                   <FollowButton
