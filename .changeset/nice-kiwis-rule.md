@@ -1,5 +1,5 @@
 ---
-'@scilent-one/harmony-ui': minor
+'@scilent-one/scilent-ui': minor
 '@scilent-one/ui': minor
 ---
 

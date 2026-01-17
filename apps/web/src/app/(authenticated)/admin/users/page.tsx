@@ -1,4 +1,4 @@
-import { PlatformBadgeList } from '@scilent-one/harmony-ui';
+import { PlatformBadgeList } from '@scilent-one/scilent-ui';
 import {
   Badge,
   Card,

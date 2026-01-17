@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'packages/social/**'
-      - 'packages/harmony-ui/**'
+      - 'packages/scilent-ui/**'
       - 'packages/ui/**'
       - 'packages/db/**'
       - 'packages/harmony-engine/**'
@@ -14,7 +14,7 @@ on:
     branches: [main]
     paths:
       - 'packages/social/**'
-      - 'packages/harmony-ui/**'
+      - 'packages/scilent-ui/**'
       - 'packages/ui/**'
       - 'packages/db/**'
       - 'packages/harmony-engine/**'
@@ -56,7 +56,7 @@ jobs:
         run: |
           pnpm turbo test:coverage \
             --filter=@scilent-one/social \
-            --filter=@scilent-one/harmony-ui \
+            --filter=@scilent-one/scilent-ui \
             --filter=@scilent-one/ui
         env:
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -69,9 +69,9 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: |
             packages/social/coverage/coverage-final.json
-            packages/harmony-ui/coverage/coverage-final.json
+            packages/scilent-ui/coverage/coverage-final.json
             packages/ui/coverage/coverage-final.json
-          flags: social,harmony-ui,ui
+          flags: social,scilent-ui,ui
           fail_ci_if_error: false
           verbose: true
 

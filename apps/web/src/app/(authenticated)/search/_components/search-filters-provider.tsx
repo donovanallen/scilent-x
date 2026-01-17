@@ -1,6 +1,6 @@
 'use client';
 
-import { PlatformBadge } from '@scilent-one/harmony-ui';
+import { PlatformBadge } from '@scilent-one/scilent-ui';
 import { cn } from '@scilent-one/ui';
 
 import type { SearchFilters } from '../actions';

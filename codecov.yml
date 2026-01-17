@@ -29,9 +29,9 @@ flags:
     paths:
       - packages/social/
     carryforward: true
-  harmony-ui:
+  scilent-ui:
     paths:
-      - packages/harmony-ui/
+      - packages/scilent-ui/
     carryforward: true
   ui:
     paths:

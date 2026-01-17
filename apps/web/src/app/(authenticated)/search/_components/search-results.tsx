@@ -15,7 +15,7 @@ import {
   ArtistCardSkeleton,
   ArtistListItem,
   ListSkeleton,
-} from '@scilent-one/harmony-ui';
+} from '@scilent-one/scilent-ui';
 import { cn, ScrollArea } from '@scilent-one/ui';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { AlertCircle, Music2, Search } from 'lucide-react';

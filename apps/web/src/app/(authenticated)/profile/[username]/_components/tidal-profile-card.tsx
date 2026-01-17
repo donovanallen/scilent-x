@@ -5,7 +5,7 @@ import {
   type PlatformProfile,
   type FollowedArtistsData,
   type ProfileError,
-} from '@scilent-one/harmony-ui';
+} from '@scilent-one/scilent-ui';
 import { useEffect, useState } from 'react';
 
 import { authClient } from '@/lib/auth-client';

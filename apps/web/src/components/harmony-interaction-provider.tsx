@@ -7,7 +7,7 @@ import {
   type HarmonizedEntity,
   type ProviderActions,
   type EnabledProvider,
-} from '@scilent-one/harmony-ui';
+} from '@scilent-one/scilent-ui';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { toast } from 'sonner';

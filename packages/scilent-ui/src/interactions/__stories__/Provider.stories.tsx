@@ -11,7 +11,7 @@ const meta: Meta<typeof HarmonyInteractionProvider> = {
     docs: {
       description: {
         component:
-          'Provider component that configures interaction behaviors for all nested harmony-ui components.',
+          'Provider component that configures interaction behaviors for all nested scilent-ui components.',
       },
     },
   },
