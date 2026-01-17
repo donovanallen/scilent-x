@@ -155,6 +155,7 @@ function Sidebar({
   side = 'left',
   variant = 'sidebar',
   collapsible = 'offcanvas',
+  expandOnHover = false,
   className,
   children,
   ...props
@@ -162,8 +163,36 @@ function Sidebar({
   side?: 'left' | 'right';
   variant?: 'sidebar' | 'floating' | 'inset';
   collapsible?: 'offcanvas' | 'icon' | 'none';
+  expandOnHover?: boolean;
 }) {
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const { isMobile, state, open, setOpen, openMobile, setOpenMobile } = useSidebar();
+  const [isHovered, setIsHovered] = React.useState(false);
+
+  // Track whether the state was explicitly set by user (locked)
+  const [isLocked, setIsLocked] = React.useState(open);
+
+  // Update locked state when open changes (from toggle button)
+  React.useEffect(() => {
+    setIsLocked(open);
+  }, [open]);
+
+  // Compute visual expanded state: locked open OR (collapsed + hovered with expandOnHover)
+  const isVisuallyExpanded =
+    open || (expandOnHover && collapsible === 'icon' && !open && isHovered);
+  const visualState = isVisuallyExpanded ? 'expanded' : 'collapsed';
+
+  // Handle hover - only affects visual state when not locked open
+  const handleMouseEnter = () => {
+    if (expandOnHover && collapsible === 'icon' && !isLocked) {
+      setIsHovered(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (expandOnHover) {
+      setIsHovered(false);
+    }
+  };
 
   if (collapsible === 'none') {
     return (
@@ -208,11 +237,13 @@ function Sidebar({
   return (
     <div
       className="group peer text-sidebar-foreground hidden md:block"
-      data-state={state}
-      data-collapsible={state === 'collapsed' ? collapsible : ''}
+      data-state={visualState}
+      data-collapsible={visualState === 'collapsed' ? collapsible : ''}
       data-variant={variant}
       data-side={side}
       data-slot="sidebar"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* This is what handles the sidebar gap on desktop */}
       <div
@@ -310,7 +341,12 @@ function SidebarInset({ className, ...props }: React.ComponentProps<'main'>) {
       data-slot="sidebar-inset"
       className={cn(
         'bg-background relative flex w-full flex-1 flex-col',
-        'md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2',
+        'md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2',
+        // Subtle border for inset variant
+        'md:peer-data-[variant=inset]:border md:peer-data-[variant=inset]:border-border/60',
+        // Subtle depth with shadow for inset variant
+        'md:peer-data-[variant=inset]:shadow-[0_1px_3px_0_oklch(0_0_0/0.03),0_1px_2px_-1px_oklch(0_0_0/0.02)]',
+        'dark:md:peer-data-[variant=inset]:shadow-[0_1px_3px_0_oklch(0_0_0/0.15),0_1px_2px_-1px_oklch(0_0_0/0.1)]',
         className
       )}
       {...props}
