@@ -1,10 +1,12 @@
-import { Loader2 } from 'lucide-react';
+import { Spinner } from '@scilent-one/ui';
 
 export default function Loading() {
   return (
-    <div className='size-full flex items-center justify-center gap-2 bg-background/80 backdrop-blur-xl supports-backdrop-filter:bg-background/60'>
-      <Loader2 className='size-4 animate-spin' />
-      <p className='text-foreground'>Loading...</p>
+    <div className='flex min-h-screen items-center justify-center'>
+      <div className='flex items-center gap-3 text-muted-foreground'>
+        <Spinner className='size-5' />
+        <span className='text-sm font-medium'>Loading...</span>
+      </div>
     </div>
   );
 }

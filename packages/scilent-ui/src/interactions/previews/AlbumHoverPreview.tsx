@@ -5,16 +5,13 @@ import { Badge, cn, Separator } from '@scilent-one/ui';
 import { Calendar, Disc, Music, Tag } from 'lucide-react';
 import type { HarmonizedEntity } from '../types';
 import type { HarmonizedRelease } from '../../types';
-import {
-  formatPartialDate,
-  formatArtistCredits,
-  getFrontArtworkUrl,
-} from '../../utils';
+import { formatPartialDate, getFrontArtworkUrl } from '../../utils';
 import {
   Artwork,
   PlatformBadgeList,
   ReleaseTypePill,
 } from '../../components/common';
+import { ArtistCredit } from '../../components/artist/ArtistCredit';
 
 export interface AlbumHoverPreviewProps {
   /** The album/release entity */
@@ -28,6 +25,7 @@ export interface AlbumHoverPreviewProps {
 /**
  * Hover preview content for album/release entities.
  * Shows release info with configurable detail level.
+ * Styled to match AlbumCard component patterns.
  */
 export function AlbumHoverPreview({
   entity,
@@ -61,10 +59,12 @@ export function AlbumHoverPreview({
             rounded="md"
           />
           <div className="min-w-0 flex-1">
-            <p className="font-medium truncate text-sm">{release.title}</p>
-            <p className="text-xs text-muted-foreground truncate">
-              {formatArtistCredits(release.artists)}
-            </p>
+            <p className="text-sm font-medium truncate">{release.title}</p>
+            <ArtistCredit
+              artists={release.artists}
+              maxDisplay={2}
+              className="text-xs text-muted-foreground truncate"
+            />
           </div>
         </div>
         {platforms.length > 0 && (
@@ -74,54 +74,65 @@ export function AlbumHoverPreview({
     );
   }
 
-  // Mini mode - compact preview with artwork and key details
+  // Mini mode - compact preview with artwork and key details (matches AlbumCard layout)
   if (mode === 'mini') {
     return (
-      <div className={cn('space-y-3', className)}>
-        {/* Header with artwork */}
+      <div className={cn('group space-y-3', className)}>
+        {/* Header with artwork - mirrors AlbumCard structure */}
         <div className="flex gap-3">
           <Artwork
             src={artworkUrl}
             alt={release.title}
             size="lg"
             rounded="md"
-            className="shadow-md"
+            className="shadow-md ring-1 ring-border/50"
           />
-          <div className="min-w-0 flex-1 flex flex-col justify-center gap-1.5">
-            <p className="font-semibold leading-tight line-clamp-2">
+          <div className="min-w-0 flex-1 flex flex-col justify-center gap-1">
+            <p className="text-sm font-medium leading-tight line-clamp-2 group-hover:text-primary transition-colors">
               {release.title}
             </p>
-            <p className="text-sm text-muted-foreground truncate">
-              {formatArtistCredits(release.artists)}
-            </p>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <ReleaseTypePill releaseType={release.releaseType} />
+            <ArtistCredit
+              artists={release.artists}
+              maxDisplay={2}
+              className="text-sm text-muted-foreground line-clamp-1"
+            />
+            <div className="flex items-center gap-2">
               {release.releaseDate?.year && (
                 <span className="text-xs text-muted-foreground">
-                  {release.releaseDate.year}
+                  {formatPartialDate(release.releaseDate)}
                 </span>
               )}
+              <ReleaseTypePill
+                releaseType={release.releaseType}
+                uppercase
+                className="ml-auto text-[10px]"
+              />
             </div>
           </div>
         </div>
 
-        {/* Quick stats row */}
-        <div className="flex items-center gap-3 text-xs text-muted-foreground bg-muted/50 rounded-md px-2.5 py-2">
-          {totalTracks > 0 && (
-            <div className="flex items-center gap-1">
-              <Music className="size-4" />
-              <span>
-                {totalTracks} track{totalTracks !== 1 ? 's' : ''}
-              </span>
-            </div>
-          )}
-          {release.labels && release.labels[0] && (
-            <div className="flex items-center gap-1 truncate">
-              <Tag className="size-4 shrink-0" />
-              <span className="truncate">{release.labels[0].name}</span>
-            </div>
-          )}
-        </div>
+        {/* Quick stats row - subtle metadata display */}
+        {(totalTracks > 0 || (release.labels && release.labels[0])) && (
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            {totalTracks > 0 && (
+              <div className="flex items-center gap-1.5">
+                <Music className="size-3.5" />
+                <span>
+                  {totalTracks} track{totalTracks !== 1 ? 's' : ''}
+                </span>
+              </div>
+            )}
+            {totalTracks > 0 && release.labels && release.labels[0] && (
+              <span className="text-muted-foreground/40">·</span>
+            )}
+            {release.labels && release.labels[0] && (
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Tag className="size-3.5 shrink-0" />
+                <span className="truncate">{release.labels[0].name}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Platform badges */}
         {platforms.length > 0 && (
@@ -133,97 +144,96 @@ export function AlbumHoverPreview({
 
   // Full mode - detailed preview with all metadata
   return (
-    <div className={cn('space-y-4', className)}>
-      {/* Large artwork header */}
-      <div className="relative">
+    <div className={cn('group space-y-4', className)}>
+      {/* Large artwork header with overlay badge */}
+      <div className="relative overflow-hidden rounded-lg ring-1 ring-border/50">
         <Artwork
           src={artworkUrl}
           alt={release.title}
-          className="w-full aspect-square shadow-lg"
-          rounded="lg"
+          className="w-full aspect-square"
+          rounded="none"
         />
         {/* Overlay with release type badge */}
         <div className="absolute bottom-2 left-2">
           <ReleaseTypePill
             releaseType={release.releaseType}
-            className="text-xs backdrop-blur-sm bg-background/80"
+            uppercase
+            className="text-[10px] backdrop-blur-sm bg-background/80 shadow-sm"
           />
         </div>
       </div>
 
-      {/* Title and artist */}
+      {/* Title and artist - matches card typography */}
       <div className="space-y-1">
-        <h4 className="font-semibold text-base leading-tight line-clamp-2">
+        <h4 className="text-sm font-medium leading-tight line-clamp-2 group-hover:text-primary transition-colors">
           {release.title}
         </h4>
-        <p className="text-sm text-muted-foreground">
-          {formatArtistCredits(release.artists)}
-        </p>
+        <ArtistCredit
+          artists={release.artists}
+          maxDisplay={3}
+          className="text-sm text-muted-foreground line-clamp-1"
+        />
       </div>
 
       {/* Key metadata badges */}
       <div className="flex flex-wrap gap-1.5">
         {release.releaseDate?.year && (
-          <Badge variant="outline" className="text-xs gap-1">
-            <Calendar className="size-4" />
+          <Badge variant="outline" className="text-xs gap-1 font-normal">
+            <Calendar className="size-3" />
             {formatPartialDate(release.releaseDate)}
           </Badge>
         )}
         {totalTracks > 0 && (
-          <Badge variant="outline" className="text-xs gap-1">
-            <Music className="size-4" />
+          <Badge variant="outline" className="text-xs gap-1 font-normal">
+            <Music className="size-3" />
             {totalTracks} track{totalTracks !== 1 ? 's' : ''}
           </Badge>
         )}
         {release.media && release.media.length > 1 && (
-          <Badge variant="outline" className="text-xs gap-1">
-            <Disc className="size-4" />
+          <Badge variant="outline" className="text-xs gap-1 font-normal">
+            <Disc className="size-3" />
             {release.media.length} disc{release.media.length !== 1 ? 's' : ''}
           </Badge>
         )}
       </div>
 
-      <Separator className="my-1" />
+      <Separator />
 
       {/* Detailed metadata grid */}
       <div className="space-y-2 text-sm">
         {release.labels && release.labels.length > 0 && release.labels[0] && (
-          <div className="flex justify-between items-start gap-2">
+          <div className="flex justify-between items-start gap-4">
             <span className="text-muted-foreground shrink-0">Label</span>
-            <span className="text-right truncate">
+            <span className="text-right truncate font-medium">
               {release.labels[0].name}
             </span>
           </div>
         )}
         {release.gtin && (
-          <div className="flex justify-between items-center gap-2">
+          <div className="flex justify-between items-center gap-4">
             <span className="text-muted-foreground">UPC</span>
-            <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
+            <span className="font-mono text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
               {release.gtin}
             </span>
           </div>
         )}
         {release.releaseCountry && (
-          <div className="flex justify-between items-center gap-2">
+          <div className="flex justify-between items-center gap-4">
             <span className="text-muted-foreground">Country</span>
-            <span>{release.releaseCountry}</span>
+            <span className="font-medium">{release.releaseCountry}</span>
           </div>
         )}
       </div>
 
-      {/* Genre tags */}
+      {/* Genre tags - matches ArtistCard badge styling */}
       {release.genres && release.genres.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             Genres
           </p>
           <div className="flex flex-wrap gap-1">
             {release.genres.slice(0, 4).map((genre) => (
-              <Badge
-                key={genre}
-                variant="secondary"
-                className="text-xs font-normal"
-              >
+              <Badge key={genre} variant="secondary" className="text-xs">
                 {genre}
               </Badge>
             ))}

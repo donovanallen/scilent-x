@@ -38,6 +38,7 @@ const artistTypeIcons: Record<ArtistType, React.ElementType> = {
 /**
  * Hover preview content for artist entities.
  * Shows artist info with configurable detail level.
+ * Styled to match ArtistCard component patterns.
  */
 export function ArtistHoverPreview({
   entity,
@@ -61,11 +62,11 @@ export function ArtistHoverPreview({
     return (
       <div className={cn('space-y-3', className)}>
         <div className="flex items-center gap-3">
-          <div className="size-10 rounded-full bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
-            <ArtistIcon className="size-5 text-primary" />
+          <div className="size-10 rounded-full bg-muted flex items-center justify-center shrink-0 ring-1 ring-border/50">
+            <ArtistIcon className="size-5 text-muted-foreground" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-medium truncate text-sm">{artist.name}</p>
+            <p className="text-sm font-medium truncate">{artist.name}</p>
             {artist.disambiguation && (
               <p className="text-xs text-muted-foreground truncate">
                 {artist.disambiguation}
@@ -80,35 +81,33 @@ export function ArtistHoverPreview({
     );
   }
 
-  // Mini mode - compact preview with key details
+  // Mini mode - compact preview with key details (matches ArtistCard layout)
   if (mode === 'mini') {
     return (
-      <div className={cn('space-y-3', className)}>
-        {/* Header with icon avatar */}
+      <div className={cn('group space-y-3', className)}>
+        {/* Header with icon avatar - mirrors ArtistCard image area */}
         <div className="flex gap-3">
-          <div className="size-16 rounded-full bg-linear-to-br from-primary/20 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-inner">
-            <ArtistIcon className="size-7 text-primary" />
+          <div className="size-16 rounded-full bg-muted flex items-center justify-center shrink-0 ring-1 ring-border/50">
+            <ArtistIcon className="size-8 text-muted-foreground" />
           </div>
           <div className="min-w-0 flex-1 flex flex-col justify-center gap-1">
-            <div className="flex items-center gap-2 justify-between">
-              <p className="font-semibold leading-tight line-clamp-2">
-                {artist.name}
-              </p>
-              {artist.type && (
-                <Badge variant="secondary" className="">
-                  {artistTypeLabels[artist.type] ?? artist.type}
-                </Badge>
-              )}
-            </div>
+            <p className="font-medium leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+              {artist.name}
+            </p>
             {artist.disambiguation && (
-              <p className="text-sm text-muted-foreground truncate">
+              <p className="text-muted-foreground truncate text-sm">
                 {artist.disambiguation}
               </p>
             )}
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
+              {artist.type && (
+                <Badge variant="secondary" className="text-xs">
+                  {artistTypeLabels[artist.type] ?? artist.type}
+                </Badge>
+              )}
               {artist.country && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Globe className="size-4" />
+                  <Globe className="size-3" />
                   {artist.country}
                 </span>
               )}
@@ -116,22 +115,18 @@ export function ArtistHoverPreview({
           </div>
         </div>
 
-        {/* Genre tags */}
+        {/* Genre tags - matches ArtistCard badge styling exactly */}
         {artist.genres && artist.genres.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {artist.genres.slice(0, 3).map((genre) => (
-              <Badge
-                key={genre}
-                variant="outline"
-                className="text-xs font-normal"
-              >
+              <Badge key={genre} variant="secondary" className="text-xs">
                 {genre}
               </Badge>
             ))}
             {artist.genres.length > 3 && (
-              <span className="text-xs text-muted-foreground self-center">
-                +{artist.genres.length - 3} more
-              </span>
+              <Badge variant="outline" className="text-xs">
+                +{artist.genres.length - 3}
+              </Badge>
             )}
           </div>
         )}
@@ -146,14 +141,14 @@ export function ArtistHoverPreview({
 
   // Full mode - detailed preview with all metadata
   return (
-    <div className={cn('space-y-4', className)}>
-      {/* Header with large icon */}
+    <div className={cn('group space-y-4', className)}>
+      {/* Header with large icon - mirrors ArtistCard structure */}
       <div className="flex items-start gap-4">
-        <div className="size-20 rounded-full bg-linear-to-br from-primary/25 via-primary/10 to-background flex items-center justify-center shrink-0 shadow-lg">
-          <ArtistIcon className="size-9 text-primary" />
+        <div className="size-20 rounded-full bg-muted flex items-center justify-center shrink-0 ring-1 ring-border/50">
+          <ArtistIcon className="size-10 text-muted-foreground" />
         </div>
         <div className="min-w-0 flex-1 pt-1">
-          <h4 className="font-semibold text-lg leading-tight line-clamp-2">
+          <h4 className="font-medium text-base leading-tight line-clamp-2 group-hover:text-primary transition-colors">
             {artist.name}
           </h4>
           {artist.disambiguation && (
@@ -168,7 +163,7 @@ export function ArtistHoverPreview({
               </Badge>
             )}
             {artist.country && (
-              <Badge variant="outline" className="text-xs gap-1">
+              <Badge variant="outline" className="text-xs gap-1 font-normal">
                 <Globe className="size-3" />
                 {artist.country}
               </Badge>
@@ -187,7 +182,7 @@ export function ArtistHoverPreview({
               <span className="text-xs text-muted-foreground uppercase tracking-wider">
                 {artist.type === 'person' ? 'Born' : 'Formed'}
               </span>
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 font-medium">
                 <Calendar className="size-3.5 text-muted-foreground" />
                 {formatPartialDate(artist.beginDate)}
               </span>
@@ -198,7 +193,7 @@ export function ArtistHoverPreview({
               <span className="text-xs text-muted-foreground uppercase tracking-wider">
                 {artist.type === 'person' ? 'Died' : 'Disbanded'}
               </span>
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 font-medium">
                 <Calendar className="size-3.5 text-muted-foreground" />
                 {formatPartialDate(artist.endDate)}
               </span>
@@ -207,19 +202,15 @@ export function ArtistHoverPreview({
         </div>
       )}
 
-      {/* Genre tags */}
+      {/* Genre tags - matches ArtistCard badge styling */}
       {artist.genres && artist.genres.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             Genres
           </p>
           <div className="flex flex-wrap gap-1">
             {artist.genres.slice(0, 5).map((genre) => (
-              <Badge
-                key={genre}
-                variant="secondary"
-                className="text-xs font-normal"
-              >
+              <Badge key={genre} variant="secondary" className="text-xs">
                 {genre}
               </Badge>
             ))}
@@ -234,7 +225,7 @@ export function ArtistHoverPreview({
 
       {/* Aliases */}
       {artist.aliases && artist.aliases.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             Also known as
           </p>

@@ -1,3 +1,13 @@
+import {
+  Button,
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent,
+} from '@scilent-one/ui';
+import { FileQuestion, Home } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -9,17 +19,26 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className='flex flex-col items-center justify-center h-screen'>
-      <h1 className='text-4xl font-bold'>Page Not Found</h1>
-      <p className='text-lg text-muted-foreground'>
-        The page you are looking for does not exist.
-      </p>
-      <Link
-        href='/'
-        className='mt-4 text-primary underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
-      >
-        Go back to the home page
-      </Link>
+    <div className='flex min-h-screen items-center justify-center p-6'>
+      <Empty className='border-0'>
+        <EmptyHeader>
+          <EmptyMedia variant='icon'>
+            <FileQuestion />
+          </EmptyMedia>
+          <EmptyTitle>Page not found</EmptyTitle>
+          <EmptyDescription>
+            The page you are looking for doesn&apos;t exist or has been moved.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button asChild>
+            <Link href='/'>
+              <Home />
+              Back to home
+            </Link>
+          </Button>
+        </EmptyContent>
+      </Empty>
     </div>
   );
 }

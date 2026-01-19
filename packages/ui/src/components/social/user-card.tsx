@@ -25,6 +25,10 @@ export interface UserCardProps {
   className?: string | undefined;
 }
 
+/**
+ * A compact user profile card for displaying user information in lists and grids.
+ * Styled consistently with ProfileHeader and other social components.
+ */
 export function UserCard({
   // id,
   name,
@@ -43,6 +47,16 @@ export function UserCard({
   onClick,
   className,
 }: UserCardProps) {
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent) => {
+      if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        onClick();
+      }
+    },
+    [onClick]
+  );
+
   return (
     <Card
       className={cn(
@@ -51,9 +65,12 @@ export function UserCard({
         className
       )}
       onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? handleKeyDown : undefined}
     >
-      <CardContent className="pt-4 overflow-hidden">
-        <div className="flex items-start gap-3">
+      <CardContent className="pt-6">
+        <div className="flex items-start gap-4">
           <UserAvatar
             name={name}
             username={username}
@@ -62,19 +79,23 @@ export function UserCard({
             size="lg"
           />
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <h5 className="font-semibold truncate">
+                <p className="font-semibold truncate leading-tight">
                   {name || username || 'Anonymous'}
-                </h5>
+                </p>
                 {username && (
-                  <p className="text-muted-foreground text-sm truncate">
+                  <p className="text-muted-foreground text-sm truncate mt-0.5">
                     @{username}
                   </p>
                 )}
               </div>
               {!isCurrentUser && showFollowButton && onFollow && onUnfollow && (
-                <div onClick={(e) => e.stopPropagation()} className="shrink-0">
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  className="shrink-0"
+                >
                   {/* Icon-only on small/medium screens */}
                   <FollowButton
                     isFollowing={isFollowing}
@@ -97,12 +118,12 @@ export function UserCard({
               )}
             </div>
             {bio && (
-              <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+              <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
                 {bio}
               </p>
             )}
             {(followersCount !== undefined || followingCount !== undefined) && (
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3 text-sm">
+              <div className="flex items-center gap-4 mt-4 text-sm">
                 {followersCount !== undefined && (
                   <div className="whitespace-nowrap">
                     <span className="font-semibold">{followersCount}</span>{' '}
