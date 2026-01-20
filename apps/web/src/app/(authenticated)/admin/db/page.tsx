@@ -191,6 +191,12 @@ async function AuthProvidersCard() {
   const providers = await getAuthProviders();
   const configuredCount = providers.filter((p) => p.configured).length;
 
+  // Sort providers so configured ones appear first
+  const sortedProviders = [...providers].sort((a, b) => {
+    if (a.configured === b.configured) return 0;
+    return a.configured ? -1 : 1;
+  });
+
   return (
     <Card>
       <CardHeader>
@@ -201,7 +207,7 @@ async function AuthProvidersCard() {
       </CardHeader>
       <CardContent>
         <div className='space-y-2'>
-          {providers.map((provider) => (
+          {sortedProviders.map((provider) => (
             <div
               key={provider.id}
               className={cn(

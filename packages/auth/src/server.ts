@@ -62,7 +62,9 @@ async function generateUniqueUsername(): Promise<string> {
   const timestamp = Date.now().toString(36);
   const random = Math.random().toString(36).substring(2, 6);
   const fallbackUsername = `u_${timestamp}${random}`;
-  logger.warn('Used fallback username generation', { username: fallbackUsername });
+  logger.warn('Used fallback username generation', {
+    username: fallbackUsername,
+  });
   return fallbackUsername;
 }
 
@@ -286,14 +288,20 @@ export const auth = betterAuth({
                 }
               } catch (parseError) {
                 tidalLogger.warn('Failed to parse Tidal /users/me response', {
-                  error: parseError instanceof Error ? parseError.message : String(parseError),
+                  error:
+                    parseError instanceof Error
+                      ? parseError.message
+                      : String(parseError),
                 });
               }
             }
 
-            tidalLogger.debug('Tidal /users/me endpoint failed, trying sessions fallback', {
-              status: meResponse.status,
-            });
+            tidalLogger.debug(
+              'Tidal /users/me endpoint failed, trying sessions fallback',
+              {
+                status: meResponse.status,
+              }
+            );
 
             // Fallback: try legacy sessions endpoint to get userId, then fetch user
             const sessionsResponse = await fetch(
@@ -336,10 +344,13 @@ export const auth = betterAuth({
                       lastName?: string;
                     };
 
-                    tidalLogger.info('Tidal user info retrieved via sessions API', {
-                      tidalUserId: userData.id,
-                      hasEmail: !!userData.email,
-                    });
+                    tidalLogger.info(
+                      'Tidal user info retrieved via sessions API',
+                      {
+                        tidalUserId: userData.id,
+                        hasEmail: !!userData.email,
+                      }
+                    );
 
                     return {
                       id: String(userData.id),
@@ -354,15 +365,21 @@ export const auth = betterAuth({
                     };
                   } catch (parseError) {
                     tidalLogger.warn('Failed to parse Tidal user response', {
-                      error: parseError instanceof Error ? parseError.message : String(parseError),
+                      error:
+                        parseError instanceof Error
+                          ? parseError.message
+                          : String(parseError),
                     });
                   }
                 }
 
-                tidalLogger.warn('Tidal user fetch failed, using session data only', {
-                  status: userResponse.status,
-                  tidalUserId: sessionData.userId,
-                });
+                tidalLogger.warn(
+                  'Tidal user fetch failed, using session data only',
+                  {
+                    status: userResponse.status,
+                    tidalUserId: sessionData.userId,
+                  }
+                );
 
                 // Last resort: return session data without email
                 return {
@@ -373,7 +390,10 @@ export const auth = betterAuth({
                 };
               } catch (parseError) {
                 tidalLogger.warn('Failed to parse Tidal sessions response', {
-                  error: parseError instanceof Error ? parseError.message : String(parseError),
+                  error:
+                    parseError instanceof Error
+                      ? parseError.message
+                      : String(parseError),
                 });
               }
             }
@@ -398,6 +418,7 @@ export const auth = betterAuth({
             'user-follow-read', // Read followed artists
           ],
           pkce: true, // Spotify supports PKCE
+          redirectURI: process.env.SPOTIFY_REDIRECT_URI ?? '',
           // Map Spotify's user info response to Better Auth's expected format
           async getUserInfo(token) {
             const spotifyLogger = createLogger('auth:spotify');
