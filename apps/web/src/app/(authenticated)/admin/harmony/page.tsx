@@ -25,6 +25,11 @@ import {
 import { Suspense } from 'react';
 
 import { getEngineStatus, type ProviderCapabilities } from '../actions';
+import {
+  getProviderSettings,
+  getProviderCredentialsStatus,
+} from './actions';
+import { ProviderToggle } from './_components';
 
 export const metadata = {
   title: 'Harmony Engine',
@@ -128,7 +133,12 @@ function CapabilityBadges({
 }
 
 async function EngineStatusCard() {
-  const status = await getEngineStatus();
+  // Fetch engine status, provider settings, and credentials in parallel
+  const [status, providerSettings, credentialsStatus] = await Promise.all([
+    getEngineStatus(),
+    getProviderSettings(),
+    getProviderCredentialsStatus(),
+  ]);
 
   const allProviders = [
     {
@@ -147,6 +157,11 @@ async function EngineStatusCard() {
       authType: 'OAuth Client Credentials',
     },
   ];
+
+  // Create a map of provider settings for quick lookup
+  const settingsMap = new Map(
+    providerSettings.map((s) => [s.providerName, s])
+  );
 
   const enabledNames = new Set(status.enabledProviders.map((p) => p.name));
 
@@ -203,6 +218,10 @@ async function EngineStatusCard() {
               const enabledInfo = status.enabledProviders.find(
                 (p) => p.name === provider.name
               );
+              const hasCredentials = credentialsStatus.get(provider.name) ?? false;
+              const setting = settingsMap.get(provider.name);
+              // Provider is enabled if: has credentials AND (no DB setting OR setting.enabled is true)
+              const isToggledOn = hasCredentials && (setting?.enabled ?? true);
 
               return (
                 <div key={provider.name} className='py-4 first:pt-0 last:pb-0'>
@@ -224,13 +243,20 @@ async function EngineStatusCard() {
                         />
                       )}
                     </div>
-                    {isEnabled && enabledInfo && (
-                      <div className='text-right shrink-0 ml-4'>
-                        <div className='text-sm font-medium'>
-                          Priority: {enabledInfo.priority}
+                    <div className='flex items-center gap-4 shrink-0 ml-4'>
+                      {isEnabled && enabledInfo && (
+                        <div className='text-right'>
+                          <div className='text-sm font-medium'>
+                            Priority: {enabledInfo.priority}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                      <ProviderToggle
+                        providerName={provider.name}
+                        enabled={isToggledOn}
+                        hasCredentials={hasCredentials}
+                      />
+                    </div>
                   </div>
                 </div>
               );
