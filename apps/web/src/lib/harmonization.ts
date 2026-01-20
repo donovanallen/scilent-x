@@ -2,6 +2,7 @@
 import {
   HarmonizationEngine,
   TidalProvider,
+  SpotifyProvider,
   type HarmonizedArtist,
   type ProviderRegistryConfig,
   type PaginatedCollection,
@@ -117,6 +118,21 @@ export async function searchArtistsWithUserProvider(
     }
   }
 
+  if (normalizedProvider === 'spotify' && accessToken) {
+    const provider = engine.getProvider('spotify');
+    if (provider instanceof SpotifyProvider) {
+      try {
+        return await provider.searchArtistsWithUserToken(
+          query,
+          accessToken,
+          limit
+        );
+      } catch (error) {
+        console.warn('Spotify artist search failed, falling back:', error);
+      }
+    }
+  }
+
   return engine.searchArtists(query, ['musicbrainz'], limit);
 }
 
@@ -144,8 +160,12 @@ export async function getFollowedArtistsFromProvider(
     }
   }
 
-  // Add more providers here as they are implemented
-  // if (normalizedProvider === 'spotify') { ... }
+  if (normalizedProvider === 'spotify') {
+    const provider = engine.getProvider('spotify');
+    if (provider instanceof SpotifyProvider) {
+      return provider.getFollowedArtists(accessToken, params);
+    }
+  }
 
   throw new Error(`Provider '${providerId}' does not support followed artists`);
 }

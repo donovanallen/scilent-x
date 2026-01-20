@@ -35,7 +35,7 @@ type LinkedAccount = {
 /** Streaming providers available for account linking */
 const STREAMING_PROVIDERS = [
   { id: 'tidal', name: 'Tidal' },
-  // Future: { id: 'spotify', name: 'Spotify' },
+  { id: 'spotify', name: 'Spotify' },
   // Future: { id: 'apple_music', name: 'Apple Music' },
 ] as const;
 

@@ -384,6 +384,71 @@ export const auth = betterAuth({
             return null;
           },
         },
+        {
+          providerId: 'spotify',
+          clientId: process.env.SPOTIFY_CLIENT_ID ?? '',
+          clientSecret: process.env.SPOTIFY_CLIENT_SECRET ?? '',
+          authorizationUrl: 'https://accounts.spotify.com/authorize',
+          tokenUrl: 'https://accounts.spotify.com/api/token',
+          userInfoUrl: 'https://api.spotify.com/v1/me',
+          // Spotify scopes for user profile and followed artists
+          scopes: [
+            'user-read-private', // Read user profile
+            'user-read-email', // Read user email
+            'user-follow-read', // Read followed artists
+          ],
+          pkce: true, // Spotify supports PKCE
+          // Map Spotify's user info response to Better Auth's expected format
+          async getUserInfo(token) {
+            const spotifyLogger = createLogger('auth:spotify');
+            spotifyLogger.debug('Fetching Spotify user info');
+
+            const response = await fetch('https://api.spotify.com/v1/me', {
+              headers: {
+                Authorization: `Bearer ${token.accessToken}`,
+                Accept: 'application/json',
+              },
+            });
+
+            if (!response.ok) {
+              spotifyLogger.error('Spotify /me endpoint failed', {
+                status: response.status,
+              });
+              return null;
+            }
+
+            try {
+              const data = (await response.json()) as {
+                id: string;
+                display_name?: string;
+                email?: string;
+                images?: Array<{ url: string }>;
+              };
+
+              spotifyLogger.info('Spotify user info retrieved', {
+                spotifyUserId: data.id,
+                hasEmail: !!data.email,
+                hasDisplayName: !!data.display_name,
+              });
+
+              return {
+                id: data.id,
+                name: data.display_name,
+                email: data.email || '',
+                emailVerified: !!data.email, // Spotify requires verified email
+                image: data.images?.[0]?.url,
+              };
+            } catch (parseError) {
+              spotifyLogger.warn('Failed to parse Spotify user response', {
+                error:
+                  parseError instanceof Error
+                    ? parseError.message
+                    : String(parseError),
+              });
+              return null;
+            }
+          },
+        },
       ],
     }),
     nextCookies(), // Must be last in the plugins array
