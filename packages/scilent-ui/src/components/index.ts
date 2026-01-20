@@ -12,6 +12,7 @@ export {
   InlineSkeleton,
   PlatformProfileCard,
   PlatformProfileCardSkeleton,
+  ProviderSyncStatus,
   type PlatformName,
   type PlatformBadgeProps,
   type PlatformBadgeListProps,
@@ -32,7 +33,9 @@ export {
   type FollowedArtist,
   type FollowedArtistsData,
   type ProfileError,
-} from "./common";
+  type ProviderSyncStatusProps,
+  type ProviderSyncStatusType,
+} from './common';
 
 // Track components
 export {
@@ -67,7 +70,7 @@ export {
   type ArtistDiscographyProps,
   type ArtistDiscographySkeletonProps,
   type ArtistMentionProps,
-} from "./artist";
+} from './artist';
 
 // Album components
 export {
@@ -81,4 +84,4 @@ export {
   type AlbumTrackListProps,
   type AlbumTrackListSkeletonProps,
   type AlbumDetailsProps,
-} from "./album";
+} from './album';

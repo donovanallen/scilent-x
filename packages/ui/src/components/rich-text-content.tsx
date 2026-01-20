@@ -65,7 +65,8 @@ function parseMentionId(mentionId: string): { provider: string; id: string } {
 }
 
 /**
- * Default artist mention renderer - simple styled button
+ * Default artist mention renderer - styled button with brand colors
+ * Uses brand/warm tones to distinguish from user mentions (gray/primary)
  */
 function DefaultArtistMention({
   name,
@@ -77,7 +78,7 @@ function DefaultArtistMention({
   return (
     <button
       type="button"
-      className="rich-text-mention tiptap-mention text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="artist-mention inline px-1 rounded font-medium transition-colors text-brand-dark bg-brand/20 hover:bg-brand/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       aria-label={`View artist ${name}`}
       onClick={(e) => {
         e.stopPropagation();
@@ -129,6 +130,7 @@ export function RichTextContent({
           if (mentionType === 'ARTIST') {
             const { provider, id } = parseMentionId(mentionId);
             // Render as JSX element so React can properly handle the key
+            // Display without # prefix for cleaner appearance
             return (
               <ArtistMentionRenderer
                 id={id}
@@ -136,7 +138,7 @@ export function RichTextContent({
                 provider={provider}
                 onClick={onArtistMentionClick}
               >
-                {`#${mentionLabel}`}
+                {mentionLabel}
               </ArtistMentionRenderer>
             );
           }
@@ -147,7 +149,7 @@ export function RichTextContent({
               <button
                 key={`user-${mentionId}`}
                 type="button"
-                className="rich-text-mention tiptap-mention text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="inline text-primary bg-primary/10 hover:bg-primary/20 px-1 rounded font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label={`View ${mentionLabel}'s profile`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -225,7 +227,7 @@ export function RichTextContent({
               <button
                 key={index}
                 type="button"
-                className="text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="inline text-primary bg-primary/10 hover:bg-primary/20 px-1 rounded font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label={`View ${part.value}'s profile`}
                 onClick={(e) => {
                   e.stopPropagation();

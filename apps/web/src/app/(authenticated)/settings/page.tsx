@@ -1,6 +1,10 @@
 'use client';
 
-import { ProviderIcon, type IconProvider } from '@scilent-one/scilent-ui';
+import {
+  ProviderIcon,
+  ProviderSyncStatus,
+  type IconProvider,
+} from '@scilent-one/scilent-ui';
 import {
   Button,
   Card,
@@ -297,9 +301,15 @@ export default function SettingsPage() {
                           </div>
                           {isLinked ? (
                             <div className='flex items-center gap-2'>
-                              <span className='text-sm text-muted-foreground'>
-                                Connected
-                              </span>
+                              <ProviderSyncStatus
+                                status={
+                                  isReconnecting
+                                    ? 'syncing'
+                                    : isUnlinking
+                                      ? 'loading'
+                                      : 'connected'
+                                }
+                              />
                               <Button
                                 variant='ghost'
                                 size='sm'
