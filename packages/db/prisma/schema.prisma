@@ -241,3 +241,20 @@ model Activity {
   @@index([createdAt])
   @@map("activities")
 }
+
+// ============================================================================
+// Configuration Models
+// ============================================================================
+
+/// Stores runtime configuration for harmony engine providers
+model ProviderSetting {
+  id           String   @id @default(cuid())
+  providerName String   @unique @map("provider_name")
+  enabled      Boolean  @default(true)
+  priority     Int      @default(50)
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([providerName])
+  @@map("provider_settings")
+}

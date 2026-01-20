@@ -31,4 +31,6 @@ export type {
   Mention,
   Activity,
   ActivityType,
+  // Configuration types
+  ProviderSetting,
 } from '../prisma/generated/client.js';
