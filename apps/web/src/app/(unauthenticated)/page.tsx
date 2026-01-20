@@ -15,7 +15,7 @@ export default function Home() {
         className='absolute inset-0 w-full h-full object-cover z-0 opacity-40'
       />
       <div className='container flex flex-col items-center justify-center h-full z-10 relative'>
-        <h1 className='text-foreground tracking-widest'>scilent music</h1>
+        <span className='font-display font-black text-6xl text-foreground/50 tracking-widest'>scilent music</span>
       </div>
     </>
   );

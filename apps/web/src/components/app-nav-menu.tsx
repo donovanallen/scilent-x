@@ -13,14 +13,14 @@ export function AppNavMenu() {
   return (
     // {/* Fixed navbar that overlays content */}
     <header className='flex items-center justify-between h-18 px-12 mx-auto fixed top-0 left-0 right-0 z-50 border-b border-primary/40 bg-background/60 backdrop-blur-xl'>
-      <Link
+      {/* <Link
         href='/'
         className='text-3xl font-display font-black tracking-wide hover:font-semibold transition-all duration-200'
       >
         scilent<span className='text-muted-foreground'>music</span>
-      </Link>
+      </Link> */}
 
-      <div className='flex items-center gap-2'>
+      <div className='flex items-center gap-2 ml-auto'>
         {session?.user ? (
           <Button variant='outline' asChild>
             <Link href={ROUTES.profile.href}>Open App</Link>

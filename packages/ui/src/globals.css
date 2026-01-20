@@ -15,8 +15,9 @@
     'Liberation Mono', 'Courier New', monospace;
 
   /* Brand colors (preserved for accent use) */
-  --brand-primary: oklch(0.52 0.14 55);
-  --brand-primary-foreground: oklch(0.99 0.01 95);
+  --brand-primary: oklch(89.134% 0.05927 61.104);
+  --brand-dark: oklch(51.553% 0.03056 61.486);
+  --brand-primary-foreground: oklch(97.276% 0.01506 61.146);
 
   /* Grayscale palette - Light mode */
   --background: oklch(0.995 0 0);
@@ -171,6 +172,7 @@
 
   /* Brand colors for accent use */
   --color-brand: var(--brand-primary);
+  --color-brand-dark: var(--brand-dark);
   --color-brand-foreground: var(--brand-primary-foreground);
 
   /* Selection colors */
