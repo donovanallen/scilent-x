@@ -707,7 +707,7 @@ export function TiptapEditor({
       ref={containerRef}
       className={cn(
         'tiptap-editor rounded-md border bg-background transition-colors duration-200',
-        isFocused ? 'border-brand ring-1 ring-brand/30' : 'border-input',
+        isFocused ? 'border-brand ring-1 ring-brand' : 'border-input',
         readOnly && 'opacity-50 pointer-events-none',
         className
       )}
@@ -912,27 +912,21 @@ function TiptapToolbar({ editor }: TiptapToolbarProps) {
         </svg>
       </ToolbarButton>
       <ToolbarButton
-        onClick={() =>
-          editor.chain().focus().toggleHeading({ level: 1 }).run()
-        }
+        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
         isActive={editor.isActive('heading', { level: 1 })}
         label="Heading 1"
       >
         <span className="text-xs font-bold">H1</span>
       </ToolbarButton>
       <ToolbarButton
-        onClick={() =>
-          editor.chain().focus().toggleHeading({ level: 2 }).run()
-        }
+        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
         isActive={editor.isActive('heading', { level: 2 })}
         label="Heading 2"
       >
         <span className="text-xs font-bold">H2</span>
       </ToolbarButton>
       <ToolbarButton
-        onClick={() =>
-          editor.chain().focus().toggleHeading({ level: 3 }).run()
-        }
+        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
         isActive={editor.isActive('heading', { level: 3 })}
         label="Heading 3"
       >
