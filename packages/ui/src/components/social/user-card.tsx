@@ -64,8 +64,6 @@ export function UserCard({
         onClick && 'cursor-pointer hover:bg-muted/50',
         className
       )}
-      onClick={onClick}
-      role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? handleKeyDown : undefined}
     >
@@ -77,10 +75,11 @@ export function UserCard({
             avatarUrl={avatarUrl}
             image={image}
             size="lg"
+            onClick={onClick}
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1" onClick={onClick}>
                 <p className="font-semibold truncate leading-tight">
                   {name || username || 'Anonymous'}
                 </p>
@@ -91,11 +90,7 @@ export function UserCard({
                 )}
               </div>
               {!isCurrentUser && showFollowButton && onFollow && onUnfollow && (
-                <div
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
-                  className="shrink-0"
-                >
+                <div className="shrink-0">
                   {/* Icon-only on small/medium screens */}
                   <FollowButton
                     isFollowing={isFollowing}
