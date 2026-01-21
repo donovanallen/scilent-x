@@ -1,4 +1,5 @@
 // apps/web/src/lib/harmonization.ts
+import { db } from '@scilent-one/db';
 import {
   HarmonizationEngine,
   TidalProvider,
@@ -37,6 +38,32 @@ export interface ProviderDbSetting {
  */
 export function resetEngine(): void {
   engine = null;
+}
+
+/**
+ * Fetch provider settings from the database and return as a Map.
+ * Used internally when building the engine to ensure DB settings are always respected.
+ */
+async function fetchProviderSettingsFromDb(): Promise<
+  Map<string, ProviderDbSetting>
+> {
+  try {
+    const settings = await db.providerSetting.findMany();
+    const map = new Map<string, ProviderDbSetting>();
+
+    for (const setting of settings) {
+      map.set(setting.providerName, {
+        enabled: setting.enabled,
+        priority: setting.priority,
+      });
+    }
+
+    return map;
+  } catch (error) {
+    // If DB is not available, return empty map (use defaults)
+    console.warn('Failed to fetch provider settings from DB:', error);
+    return new Map();
+  }
 }
 
 /**
@@ -155,12 +182,18 @@ export function getProvidersWithCredentials(): Set<string> {
 
 /**
  * Get or create the harmonization engine singleton.
- * Optionally accepts database settings to configure provider enabled/priority.
+ *
+ * This function automatically fetches provider settings from the database
+ * when creating a new engine instance, ensuring all parts of the application
+ * consistently use the database configuration.
+ *
+ * The engine is cached as a singleton - subsequent calls return the same
+ * instance until `resetEngine()` is called.
  */
-export function getHarmonizationEngine(
-  dbSettings?: Map<string, ProviderDbSetting>
-) {
+export async function getHarmonizationEngine(): Promise<HarmonizationEngine> {
   if (!engine) {
+    // Always fetch DB settings when creating a new engine
+    const dbSettings = await fetchProviderSettingsFromDb();
     engine = new HarmonizationEngine({
       providers: buildProviderConfig(dbSettings),
       // redis: null, // Add Redis connection for production caching
@@ -177,7 +210,7 @@ export async function searchArtistsWithUserProvider(
 ): Promise<HarmonizedArtist[]> {
   if (!query.trim()) return [];
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   const normalizedProvider = providerId?.toLowerCase() ?? null;
 
   if (normalizedProvider === 'tidal' && accessToken) {
@@ -227,7 +260,7 @@ export async function getFollowedArtistsFromProvider(
   providerId: string,
   params?: CollectionParams
 ): Promise<PaginatedCollection<HarmonizedArtist>> {
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   const normalizedProvider = providerId.toLowerCase();
 
   if (normalizedProvider === 'tidal') {

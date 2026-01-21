@@ -43,17 +43,11 @@ export async function getProviderSettings(): Promise<ProviderSettingRow[]> {
 }
 
 /**
- * Convert provider settings to a Map for use in the harmonization engine.
+ * Convert provider settings to a Map format.
  *
- * This function is intended for use when initializing the HarmonizationEngine
- * with database-persisted settings. It provides the settings in the format
- * expected by `getHarmonizationEngine(dbSettings)`.
- *
- * @example
- * ```ts
- * const dbSettings = await getProviderSettingsMap();
- * const engine = getHarmonizationEngine(dbSettings);
- * ```
+ * Note: The harmonization engine now automatically fetches settings from the
+ * database when creating a new instance, so this function is primarily useful
+ * for testing or other scenarios where you need the settings in Map format.
  */
 export async function getProviderSettingsMap(): Promise<
   Map<string, ProviderDbSetting>
