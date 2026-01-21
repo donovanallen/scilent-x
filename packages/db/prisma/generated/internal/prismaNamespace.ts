@@ -393,7 +393,8 @@ export const ModelName = {
   Like: 'Like',
   Follow: 'Follow',
   Mention: 'Mention',
-  Activity: 'Activity'
+  Activity: 'Activity',
+  ProviderSetting: 'ProviderSetting'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verification" | "post" | "comment" | "like" | "follow" | "mention" | "activity"
+    modelProps: "user" | "account" | "session" | "verification" | "post" | "comment" | "like" | "follow" | "mention" | "activity" | "providerSetting"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1153,6 +1154,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProviderSetting: {
+      payload: Prisma.$ProviderSettingPayload<ExtArgs>
+      fields: Prisma.ProviderSettingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProviderSettingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProviderSettingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        findFirst: {
+          args: Prisma.ProviderSettingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProviderSettingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        findMany: {
+          args: Prisma.ProviderSettingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>[]
+        }
+        create: {
+          args: Prisma.ProviderSettingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        createMany: {
+          args: Prisma.ProviderSettingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProviderSettingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>[]
+        }
+        delete: {
+          args: Prisma.ProviderSettingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        update: {
+          args: Prisma.ProviderSettingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProviderSettingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProviderSettingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProviderSettingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProviderSettingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        aggregate: {
+          args: Prisma.ProviderSettingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProviderSetting>
+        }
+        groupBy: {
+          args: Prisma.ProviderSettingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProviderSettingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProviderSettingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProviderSettingCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1325,6 +1400,18 @@ export const ActivityScalarFieldEnum = {
 export type ActivityScalarFieldEnum = (typeof ActivityScalarFieldEnum)[keyof typeof ActivityScalarFieldEnum]
 
 
+export const ProviderSettingScalarFieldEnum = {
+  id: 'id',
+  providerName: 'providerName',
+  enabled: 'enabled',
+  priority: 'priority',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ProviderSettingScalarFieldEnum = (typeof ProviderSettingScalarFieldEnum)[keyof typeof ProviderSettingScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1429,6 +1516,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -1536,6 +1637,7 @@ export type GlobalOmitConfig = {
   follow?: Prisma.FollowOmit
   mention?: Prisma.MentionOmit
   activity?: Prisma.ActivityOmit
+  providerSetting?: Prisma.ProviderSettingOmit
 }
 
 /* Types for Logging */

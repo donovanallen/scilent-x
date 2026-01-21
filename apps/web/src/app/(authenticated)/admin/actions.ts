@@ -18,7 +18,7 @@ export async function lookupByGtin(gtin: string): Promise<{
     return { error: 'Invalid GTIN format', data: null };
   }
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   try {
     const result = await engine.lookupByGtin(gtin);
     return { error: null, data: result };
@@ -38,7 +38,7 @@ export async function lookupByIsrc(isrc: string): Promise<{
     return { error: 'Invalid ISRC format', data: null };
   }
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   try {
     const result = await engine.lookupByIsrc(isrc);
     return { error: null, data: result };
@@ -57,7 +57,7 @@ export async function searchReleases(
   error: string | null;
   data: HarmonizedRelease[] | null;
 }> {
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   try {
     const result = await engine.search(query, undefined, limit);
     return { error: null, data: result };
@@ -90,7 +90,7 @@ export interface ProviderStatus {
 }
 
 export async function getEngineStatus() {
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   const providers = engine.getEnabledProviders();
 
   return {

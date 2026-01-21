@@ -201,7 +201,7 @@ async function searchReleasesImpl(
     };
   }
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
 
   try {
     // Fetch more results than limit to allow for filtering
@@ -273,7 +273,7 @@ async function searchTracksImpl(
     };
   }
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
 
   try {
     // Fetch track results
@@ -370,7 +370,7 @@ async function searchArtistsImpl(
     };
   }
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
 
   try {
     // Fetch artist results
@@ -447,7 +447,7 @@ async function searchArtistsImpl(
 export const searchArtists = withLogging('search:artists', searchArtistsImpl);
 
 export async function getEnabledProviders() {
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   const providers = engine.getEnabledProviders();
   return providers.map((p) => ({
     name: p.name,

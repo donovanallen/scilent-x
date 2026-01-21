@@ -60,7 +60,8 @@ export const ModelName = {
   Like: 'Like',
   Follow: 'Follow',
   Mention: 'Mention',
-  Activity: 'Activity'
+  Activity: 'Activity',
+  ProviderSetting: 'ProviderSetting'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -210,6 +211,18 @@ export const ActivityScalarFieldEnum = {
 } as const
 
 export type ActivityScalarFieldEnum = (typeof ActivityScalarFieldEnum)[keyof typeof ActivityScalarFieldEnum]
+
+
+export const ProviderSettingScalarFieldEnum = {
+  id: 'id',
+  providerName: 'providerName',
+  enabled: 'enabled',
+  priority: 'priority',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ProviderSettingScalarFieldEnum = (typeof ProviderSettingScalarFieldEnum)[keyof typeof ProviderSettingScalarFieldEnum]
 
 
 export const SortOrder = {

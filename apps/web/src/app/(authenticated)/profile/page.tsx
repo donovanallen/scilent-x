@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 
 import { useMentionSearch } from '@/lib/use-mention-search';
 
-import { TidalProfileCard } from './[username]/_components';
+import { TidalProfileCard, SpotifyProfileCard } from './[username]/_components';
 
 interface UserProfile {
   id: string;
