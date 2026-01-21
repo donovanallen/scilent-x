@@ -103,7 +103,9 @@ export interface PostCardProps {
   /** Whether a comment is currently being submitted */
   isSubmittingComment?: boolean | undefined;
   /** Called when user submits a new comment */
-  onCreateComment?: ((content: string, contentHtml: string) => Promise<void>) | undefined;
+  onCreateComment?:
+    | ((content: string, contentHtml: string) => Promise<void>)
+    | undefined;
   /** Called when "View all comments" is clicked */
   onViewAllComments?: (() => void) | undefined;
   /** Called when a comment is liked */
@@ -114,7 +116,11 @@ export interface PostCardProps {
   onReplyComment?: ((commentId: string) => void) | undefined;
   /** Called when user submits a reply */
   onSubmitReply?:
-    | ((commentId: string, content: string, contentHtml: string) => Promise<void>)
+    | ((
+        commentId: string,
+        content: string,
+        contentHtml: string
+      ) => Promise<void>)
     | undefined;
   /** Called when user cancels replying */
   onCancelReply?: (() => void) | undefined;
@@ -456,18 +462,20 @@ export function PostCard({
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  'gap-1.5 px-2 touch-target active:scale-95 transition-transform',
-                  isLiked && 'text-red-500 hover:text-red-600'
+                  'gap-1.5 px-2 touch-target active:scale-95 transition-transform'
                 )}
                 onClick={handleLikeClick}
               >
                 <Heart className={cn('h-4 w-4', isLiked && 'fill-current')} />
-                <span className="text-sm">{likesCount}</span>
+                <span className="text-sm text-foreground">{likesCount}</span>
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className={cn('gap-1.5 px-2 touch-target active:scale-95 transition-transform', isCommenting && 'text-primary')}
+                className={cn(
+                  'gap-1.5 px-2 touch-target active:scale-95 transition-transform',
+                  isCommenting && 'text-primary'
+                )}
                 onClick={handleCommentClick}
               >
                 <MessageCircle

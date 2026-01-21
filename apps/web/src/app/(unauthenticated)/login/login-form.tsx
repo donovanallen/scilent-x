@@ -99,7 +99,10 @@ export function LoginForm({
   const isDisabled = isLoading || socialLoading !== null;
 
   return (
-    <div className={cn('flex flex-col gap-6 w-full max-w-md mx-auto', className)} {...props}>
+    <div
+      className={cn('flex flex-col gap-6 w-full max-w-md mx-auto', className)}
+      {...props}
+    >
       <Card>
         <CardHeader className='text-center px-4 sm:px-6'>
           <CardTitle className='text-xl sm:text-2xl'>Welcome back</CardTitle>
@@ -151,7 +154,11 @@ export function LoginForm({
                   className='h-11 sm:h-10 text-base sm:text-sm'
                 />
               </div>
-              <Button type='submit' className='w-full h-11 sm:h-10 text-base sm:text-sm active:scale-[0.98] transition-transform' disabled={isDisabled}>
+              <Button
+                type='submit'
+                className='w-full h-11 sm:h-10 text-base sm:text-sm active:scale-[0.98] transition-transform'
+                disabled={isDisabled}
+              >
                 {isLoading && <Loader2 className='animate-spin' />}
                 Sign In
               </Button>

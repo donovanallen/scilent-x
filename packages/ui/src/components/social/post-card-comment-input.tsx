@@ -24,9 +24,13 @@ export interface PostCardCommentInputProps {
   onSubmit: (content: string, contentHtml: string) => void | Promise<void>;
   onCancel?: () => void;
   /** Callback to search for mention suggestions */
-  onMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
+  onMentionQuery?:
+    | ((query: string) => Promise<MentionSuggestion[]>)
+    | undefined;
   /** Callback to search for artist mention suggestions */
-  onArtistMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
+  onArtistMentionQuery?:
+    | ((query: string) => Promise<MentionSuggestion[]>)
+    | undefined;
   className?: string;
 }
 
@@ -35,7 +39,7 @@ export function PostCardCommentInput({
   placeholder = 'Write a comment...',
   maxLength = 2000,
   isSubmitting = false,
-  autoFocus = true,
+  // autoFocus = true,
   onSubmit,
   onCancel,
   onMentionQuery,
@@ -72,7 +76,8 @@ export function PostCardCommentInput({
     setEditorKey((prev) => prev + 1);
   }, [content, contentHtml, isSubmitting, onSubmit]);
 
-  const canSubmit = content.trim().length > 0 && content.length <= maxLength && !isSubmitting;
+  const canSubmit =
+    content.trim().length > 0 && content.length <= maxLength && !isSubmitting;
 
   return (
     <div
@@ -97,10 +102,8 @@ export function PostCardCommentInput({
           onChange={handleEditorChange}
           placeholder={placeholder}
           className="min-h-[44px] max-h-[120px] resize-none text-sm [&_.simple-tiptap-editor-content]:min-h-[32px] [&_.simple-tiptap-editor-content]:py-2 [&_.simple-tiptap-editor-content]:px-3"
-          disabled={isSubmitting}
-          rows={1}
-          maxLength={maxLength}
           readOnly={isSubmitting}
+          maxLength={maxLength}
           editorKey={editorKey}
           onMentionQuery={onMentionQuery}
           onArtistMentionQuery={onArtistMentionQuery}

@@ -113,10 +113,15 @@ export function SignupForm({
   const isDisabled = isLoading || socialLoading !== null;
 
   return (
-    <div className={cn('flex flex-col gap-4 w-full max-w-md mx-auto', className)} {...props}>
+    <div
+      className={cn('flex flex-col gap-4 w-full max-w-md mx-auto', className)}
+      {...props}
+    >
       <Card>
         <CardHeader className='pb-4 text-center px-4 sm:px-6'>
-          <CardTitle className='text-xl sm:text-2xl'>Create an account</CardTitle>
+          <CardTitle className='text-xl sm:text-2xl'>
+            Create an account
+          </CardTitle>
           <CardDescription>
             Enter your details below to create your account
           </CardDescription>
@@ -190,7 +195,11 @@ export function SignupForm({
                   />
                 </div>
               </div>
-              <Button type='submit' className='w-full h-11 sm:h-10 text-base sm:text-sm active:scale-[0.98] transition-transform' disabled={isDisabled}>
+              <Button
+                type='submit'
+                className='w-full h-11 sm:h-10 text-base sm:text-sm active:scale-[0.98] transition-transform'
+                disabled={isDisabled}
+              >
                 {isLoading && <Loader2 className='animate-spin' />}
                 Create Account
               </Button>

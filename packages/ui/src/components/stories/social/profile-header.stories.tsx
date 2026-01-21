@@ -15,7 +15,7 @@ const meta: Meta<typeof ProfileHeader> = {
     },
     isCurrentUser: {
       control: 'boolean',
-      description: 'Whether this is the current user\'s profile',
+      description: "Whether this is the current user's profile",
     },
     isLoading: {
       control: 'boolean',
@@ -61,15 +61,6 @@ export const CurrentUser: Story = {
   },
 };
 
-export const WithConnectedPlatforms: Story = {
-  args: {
-    connectedPlatforms: [
-      { providerId: 'spotify' },
-      { providerId: 'tidal' },
-    ],
-  },
-};
-
 export const LongBio: Story = {
   args: {
     bio: `Music enthusiast with a passion for discovering new artists across all genres.
@@ -108,29 +99,6 @@ export const MobileCurrentUser: Story = {
   },
   args: {
     isCurrentUser: true,
-  },
-  decorators: [
-    (Story) => (
-      <div className="p-2">
-        <Story />
-      </div>
-    ),
-  ],
-};
-
-export const MobileWithPlatforms: Story = {
-  parameters: {
-    viewport: {
-      defaultViewport: 'mobileM',
-    },
-    layout: 'fullscreen',
-  },
-  args: {
-    connectedPlatforms: [
-      { providerId: 'spotify' },
-      { providerId: 'tidal' },
-      { providerId: 'apple_music' },
-    ],
   },
   decorators: [
     (Story) => (

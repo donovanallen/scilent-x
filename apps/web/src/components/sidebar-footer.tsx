@@ -64,7 +64,10 @@ export function SidebarFooterContent() {
       {user && (
         <div className='flex flex-col gap-1 group-data-[state=expanded]:flex-row'>
           <SidebarMenuItem className='group-data-[state=expanded]:flex-1'>
-            <SidebarMenuButton asChild className='text-muted-foreground min-h-[44px] md:min-h-0'>
+            <SidebarMenuButton
+              asChild
+              className='text-muted-foreground min-h-[44px] md:min-h-0'
+            >
               <Link href={ROUTES.settings.href}>
                 <Settings />
                 <span>Settings</span>
