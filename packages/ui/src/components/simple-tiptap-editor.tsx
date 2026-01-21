@@ -2,10 +2,7 @@
 
 import * as React from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
-import Document from '@tiptap/extension-document';
-import Paragraph from '@tiptap/extension-paragraph';
-import Text from '@tiptap/extension-text';
-import HardBreak from '@tiptap/extension-hard-break';
+import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
 import Mention from '@tiptap/extension-mention';
@@ -570,10 +567,23 @@ export function SimpleTiptapEditor({
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      Document,
-      Paragraph,
-      Text,
-      HardBreak,
+      // Use StarterKit but disable most features - we only want basic text
+      StarterKit.configure({
+        // Disable features we don't want in comments
+        heading: false,
+        horizontalRule: false,
+        codeBlock: false,
+        code: false,
+        blockquote: false,
+        bulletList: false,
+        orderedList: false,
+        listItem: false,
+        bold: false,
+        italic: false,
+        strike: false,
+        dropcursor: false,
+        gapcursor: false,
+      }),
       Placeholder.configure({
         placeholder,
       }),
