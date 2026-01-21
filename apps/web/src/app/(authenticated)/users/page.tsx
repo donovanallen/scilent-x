@@ -244,10 +244,6 @@ export default function UsersPage() {
 
   return (
     <div className='flex flex-col h-full min-h-0 space-y-6'>
-      <div className='mb-6'>
-        <h2>Users</h2>
-      </div>
-
       {/* Search and Filters */}
       <Card>
         <CardContent className='pt-4'>

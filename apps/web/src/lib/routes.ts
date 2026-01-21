@@ -54,6 +54,7 @@ export const ROUTES = {
     icon: User,
     protected: true,
     isAdmin: false,
+    showInNav: false,
   },
   settings: {
     href: '/settings',
@@ -61,6 +62,7 @@ export const ROUTES = {
     icon: Settings,
     protected: true,
     isAdmin: false,
+    showInNav: false,
   },
   signup: {
     href: '/signup',
@@ -76,6 +78,13 @@ export const ROUTES = {
     protected: false,
     isAdmin: false,
   },
+  adminUsers: {
+    href: '/admin/users',
+    label: 'Users',
+    icon: Users,
+    protected: true,
+    isAdmin: true,
+  },
   db: {
     href: '/admin/db',
     label: 'Database',
@@ -87,13 +96,6 @@ export const ROUTES = {
     href: '/admin/harmony',
     label: 'Harmony',
     icon: CloudSync,
-    protected: true,
-    isAdmin: true,
-  },
-  adminUsers: {
-    href: '/admin/users',
-    label: 'Users',
-    icon: Users,
     protected: true,
     isAdmin: true,
   },

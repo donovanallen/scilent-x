@@ -16,11 +16,29 @@ import useSWRInfinite from 'swr/infinite';
 import { fetcher } from '@/lib/swr';
 import { useMentionSearch } from '@/lib/use-mention-search';
 
+interface FeedComment {
+  id: string;
+  content: string;
+  contentHtml?: string | null;
+  createdAt: string;
+  author: {
+    id: string;
+    name: string | null;
+    username: string | null;
+    avatarUrl: string | null;
+    image: string | null;
+  };
+  likesCount: number;
+  repliesCount: number;
+  isLiked?: boolean;
+}
+
 interface FeedPost extends PostCardProps {
   _count?: {
     likes: number;
     comments: number;
   };
+  comments?: FeedComment[];
 }
 
 interface PaginatedResponse {
@@ -32,8 +50,10 @@ interface PaginatedResponse {
 interface CurrentUser {
   id: string;
   name: string | null;
+  username: string | null;
   email: string;
   image: string | null;
+  avatarUrl: string | null;
 }
 
 export default function FeedPage() {
@@ -42,6 +62,14 @@ export default function FeedPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [submittingCommentPostId, setSubmittingCommentPostId] = useState<
+    string | null
+  >(null);
+  const [replyingTo, setReplyingTo] = useState<{
+    postId: string;
+    commentId: string;
+  } | null>(null);
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
 
   const { data: currentUser } = useSWR<CurrentUser>(
     '/api/v1/users/me',
@@ -266,12 +294,226 @@ export default function FeedPage() {
     }
   };
 
+  const handleCreateComment = async (postId: string, content: string, contentHtml: string) => {
+    setSubmittingCommentPostId(postId);
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, contentHtml }),
+      });
+
+      if (!res.ok) throw new Error('Failed to create comment');
+
+      // Update comment count optimistically
+      mutate(
+        (pages) =>
+          pages?.map((page) => ({
+            ...page,
+            items: page.items.map((post) => {
+              if (post.id !== postId) return post;
+              const currentComments =
+                post._count?.comments ?? post.commentsCount ?? 0;
+              return {
+                ...post,
+                commentsCount: currentComments + 1,
+                ...(post._count && {
+                  _count: { ...post._count, comments: currentComments + 1 },
+                }),
+              };
+            }),
+          })),
+        { revalidate: false }
+      );
+
+      toast.success('Comment added!');
+    } catch (error) {
+      console.error('Failed to create comment:', error);
+      toast.error('Failed to add comment');
+    } finally {
+      setSubmittingCommentPostId(null);
+    }
+  };
+
+  const handleLikeComment = async (postId: string, commentId: string) => {
+    // Optimistic update
+    mutate(
+      (pages) =>
+        pages?.map((page) => ({
+          ...page,
+          items: page.items.map((post) => {
+            if (post.id !== postId || !post.comments) return post;
+            return {
+              ...post,
+              comments: post.comments.map((comment) =>
+                comment.id === commentId
+                  ? {
+                      ...comment,
+                      isLiked: true,
+                      likesCount: comment.likesCount + 1,
+                    }
+                  : comment
+              ),
+            };
+          }),
+        })),
+      { revalidate: false }
+    );
+
+    try {
+      const res = await fetch(`/api/v1/comments/${commentId}/like`, {
+        method: 'POST',
+      });
+
+      if (!res.ok) throw new Error('Failed to like comment');
+    } catch (error) {
+      // Rollback on error
+      mutate();
+      console.error('Failed to like comment:', error);
+      toast.error('Failed to like comment');
+    }
+  };
+
+  const handleUnlikeComment = async (postId: string, commentId: string) => {
+    // Optimistic update
+    mutate(
+      (pages) =>
+        pages?.map((page) => ({
+          ...page,
+          items: page.items.map((post) => {
+            if (post.id !== postId || !post.comments) return post;
+            return {
+              ...post,
+              comments: post.comments.map((comment) =>
+                comment.id === commentId
+                  ? {
+                      ...comment,
+                      isLiked: false,
+                      likesCount: Math.max(0, comment.likesCount - 1),
+                    }
+                  : comment
+              ),
+            };
+          }),
+        })),
+      { revalidate: false }
+    );
+
+    try {
+      const res = await fetch(`/api/v1/comments/${commentId}/like`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) throw new Error('Failed to unlike comment');
+    } catch (error) {
+      // Rollback on error
+      mutate();
+      console.error('Failed to unlike comment:', error);
+      toast.error('Failed to unlike comment');
+    }
+  };
+
+  const handleDeleteComment = async (postId: string, commentId: string) => {
+    try {
+      const res = await fetch(`/api/v1/comments/${commentId}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) throw new Error('Failed to delete comment');
+
+      // Update comment count optimistically
+      mutate(
+        (pages) =>
+          pages?.map((page) => ({
+            ...page,
+            items: page.items.map((post) => {
+              if (post.id !== postId) return post;
+              const currentComments =
+                post._count?.comments ?? post.commentsCount ?? 0;
+              return {
+                ...post,
+                commentsCount: Math.max(0, currentComments - 1),
+                ...(post._count && {
+                  _count: {
+                    ...post._count,
+                    comments: Math.max(0, currentComments - 1),
+                  },
+                }),
+              };
+            }),
+          })),
+        { revalidate: false }
+      );
+
+      toast.success('Comment deleted');
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
+      toast.error('Failed to delete comment');
+    }
+  };
+
+  const handleReplyComment = (postId: string, commentId: string) => {
+    // Toggle - if clicking the same comment, close it
+    if (replyingTo?.postId === postId && replyingTo?.commentId === commentId) {
+      setReplyingTo(null);
+    } else {
+      setReplyingTo({ postId, commentId });
+    }
+  };
+
+  const handleCancelReply = () => {
+    setReplyingTo(null);
+  };
+
+  const handleSubmitReply = async (
+    postId: string,
+    commentId: string,
+    content: string,
+    contentHtml: string
+  ) => {
+    setIsSubmittingReply(true);
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, contentHtml, parentId: commentId }),
+      });
+
+      if (!res.ok) throw new Error('Failed to add reply');
+
+      // Update comment count
+      mutate(
+        (pages) =>
+          pages?.map((page) => ({
+            ...page,
+            items: page.items.map((post) => {
+              if (post.id !== postId) return post;
+              const currentComments =
+                post._count?.comments ?? post.commentsCount ?? 0;
+              return {
+                ...post,
+                commentsCount: currentComments + 1,
+                ...(post._count && {
+                  _count: { ...post._count, comments: currentComments + 1 },
+                }),
+              };
+            }),
+          })),
+        { revalidate: false }
+      );
+
+      setReplyingTo(null);
+      toast.success('Reply added!');
+    } catch (error) {
+      console.error('Failed to add reply:', error);
+      toast.error('Failed to add reply');
+    } finally {
+      setIsSubmittingReply(false);
+    }
+  };
+
   return (
     <div className='flex flex-col h-full min-h-0 space-y-6'>
-      <div>
-        <h2>Home</h2>
-      </div>
-
       {currentUser && (
         <PostForm
           user={{
@@ -309,6 +551,29 @@ export default function FeedPage() {
         onMentionQuery={searchUsers}
         onArtistMentionQuery={searchArtists}
         renderArtistMention={(props) => <ArtistMention {...props} />}
+        // Inline comments
+        currentUser={
+          currentUser
+            ? {
+                id: currentUser.id,
+                name: currentUser.name,
+                username: currentUser.username,
+                avatarUrl: currentUser.avatarUrl,
+                image: currentUser.image,
+              }
+            : undefined
+        }
+        submittingCommentPostId={submittingCommentPostId}
+        onCreateComment={handleCreateComment}
+        onViewAllComments={(postId) => router.push(`/post/${postId}`)}
+        onLikeComment={handleLikeComment}
+        onUnlikeComment={handleUnlikeComment}
+        onReplyComment={handleReplyComment}
+        onSubmitReply={handleSubmitReply}
+        onCancelReply={handleCancelReply}
+        replyingToCommentId={replyingTo?.commentId ?? null}
+        isSubmittingReply={isSubmittingReply}
+        onDeleteComment={handleDeleteComment}
       />
     </div>
   );

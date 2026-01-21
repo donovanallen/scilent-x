@@ -280,10 +280,6 @@ function LoadingSkeleton() {
 export default function HarmonyDashboardPage() {
   return (
     <div className='w-full flex flex-col h-full min-h-0 space-y-6'>
-      <div>
-        <h2>Harmony Engine</h2>
-      </div>
-
       <Suspense fallback={<LoadingSkeleton />}>
         <EngineStatusCard />
       </Suspense>
