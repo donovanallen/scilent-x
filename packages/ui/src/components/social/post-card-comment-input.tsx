@@ -24,9 +24,13 @@ export interface PostCardCommentInputProps {
   onSubmit: (content: string, contentHtml: string) => void | Promise<void>;
   onCancel?: () => void;
   /** Callback to search for mention suggestions */
-  onMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
+  onMentionQuery?:
+    | ((query: string) => Promise<MentionSuggestion[]>)
+    | undefined;
   /** Callback to search for artist mention suggestions */
-  onArtistMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
+  onArtistMentionQuery?:
+    | ((query: string) => Promise<MentionSuggestion[]>)
+    | undefined;
   className?: string;
 }
 
@@ -35,7 +39,7 @@ export function PostCardCommentInput({
   placeholder = 'Write a comment...',
   maxLength = 2000,
   isSubmitting = false,
-  autoFocus = true,
+  // autoFocus = true,
   onSubmit,
   onCancel,
   onMentionQuery,
@@ -72,7 +76,8 @@ export function PostCardCommentInput({
     setEditorKey((prev) => prev + 1);
   }, [content, contentHtml, isSubmitting, onSubmit]);
 
-  const canSubmit = content.trim().length > 0 && content.length <= maxLength && !isSubmitting;
+  const canSubmit =
+    content.trim().length > 0 && content.length <= maxLength && !isSubmitting;
 
   return (
     <div
@@ -96,26 +101,26 @@ export function PostCardCommentInput({
           value={content}
           onChange={handleEditorChange}
           placeholder={placeholder}
-          maxLength={maxLength}
+          className="min-h-[44px] max-h-[120px] resize-none text-sm [&_.simple-tiptap-editor-content]:min-h-[32px] [&_.simple-tiptap-editor-content]:py-2 [&_.simple-tiptap-editor-content]:px-3"
           readOnly={isSubmitting}
+          maxLength={maxLength}
           editorKey={editorKey}
           onMentionQuery={onMentionQuery}
           onArtistMentionQuery={onArtistMentionQuery}
           onSubmit={handleSubmit}
-          className="flex-1 min-h-[40px] text-sm [&_.simple-tiptap-editor-content]:min-h-[32px] [&_.simple-tiptap-editor-content]:py-2 [&_.simple-tiptap-editor-content]:px-3"
         />
         <Button
           type="button"
           size="sm"
           variant="ghost"
-          className="h-10 w-10 p-0 shrink-0 self-start"
+          className="h-11 w-11 sm:h-10 sm:w-10 p-0 shrink-0 active:scale-95 transition-transform"
           disabled={!canSubmit}
           onClick={handleSubmit}
         >
           {isSubmitting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
           ) : (
-            <Send className="h-4 w-4" />
+            <Send className="h-5 w-5 sm:h-4 sm:w-4" />
           )}
           <span className="sr-only">Send comment</span>
         </Button>

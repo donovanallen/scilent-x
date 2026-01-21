@@ -27,7 +27,7 @@ export {
 } from './components/mention-list';
 
 // Hooks
-export { useIsMobile } from './hooks/use-mobile';
+export { useIsMobile, useIsMobileWithDefault, useIsTouchDevice } from './hooks/use-mobile';
 export {
   useInfiniteScroll,
   type UseInfiniteScrollOptions,

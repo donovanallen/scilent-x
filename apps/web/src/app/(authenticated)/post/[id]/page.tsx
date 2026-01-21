@@ -293,7 +293,11 @@ export default function PostPage({
     }
   };
 
-  const handleReplyComment = async (commentId: string, content: string, contentHtml?: string) => {
+  const handleReplyComment = async (
+    commentId: string,
+    content: string,
+    contentHtml?: string
+  ) => {
     try {
       const res = await fetch(`/api/v1/posts/${id}/comments`, {
         method: 'POST',

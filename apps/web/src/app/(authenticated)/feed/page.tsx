@@ -294,7 +294,11 @@ export default function FeedPage() {
     }
   };
 
-  const handleCreateComment = async (postId: string, content: string, contentHtml: string) => {
+  const handleCreateComment = async (
+    postId: string,
+    content: string,
+    contentHtml: string
+  ) => {
     setSubmittingCommentPostId(postId);
     try {
       const res = await fetch(`/api/v1/posts/${postId}/comments`, {

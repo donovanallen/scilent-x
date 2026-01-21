@@ -77,26 +77,27 @@ export function ProfileHeader({
 }: ProfileHeaderProps) {
   return (
     <Card className={cn('', className)}>
-      <CardContent className='pt-6'>
-        <div className='flex flex-col sm:flex-row items-start gap-4'>
+      <CardContent className='pt-4 sm:pt-6 px-3 sm:px-6'>
+        <div className='flex flex-col sm:flex-row items-center sm:items-start gap-4'>
           <UserAvatar
             name={name}
             username={username}
             avatarUrl={avatarUrl}
             image={image}
             size='xl'
+            className='shrink-0'
           />
-          <div className='flex-1 min-w-0'>
-            <div className='flex items-start justify-between gap-4'>
-              <div>
-                <h1 className='text-2xl font-bold truncate'>
+          <div className='flex-1 min-w-0 w-full'>
+            <div className='flex flex-col sm:flex-row items-center sm:items-start justify-between gap-3 sm:gap-4'>
+              <div className='text-center sm:text-left'>
+                <h1 className='text-xl sm:text-2xl font-bold truncate'>
                   {name || username || 'Anonymous'}
                 </h1>
                 {username && (
-                  <p className='text-muted-foreground'>@{username}</p>
+                  <p className='text-muted-foreground text-sm sm:text-base'>@{username}</p>
                 )}
                 {connectedPlatforms.length > 0 && (
-                  <div className='flex flex-wrap gap-1.5 mt-2'>
+                  <div className='flex flex-wrap justify-center sm:justify-start gap-1.5 mt-2'>
                     {connectedPlatforms.map((platform) => {
                       const config = platformConfig[platform.providerId] || {
                         label: platform.providerId,
@@ -116,7 +117,11 @@ export function ProfileHeader({
                 )}
               </div>
               {isCurrentUser ? (
-                <Button variant='outline' onClick={onEditProfile}>
+                <Button 
+                  variant='outline' 
+                  onClick={onEditProfile}
+                  className='w-full sm:w-auto touch-target'
+                >
                   <Settings className='mr-2 h-4 w-4' />
                   Edit Profile
                 </Button>
@@ -128,37 +133,38 @@ export function ProfileHeader({
                     isLoading={isLoading}
                     onFollow={onFollow}
                     onUnfollow={onUnfollow}
+                    className='w-full sm:w-auto'
                   />
                 )
               )}
             </div>
 
             {bio && (
-              <p className='mt-3 text-muted-foreground whitespace-pre-wrap'>
+              <p className='mt-3 text-muted-foreground whitespace-pre-wrap text-center sm:text-left text-sm sm:text-base'>
                 {bio}
               </p>
             )}
 
-            <div className='flex items-center gap-6 mt-4'>
-              <div>
+            <div className='flex items-center justify-center sm:justify-start gap-4 sm:gap-6 mt-4'>
+              <div className='text-center sm:text-left'>
                 <span className='font-semibold'>{postsCount}</span>{' '}
-                <span className='text-muted-foreground'>posts</span>
+                <span className='text-muted-foreground text-sm'>posts</span>
               </div>
               <button
                 type='button'
-                className='hover:underline'
+                className='hover:underline active:opacity-70 touch-target flex items-center'
                 onClick={onFollowersClick}
               >
                 <span className='font-semibold'>{followersCount}</span>{' '}
-                <span className='text-muted-foreground'>followers</span>
+                <span className='text-muted-foreground text-sm'>followers</span>
               </button>
               <button
                 type='button'
-                className='hover:underline'
+                className='hover:underline active:opacity-70 touch-target flex items-center'
                 onClick={onFollowingClick}
               >
                 <span className='font-semibold'>{followingCount}</span>{' '}
-                <span className='text-muted-foreground'>following</span>
+                <span className='text-muted-foreground text-sm'>following</span>
               </button>
             </div>
           </div>
