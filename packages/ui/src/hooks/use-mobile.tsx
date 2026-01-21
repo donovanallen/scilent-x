@@ -69,12 +69,26 @@ export function useIsTouchDevice(): boolean {
         window.matchMedia('(pointer: coarse)').matches
       );
     };
+
+    const handleChange = () => {
+      checkTouch();
+    };
     
     checkTouch();
     
-    // Re-check on orientation change (tablet users may rotate)
-    window.addEventListener('orientationchange', checkTouch);
-    return () => window.removeEventListener('orientationchange', checkTouch);
+    // Re-check when orientation or layout may change (tablet users may rotate)
+    const orientation = (window.screen as any)?.orientation;
+    if (orientation && typeof orientation.addEventListener === 'function') {
+      orientation.addEventListener('change', handleChange);
+      return () => {
+        orientation.removeEventListener('change', handleChange);
+      };
+    }
+
+    window.addEventListener('resize', handleChange);
+    return () => {
+      window.removeEventListener('resize', handleChange);
+    };
   }, []);
 
   return isTouch;
