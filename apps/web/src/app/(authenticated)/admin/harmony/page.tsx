@@ -25,11 +25,12 @@ import {
 import { Suspense } from 'react';
 
 import { getEngineStatus, type ProviderCapabilities } from '../actions';
+
+import { ProviderToggle } from './_components';
 import {
   getProviderSettings,
   getProviderCredentialsStatus,
 } from './actions';
-import { ProviderToggle } from './_components';
 
 export const metadata = {
   title: 'Harmony Engine',

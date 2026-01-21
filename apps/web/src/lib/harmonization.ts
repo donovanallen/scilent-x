@@ -23,6 +23,17 @@ export interface ProviderDbSetting {
 /**
  * Reset the engine singleton to force rebuild with new settings.
  * Call this after updating provider settings in the database.
+ *
+ * **Note on concurrency:** This performs a simple null assignment which means
+ * any in-flight requests that already have a reference to the old engine will
+ * continue using it until they complete. New requests will get a fresh engine
+ * with updated settings. This "eventual consistency" behavior is acceptable for
+ * admin configuration changes which are infrequent and don't require immediate
+ * atomic switchover.
+ *
+ * If stricter consistency is needed in the future (e.g., for high-frequency
+ * automated changes), consider implementing a versioned engine with graceful
+ * transition or request-scoped engine instances.
  */
 export function resetEngine(): void {
   engine = null;
