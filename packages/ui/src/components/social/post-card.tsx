@@ -455,14 +455,14 @@ export function PostCard({
             </div>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {/* Action buttons - touch-friendly sizing */}
             <div className="flex items-center gap-2 sm:gap-4">
               <Button
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  'gap-1.5 px-2 touch-target active:scale-95 transition-transform'
+                  'gap-1.5 px-2 touch-target active:scale-95 transition-transform hover:opacity-80'
                 )}
                 onClick={handleLikeClick}
               >
@@ -473,7 +473,7 @@ export function PostCard({
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  'gap-1.5 px-2 touch-target active:scale-95 transition-transform',
+                  'gap-1.5 px-2 touch-target active:scale-95 transition-transform hover:opacity-80',
                   isCommenting && 'text-primary'
                 )}
                 onClick={handleCommentClick}

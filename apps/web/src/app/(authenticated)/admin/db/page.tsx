@@ -33,18 +33,15 @@ function StatusBadge({
   const variants = {
     connected: {
       label: 'Connected',
-      className:
-        'bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/20',
+      className: 'bg-success/15 text-success-dark border-success/20',
     },
     error: {
       label: 'Error',
-      className:
-        'bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/20',
+      className: 'bg-destructive/15 text-destructive border-destructive/20',
     },
     not_configured: {
       label: 'Not Configured',
-      className:
-        'bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border-yellow-500/20',
+      className: 'bg-warning/15 text-warning border-warning/20',
     },
   };
 
