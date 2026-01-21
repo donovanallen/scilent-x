@@ -103,7 +103,7 @@ export interface PostCardProps {
   /** Whether a comment is currently being submitted */
   isSubmittingComment?: boolean | undefined;
   /** Called when user submits a new comment */
-  onCreateComment?: ((content: string) => Promise<void>) | undefined;
+  onCreateComment?: ((content: string, contentHtml: string) => Promise<void>) | undefined;
   /** Called when "View all comments" is clicked */
   onViewAllComments?: (() => void) | undefined;
   /** Called when a comment is liked */
@@ -114,7 +114,7 @@ export interface PostCardProps {
   onReplyComment?: ((commentId: string) => void) | undefined;
   /** Called when user submits a reply */
   onSubmitReply?:
-    | ((commentId: string, content: string) => Promise<void>)
+    | ((commentId: string, content: string, contentHtml: string) => Promise<void>)
     | undefined;
   /** Called when user cancels replying */
   onCancelReply?: (() => void) | undefined;
@@ -258,8 +258,8 @@ export function PostCard({
   };
 
   const handleCreateComment = React.useCallback(
-    async (commentContent: string) => {
-      await onCreateComment?.(commentContent);
+    async (commentContent: string, commentContentHtml: string) => {
+      await onCreateComment?.(commentContent, commentContentHtml);
       setIsCommenting(false);
     },
     [onCreateComment]
@@ -485,6 +485,8 @@ export function PostCard({
                   isSubmitting={isSubmittingComment}
                   onSubmit={handleCreateComment}
                   onCancel={handleCancelComment}
+                  onMentionQuery={onMentionQuery}
+                  onArtistMentionQuery={onArtistMentionQuery}
                 />
               </div>
             )}
@@ -510,7 +512,11 @@ export function PostCard({
                     onCancelReply={onCancelReply}
                     onDeleteComment={onDeleteComment}
                     onMentionClick={onMentionClick}
+                    onArtistMentionClick={onArtistMentionClick}
+                    renderArtistMention={renderArtistMention}
                     onAuthorClick={onAuthorClick}
+                    onMentionQuery={onMentionQuery}
+                    onArtistMentionQuery={onArtistMentionQuery}
                   />
                 </div>
               </>

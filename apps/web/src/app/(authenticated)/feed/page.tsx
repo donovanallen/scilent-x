@@ -19,6 +19,7 @@ import { useMentionSearch } from '@/lib/use-mention-search';
 interface FeedComment {
   id: string;
   content: string;
+  contentHtml?: string | null;
   createdAt: string;
   author: {
     id: string;
@@ -293,13 +294,13 @@ export default function FeedPage() {
     }
   };
 
-  const handleCreateComment = async (postId: string, content: string) => {
+  const handleCreateComment = async (postId: string, content: string, contentHtml: string) => {
     setSubmittingCommentPostId(postId);
     try {
       const res = await fetch(`/api/v1/posts/${postId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, contentHtml }),
       });
 
       if (!res.ok) throw new Error('Failed to create comment');
@@ -467,14 +468,15 @@ export default function FeedPage() {
   const handleSubmitReply = async (
     postId: string,
     commentId: string,
-    content: string
+    content: string,
+    contentHtml: string
   ) => {
     setIsSubmittingReply(true);
     try {
       const res = await fetch(`/api/v1/posts/${postId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, parentId: commentId }),
+        body: JSON.stringify({ content, contentHtml, parentId: commentId }),
       });
 
       if (!res.ok) throw new Error('Failed to add reply');

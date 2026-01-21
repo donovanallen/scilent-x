@@ -80,12 +80,14 @@ export interface CommentWithAuthor extends Comment {
 
 export interface CreateCommentInput {
   content: string;
+  contentHtml?: string;
   postId: string;
   parentId?: string;
 }
 
 export interface UpdateCommentInput {
   content: string;
+  contentHtml?: string;
 }
 
 // Follow types

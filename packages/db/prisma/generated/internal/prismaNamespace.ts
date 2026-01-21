@@ -1268,6 +1268,7 @@ export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof Post
 export const CommentScalarFieldEnum = {
   id: 'id',
   content: 'content',
+  contentHtml: 'contentHtml',
   authorId: 'authorId',
   postId: 'postId',
   parentId: 'parentId',
