@@ -176,10 +176,6 @@ function LoadingCountCard() {
 export default function UsersPage() {
   return (
     <div className='w-full flex flex-col h-full min-h-0 space-y-6'>
-      <div>
-        <h2>Users</h2>
-      </div>
-
       <div className='grid gap-6 md:grid-cols-3'>
         <Suspense fallback={<LoadingCountCard />}>
           <UserCountCard />

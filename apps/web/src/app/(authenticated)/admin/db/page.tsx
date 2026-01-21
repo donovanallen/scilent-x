@@ -256,24 +256,19 @@ function LoadingCard() {
 export default function DatabasePage() {
   return (
     <div className='w-full flex flex-col h-full min-h-0 space-y-6'>
-      <div className='flex items-center justify-between'>
-        <div>
-          <h2>Database</h2>
-        </div>
-        <div className='flex items-center gap-2'>
-          <Button variant='outline' asChild>
-            <a
-              href='http://localhost:5555'
-              target='_blank'
-              rel='noopener noreferrer'
-            >
-              Prisma Studio
-            </a>
-          </Button>
-          <Button asChild>
-            <Link href='/db/setup'>Setup Guide</Link>
-          </Button>
-        </div>
+      <div className='flex items-center justify-end gap-2'>
+        <Button variant='outline' asChild>
+          <a
+            href='http://localhost:5555'
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            Prisma Studio
+          </a>
+        </Button>
+        <Button asChild>
+          <Link href='/db/setup'>Setup Guide</Link>
+        </Button>
       </div>
 
       <div className='grid gap-6'>

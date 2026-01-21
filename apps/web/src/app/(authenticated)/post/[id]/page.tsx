@@ -5,7 +5,6 @@ import {
   Button,
   PostCard,
   CommentList,
-  CommentForm,
   Skeleton,
   type PostCardProps,
   type CommentCardProps,
@@ -69,7 +68,6 @@ export default function PostPage({
   const [hasMoreComments, setHasMoreComments] = useState(false);
   const [commentsCursor, setCommentsCursor] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
@@ -245,36 +243,6 @@ export default function PostPage({
     }
   };
 
-  const handleCreateComment = async (content: string) => {
-    setIsSubmitting(true);
-    try {
-      const res = await fetch(`/api/v1/posts/${id}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
-      });
-
-      if (!res.ok) throw new Error('Failed to create comment');
-
-      const newComment = await res.json();
-      setComments((prev) => [newComment, ...prev]);
-
-      if (post) {
-        setPost({
-          ...post,
-          commentsCount: (post._count?.comments ?? post.commentsCount ?? 0) + 1,
-        });
-      }
-
-      toast.success('Comment added!');
-    } catch (error) {
-      console.error('Failed to add comment:', error);
-      toast.error('Failed to add comment');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const handleLikeComment = async (commentId: string) => {
     try {
       const res = await fetch(`/api/v1/comments/${commentId}/like`, {
@@ -397,13 +365,11 @@ export default function PostPage({
   }
 
   return (
-    <div className='flex flex-col h-full min-h-0 space-y-6'>
-      <div className=''>
-        <Button variant='ghost' onClick={() => router.back()}>
-          <ArrowLeft className='h-4 w-4' />
-          Back
-        </Button>
-      </div>
+    <div className='flex flex-col h-full min-h-0 space-y-4'>
+      <Button variant='ghost' onClick={() => router.back()} className='w-fit'>
+        <ArrowLeft className='h-4 w-4' />
+        Back
+      </Button>
 
       <PostCard
         {...post}
@@ -426,20 +392,7 @@ export default function PostPage({
       />
 
       <div className='space-y-4'>
-        <h2 className='text-lg font-semibold'>Comments</h2>
-
-        {currentUser && (
-          <CommentForm
-            user={{
-              name: currentUser.name,
-              username: currentUser.username,
-              avatarUrl: currentUser.avatarUrl,
-              image: currentUser.image,
-            }}
-            onSubmit={handleCreateComment}
-            isSubmitting={isSubmitting}
-          />
-        )}
+        <h3>Comments</h3>
 
         <CommentList
           comments={comments.map((comment) => ({

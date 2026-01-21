@@ -34,17 +34,21 @@ export interface CommentCardProps {
   createdAt: Date | string;
   likesCount: number;
   repliesCount: number;
-  isLiked?: boolean;
-  isOwner?: boolean;
-  isReply?: boolean;
-  onLike?: () => void;
-  onUnlike?: () => void;
-  onReply?: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
+  isLiked?: boolean | undefined;
+  isOwner?: boolean | undefined;
+  isReply?: boolean | undefined;
+  /** Whether the reply input is currently open for this comment */
+  isReplying?: boolean | undefined;
+  onLike?: (() => void) | undefined;
+  onUnlike?: (() => void) | undefined;
+  onReply?: (() => void) | undefined;
+  onEdit?: (() => void) | undefined;
+  onDelete?: (() => void) | undefined;
   /** Callback when a user mention (@username) is clicked */
   onMentionClick?: ((username: string) => void) | undefined;
-  className?: string;
+  /** Callback when the author's avatar, name, or username is clicked */
+  onAuthorClick?: ((authorUsername: string) => void) | undefined;
+  className?: string | undefined;
 }
 
 function formatRelativeTime(date: Date | string): string {
@@ -73,12 +77,14 @@ export function CommentCard({
   isLiked = false,
   isOwner = false,
   isReply = false,
+  isReplying = false,
   onLike,
   onUnlike,
   onReply,
   onEdit,
   onDelete,
   onMentionClick,
+  onAuthorClick,
   className,
 }: CommentCardProps) {
   const handleLikeClick = () => {
@@ -89,26 +95,64 @@ export function CommentCard({
     }
   };
 
+  const handleAuthorClick = () => {
+    if (author.username && onAuthorClick) {
+      onAuthorClick(author.username);
+    }
+  };
+
   return (
     <div
-      className={cn('flex gap-3', isReply && 'ml-8 pl-4 border-l', className)}
+      className={cn(
+        'flex gap-3',
+        isReply && 'ml-8 pl-4 border-l',
+        // Subtle left border for current user's comments
+        isOwner && !isReply && 'pl-3 border-l-2 border-l-brand/50',
+        className
+      )}
     >
-      <UserAvatar
-        name={author.name}
-        username={author.username}
-        avatarUrl={author.avatarUrl}
-        image={author.image}
-        size={isReply ? 'sm' : 'md'}
-      />
+      <button
+        type="button"
+        onClick={handleAuthorClick}
+        className={cn(
+          'rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+          onAuthorClick && author.username && 'cursor-pointer'
+        )}
+        disabled={!onAuthorClick || !author.username}
+      >
+        <UserAvatar
+          name={author.name}
+          username={author.username}
+          avatarUrl={author.avatarUrl}
+          image={author.image}
+          size={isReply ? 'sm' : 'md'}
+        />
+      </button>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-sm truncate">
+          <button
+            type="button"
+            onClick={handleAuthorClick}
+            className={cn(
+              'font-semibold text-sm truncate focus:outline-none',
+              onAuthorClick && author.username && 'cursor-pointer hover:underline'
+            )}
+            disabled={!onAuthorClick || !author.username}
+          >
             {author.name || author.username || 'Anonymous'}
-          </span>
+          </button>
           {author.username && (
-            <span className="text-muted-foreground text-xs truncate">
+            <button
+              type="button"
+              onClick={handleAuthorClick}
+              className={cn(
+                'text-muted-foreground text-xs truncate focus:outline-none',
+                onAuthorClick && 'cursor-pointer hover:underline'
+              )}
+              disabled={!onAuthorClick}
+            >
               @{author.username}
-            </span>
+            </button>
           )}
           <span className="text-muted-foreground text-xs">·</span>
           <span className="text-muted-foreground text-xs whitespace-nowrap">
@@ -164,10 +208,15 @@ export function CommentCard({
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 gap-1 px-2 text-xs"
+              className={cn(
+                'h-7 gap-1 px-2 text-xs',
+                isReplying && 'text-primary'
+              )}
               onClick={onReply}
             >
-              <MessageCircle className="h-3 w-3" />
+              <MessageCircle
+                className={cn('h-3 w-3', isReplying && 'fill-current')}
+              />
               <span>{repliesCount}</span>
             </Button>
           )}

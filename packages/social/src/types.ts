@@ -53,6 +53,8 @@ export interface PostWithAuthor extends Post {
     comments: number;
   };
   isLiked?: boolean;
+  /** Recent comments for inline display (optional, not always included) */
+  comments?: CommentWithAuthor[];
 }
 
 export interface CreatePostInput {

@@ -226,10 +226,6 @@ export default function ExplorePage() {
 
   return (
     <div className='flex flex-col h-full min-h-0 space-y-6'>
-      <div>
-        <h2>Explore</h2>
-      </div>
-
       <Tabs
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as 'recent' | 'trending')}

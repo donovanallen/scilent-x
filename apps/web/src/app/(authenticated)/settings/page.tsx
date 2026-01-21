@@ -147,10 +147,6 @@ export default function SettingsPage() {
 
   return (
     <div className='flex flex-col h-full min-h-0 pb-6'>
-      <div className='mb-6'>
-        <h2>Settings</h2>
-      </div>
-
       <div className='space-y-4'>
         {/* Profile Section */}
         <Card>

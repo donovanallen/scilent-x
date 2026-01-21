@@ -49,6 +49,15 @@ export {
 // Components
 export { Avatar, AvatarImage, AvatarFallback } from './components/avatar';
 export { Badge, badgeVariants } from './components/badge';
+export {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  BreadcrumbEllipsis,
+} from './components/breadcrumb';
 export { Button, buttonVariants, type ButtonProps } from './components/button';
 export {
   Card,
@@ -244,4 +253,9 @@ export {
   type ProfileHeaderProps,
   Feed,
   type FeedProps,
+  PostCardCommentInput,
+  type PostCardCommentInputProps,
+  type PostCardCommentInputUser,
+  PostCardComments,
+  type PostCardCommentsProps,
 } from './components/social';
