@@ -9,6 +9,17 @@ import {
   type ProviderDbSetting,
 } from '@/lib/harmonization';
 
+/**
+ * List of known/supported provider names.
+ * Used for validation to prevent arbitrary provider names in the database.
+ */
+const SUPPORTED_PROVIDERS = ['musicbrainz', 'spotify', 'tidal'] as const;
+type SupportedProvider = (typeof SUPPORTED_PROVIDERS)[number];
+
+function isValidProviderName(name: string): name is SupportedProvider {
+  return SUPPORTED_PROVIDERS.includes(name as SupportedProvider);
+}
+
 export interface ProviderSettingRow {
   providerName: string;
   enabled: boolean;
@@ -72,12 +83,23 @@ export async function getProviderCredentialsStatus(): Promise<
 /**
  * Update the enabled status for a provider.
  * Creates a new setting record if one doesn't exist.
+ *
+ * TODO: Add admin authorization check when role-based access is implemented.
+ * Currently relies on the /admin route being protected at the layout/middleware level.
  */
 export async function updateProviderEnabled(
   providerName: string,
   enabled: boolean
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    // Validate provider name to prevent arbitrary values in the database
+    if (!isValidProviderName(providerName)) {
+      return {
+        success: false,
+        error: `Unknown provider: ${providerName}`,
+      };
+    }
+
     // Check if the provider has credentials before enabling
     const providersWithCredentials = getProvidersWithCredentials();
 
@@ -118,12 +140,23 @@ export async function updateProviderEnabled(
 
 /**
  * Update the priority for a provider.
+ *
+ * TODO: Add admin authorization check when role-based access is implemented.
+ * Currently relies on the /admin route being protected at the layout/middleware level.
  */
 export async function updateProviderPriority(
   providerName: string,
   priority: number
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    // Validate provider name to prevent arbitrary values in the database
+    if (!isValidProviderName(providerName)) {
+      return {
+        success: false,
+        error: `Unknown provider: ${providerName}`,
+      };
+    }
+
     // Upsert the setting in database
     await db.providerSetting.upsert({
       where: { providerName },
