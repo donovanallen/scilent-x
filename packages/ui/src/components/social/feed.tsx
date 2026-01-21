@@ -60,7 +60,7 @@ export interface FeedProps {
   /** ID of the post currently having a comment submitted */
   submittingCommentPostId?: string | null;
   /** Called when user creates a new comment */
-  onCreateComment?: (postId: string, content: string) => Promise<void>;
+  onCreateComment?: (postId: string, content: string, contentHtml: string) => Promise<void>;
   /** Called when "View all comments" is clicked */
   onViewAllComments?: (postId: string) => void;
   /** Called when a comment is liked */
@@ -70,7 +70,7 @@ export interface FeedProps {
   /** Called when user clicks reply button on a comment */
   onReplyComment?: (postId: string, commentId: string) => void;
   /** Called when user submits a reply */
-  onSubmitReply?: (postId: string, commentId: string, content: string) => Promise<void>;
+  onSubmitReply?: (postId: string, commentId: string, content: string, contentHtml: string) => Promise<void>;
   /** Called when user cancels replying */
   onCancelReply?: () => void;
   /** ID of the comment currently being replied to (format: postId:commentId or just commentId) */
@@ -171,8 +171,8 @@ export function Feed({
           isSubmittingComment={submittingCommentPostId === post.id}
           onCreateComment={
             onCreateComment
-              ? async (content) => {
-                  await onCreateComment(post.id, content);
+              ? async (content, contentHtml) => {
+                  await onCreateComment(post.id, content, contentHtml);
                 }
               : undefined
           }
@@ -196,8 +196,8 @@ export function Feed({
           }
           onSubmitReply={
             onSubmitReply
-              ? async (commentId, content) => {
-                  await onSubmitReply(post.id, commentId, content);
+              ? async (commentId, content, contentHtml) => {
+                  await onSubmitReply(post.id, commentId, content, contentHtml);
                 }
               : undefined
           }

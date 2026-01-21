@@ -3,7 +3,8 @@
 import * as React from 'react';
 import { Loader2, Send } from 'lucide-react';
 import { Button } from '../button';
-import { Textarea } from '../textarea';
+import { SimpleTiptapEditor } from '../simple-tiptap-editor';
+import { type MentionSuggestion } from '../mention-list';
 import { UserAvatar } from './user-avatar';
 import { cn } from '../../utils';
 
@@ -20,8 +21,12 @@ export interface PostCardCommentInputProps {
   maxLength?: number;
   isSubmitting?: boolean;
   autoFocus?: boolean;
-  onSubmit: (content: string) => void | Promise<void>;
+  onSubmit: (content: string, contentHtml: string) => void | Promise<void>;
   onCancel?: () => void;
+  /** Callback to search for mention suggestions */
+  onMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
+  /** Callback to search for artist mention suggestions */
+  onArtistMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
   className?: string;
 }
 
@@ -33,17 +38,13 @@ export function PostCardCommentInput({
   autoFocus = true,
   onSubmit,
   onCancel,
+  onMentionQuery,
+  onArtistMentionQuery,
   className,
 }: PostCardCommentInputProps) {
   const [content, setContent] = React.useState('');
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-
-  // Auto-focus when mounted if autoFocus is true
-  React.useEffect(() => {
-    if (autoFocus) {
-      textareaRef.current?.focus();
-    }
-  }, [autoFocus]);
+  const [contentHtml, setContentHtml] = React.useState('');
+  const [editorKey, setEditorKey] = React.useState(0);
 
   // Handle escape key to cancel
   React.useEffect(() => {
@@ -57,25 +58,21 @@ export function PostCardCommentInput({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onCancel]);
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const handleEditorChange = React.useCallback((text: string, html: string) => {
+    setContent(text);
+    setContentHtml(html);
+  }, []);
+
+  const handleSubmit = React.useCallback(async () => {
     if (!content.trim() || isSubmitting) return;
 
-    await onSubmit(content);
+    await onSubmit(content, contentHtml);
     setContent('');
-  };
+    setContentHtml('');
+    setEditorKey((prev) => prev + 1);
+  }, [content, contentHtml, isSubmitting, onSubmit]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Submit on Enter (without Shift)
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
-  const charactersRemaining = maxLength - content.length;
-  const isOverLimit = charactersRemaining < 0;
-  const canSubmit = content.trim().length > 0 && !isOverLimit && !isSubmitting;
+  const canSubmit = content.trim().length > 0 && content.length <= maxLength && !isSubmitting;
 
   return (
     <div
@@ -94,15 +91,20 @@ export function PostCardCommentInput({
         />
       )}
       <div className="flex-1 flex gap-2">
-        <Textarea
-          ref={textareaRef}
+        <SimpleTiptapEditor
+          key={editorKey}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onChange={handleEditorChange}
           placeholder={placeholder}
-          className="min-h-[44px] max-h-[120px] resize-none text-base sm:text-sm py-2.5 sm:py-2"
+          className="min-h-[44px] max-h-[120px] resize-none text-sm [&_.simple-tiptap-editor-content]:min-h-[32px] [&_.simple-tiptap-editor-content]:py-2 [&_.simple-tiptap-editor-content]:px-3"
           disabled={isSubmitting}
           rows={1}
+          maxLength={maxLength}
+          readOnly={isSubmitting}
+          editorKey={editorKey}
+          onMentionQuery={onMentionQuery}
+          onArtistMentionQuery={onArtistMentionQuery}
+          onSubmit={handleSubmit}
         />
         <Button
           type="button"
@@ -110,7 +112,7 @@ export function PostCardCommentInput({
           variant="ghost"
           className="h-11 w-11 sm:h-10 sm:w-10 p-0 shrink-0 active:scale-95 transition-transform"
           disabled={!canSubmit}
-          onClick={() => handleSubmit()}
+          onClick={handleSubmit}
         >
           {isSubmitting ? (
             <Loader2 className="h-5 w-5 sm:h-4 sm:w-4 animate-spin" />

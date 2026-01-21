@@ -16,6 +16,10 @@ export {
   type TiptapEditorProps,
 } from './components/tiptap-editor';
 export {
+  SimpleTiptapEditor,
+  type SimpleTiptapEditorProps,
+} from './components/simple-tiptap-editor';
+export {
   MentionList,
   type MentionListProps,
   type MentionListRef,

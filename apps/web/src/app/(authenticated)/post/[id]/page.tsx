@@ -293,12 +293,12 @@ export default function PostPage({
     }
   };
 
-  const handleReplyComment = async (commentId: string, content: string) => {
+  const handleReplyComment = async (commentId: string, content: string, contentHtml?: string) => {
     try {
       const res = await fetch(`/api/v1/posts/${id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, parentId: commentId }),
+        body: JSON.stringify({ content, contentHtml, parentId: commentId }),
       });
 
       if (!res.ok) throw new Error('Failed to add reply');
@@ -414,6 +414,7 @@ export default function PostPage({
           onReplyComment={handleReplyComment}
           onDeleteComment={handleDeleteComment}
           onMentionClick={(username) => router.push(`/profile/${username}`)}
+          renderArtistMention={(props) => <ArtistMention {...props} />}
         />
       </div>
     </div>

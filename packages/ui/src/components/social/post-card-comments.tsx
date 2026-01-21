@@ -4,6 +4,8 @@ import * as React from 'react';
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '../button';
+import { type MentionSuggestion } from '../mention-list';
+import { type ArtistMentionRenderProps } from '../rich-text-content';
 import { CommentCard, type CommentCardProps } from './comment-card';
 import {
   PostCardCommentInput,
@@ -38,7 +40,7 @@ export interface PostCardCommentsProps {
   onReplyComment?: ((commentId: string) => void) | undefined;
   /** Called when user submits a reply */
   onSubmitReply?:
-    | ((commentId: string, content: string) => Promise<void>)
+    | ((commentId: string, content: string, contentHtml: string) => Promise<void>)
     | undefined;
   /** Called when user cancels replying */
   onCancelReply?: (() => void) | undefined;
@@ -46,8 +48,16 @@ export interface PostCardCommentsProps {
   onDeleteComment?: ((commentId: string) => void) | undefined;
   /** Callback when a user mention is clicked */
   onMentionClick?: ((username: string) => void) | undefined;
+  /** Callback when an artist mention is clicked */
+  onArtistMentionClick?: ((artistId: string, provider: string) => void) | undefined;
+  /** Custom renderer for artist mentions */
+  renderArtistMention?: ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
   /** Callback when the comment author's avatar, name, or username is clicked */
   onAuthorClick?: ((authorUsername: string) => void) | undefined;
+  /** Callback to search for mention suggestions */
+  onMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
+  /** Callback to search for artist mention suggestions */
+  onArtistMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
   className?: string | undefined;
 }
 
@@ -67,7 +77,11 @@ export const PostCardComments = React.memo(function PostCardComments({
   onCancelReply,
   onDeleteComment,
   onMentionClick,
+  onArtistMentionClick,
+  renderArtistMention,
   onAuthorClick,
+  onMentionQuery,
+  onArtistMentionQuery,
   className,
 }: PostCardCommentsProps) {
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -107,7 +121,11 @@ export const PostCardComments = React.memo(function PostCardComments({
               onCancelReply={onCancelReply}
               onDeleteComment={onDeleteComment}
               onMentionClick={onMentionClick}
+              onArtistMentionClick={onArtistMentionClick}
+              renderArtistMention={renderArtistMention}
               onAuthorClick={onAuthorClick}
+              onMentionQuery={onMentionQuery}
+              onArtistMentionQuery={onArtistMentionQuery}
             />
           )}
 
@@ -136,7 +154,11 @@ export const PostCardComments = React.memo(function PostCardComments({
                 onCancelReply={onCancelReply}
                 onDeleteComment={onDeleteComment}
                 onMentionClick={onMentionClick}
+                onArtistMentionClick={onArtistMentionClick}
+                renderArtistMention={renderArtistMention}
                 onAuthorClick={onAuthorClick}
+                onMentionQuery={onMentionQuery}
+                onArtistMentionQuery={onArtistMentionQuery}
               />
             ))}
           </CollapsiblePrimitive.Content>
@@ -203,7 +225,11 @@ const CommentCardCompact = React.memo(function CommentCardCompact({
   onCancelReply,
   onDeleteComment,
   onMentionClick,
+  onArtistMentionClick,
+  renderArtistMention,
   onAuthorClick,
+  onMentionQuery,
+  onArtistMentionQuery,
 }: {
   comment: CommentCardProps;
   currentUserId?: string | undefined;
@@ -214,18 +240,22 @@ const CommentCardCompact = React.memo(function CommentCardCompact({
   onUnlikeComment?: ((commentId: string) => void) | undefined;
   onReplyComment?: ((commentId: string) => void) | undefined;
   onSubmitReply?:
-    | ((commentId: string, content: string) => Promise<void>)
+    | ((commentId: string, content: string, contentHtml: string) => Promise<void>)
     | undefined;
   onCancelReply?: (() => void) | undefined;
   onDeleteComment?: ((commentId: string) => void) | undefined;
   onMentionClick?: ((username: string) => void) | undefined;
+  onArtistMentionClick?: ((artistId: string, provider: string) => void) | undefined;
+  renderArtistMention?: ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
   onAuthorClick?: ((authorUsername: string) => void) | undefined;
+  onMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
+  onArtistMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
 }) {
   const isOwner = currentUserId === comment.author.id;
 
   const handleSubmitReply = React.useCallback(
-    async (content: string) => {
-      await onSubmitReply?.(comment.id, content);
+    async (content: string, contentHtml: string) => {
+      await onSubmitReply?.(comment.id, content, contentHtml);
     },
     [comment.id, onSubmitReply]
   );
@@ -247,6 +277,8 @@ const CommentCardCompact = React.memo(function CommentCardCompact({
             : undefined
         }
         onMentionClick={onMentionClick}
+        onArtistMentionClick={onArtistMentionClick}
+        renderArtistMention={renderArtistMention}
         onAuthorClick={onAuthorClick}
       />
       {isReplying && currentUser && (
@@ -256,6 +288,8 @@ const CommentCardCompact = React.memo(function CommentCardCompact({
             placeholder={`Reply to ${comment.author.name || comment.author.username || 'comment'}...`}
             isSubmitting={isSubmittingReply}
             onSubmit={handleSubmitReply}
+            onMentionQuery={onMentionQuery}
+            onArtistMentionQuery={onArtistMentionQuery}
             {...(onCancelReply && { onCancel: onCancelReply })}
           />
         </div>

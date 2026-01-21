@@ -16,7 +16,10 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown-menu';
 import { UserAvatar } from './user-avatar';
-import { MentionText } from './mention-text';
+import {
+  RichTextContent,
+  type ArtistMentionRenderProps,
+} from '../rich-text-content';
 import { cn } from '../../utils';
 
 export interface CommentCardAuthor {
@@ -30,6 +33,7 @@ export interface CommentCardAuthor {
 export interface CommentCardProps {
   id: string;
   content: string;
+  contentHtml?: string | null | undefined;
   author: CommentCardAuthor;
   createdAt: Date | string;
   likesCount: number;
@@ -46,6 +50,10 @@ export interface CommentCardProps {
   onDelete?: (() => void) | undefined;
   /** Callback when a user mention (@username) is clicked */
   onMentionClick?: ((username: string) => void) | undefined;
+  /** Callback when an artist mention is clicked */
+  onArtistMentionClick?: ((artistId: string, provider: string) => void) | undefined;
+  /** Custom renderer for artist mentions */
+  renderArtistMention?: ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
   /** Callback when the author's avatar, name, or username is clicked */
   onAuthorClick?: ((authorUsername: string) => void) | undefined;
   className?: string | undefined;
@@ -70,6 +78,7 @@ function formatRelativeTime(date: Date | string): string {
 export function CommentCard({
   // id,
   content,
+  contentHtml,
   author,
   createdAt,
   likesCount,
@@ -84,6 +93,8 @@ export function CommentCard({
   onEdit,
   onDelete,
   onMentionClick,
+  onArtistMentionClick,
+  renderArtistMention,
   onAuthorClick,
   className,
 }: CommentCardProps) {
@@ -186,10 +197,13 @@ export function CommentCard({
             </DropdownMenu>
           )}
         </div>
-        <MentionText
+        <RichTextContent
+          html={contentHtml}
           content={content}
-          className="text-sm whitespace-pre-wrap break-words mt-1"
+          className="text-sm whitespace-pre-wrap break-words mt-1 [&.rich-text-content]:prose-sm"
           onMentionClick={onMentionClick}
+          onArtistMentionClick={onArtistMentionClick}
+          renderArtistMention={renderArtistMention}
         />
         <div className="flex items-center gap-2 sm:gap-3 mt-2">
           <Button

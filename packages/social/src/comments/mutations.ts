@@ -1,7 +1,7 @@
 import { db } from '@scilent-one/db';
 import type { CreateCommentInput, UpdateCommentInput, CommentWithAuthor } from '../types';
 import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errors';
-import { parseMentions, createMentionsFromUsernames } from '../mentions/parser';
+import { parseMentions, parseHtmlMentions, createMentionsFromUsernames, createMentions } from '../mentions/parser';
 
 const authorSelect = {
   id: true,
@@ -50,6 +50,7 @@ export async function createComment(
   const comment = await db.comment.create({
     data: {
       content: input.content,
+      contentHtml: input.contentHtml ?? null,
       authorId: userId,
       postId: input.postId,
       parentId: input.parentId ?? null,
@@ -65,10 +66,17 @@ export async function createComment(
     },
   });
 
-  // Parse and create mentions
-  const mentions = parseMentions(input.content);
-  if (mentions.length > 0) {
-    await createMentionsFromUsernames(mentions, { commentId: comment.id });
+  // Parse and create mentions - use HTML parser if contentHtml is provided
+  if (input.contentHtml) {
+    const mentions = parseHtmlMentions(input.contentHtml);
+    if (mentions.length > 0) {
+      await createMentions(mentions, { commentId: comment.id });
+    }
+  } else {
+    const mentions = parseMentions(input.content);
+    if (mentions.length > 0) {
+      await createMentionsFromUsernames(mentions, { commentId: comment.id });
+    }
   }
 
   // Create activity for post author if different from commenter
@@ -122,7 +130,10 @@ export async function updateComment(
 
   const comment = await db.comment.update({
     where: { id: commentId },
-    data: { content: input.content },
+    data: {
+      content: input.content,
+      contentHtml: input.contentHtml ?? null,
+    },
     include: {
       author: { select: authorSelect },
       _count: {
@@ -138,10 +149,17 @@ export async function updateComment(
     },
   });
 
-  // Parse and create new mentions
-  const mentions = parseMentions(input.content);
-  if (mentions.length > 0) {
-    await createMentionsFromUsernames(mentions, { commentId: comment.id });
+  // Parse and create new mentions - use HTML parser if contentHtml is provided
+  if (input.contentHtml) {
+    const mentions = parseHtmlMentions(input.contentHtml);
+    if (mentions.length > 0) {
+      await createMentions(mentions, { commentId: comment.id });
+    }
+  } else {
+    const mentions = parseMentions(input.content);
+    if (mentions.length > 0) {
+      await createMentionsFromUsernames(mentions, { commentId: comment.id });
+    }
   }
 
   return {
