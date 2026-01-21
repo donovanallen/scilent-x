@@ -41,6 +41,7 @@
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "@vitejs/plugin-react": "^5.1.2",
+    "class-variance-authority": "^0.7.1",
     "storybook": "^10.1.11",
     "tailwindcss": "^4.1.18",
     "typescript": "catalog:typescript",

@@ -52,3 +52,9 @@ export {
   type FollowedArtistsData,
   type ProfileError,
 } from './PlatformProfileCard';
+
+export {
+  ProviderSyncStatus,
+  type ProviderSyncStatusProps,
+  type ProviderSyncStatusType,
+} from './ProviderSyncStatus';

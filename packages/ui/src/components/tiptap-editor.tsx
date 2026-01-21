@@ -8,6 +8,7 @@ import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
 import Mention from '@tiptap/extension-mention';
+import Heading from '@tiptap/extension-heading';
 import { cn } from '../utils';
 import {
   MentionList,
@@ -419,7 +420,7 @@ export function TiptapEditor({
       },
     }).configure({
       HTMLAttributes: {
-        class: 'tiptap-mention',
+        class: 'tiptap-mention tiptap-mention--artist',
       },
       renderHTML({ options, node }) {
         return [
@@ -430,10 +431,12 @@ export function TiptapEditor({
             'data-mention-id': node.attrs.id,
             'data-mention-label': node.attrs.label,
           },
-          `#${node.attrs.label ?? node.attrs.id}`,
+          // Display without # prefix for cleaner appearance
+          node.attrs.label ?? node.attrs.id,
         ];
       },
       renderText({ node }) {
+        // Plain text still uses # for copy/paste clarity
         return `#${node.attrs.label ?? node.attrs.id}`;
       },
       suggestion: {
@@ -608,6 +611,29 @@ export function TiptapEditor({
     });
   }, []);
 
+  const [isFocused, setIsFocused] = React.useState(false);
+  const [showToolbar, setShowToolbar] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  // Handle container-level focus tracking
+  // This keeps focus styling when interacting with toolbar/buttons within the container
+  const handleContainerBlur = React.useCallback(
+    (e: React.FocusEvent<HTMLDivElement>) => {
+      // Check if focus is moving to another element within the container
+      const relatedTarget = e.relatedTarget as Node | null;
+      if (containerRef.current?.contains(relatedTarget)) {
+        // Focus is still within container, keep focused styling
+        return;
+      }
+      setIsFocused(false);
+    },
+    []
+  );
+
+  const handleContainerFocus = React.useCallback(() => {
+    setIsFocused(true);
+  }, []);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -616,6 +642,10 @@ export function TiptapEditor({
         horizontalRule: false,
         dropcursor: false,
         gapcursor: false,
+        codeBlock: false, // Disable code block, we'll add headings instead
+      }),
+      Heading.configure({
+        levels: [1, 2, 3],
       }),
       Link.configure({
         openOnClick: false,
@@ -674,28 +704,69 @@ export function TiptapEditor({
 
   return (
     <div
+      ref={containerRef}
       className={cn(
-        'tiptap-editor rounded-md border border-input bg-background',
+        'tiptap-editor rounded-md border bg-background transition-colors duration-200',
+        isFocused ? 'border-brand ring-1 ring-brand/30' : 'border-input',
         readOnly && 'opacity-50 pointer-events-none',
         className
       )}
       style={{
         ['--min-height' as string]: minHeight,
       }}
+      onFocus={handleContainerFocus}
+      onBlur={handleContainerBlur}
     >
-      {editor && <TiptapToolbar editor={editor} />}
       <EditorContent editor={editor} />
-      {maxLength && (
-        <div
+      {/* Footer: character count + toolbar toggle */}
+      <div className="flex items-center justify-between px-3 py-1.5 border-t border-border/50">
+        <button
+          type="button"
+          onClick={() => setShowToolbar(!showToolbar)}
           className={cn(
-            'text-xs px-3 py-1 text-right text-muted-foreground',
-            isNearLimit && 'text-yellow-600',
-            isAtLimit && 'text-destructive'
+            'flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors rounded px-1.5 py-0.5',
+            showToolbar && 'text-foreground bg-brand/10'
           )}
+          aria-label={showToolbar ? 'Hide formatting' : 'Show formatting'}
+          aria-expanded={showToolbar}
         >
-          {characterCount}/{maxLength}
-        </div>
-      )}
+          <svg
+            className="w-3.5 h-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4 6h16M4 12h16m-7 6h7"
+            />
+          </svg>
+          <span className="hidden sm:inline">Format</span>
+        </button>
+        {maxLength && (
+          <div
+            className={cn(
+              'text-xs text-muted-foreground',
+              isNearLimit && 'text-yellow-600',
+              isAtLimit && 'text-destructive'
+            )}
+          >
+            {characterCount}/{maxLength}
+          </div>
+        )}
+      </div>
+      {/* Collapsible toolbar */}
+      <div
+        className={cn(
+          'tiptap-toolbar-container overflow-hidden transition-all duration-200 ease-out',
+          showToolbar ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
+        )}
+      >
+        {editor && <TiptapToolbar editor={editor} />}
+      </div>
     </div>
   );
 }
@@ -751,8 +822,10 @@ function TiptapToolbar({ editor }: TiptapToolbarProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        'p-2 rounded hover:bg-muted transition-colors',
-        isActive && 'bg-muted text-primary'
+        'p-1.5 rounded transition-colors',
+        'hover:bg-brand/15 hover:text-brand-dark',
+        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand',
+        isActive && 'bg-brand/20 text-brand-dark'
       )}
       title={label}
       aria-label={label}
@@ -763,7 +836,7 @@ function TiptapToolbar({ editor }: TiptapToolbarProps) {
 
   return (
     <div
-      className="tiptap-toolbar flex flex-wrap gap-1 p-2 border-b border-border bg-muted/50 rounded-t-md"
+      className="tiptap-toolbar flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-t border-border/50 bg-muted/30 rounded-b-md"
       role="toolbar"
       aria-label="Text formatting"
     >
@@ -839,18 +912,31 @@ function TiptapToolbar({ editor }: TiptapToolbarProps) {
         </svg>
       </ToolbarButton>
       <ToolbarButton
-        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        isActive={editor.isActive('codeBlock')}
-        label="Code Block"
+        onClick={() =>
+          editor.chain().focus().toggleHeading({ level: 1 }).run()
+        }
+        isActive={editor.isActive('heading', { level: 1 })}
+        label="Heading 1"
       >
-        <svg
-          className="w-4 h-4"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
-        </svg>
+        <span className="text-xs font-bold">H1</span>
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() =>
+          editor.chain().focus().toggleHeading({ level: 2 }).run()
+        }
+        isActive={editor.isActive('heading', { level: 2 })}
+        label="Heading 2"
+      >
+        <span className="text-xs font-bold">H2</span>
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() =>
+          editor.chain().focus().toggleHeading({ level: 3 }).run()
+        }
+        isActive={editor.isActive('heading', { level: 3 })}
+        label="Heading 3"
+      >
+        <span className="text-xs font-bold">H3</span>
       </ToolbarButton>
       <div className="w-px h-6 bg-border mx-1" role="separator" />
       <ToolbarButton
@@ -887,8 +973,10 @@ function TiptapToolbar({ editor }: TiptapToolbarProps) {
           <button
             type="button"
             className={cn(
-              'p-2 rounded hover:bg-muted transition-colors',
-              editor.isActive('link') && 'bg-muted text-primary'
+              'p-1.5 rounded transition-colors',
+              'hover:bg-brand/15 hover:text-brand-dark',
+              'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand',
+              editor.isActive('link') && 'bg-brand/20 text-brand-dark'
             )}
             title="Insert Link"
             aria-label="Insert Link"

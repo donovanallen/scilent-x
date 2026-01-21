@@ -36,6 +36,10 @@
   --accent-foreground: oklch(0.15 0 0);
   --destructive: oklch(0.55 0.22 27);
   --destructive-foreground: oklch(0.98 0 0);
+  --success: oklch(0.83 0.23 142);
+  --success-light: oklch(0.96 0.05 142);
+  --success-dark: oklch(0.42 0.12 142);
+  --success-foreground: oklch(0.15 0 0);
   --border: oklch(0.91 0 0);
   --input: oklch(0.91 0 0);
   --ring: oklch(0.65 0 0);
@@ -52,9 +56,12 @@
 
   /* Subtle shadows */
   --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.03);
-  --shadow-sm: 0 1px 3px 0 oklch(0 0 0 / 0.04), 0 1px 2px -1px oklch(0 0 0 / 0.03);
-  --shadow-md: 0 4px 6px -1px oklch(0 0 0 / 0.05), 0 2px 4px -2px oklch(0 0 0 / 0.03);
-  --shadow-lg: 0 10px 15px -3px oklch(0 0 0 / 0.05), 0 4px 6px -4px oklch(0 0 0 / 0.03);
+  --shadow-sm:
+    0 1px 3px 0 oklch(0 0 0 / 0.04), 0 1px 2px -1px oklch(0 0 0 / 0.03);
+  --shadow-md:
+    0 4px 6px -1px oklch(0 0 0 / 0.05), 0 2px 4px -2px oklch(0 0 0 / 0.03);
+  --shadow-lg:
+    0 10px 15px -3px oklch(0 0 0 / 0.05), 0 4px 6px -4px oklch(0 0 0 / 0.03);
 
   /* Selection colors */
   --selection: oklch(0.15 0 0);
@@ -102,9 +109,12 @@
 
   /* Subtle shadows - darker for dark mode */
   --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.2);
-  --shadow-sm: 0 1px 3px 0 oklch(0 0 0 / 0.25), 0 1px 2px -1px oklch(0 0 0 / 0.2);
-  --shadow-md: 0 4px 6px -1px oklch(0 0 0 / 0.3), 0 2px 4px -2px oklch(0 0 0 / 0.2);
-  --shadow-lg: 0 10px 15px -3px oklch(0 0 0 / 0.3), 0 4px 6px -4px oklch(0 0 0 / 0.2);
+  --shadow-sm:
+    0 1px 3px 0 oklch(0 0 0 / 0.25), 0 1px 2px -1px oklch(0 0 0 / 0.2);
+  --shadow-md:
+    0 4px 6px -1px oklch(0 0 0 / 0.3), 0 2px 4px -2px oklch(0 0 0 / 0.2);
+  --shadow-lg:
+    0 10px 15px -3px oklch(0 0 0 / 0.3), 0 4px 6px -4px oklch(0 0 0 / 0.2);
 
   /* Selection colors - dark mode */
   --selection: oklch(0.95 0 0);
@@ -161,6 +171,10 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-light: var(--success-light);
+  --color-success-dark: var(--success-dark);
+  --color-success-foreground: var(--success-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -331,14 +345,27 @@ code {
 }
 
 .tiptap-editor .tiptap-toolbar {
-  @apply border-border rounded-t-md bg-muted/50;
+  @apply border-border/50 rounded-b-md bg-muted/30;
 }
 
 .tiptap-editor .ProseMirror {
-  @apply p-3 font-body text-foreground focus:outline-none;
-  min-height: var(--min-height, 100px);
+  @apply px-3 py-2 font-body text-foreground focus:outline-none;
+  min-height: var(--min-height, 80px);
   overflow-wrap: break-word;
   word-break: break-word;
+}
+
+/* Headings in editor */
+.tiptap-editor .ProseMirror h1 {
+  @apply text-xl font-bold my-2 first:mt-0 last:mb-0;
+}
+
+.tiptap-editor .ProseMirror h2 {
+  @apply text-lg font-bold my-2 first:mt-0 last:mb-0;
+}
+
+.tiptap-editor .ProseMirror h3 {
+  @apply text-base font-semibold my-2 first:mt-0 last:mb-0;
 }
 
 .tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
@@ -405,7 +432,26 @@ code {
 
 /* Tiptap Mention Styles */
 .tiptap-mention {
-  @apply text-primary font-medium rounded px-0.5 bg-primary/10;
+  @apply text-primary font-medium rounded px-1 bg-primary/10;
+}
+
+/* Artist mention - uses brand colors for distinction from user mentions */
+span.tiptap-mention--artist,
+span.tiptap-mention.tiptap-mention--artist,
+.ProseMirror span.tiptap-mention--artist {
+  @apply text-brand-dark bg-brand/20;
+}
+
+/* Artist mention in rich-text-content (post cards, etc.) */
+.artist-mention,
+button.artist-mention,
+.rich-text-content .artist-mention {
+  @apply text-brand-dark bg-brand/20;
+}
+.artist-mention:hover,
+button.artist-mention:hover,
+.rich-text-content .artist-mention:hover {
+  @apply bg-brand/30;
 }
 
 /* Mention Suggestions Popup */
@@ -525,4 +571,50 @@ code {
 
 .rich-text-mention {
   @apply text-primary hover:underline font-medium cursor-pointer bg-transparent border-none p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+}
+
+/* Artist mention in rich text content - uses brand colors */
+.rich-text-mention--artist,
+.tiptap-mention--artist.rich-text-mention {
+  @apply text-brand-dark bg-brand/10 rounded px-1 hover:bg-brand/20;
+}
+
+/* Headings in rich text content - higher specificity to override prose */
+div.rich-text-content h1,
+div.rich-text-content.prose h1,
+div.rich-text-content.prose.prose-sm h1 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+div.rich-text-content h1:first-child {
+  margin-top: 0;
+}
+
+div.rich-text-content h2,
+div.rich-text-content.prose h2,
+div.rich-text-content.prose.prose-sm h2 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+div.rich-text-content h2:first-child {
+  margin-top: 0;
+}
+
+div.rich-text-content h3,
+div.rich-text-content.prose h3,
+div.rich-text-content.prose.prose-sm h3 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+div.rich-text-content h3:first-child {
+  margin-top: 0;
 }

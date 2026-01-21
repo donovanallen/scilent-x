@@ -54,6 +54,7 @@ export {
   Artwork,
   PlatformProfileCard,
   PlatformProfileCardSkeleton,
+  ProviderSyncStatus,
   type PlatformName,
   type PlatformBadgeProps,
   type PlatformBadgeListProps,
@@ -76,6 +77,8 @@ export {
   type FollowedArtist,
   type FollowedArtistsData,
   type ProfileError,
+  type ProviderSyncStatusProps,
+  type ProviderSyncStatusType,
 } from './components/common';
 
 // Track components

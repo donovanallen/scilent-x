@@ -243,9 +243,34 @@ export default function MyProfilePage() {
     return null;
   }
 
+  // Render the connected platform cards
+  const renderPlatformCards = () => (
+    <>
+      {/* Show Tidal profile card if user has Tidal connected */}
+      {profile.connectedPlatforms?.some((p) => p.providerId === 'tidal') && (
+        <TidalProfileCard userId={profile.id} isCurrentUser={true} />
+      )}
+
+      {/* Placeholder for other platforms - can be extended later */}
+      {(!profile.connectedPlatforms ||
+        profile.connectedPlatforms.length === 0) && (
+        <Card className='h-fit'>
+          <CardHeader>
+            <CardTitle className='text-base'>Connected Platforms</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className='text-sm text-muted-foreground'>
+              Connect your streaming accounts to see your profiles here.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+    </>
+  );
+
   return (
-    <div className='w-full h-full min-h-0 grid grid-cols-3 gap-6'>
-      <div className='flex flex-col space-y-6 col-span-2'>
+    <div className='w-full h-full min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6'>
+      <div className='flex flex-col space-y-6 lg:col-span-2'>
         <ProfileHeader
           id={profile.id}
           name={profile.name}
@@ -267,6 +292,9 @@ export default function MyProfilePage() {
             router.push(`/profile/${profile.username}/following`)
           }
         />
+
+        {/* Platform cards - show inline on smaller screens */}
+        <div className='lg:hidden space-y-4'>{renderPlatformCards()}</div>
 
         <PostForm
           user={{
@@ -308,28 +336,8 @@ export default function MyProfilePage() {
         </Card>
       </div>
 
-      {/* Connected Platform Profiles */}
-      <div className='space-y-4'>
-        {/* Show Tidal profile card if user has Tidal connected */}
-        {profile.connectedPlatforms?.some((p) => p.providerId === 'tidal') && (
-          <TidalProfileCard userId={profile.id} isCurrentUser={true} />
-        )}
-
-        {/* Placeholder for other platforms - can be extended later */}
-        {(!profile.connectedPlatforms ||
-          profile.connectedPlatforms.length === 0) && (
-          <Card className='h-fit'>
-            <CardHeader>
-              <CardTitle className='text-base'>Connected Platforms</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className='text-sm text-muted-foreground'>
-                Connect your streaming accounts to see your profiles here.
-              </p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {/* Connected Platform Profiles - sidebar on larger screens */}
+      <div className='hidden lg:block space-y-4'>{renderPlatformCards()}</div>
     </div>
   );
 }

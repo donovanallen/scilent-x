@@ -64,25 +64,26 @@ export function PostForm({
   return (
     <Card className={cn('', className)}>
       <form onSubmit={handleSubmit}>
-        <CardContent className="pt-4">
-          <div className="flex gap-3">
+        <CardContent className="p-3 pb-2">
+          <div className="flex gap-2">
             {user && (
               <UserAvatar
                 name={user.name}
                 username={user.username}
                 avatarUrl={user.avatarUrl}
                 image={user.image}
-                size="md"
+                size="sm"
               />
             )}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <TiptapEditor
                 value={contentHtml}
                 onChange={handleEditorChange}
                 placeholder={placeholder}
                 readOnly={isSubmitting}
                 maxLength={maxLength}
-                className="border-0"
+                minHeight="60px"
+                className="border-border"
                 editorKey={editorKey}
                 onMentionQuery={onMentionQuery}
                 onArtistMentionQuery={onArtistMentionQuery}
@@ -92,20 +93,21 @@ export function PostForm({
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex items-center justify-between border-t pt-3">
-          <div
-            className={cn(
-              'text-sm text-muted-foreground',
-              isNearLimit && 'text-yellow-600',
-              isOverLimit && 'text-destructive'
-            )}
-          >
-            {isNearLimit && (
-              <span>{charactersRemaining} characters remaining</span>
-            )}
-          </div>
+        <CardFooter className="flex items-center justify-end gap-3 px-3 py-2 border-t">
+          {isNearLimit && (
+            <span
+              className={cn(
+                'text-xs text-muted-foreground',
+                isNearLimit && 'text-yellow-600',
+                isOverLimit && 'text-destructive'
+              )}
+            >
+              {charactersRemaining}
+            </span>
+          )}
           <Button
             type="submit"
+            size="sm"
             disabled={!content.trim() || isOverLimit || isSubmitting}
           >
             {isSubmitting ? 'Posting...' : 'Post'}
