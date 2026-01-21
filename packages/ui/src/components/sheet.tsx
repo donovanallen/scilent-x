@@ -32,7 +32,8 @@ SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
   // Faster animations on mobile for better responsiveness
-  'fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-out data-[state=closed]:duration-200 data-[state=open]:duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out',
+  // Opening is fast (200ms) for snappy feel, closing slightly slower (250ms) for user tracking
+  'fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:duration-200 data-[state=closed]:duration-[250ms] data-[state=open]:animate-in data-[state=closed]:animate-out',
   {
     variants: {
       side: {
