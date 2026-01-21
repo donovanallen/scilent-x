@@ -14,12 +14,32 @@ import {
   PostForm,
 } from '@scilent-one/ui';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { toast } from 'sonner';
 
 import { useMentionSearch } from '@/lib/use-mention-search';
 
-import { TidalProfileCard, SpotifyProfileCard } from './[username]/_components';
+import { TidalProfileCard } from './[username]/_components';
+
+/**
+ * Hook to check if the viewport is at least the 'lg' breakpoint (1024px).
+ * Uses useSyncExternalStore for SSR-safe media query matching.
+ */
+function useIsDesktop() {
+  const subscribe = useCallback((callback: () => void) => {
+    const mediaQuery = window.matchMedia('(min-width: 1024px)');
+    mediaQuery.addEventListener('change', callback);
+    return () => mediaQuery.removeEventListener('change', callback);
+  }, []);
+
+  const getSnapshot = useCallback(() => {
+    return window.matchMedia('(min-width: 1024px)').matches;
+  }, []);
+
+  const getServerSnapshot = useCallback(() => false, []);
+
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
 
 interface UserProfile {
   id: string;
@@ -58,6 +78,9 @@ export default function MyProfilePage() {
   const [isSubmittingPost, setIsSubmittingPost] = useState(false);
 
   const { searchUsers, searchArtists } = useMentionSearch();
+
+  // Media query for responsive layout - must be called before any conditional returns
+  const isDesktop = useIsDesktop();
 
   // Fetch current user's profile
   useEffect(() => {
@@ -270,6 +293,7 @@ export default function MyProfilePage() {
 
   return (
     <div className='w-full h-full min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6'>
+      {/* Main content column */}
       <div className='flex flex-col space-y-6 lg:col-span-2'>
         <ProfileHeader
           id={profile.id}
@@ -293,8 +317,8 @@ export default function MyProfilePage() {
           }
         />
 
-        {/* Platform cards - show inline on smaller screens */}
-        <div className='lg:hidden space-y-4'>{renderPlatformCards()}</div>
+        {/* Platform cards - shown inline on mobile/tablet only */}
+        {!isDesktop && <div className='space-y-4'>{renderPlatformCards()}</div>}
 
         <PostForm
           user={{
@@ -336,8 +360,8 @@ export default function MyProfilePage() {
         </Card>
       </div>
 
-      {/* Connected Platform Profiles - sidebar on larger screens */}
-      <div className='hidden lg:block space-y-4'>{renderPlatformCards()}</div>
+      {/* Connected Platform Profiles - sidebar on desktop only */}
+      {isDesktop && <div className='space-y-4'>{renderPlatformCards()}</div>}
     </div>
   );
 }

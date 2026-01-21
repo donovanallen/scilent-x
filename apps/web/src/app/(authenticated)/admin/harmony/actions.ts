@@ -201,5 +201,7 @@ const DEFAULT_PROVIDER_PRIORITIES: Record<string, number> = {
 const FALLBACK_PROVIDER_PRIORITY = 50;
 
 function getDefaultPriority(providerName: string): number {
-  return DEFAULT_PROVIDER_PRIORITIES[providerName] ?? FALLBACK_PROVIDER_PRIORITY;
+  return (
+    DEFAULT_PROVIDER_PRIORITIES[providerName] ?? FALLBACK_PROVIDER_PRIORITY
+  );
 }

@@ -32,8 +32,9 @@ export function TidalProfileCard({
   const [result, setResult] = useState<ProviderProfileResult | null>(null);
   const [artistsResult, setArtistsResult] =
     useState<FollowedArtistsResult | null>(null);
-  const [countsResult, setCountsResult] =
-    useState<LibraryCountsResult | null>(null);
+  const [countsResult, setCountsResult] = useState<LibraryCountsResult | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isReconnecting, setIsReconnecting] = useState(false);
 
@@ -50,16 +51,20 @@ export function TidalProfileCard({
       }
 
       try {
-        // Fetch profile, followed artists, and library counts in parallel
-        const [profileData, artistsData, countsData] = await Promise.all([
-          getProviderProfile(userId, 'tidal'),
-          getFollowedArtists(userId, 'tidal', 5), // Fetch first 5 for preview
-          getLibraryCounts(userId, 'tidal'),
-        ]);
+        // Fetch data sequentially to avoid Tidal API rate limits
+        // Profile first (needed by other calls anyway)
+        const profileData = await getProviderProfile(userId, 'tidal');
+        if (isCancelled) return;
+        setResult(profileData);
 
+        // Then followed artists
+        const artistsData = await getFollowedArtists(userId, 'tidal', 5);
+        if (isCancelled) return;
+        setArtistsResult(artistsData);
+
+        // Finally library counts (makes 3 sequential API calls internally)
+        const countsData = await getLibraryCounts(userId, 'tidal');
         if (!isCancelled) {
-          setResult(profileData);
-          setArtistsResult(artistsData);
           setCountsResult(countsData);
         }
       } catch (error) {

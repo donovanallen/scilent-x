@@ -291,7 +291,7 @@ export interface LibraryCounts {
 
 /**
  * Get library counts (albums, playlists, artists) from the user's connected provider.
- * Fetches all three counts in parallel for better performance.
+ * Fetches counts sequentially to avoid rate limiting issues with provider APIs.
  *
  * @param accessToken - The user's OAuth access token for the provider
  * @param providerId - The provider identifier (e.g., 'tidal', 'spotify')
@@ -307,12 +307,11 @@ export async function getLibraryCountsFromProvider(
   if (normalizedProvider === 'tidal') {
     const provider = engine.getProvider('tidal');
     if (provider instanceof TidalProvider) {
-      // Fetch all counts in parallel
-      const [albumsCount, playlistsCount, artistsCount] = await Promise.all([
-        provider.getSavedAlbumsCount(accessToken),
-        provider.getUserPlaylistsCount(accessToken),
-        provider.getFollowedArtistsCount(accessToken),
-      ]);
+      // Fetch counts sequentially to avoid rate limiting
+      // Each call shares the cached user profile, but API calls are spaced out
+      const albumsCount = await provider.getSavedAlbumsCount(accessToken);
+      const playlistsCount = await provider.getUserPlaylistsCount(accessToken);
+      const artistsCount = await provider.getFollowedArtistsCount(accessToken);
 
       return {
         albums: albumsCount,
@@ -325,12 +324,10 @@ export async function getLibraryCountsFromProvider(
   if (normalizedProvider === 'spotify') {
     const provider = engine.getProvider('spotify');
     if (provider instanceof SpotifyProvider) {
-      // Fetch all counts in parallel
-      const [albumsCount, playlistsCount, artistsCount] = await Promise.all([
-        provider.getSavedAlbumsCount(accessToken),
-        provider.getUserPlaylistsCount(accessToken),
-        provider.getFollowedArtistsCount(accessToken),
-      ]);
+      // Fetch counts sequentially to avoid rate limiting
+      const albumsCount = await provider.getSavedAlbumsCount(accessToken);
+      const playlistsCount = await provider.getUserPlaylistsCount(accessToken);
+      const artistsCount = await provider.getFollowedArtistsCount(accessToken);
 
       return {
         albums: albumsCount,
