@@ -1,4 +1,5 @@
 // apps/web/src/lib/harmonization.ts
+import { db } from '@scilent-one/db';
 import {
   HarmonizationEngine,
   TidalProvider,
@@ -13,15 +14,89 @@ import {
 let engine: HarmonizationEngine | null = null;
 
 /**
- * Build provider configuration based on available environment variables.
- * Providers are only enabled if their required credentials are present.
+ * Database settings type for provider configuration overrides.
  */
-function buildProviderConfig(): ProviderRegistryConfig {
-  const providers: ProviderRegistryConfig['providers'] = {
-    // MusicBrainz is always enabled (no auth required)
-    musicbrainz: {
+export interface ProviderDbSetting {
+  enabled: boolean;
+  priority: number;
+}
+
+/**
+ * Reset the engine singleton to force rebuild with new settings.
+ * Call this after updating provider settings in the database.
+ *
+ * **Note on concurrency:** This performs a simple null assignment which means
+ * any in-flight requests that already have a reference to the old engine will
+ * continue using it until they complete. New requests will get a fresh engine
+ * with updated settings. This "eventual consistency" behavior is acceptable for
+ * admin configuration changes which are infrequent and don't require immediate
+ * atomic switchover.
+ *
+ * If stricter consistency is needed in the future (e.g., for high-frequency
+ * automated changes), consider implementing a versioned engine with graceful
+ * transition or request-scoped engine instances.
+ */
+export function resetEngine(): void {
+  engine = null;
+}
+
+/**
+ * Fetch provider settings from the database and return as a Map.
+ * Used internally when building the engine to ensure DB settings are always respected.
+ */
+async function fetchProviderSettingsFromDb(): Promise<
+  Map<string, ProviderDbSetting>
+> {
+  try {
+    const settings = await db.providerSetting.findMany();
+    const map = new Map<string, ProviderDbSetting>();
+
+    for (const setting of settings) {
+      map.set(setting.providerName, {
+        enabled: setting.enabled,
+        priority: setting.priority,
+      });
+    }
+
+    return map;
+  } catch (error) {
+    // If DB is not available, return empty map (use defaults)
+    console.warn('Failed to fetch provider settings from DB:', error);
+    return new Map();
+  }
+}
+
+/**
+ * Build provider configuration based on available environment variables
+ * and optional database settings overrides.
+ * Providers are only enabled if their required credentials are present
+ * AND they are enabled in the database (defaults to enabled if no DB record).
+ */
+function buildProviderConfig(
+  dbSettings?: Map<string, ProviderDbSetting>
+): ProviderRegistryConfig {
+  // Helper to check if provider is enabled (defaults to true if no DB record)
+  const isProviderEnabled = (providerName: string): boolean => {
+    const setting = dbSettings?.get(providerName);
+    return setting?.enabled ?? true;
+  };
+
+  // Helper to get provider priority from DB or use default
+  const getProviderPriority = (
+    providerName: string,
+    defaultPriority: number
+  ): number => {
+    const setting = dbSettings?.get(providerName);
+    return setting?.priority ?? defaultPriority;
+  };
+
+  const providers: ProviderRegistryConfig['providers'] = {};
+
+  // MusicBrainz - always has credentials (no auth required), check DB for enabled
+  if (isProviderEnabled('musicbrainz')) {
+    providers.musicbrainz = {
       enabled: true,
-      priority: 100,
+      priority: getProviderPriority('musicbrainz', 100),
       rateLimit: { requests: 1, windowMs: 1000 },
       cache: { ttlSeconds: 86400 },
       retry: {
@@ -33,17 +108,17 @@ function buildProviderConfig(): ProviderRegistryConfig {
       appName: 'ScilentWeb',
       appVersion: '0.1.0',
       contact: process.env.MUSICBRAINZ_CONTACT ?? 'dev@example.com',
-    },
-  };
+    };
+  }
 
   // Spotify provider - requires client credentials
   const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
   const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
-  if (spotifyClientId && spotifyClientSecret) {
+  if (spotifyClientId && spotifyClientSecret && isProviderEnabled('spotify')) {
     providers.spotify = {
       enabled: true,
-      priority: 80,
+      priority: getProviderPriority('spotify', 80),
       rateLimit: { requests: 10, windowMs: 1000 },
       cache: { ttlSeconds: 3600 },
       retry: {
@@ -61,10 +136,10 @@ function buildProviderConfig(): ProviderRegistryConfig {
   const tidalClientId = process.env.TIDAL_CLIENT_ID;
   const tidalClientSecret = process.env.TIDAL_CLIENT_SECRET;
 
-  if (tidalClientId && tidalClientSecret) {
+  if (tidalClientId && tidalClientSecret && isProviderEnabled('tidal')) {
     providers.tidal = {
       enabled: true,
-      priority: 75,
+      priority: getProviderPriority('tidal', 75),
       rateLimit: { requests: 10, windowMs: 1000 },
       cache: { ttlSeconds: 3600 },
       retry: {
@@ -82,10 +157,45 @@ function buildProviderConfig(): ProviderRegistryConfig {
   return { providers };
 }
 
-export function getHarmonizationEngine() {
+/**
+ * Check which providers have credentials configured (env vars present).
+ * This is used to determine if a provider can be toggled on/off.
+ */
+export function getProvidersWithCredentials(): Set<string> {
+  const providers = new Set<string>();
+
+  // MusicBrainz always has credentials (no auth required)
+  providers.add('musicbrainz');
+
+  // Spotify - check for client credentials
+  if (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET) {
+    providers.add('spotify');
+  }
+
+  // Tidal - check for client credentials
+  if (process.env.TIDAL_CLIENT_ID && process.env.TIDAL_CLIENT_SECRET) {
+    providers.add('tidal');
+  }
+
+  return providers;
+}
+
+/**
+ * Get or create the harmonization engine singleton.
+ *
+ * This function automatically fetches provider settings from the database
+ * when creating a new engine instance, ensuring all parts of the application
+ * consistently use the database configuration.
+ *
+ * The engine is cached as a singleton - subsequent calls return the same
+ * instance until `resetEngine()` is called.
+ */
+export async function getHarmonizationEngine(): Promise<HarmonizationEngine> {
   if (!engine) {
+    // Always fetch DB settings when creating a new engine
+    const dbSettings = await fetchProviderSettingsFromDb();
     engine = new HarmonizationEngine({
-      providers: buildProviderConfig(),
+      providers: buildProviderConfig(dbSettings),
       // redis: null, // Add Redis connection for production caching
     });
   }
@@ -100,7 +210,7 @@ export async function searchArtistsWithUserProvider(
 ): Promise<HarmonizedArtist[]> {
   if (!query.trim()) return [];
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   const normalizedProvider = providerId?.toLowerCase() ?? null;
 
   if (normalizedProvider === 'tidal' && accessToken) {
@@ -150,7 +260,7 @@ export async function getFollowedArtistsFromProvider(
   providerId: string,
   params?: CollectionParams
 ): Promise<PaginatedCollection<HarmonizedArtist>> {
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   const normalizedProvider = providerId.toLowerCase();
 
   if (normalizedProvider === 'tidal') {

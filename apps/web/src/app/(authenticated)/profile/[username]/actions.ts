@@ -66,7 +66,7 @@ export async function getProviderProfile(
     }
 
     // Get the provider from the engine
-    const engine = getHarmonizationEngine();
+    const engine = await getHarmonizationEngine();
     const provider = engine.getProvider(providerId);
 
     if (!provider) {

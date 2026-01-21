@@ -273,6 +273,16 @@ export interface PrismaClient<
     * ```
     */
   get activity(): Prisma.ActivityDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.providerSetting`: Exposes CRUD operations for the **ProviderSetting** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProviderSettings
+    * const providerSettings = await prisma.providerSetting.findMany()
+    * ```
+    */
+  get providerSetting(): Prisma.ProviderSettingDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {

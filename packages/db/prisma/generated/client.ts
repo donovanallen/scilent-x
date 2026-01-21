@@ -89,3 +89,8 @@ export type Mention = Prisma.MentionModel
  * Activity model - Activity feed for users
  */
 export type Activity = Prisma.ActivityModel
+/**
+ * Model ProviderSetting
+ * Stores runtime configuration for harmony engine providers
+ */
+export type ProviderSetting = Prisma.ProviderSettingModel
