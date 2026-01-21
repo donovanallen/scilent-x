@@ -24,11 +24,14 @@ import {
   AtSign,
   ExternalLink,
   Users,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 import { ProviderIcon } from '../../icons/ProviderIcon';
 import { type Provider, PROVIDER_LABELS } from '../../icons/types';
 import { type PlatformName } from './PlatformBadge';
+import { ProviderSyncStatus, type ProviderSyncStatusType } from './ProviderSyncStatus';
 
 /** Profile image data */
 export interface ProfileImage {
@@ -115,6 +118,14 @@ export interface PlatformProfileCardProps extends Omit<
   footer?: React.ReactNode;
   /** Whether to hide the card when not connected (error code: NOT_CONNECTED) */
   hideWhenNotConnected?: boolean;
+  /** Whether the card starts collapsed */
+  defaultCollapsed?: boolean;
+  /** Controlled collapsed state */
+  collapsed?: boolean;
+  /** Callback when collapsed state changes */
+  onCollapsedChange?: (collapsed: boolean) => void;
+  /** Whether the card is collapsible */
+  collapsible?: boolean;
 }
 
 /**
@@ -152,6 +163,22 @@ function getPlatformLabel(platform: string): string {
  * - Followed artists preview
  * - External profile link
  */
+/**
+ * Derives the connection status from the component state
+ */
+function deriveConnectionStatus(
+  isLoading: boolean,
+  error?: ProfileError | null,
+  profile?: PlatformProfile | null
+): ProviderSyncStatusType {
+  if (isLoading) return 'loading';
+  if (error?.code === 'TOKEN_EXPIRED') return 'expired';
+  if (error?.code === 'NOT_CONNECTED') return 'disconnected';
+  if (error) return 'error';
+  if (profile) return 'connected';
+  return 'disconnected';
+}
+
 export function PlatformProfileCard({
   platform,
   profile,
@@ -166,12 +193,27 @@ export function PlatformProfileCard({
   maxArtistBadges = 5,
   footer,
   hideWhenNotConnected = true,
+  defaultCollapsed = false,
+  collapsed: controlledCollapsed,
+  onCollapsedChange,
+  collapsible = true,
   className,
   ...props
 }: PlatformProfileCardProps) {
+  const [internalCollapsed, setInternalCollapsed] =
+    React.useState(defaultCollapsed);
+  const isCollapsed = controlledCollapsed ?? internalCollapsed;
+
+  const handleToggleCollapse = () => {
+    const newValue = !isCollapsed;
+    setInternalCollapsed(newValue);
+    onCollapsedChange?.(newValue);
+  };
+
   const normalizedPlatform = platform.toLowerCase().replace(/[\s-]/g, '_');
   const platformLabel = getPlatformLabel(platform);
   const hasProviderIcon = isSupportedProvider(normalizedPlatform);
+  const connectionStatus = deriveConnectionStatus(isLoading, error, profile);
 
   // Loading state
   if (isLoading) {
@@ -199,18 +241,19 @@ export function PlatformProfileCard({
     return (
       <Card className={cn('border-destructive/50', className)} {...props}>
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            {hasProviderIcon ? (
-              <ProviderIcon
-                provider={normalizedPlatform as Provider}
-                size="sm"
-                color="current"
-                className="text-muted-foreground"
-              />
-            ) : (
-              <User className="h-5 w-5 text-muted-foreground" />
-            )}
-            <CardTitle className="text-base">{platformLabel}</CardTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {hasProviderIcon ? (
+                <ProviderIcon
+                  provider={normalizedPlatform as Provider}
+                  color="white"
+                />
+              ) : (
+                <User className="h-5 w-5 text-muted-foreground" />
+              )}
+              <CardTitle className="text-base">{platformLabel}</CardTitle>
+            </div>
+            <ProviderSyncStatus status={connectionStatus} />
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -249,6 +292,59 @@ export function PlatformProfileCard({
       ? getDefaultExternalUrl(normalizedPlatform, profile.username)
       : null);
 
+  // External link button component (reused in both states)
+  const ExternalLinkButton = externalUrl ? (
+    <Button variant="outline" size="sm" asChild>
+      <a
+        href={externalUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2"
+      >
+        {externalLinkLabel || `View on ${platformLabel}`}
+        <ExternalLink className="size-4" />
+      </a>
+    </Button>
+  ) : null;
+
+  // Collapsed state - compact single row
+  if (collapsible && isCollapsed) {
+    return (
+      <Card className={className} {...props}>
+        <div className="flex items-center justify-between gap-3 p-4">
+          {/* Left side: Icon, Name, Status */}
+          <div className="flex items-center gap-3 min-w-0">
+            {hasProviderIcon ? (
+              <ProviderIcon
+                provider={normalizedPlatform as Provider}
+                color="white"
+              />
+            ) : (
+              <User className="h-5 w-5 shrink-0" />
+            )}
+            <span className="font-medium truncate">{platformLabel}</span>
+            <ProviderSyncStatus status={connectionStatus} />
+          </div>
+
+          {/* Right side: External link + Expand button */}
+          <div className="flex items-center gap-2 shrink-0">
+            {ExternalLinkButton}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleToggleCollapse}
+              aria-label="Expand card"
+            >
+              <ChevronDown className="size-4" />
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  // Expanded state - full card
   return (
     <Card className={className} {...props}>
       <CardHeader className="pb-0">
@@ -266,12 +362,26 @@ export function PlatformProfileCard({
               <h5>{platformLabel}</h5>
             </CardTitle>
           </div>
-          {profile.subscription && (
-            <Badge variant="secondary" className="text-xs">
-              <Crown className="h-3 w-3 mr-1" />
-              {profile.subscription.type}
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            <ProviderSyncStatus status={connectionStatus} />
+            {profile.subscription && (
+              <Badge variant="secondary" className="text-xs">
+                <Crown className="h-3 w-3 mr-1" />
+                {profile.subscription.type}
+              </Badge>
+            )}
+            {collapsible && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleToggleCollapse}
+                aria-label="Collapse card"
+              >
+                <ChevronUp className="size-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent>

@@ -11,6 +11,7 @@ export interface UserAvatarProps {
   image?: string | null | undefined;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
+  onClick?: (() => void) | undefined;
 }
 
 const sizeClasses = {
@@ -48,12 +49,13 @@ export function UserAvatar({
   image,
   size = 'md',
   className,
+  onClick,
 }: UserAvatarProps) {
   const src = avatarUrl || image;
   const initials = getInitials(name, username);
 
   return (
-    <Avatar className={cn(sizeClasses[size], className)}>
+    <Avatar className={cn(sizeClasses[size], className)} onClick={onClick}>
       {src && <AvatarImage src={src} alt={name || username || 'User'} />}
       <AvatarFallback className={fontSizeClasses[size]}>
         {initials}
