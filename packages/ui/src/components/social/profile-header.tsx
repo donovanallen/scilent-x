@@ -120,7 +120,7 @@ export function ProfileHeader({
                 <Button 
                   variant='outline' 
                   onClick={onEditProfile}
-                  className='w-full sm:w-auto min-h-[44px] sm:min-h-0'
+                  className='w-full sm:w-auto touch-target'
                 >
                   <Settings className='mr-2 h-4 w-4' />
                   Edit Profile
@@ -152,7 +152,7 @@ export function ProfileHeader({
               </div>
               <button
                 type='button'
-                className='hover:underline active:opacity-70 min-h-[44px] sm:min-h-0 flex items-center'
+                className='hover:underline active:opacity-70 touch-target flex items-center'
                 onClick={onFollowersClick}
               >
                 <span className='font-semibold'>{followersCount}</span>{' '}
@@ -160,7 +160,7 @@ export function ProfileHeader({
               </button>
               <button
                 type='button'
-                className='hover:underline active:opacity-70 min-h-[44px] sm:min-h-0 flex items-center'
+                className='hover:underline active:opacity-70 touch-target flex items-center'
                 onClick={onFollowingClick}
               >
                 <span className='font-semibold'>{followingCount}</span>{' '}
