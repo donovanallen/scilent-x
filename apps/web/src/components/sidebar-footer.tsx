@@ -37,11 +37,11 @@ export function SidebarFooterContent() {
         <SidebarMenuItem>
           <SidebarMenuButton
             asChild
-            className='group-data-[state=expanded]:h-auto group-data-[state=expanded]:py-2'
+            className='group-data-[state=expanded]:h-auto group-data-[state=expanded]:py-3 md:group-data-[state=expanded]:py-2'
           >
             <Link
               href={ROUTES.profile.href}
-              className='flex items-center gap-2'
+              className='flex items-center gap-2 min-h-[44px] md:min-h-0'
             >
               <UserAvatar
                 name={user.name}
@@ -64,7 +64,7 @@ export function SidebarFooterContent() {
       {user && (
         <div className='flex flex-col gap-1 group-data-[state=expanded]:flex-row'>
           <SidebarMenuItem className='group-data-[state=expanded]:flex-1'>
-            <SidebarMenuButton asChild className='text-muted-foreground'>
+            <SidebarMenuButton asChild className='text-muted-foreground min-h-[44px] md:min-h-0'>
               <Link href={ROUTES.settings.href}>
                 <Settings />
                 <span>Settings</span>
@@ -74,7 +74,7 @@ export function SidebarFooterContent() {
           <SidebarMenuItem className='group-data-[state=expanded]:flex-1'>
             <SidebarMenuButton
               onClick={handleLogout}
-              className='cursor-pointer text-muted-foreground hover:text-destructive'
+              className='cursor-pointer text-muted-foreground hover:text-destructive active:text-destructive min-h-[44px] md:min-h-0'
             >
               <LogOut />
               <span>Logout</span>

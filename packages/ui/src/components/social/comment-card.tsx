@@ -191,17 +191,17 @@ export function CommentCard({
           className="text-sm whitespace-pre-wrap break-words mt-1"
           onMentionClick={onMentionClick}
         />
-        <div className="flex items-center gap-3 mt-2">
+        <div className="flex items-center gap-2 sm:gap-3 mt-2">
           <Button
             variant="ghost"
             size="sm"
             className={cn(
-              'h-7 gap-1 px-2 text-xs',
+              'h-9 sm:h-7 gap-1 px-2 text-xs min-w-[40px] active:scale-95 transition-transform',
               isLiked && 'text-red-500 hover:text-red-600'
             )}
             onClick={handleLikeClick}
           >
-            <Heart className={cn('h-3 w-3', isLiked && 'fill-current')} />
+            <Heart className={cn('h-3.5 w-3.5 sm:h-3 sm:w-3', isLiked && 'fill-current')} />
             <span>{likesCount}</span>
           </Button>
           {!isReply && (
@@ -209,13 +209,13 @@ export function CommentCard({
               variant="ghost"
               size="sm"
               className={cn(
-                'h-7 gap-1 px-2 text-xs',
+                'h-9 sm:h-7 gap-1 px-2 text-xs min-w-[40px] active:scale-95 transition-transform',
                 isReplying && 'text-primary'
               )}
               onClick={onReply}
             >
               <MessageCircle
-                className={cn('h-3 w-3', isReplying && 'fill-current')}
+                className={cn('h-3.5 w-3.5 sm:h-3 sm:w-3', isReplying && 'fill-current')}
               />
               <span>{repliesCount}</span>
             </Button>

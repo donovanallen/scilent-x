@@ -450,28 +450,28 @@ export function PostCard({
           </div>
         ) : (
           <div className="space-y-2">
-            {/* Action buttons */}
-            <div className="flex items-center gap-4">
+            {/* Action buttons - touch-friendly sizing */}
+            <div className="flex items-center gap-2 sm:gap-4">
               <Button
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  'gap-1.5 px-2',
+                  'gap-1.5 px-2 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 active:scale-95 transition-transform',
                   isLiked && 'text-red-500 hover:text-red-600'
                 )}
                 onClick={handleLikeClick}
               >
-                <Heart className={cn('h-4 w-4', isLiked && 'fill-current')} />
+                <Heart className={cn('h-4 w-4 sm:h-4 sm:w-4', isLiked && 'fill-current')} />
                 <span className="text-sm">{likesCount}</span>
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className={cn('gap-1.5 px-2', isCommenting && 'text-primary')}
+                className={cn('gap-1.5 px-2 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 active:scale-95 transition-transform', isCommenting && 'text-primary')}
                 onClick={handleCommentClick}
               >
                 <MessageCircle
-                  className={cn('h-4 w-4', isCommenting && 'fill-current')}
+                  className={cn('h-4 w-4 sm:h-4 sm:w-4', isCommenting && 'fill-current')}
                 />
                 <span className="text-sm">{commentsCount}</span>
               </Button>

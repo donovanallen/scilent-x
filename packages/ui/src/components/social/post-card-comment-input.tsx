@@ -100,7 +100,7 @@ export function PostCardCommentInput({
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="min-h-[40px] max-h-[120px] resize-none text-sm py-2"
+          className="min-h-[44px] max-h-[120px] resize-none text-base sm:text-sm py-2.5 sm:py-2"
           disabled={isSubmitting}
           rows={1}
         />
@@ -108,14 +108,14 @@ export function PostCardCommentInput({
           type="button"
           size="sm"
           variant="ghost"
-          className="h-10 w-10 p-0 shrink-0"
+          className="h-11 w-11 sm:h-10 sm:w-10 p-0 shrink-0 active:scale-95 transition-transform"
           disabled={!canSubmit}
           onClick={() => handleSubmit()}
         >
           {isSubmitting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
           ) : (
-            <Send className="h-4 w-4" />
+            <Send className="h-5 w-5 sm:h-4 sm:w-4" />
           )}
           <span className="sr-only">Send comment</span>
         </Button>

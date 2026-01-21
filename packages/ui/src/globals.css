@@ -222,11 +222,46 @@
 /* Base app styles */
 html {
   @apply overscroll-y-none;
+  /* Prevent text size adjustment on orientation change */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+  }
+}
+
+/* Reduce motion on mobile for performance */
+@media (prefers-reduced-motion: reduce), (max-width: 767px) {
+  html {
+    scroll-behavior: auto;
+  }
+  
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Re-enable essential animations on mobile when motion is OK */
+@media (prefers-reduced-motion: no-preference) and (max-width: 767px) {
+  *,
+  *::before,
+  *::after {
+    /* Allow short transitions for essential feedback */
+    transition-duration: 150ms !important;
+  }
+  
+  /* Disable long animations for performance */
+  .animate-in,
+  .animate-out {
+    animation-duration: 150ms !important;
   }
 }
 
@@ -237,6 +272,10 @@ body {
 
 body {
   @apply bg-background font-body text-base text-foreground antialiased;
+  /* Prevent iOS rubber-banding on main document */
+  overscroll-behavior-y: none;
+  /* Enable smooth scrolling on touch devices */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Custom text selection */
@@ -318,6 +357,84 @@ code {
   @media (pointer: coarse) {
     @apply relative after:absolute after:-inset-2;
   }
+}
+
+/* Minimum touch target size (44x44px as per WCAG 2.5.5) */
+@utility touch-target {
+  @media (pointer: coarse) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Extended touch target with invisible hit area */
+@utility touch-target-extended {
+  @apply relative;
+  @media (pointer: coarse) {
+    &::after {
+      content: '';
+      @apply absolute -inset-2;
+    }
+  }
+}
+
+/* Hide on mobile (< 768px) */
+@utility hide-mobile {
+  @media (max-width: 767px) {
+    display: none !important;
+  }
+}
+
+/* Show only on mobile (< 768px) */
+@utility show-mobile {
+  display: none !important;
+  @media (max-width: 767px) {
+    display: block !important;
+  }
+}
+
+/* Flex variant for show-mobile */
+@utility show-mobile-flex {
+  display: none !important;
+  @media (max-width: 767px) {
+    display: flex !important;
+  }
+}
+
+/* Safe area padding for notched devices */
+@utility safe-area-inset-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+@utility safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+@utility safe-area-inset-left {
+  padding-left: env(safe-area-inset-left, 0);
+}
+
+@utility safe-area-inset-right {
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+@utility safe-area-inset {
+  padding-top: env(safe-area-inset-top, 0);
+  padding-right: env(safe-area-inset-right, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-left: env(safe-area-inset-left, 0);
+}
+
+/* Prevent text size adjustment on mobile */
+@utility text-size-adjust-none {
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
+/* Smooth momentum scrolling for mobile */
+@utility scroll-touch {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 @utility step {
@@ -457,6 +574,32 @@ button.artist-mention:hover,
 /* Mention Suggestions Popup */
 .tiptap-mention-popup {
   @apply bg-popover border border-border rounded-md shadow-lg overflow-hidden;
+  /* Ensure popup is above mobile keyboards */
+  z-index: 100;
+}
+
+/* Mobile-specific mention popup styles */
+@media (max-width: 767px) {
+  .tiptap-mention-popup {
+    /* Full width on small screens with some padding */
+    max-width: calc(100vw - 32px);
+    min-width: 200px;
+    /* Limit height to avoid covering too much content */
+    max-height: 40vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Touch-friendly mention list items */
+@media (pointer: coarse) {
+  .tiptap-mention-popup [role="option"],
+  .tiptap-mention-popup button,
+  .tiptap-mention-popup [data-mention-item] {
+    min-height: 44px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
 }
 
 /* Legacy Quill wrapper for backwards compatibility during migration */
