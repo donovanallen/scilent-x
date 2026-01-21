@@ -279,3 +279,71 @@ export async function getFollowedArtistsFromProvider(
 
   throw new Error(`Provider '${providerId}' does not support followed artists`);
 }
+
+/**
+ * Library counts from a streaming provider.
+ */
+export interface LibraryCounts {
+  albums: number | null;
+  playlists: number | null;
+  artists: number | null;
+}
+
+/**
+ * Get library counts (albums, playlists, artists) from the user's connected provider.
+ * Fetches all three counts in parallel for better performance.
+ *
+ * @param accessToken - The user's OAuth access token for the provider
+ * @param providerId - The provider identifier (e.g., 'tidal', 'spotify')
+ * @returns Object containing the counts for albums, playlists, and artists
+ */
+export async function getLibraryCountsFromProvider(
+  accessToken: string,
+  providerId: string
+): Promise<LibraryCounts> {
+  const engine = await getHarmonizationEngine();
+  const normalizedProvider = providerId.toLowerCase();
+
+  if (normalizedProvider === 'tidal') {
+    const provider = engine.getProvider('tidal');
+    if (provider instanceof TidalProvider) {
+      // Fetch all counts in parallel
+      const [albumsCount, playlistsCount, artistsCount] = await Promise.all([
+        provider.getSavedAlbumsCount(accessToken),
+        provider.getUserPlaylistsCount(accessToken),
+        provider.getFollowedArtistsCount(accessToken),
+      ]);
+
+      return {
+        albums: albumsCount,
+        playlists: playlistsCount,
+        artists: artistsCount,
+      };
+    }
+  }
+
+  if (normalizedProvider === 'spotify') {
+    const provider = engine.getProvider('spotify');
+    if (provider instanceof SpotifyProvider) {
+      // Fetch all counts in parallel
+      const [albumsCount, playlistsCount, artistsCount] = await Promise.all([
+        provider.getSavedAlbumsCount(accessToken),
+        provider.getUserPlaylistsCount(accessToken),
+        provider.getFollowedArtistsCount(accessToken),
+      ]);
+
+      return {
+        albums: albumsCount,
+        playlists: playlistsCount,
+        artists: artistsCount,
+      };
+    }
+  }
+
+  // Provider doesn't support library counts
+  return {
+    albums: null,
+    playlists: null,
+    artists: null,
+  };
+}

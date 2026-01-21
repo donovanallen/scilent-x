@@ -10,6 +10,8 @@ import { getCurrentUser } from '@/lib/api-utils';
 import {
   getHarmonizationEngine,
   getFollowedArtistsFromProvider,
+  getLibraryCountsFromProvider,
+  type LibraryCounts,
 } from '@/lib/harmonization';
 
 export interface ProviderProfileResult {
@@ -249,6 +251,89 @@ export async function getFollowedArtists(
     return response;
   } catch (error) {
     console.error(`Failed to fetch ${providerId} followed artists:`, error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorCode: 'PROVIDER_ERROR',
+    };
+  }
+}
+
+export interface LibraryCountsResult {
+  success: boolean;
+  counts?: LibraryCounts;
+  error?: string;
+  errorCode?:
+    | 'UNAUTHORIZED'
+    | 'NOT_CONNECTED'
+    | 'TOKEN_EXPIRED'
+    | 'PROVIDER_ERROR';
+}
+
+/**
+ * Get a user's library counts (albums, playlists, artists) from a connected streaming provider.
+ * @param userId - The user ID to fetch the library counts for
+ * @param providerId - The provider ID (e.g., 'tidal', 'spotify')
+ */
+export async function getLibraryCounts(
+  userId: string,
+  providerId: string
+): Promise<LibraryCountsResult> {
+  try {
+    // Check authorization - only allow viewing own data
+    const canView = await canViewProviderProfiles(userId);
+    if (!canView) {
+      return {
+        success: false,
+        error: 'Unauthorized',
+        errorCode: 'UNAUTHORIZED',
+      };
+    }
+
+    // Get the user's connected account with access token
+    const account = await db.account.findFirst({
+      where: {
+        userId,
+        providerId,
+      },
+      select: {
+        accessToken: true,
+        accessTokenExpiresAt: true,
+      },
+    });
+
+    if (!account?.accessToken) {
+      return {
+        success: false,
+        error: `${providerId} account not connected`,
+        errorCode: 'NOT_CONNECTED',
+      };
+    }
+
+    // Check if token is expired
+    if (
+      account.accessTokenExpiresAt &&
+      account.accessTokenExpiresAt < new Date()
+    ) {
+      return {
+        success: false,
+        error: `${providerId} token expired`,
+        errorCode: 'TOKEN_EXPIRED',
+      };
+    }
+
+    // Fetch library counts from the provider
+    const counts = await getLibraryCountsFromProvider(
+      account.accessToken,
+      providerId
+    );
+
+    return {
+      success: true,
+      counts,
+    };
+  } catch (error) {
+    console.error(`Failed to fetch ${providerId} library counts:`, error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

@@ -76,6 +76,7 @@ export {
   type SubscriptionInfo,
   type FollowedArtist,
   type FollowedArtistsData,
+  type LibraryCountsData,
   type ProfileError,
   type ProviderSyncStatusProps,
   type ProviderSyncStatusType,

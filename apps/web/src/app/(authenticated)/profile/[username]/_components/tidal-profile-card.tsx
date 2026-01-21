@@ -4,6 +4,7 @@ import {
   PlatformProfileCard,
   type PlatformProfile,
   type FollowedArtistsData,
+  type LibraryCountsData,
   type ProfileError,
 } from '@scilent-one/scilent-ui';
 import { useEffect, useState } from 'react';
@@ -13,8 +14,10 @@ import { authClient } from '@/lib/auth-client';
 import {
   getProviderProfile,
   getFollowedArtists,
+  getLibraryCounts,
   type ProviderProfileResult,
   type FollowedArtistsResult,
+  type LibraryCountsResult,
 } from '../actions';
 
 interface TidalProfileCardProps {
@@ -29,6 +32,8 @@ export function TidalProfileCard({
   const [result, setResult] = useState<ProviderProfileResult | null>(null);
   const [artistsResult, setArtistsResult] =
     useState<FollowedArtistsResult | null>(null);
+  const [countsResult, setCountsResult] =
+    useState<LibraryCountsResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isReconnecting, setIsReconnecting] = useState(false);
 
@@ -45,15 +50,17 @@ export function TidalProfileCard({
       }
 
       try {
-        // Fetch profile and followed artists in parallel
-        const [profileData, artistsData] = await Promise.all([
+        // Fetch profile, followed artists, and library counts in parallel
+        const [profileData, artistsData, countsData] = await Promise.all([
           getProviderProfile(userId, 'tidal'),
           getFollowedArtists(userId, 'tidal', 5), // Fetch first 5 for preview
+          getLibraryCounts(userId, 'tidal'),
         ]);
 
         if (!isCancelled) {
           setResult(profileData);
           setArtistsResult(artistsData);
+          setCountsResult(countsData);
         }
       } catch (error) {
         console.error('Failed to fetch Tidal profile:', error);
@@ -127,6 +134,15 @@ export function TidalProfileCard({
         }
       : null;
 
+  const libraryCounts: LibraryCountsData | null =
+    countsResult?.success && countsResult.counts
+      ? {
+          albums: countsResult.counts.albums,
+          playlists: countsResult.counts.playlists,
+          artists: countsResult.counts.artists,
+        }
+      : null;
+
   const error: ProfileError | null =
     !result?.success && result
       ? {
@@ -140,6 +156,7 @@ export function TidalProfileCard({
       platform='tidal'
       profile={profile}
       followedArtists={followedArtists}
+      libraryCounts={libraryCounts}
       error={error}
       isLoading={isLoading}
       isReconnecting={isReconnecting}

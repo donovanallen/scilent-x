@@ -152,6 +152,16 @@ interface TidalUserCollectionArtistsResponse {
 }
 
 /**
+ * Generic response type for userCollections relationship count endpoints.
+ * Used for albums, playlists, and artists relationships.
+ */
+interface TidalRelationshipCountResponse {
+  data: Array<{ id: string; type: string }>;
+  meta?: { total?: number };
+  links?: { self: string; next?: string };
+}
+
+/**
  * Tidal user profile attributes from the /users/me endpoint.
  * @see https://tidal-music.github.io/tidal-api-reference/#/users
  */
@@ -691,6 +701,60 @@ export class TidalProvider extends BaseProvider {
       nextCursor,
       hasMore,
     };
+  }
+
+  /**
+   * Get the count of the user's saved/favorited albums from Tidal.
+   * Uses the /userCollections/{id}/relationships/albums endpoint.
+   * @param accessToken - The user's OAuth access token
+   * @returns The count of saved albums, or null if not available
+   */
+  protected override async _getSavedAlbumsCount(
+    accessToken: string
+  ): Promise<number | null> {
+    const userProfile = await this._getCurrentUser(accessToken);
+    const data = await this.fetchUserApi<TidalRelationshipCountResponse>(
+      `/userCollections/${userProfile.id}/relationships/albums`,
+      accessToken,
+      { 'page[limit]': '1' } // Only need meta.total, minimize data transfer
+    );
+    return data?.meta?.total ?? data?.data?.length ?? null;
+  }
+
+  /**
+   * Get the count of the user's playlists from Tidal.
+   * Uses the /userCollections/{id}/relationships/playlists endpoint.
+   * @param accessToken - The user's OAuth access token
+   * @returns The count of user playlists, or null if not available
+   */
+  protected override async _getUserPlaylistsCount(
+    accessToken: string
+  ): Promise<number | null> {
+    const userProfile = await this._getCurrentUser(accessToken);
+    const data = await this.fetchUserApi<TidalRelationshipCountResponse>(
+      `/userCollections/${userProfile.id}/relationships/playlists`,
+      accessToken,
+      { 'page[limit]': '1' }
+    );
+    return data?.meta?.total ?? data?.data?.length ?? null;
+  }
+
+  /**
+   * Get the count of the user's followed artists from Tidal.
+   * Uses the /userCollections/{id}/relationships/artists endpoint.
+   * @param accessToken - The user's OAuth access token
+   * @returns The count of followed artists, or null if not available
+   */
+  protected override async _getFollowedArtistsCount(
+    accessToken: string
+  ): Promise<number | null> {
+    const userProfile = await this._getCurrentUser(accessToken);
+    const data = await this.fetchUserApi<TidalRelationshipCountResponse>(
+      `/userCollections/${userProfile.id}/relationships/artists`,
+      accessToken,
+      { 'page[limit]': '1' }
+    );
+    return data?.meta?.total ?? data?.data?.length ?? null;
   }
 
   // Transformation methods

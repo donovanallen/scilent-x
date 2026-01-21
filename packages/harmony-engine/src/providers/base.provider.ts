@@ -204,6 +204,75 @@ export abstract class BaseProvider {
     );
   }
 
+  /**
+   * Get the count of the user's saved/favorited albums from the provider.
+   * Override this method in providers that support user collections.
+   * @param accessToken - The user's OAuth access token from the connected account
+   */
+  protected async _getSavedAlbumsCount(
+    _accessToken: string
+  ): Promise<number | null> {
+    return null; // Override in providers that support this
+  }
+
+  /**
+   * Get the count of the user's saved/favorited albums from the provider.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @returns The count of saved albums, or null if not supported
+   */
+  async getSavedAlbumsCount(accessToken: string): Promise<number | null> {
+    if (!this.supportsUserAuth) return null;
+    return this.withRateLimitAndRetry(() =>
+      this._getSavedAlbumsCount(accessToken)
+    );
+  }
+
+  /**
+   * Get the count of the user's playlists from the provider.
+   * Override this method in providers that support user collections.
+   * @param accessToken - The user's OAuth access token from the connected account
+   */
+  protected async _getUserPlaylistsCount(
+    _accessToken: string
+  ): Promise<number | null> {
+    return null; // Override in providers that support this
+  }
+
+  /**
+   * Get the count of the user's playlists from the provider.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @returns The count of user playlists, or null if not supported
+   */
+  async getUserPlaylistsCount(accessToken: string): Promise<number | null> {
+    if (!this.supportsUserAuth) return null;
+    return this.withRateLimitAndRetry(() =>
+      this._getUserPlaylistsCount(accessToken)
+    );
+  }
+
+  /**
+   * Get the count of the user's followed artists from the provider.
+   * Override this method in providers that support user collections.
+   * @param accessToken - The user's OAuth access token from the connected account
+   */
+  protected async _getFollowedArtistsCount(
+    _accessToken: string
+  ): Promise<number | null> {
+    return null; // Override in providers that support this
+  }
+
+  /**
+   * Get the count of the user's followed artists from the provider.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @returns The count of followed artists, or null if not supported
+   */
+  async getFollowedArtistsCount(accessToken: string): Promise<number | null> {
+    if (!this.supportsUserAuth) return null;
+    return this.withRateLimitAndRetry(() =>
+      this._getFollowedArtistsCount(accessToken)
+    );
+  }
+
   // Helper for wrapping calls
   protected async withRateLimitAndRetry<T>(fn: () => Promise<T>): Promise<T> {
     await this.rateLimiter.acquire();
