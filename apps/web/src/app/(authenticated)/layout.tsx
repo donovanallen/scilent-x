@@ -79,14 +79,14 @@ export default function AuthenticatedLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className='flex h-14 shrink-0 items-center gap-2 px-4'>
-          <SidebarTrigger className='-ml-1' />
+        <header className='flex h-12 sm:h-14 shrink-0 items-center gap-2 px-3 sm:px-4 sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
+          <SidebarTrigger className='-ml-1 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0' />
           <Separator
             orientation='vertical'
-            className='mr-2 data-[orientation=vertical]:h-4'
+            className='mr-2 data-[orientation=vertical]:h-4 hidden sm:block'
           />
           {breadcrumbs.length > 0 && (
-            <Breadcrumb>
+            <Breadcrumb className='hidden sm:flex'>
               <BreadcrumbList>
                 {breadcrumbs.map((crumb, index) => (
                   <React.Fragment key={crumb.href}>
@@ -105,9 +105,15 @@ export default function AuthenticatedLayout({
               </BreadcrumbList>
             </Breadcrumb>
           )}
+          {/* Mobile: Show only current page title */}
+          {breadcrumbs.length > 0 && (
+            <span className='text-sm font-medium truncate sm:hidden'>
+              {breadcrumbs[breadcrumbs.length - 1]?.label}
+            </span>
+          )}
           <div className='flex-1' />
         </header>
-        <main className='flex flex-1 flex-col overflow-auto p-4 pt-0'>
+        <main className='flex flex-1 flex-col overflow-auto p-3 sm:p-4 pt-0'>
           <HarmonyInteractionProvider>{children}</HarmonyInteractionProvider>
         </main>
       </SidebarInset>

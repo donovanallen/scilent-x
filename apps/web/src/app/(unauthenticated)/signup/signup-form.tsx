@@ -113,15 +113,20 @@ export function SignupForm({
   const isDisabled = isLoading || socialLoading !== null;
 
   return (
-    <div className={cn('flex flex-col gap-4', className)} {...props}>
+    <div
+      className={cn('flex flex-col gap-4 w-full max-w-md mx-auto', className)}
+      {...props}
+    >
       <Card>
-        <CardHeader className='pb-4 text-center'>
-          <CardTitle className='text-2xl'>Create an account</CardTitle>
+        <CardHeader className='pb-4 text-center px-4 sm:px-6'>
+          <CardTitle className='text-xl sm:text-2xl'>
+            Create an account
+          </CardTitle>
           <CardDescription>
             Enter your details below to create your account
           </CardDescription>
         </CardHeader>
-        <CardContent className='pb-4'>
+        <CardContent className='pb-4 px-4 sm:px-6'>
           <form onSubmit={handleSubmit}>
             <div className='flex flex-col gap-4'>
               {error && (
@@ -129,7 +134,8 @@ export function SignupForm({
                   {error}
                 </div>
               )}
-              <div className='grid grid-cols-2 gap-3'>
+              {/* Stack fields on mobile, 2 columns on larger screens */}
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3'>
                 <div className='grid gap-1.5'>
                   <Label htmlFor='name'>Name</Label>
                   <Input
@@ -141,6 +147,7 @@ export function SignupForm({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     disabled={isDisabled}
+                    className='h-11 sm:h-10 text-base sm:text-sm'
                   />
                 </div>
                 <div className='grid gap-1.5'>
@@ -154,10 +161,11 @@ export function SignupForm({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={isDisabled}
+                    className='h-11 sm:h-10 text-base sm:text-sm'
                   />
                 </div>
               </div>
-              <div className='grid grid-cols-2 gap-3'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3'>
                 <div className='grid gap-1.5'>
                   <Label htmlFor='password'>Password</Label>
                   <Input
@@ -169,6 +177,7 @@ export function SignupForm({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isDisabled}
+                    className='h-11 sm:h-10 text-base sm:text-sm'
                   />
                 </div>
                 <div className='grid gap-1.5'>
@@ -182,10 +191,15 @@ export function SignupForm({
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     disabled={isDisabled}
+                    className='h-11 sm:h-10 text-base sm:text-sm'
                   />
                 </div>
               </div>
-              <Button type='submit' className='w-full' disabled={isDisabled}>
+              <Button
+                type='submit'
+                className='w-full h-11 sm:h-10 text-base sm:text-sm active:scale-[0.98] transition-transform'
+                disabled={isDisabled}
+              >
                 {isLoading && <Loader2 className='animate-spin' />}
                 Create Account
               </Button>
@@ -207,6 +221,7 @@ export function SignupForm({
                   type='button'
                   disabled={isDisabled}
                   onClick={() => handleSocialLogin('google')}
+                  className='h-11 sm:h-10 active:scale-[0.98] transition-transform'
                 >
                   {socialLoading === 'google' ? (
                     <Loader2 className='animate-spin' />
@@ -220,6 +235,7 @@ export function SignupForm({
                   type='button'
                   disabled={isDisabled}
                   onClick={() => handleSocialLogin('apple')}
+                  className='h-11 sm:h-10 active:scale-[0.98] transition-transform'
                 >
                   {socialLoading === 'apple' ? (
                     <Loader2 className='animate-spin' />
@@ -234,7 +250,7 @@ export function SignupForm({
                 Already have an account?{' '}
                 <Link
                   href={ROUTES.login.href}
-                  className='text-primary underline-offset-4 hover:underline'
+                  className='text-primary underline-offset-4 hover:underline active:opacity-70'
                 >
                   Sign in
                 </Link>
@@ -243,14 +259,14 @@ export function SignupForm({
                 By creating an account, you agree to our{' '}
                 <Link
                   href='#'
-                  className='underline underline-offset-4 hover:text-primary'
+                  className='underline underline-offset-4 hover:text-primary active:opacity-70'
                 >
                   Terms
                 </Link>{' '}
                 and{' '}
                 <Link
                   href='#'
-                  className='underline underline-offset-4 hover:text-primary'
+                  className='underline underline-offset-4 hover:text-primary active:opacity-70'
                 >
                   Privacy Policy
                 </Link>
