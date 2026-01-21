@@ -220,8 +220,11 @@ async function EngineStatusCard() {
               );
               const hasCredentials = credentialsStatus.get(provider.name) ?? false;
               const setting = settingsMap.get(provider.name);
-              // Provider is enabled if: has credentials AND (no DB setting OR setting.enabled is true)
-              const isToggledOn = hasCredentials && (setting?.enabled ?? true);
+              // Provider is considered toggled ON if:
+              // - there is a DB setting: has credentials AND setting.enabled
+              // - or there is no DB setting: fall back to engine status (isEnabled)
+              const isToggledOn =
+                setting !== undefined ? hasCredentials && setting.enabled : isEnabled;
 
               return (
                 <div key={provider.name} className='py-4 first:pt-0 last:pb-0'>

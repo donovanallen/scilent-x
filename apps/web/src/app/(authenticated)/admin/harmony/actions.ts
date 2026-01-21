@@ -155,15 +155,14 @@ export async function updateProviderPriority(
 /**
  * Get the default priority for a provider.
  */
+const DEFAULT_PROVIDER_PRIORITIES: Record<string, number> = {
+  musicbrainz: 100,
+  spotify: 80,
+  tidal: 75,
+};
+
+const FALLBACK_PROVIDER_PRIORITY = 50;
+
 function getDefaultPriority(providerName: string): number {
-  switch (providerName) {
-    case 'musicbrainz':
-      return 100;
-    case 'spotify':
-      return 80;
-    case 'tidal':
-      return 75;
-    default:
-      return 50;
-  }
+  return DEFAULT_PROVIDER_PRIORITIES[providerName] ?? FALLBACK_PROVIDER_PRIORITY;
 }

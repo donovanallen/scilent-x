@@ -67,12 +67,13 @@ export function ProviderToggle({
   }
 
   return (
-    <div className='flex items-center gap-2'>
+    <div className='flex items-center gap-2' aria-busy={isPending}>
       <Switch
         checked={enabled}
         disabled={isDisabled}
         onCheckedChange={handleToggle}
         aria-label={`Toggle ${providerName}`}
+        className={`transition-opacity ${isPending ? 'opacity-50 cursor-wait' : ''}`}
       />
       {isPending && <Loader2 className='h-3 w-3 animate-spin text-muted-foreground' />}
     </div>
