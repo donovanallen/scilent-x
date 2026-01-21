@@ -99,17 +99,17 @@ export function LoginForm({
   const isDisabled = isLoading || socialLoading !== null;
 
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
+    <div className={cn('flex flex-col gap-6 w-full max-w-md mx-auto', className)} {...props}>
       <Card>
-        <CardHeader className='text-center'>
-          <CardTitle className='text-2xl'>Welcome back</CardTitle>
+        <CardHeader className='text-center px-4 sm:px-6'>
+          <CardTitle className='text-xl sm:text-2xl'>Welcome back</CardTitle>
           <CardDescription>
             Enter your credentials to sign in to your account
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className='px-4 sm:px-6'>
           <form onSubmit={handleSubmit}>
-            <div className='flex flex-col gap-6'>
+            <div className='flex flex-col gap-4 sm:gap-6'>
               {error && (
                 <div className='rounded-md bg-destructive/10 p-3 text-sm text-destructive'>
                   {error}
@@ -126,6 +126,7 @@ export function LoginForm({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isDisabled}
+                  className='h-11 sm:h-10 text-base sm:text-sm'
                 />
               </div>
               <div className='grid gap-2'>
@@ -133,7 +134,7 @@ export function LoginForm({
                   <Label htmlFor='password'>Password</Label>
                   <Link
                     href='#'
-                    className='ml-auto text-sm text-muted-foreground underline-offset-4 hover:underline'
+                    className='ml-auto text-sm text-muted-foreground underline-offset-4 hover:underline active:opacity-70'
                   >
                     Forgot password?
                   </Link>
@@ -147,9 +148,10 @@ export function LoginForm({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isDisabled}
+                  className='h-11 sm:h-10 text-base sm:text-sm'
                 />
               </div>
-              <Button type='submit' className='w-full' disabled={isDisabled}>
+              <Button type='submit' className='w-full h-11 sm:h-10 text-base sm:text-sm active:scale-[0.98] transition-transform' disabled={isDisabled}>
                 {isLoading && <Loader2 className='animate-spin' />}
                 Sign In
               </Button>
@@ -165,12 +167,13 @@ export function LoginForm({
                 </div>
               </div>
 
-              <div className='grid grid-cols-2 gap-4'>
+              <div className='grid grid-cols-2 gap-3 sm:gap-4'>
                 <Button
                   variant='outline'
                   type='button'
                   disabled={isDisabled}
                   onClick={() => handleSocialLogin('google')}
+                  className='h-11 sm:h-10 active:scale-[0.98] transition-transform'
                 >
                   {socialLoading === 'google' ? (
                     <Loader2 className='animate-spin' />
@@ -184,6 +187,7 @@ export function LoginForm({
                   type='button'
                   disabled={isDisabled}
                   onClick={() => handleSocialLogin('apple')}
+                  className='h-11 sm:h-10 active:scale-[0.98] transition-transform'
                 >
                   {socialLoading === 'apple' ? (
                     <Loader2 className='animate-spin' />
@@ -198,7 +202,7 @@ export function LoginForm({
                 Don&apos;t have an account?{' '}
                 <Link
                   href={ROUTES.signup.href}
-                  className='text-primary underline-offset-4 hover:underline'
+                  className='text-primary underline-offset-4 hover:underline active:opacity-70'
                 >
                   Sign up
                 </Link>
