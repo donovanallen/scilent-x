@@ -26,6 +26,9 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
+  Disc3,
+  ListMusic,
+  Library,
 } from 'lucide-react';
 
 import { ProviderIcon } from '../../icons/ProviderIcon';
@@ -80,6 +83,16 @@ export interface FollowedArtistsData {
   hasMore?: boolean;
 }
 
+/** Library counts data */
+export interface LibraryCountsData {
+  /** Count of saved albums */
+  albums: number | null;
+  /** Count of user playlists */
+  playlists: number | null;
+  /** Count of followed artists */
+  artists: number | null;
+}
+
 /** Error state information */
 export interface ProfileError {
   /** Error message to display */
@@ -98,6 +111,8 @@ export interface PlatformProfileCardProps extends Omit<
   profile?: PlatformProfile | null;
   /** Followed artists data */
   followedArtists?: FollowedArtistsData | null;
+  /** Library counts data (albums, playlists, artists) */
+  libraryCounts?: LibraryCountsData | null;
   /** Error state */
   error?: ProfileError | null;
   /** Loading state */
@@ -112,6 +127,8 @@ export interface PlatformProfileCardProps extends Omit<
   externalLinkLabel?: string;
   /** Whether to show the followed artists section */
   showFollowedArtists?: boolean;
+  /** Whether to show the library counts section */
+  showLibraryCounts?: boolean;
   /** Maximum number of artist badges to show */
   maxArtistBadges?: number;
   /** Custom footer content (replaces default external link button) */
@@ -183,6 +200,7 @@ export function PlatformProfileCard({
   platform,
   profile,
   followedArtists,
+  libraryCounts,
   error,
   isLoading = false,
   isReconnecting = false,
@@ -190,6 +208,7 @@ export function PlatformProfileCard({
   reconnectLabel,
   externalLinkLabel,
   showFollowedArtists = true,
+  showLibraryCounts = true,
   maxArtistBadges = 5,
   footer,
   hideWhenNotConnected = true,
@@ -414,6 +433,52 @@ export function PlatformProfileCard({
             )}
           </div>
         </div>
+
+        {/* Library Counts Section */}
+        {showLibraryCounts &&
+          libraryCounts &&
+          (libraryCounts.albums != null ||
+            libraryCounts.playlists != null ||
+            libraryCounts.artists != null) && (
+            <>
+              <Separator className="my-4" />
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Library className="size-4" />
+                  <span>Library</span>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {libraryCounts.albums != null && (
+                    <div className="flex flex-col items-center gap-1 p-2 rounded-md bg-muted/50">
+                      <Disc3 className="size-4 text-muted-foreground" />
+                      <span className="text-lg font-semibold">
+                        {libraryCounts.albums.toLocaleString()}
+                      </span>
+                      <span className="text-xs text-muted-foreground">Albums</span>
+                    </div>
+                  )}
+                  {libraryCounts.playlists != null && (
+                    <div className="flex flex-col items-center gap-1 p-2 rounded-md bg-muted/50">
+                      <ListMusic className="size-4 text-muted-foreground" />
+                      <span className="text-lg font-semibold">
+                        {libraryCounts.playlists.toLocaleString()}
+                      </span>
+                      <span className="text-xs text-muted-foreground">Playlists</span>
+                    </div>
+                  )}
+                  {libraryCounts.artists != null && (
+                    <div className="flex flex-col items-center gap-1 p-2 rounded-md bg-muted/50">
+                      <Users className="size-4 text-muted-foreground" />
+                      <span className="text-lg font-semibold">
+                        {libraryCounts.artists.toLocaleString()}
+                      </span>
+                      <span className="text-xs text-muted-foreground">Artists</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
 
         {/* Followed Artists Section */}
         {showFollowedArtists &&

@@ -152,6 +152,16 @@ interface TidalUserCollectionArtistsResponse {
 }
 
 /**
+ * Generic response type for userCollections relationship count endpoints.
+ * Used for albums, playlists, and artists relationships.
+ */
+interface TidalRelationshipCountResponse {
+  data: Array<{ id: string; type: string }>;
+  meta?: { total?: number };
+  links?: { self: string; next?: string };
+}
+
+/**
  * Tidal user profile attributes from the /users/me endpoint.
  * @see https://tidal-music.github.io/tidal-api-reference/#/users
  */
@@ -171,6 +181,14 @@ interface TidalUserAttributes {
 }
 
 type TidalUser = TidalResource<'users', TidalUserAttributes>;
+
+/**
+ * Cached user profile with TTL tracking.
+ */
+interface CachedUserProfile {
+  profile: HarmonizedUserProfile;
+  expiresAt: Date;
+}
 
 /**
  * Tidal metadata provider using the Tidal Developer API.
@@ -199,6 +217,25 @@ export class TidalProvider extends BaseProvider {
   private accessToken: string | null = null;
   private tokenExpiresAt: Date | null = null;
   private countryCode: string;
+
+  /**
+   * Short-lived cache for user profiles to avoid redundant /users/me calls
+   * when multiple methods need the user ID in parallel.
+   * Key: access token, Value: cached profile with expiry
+   */
+  private userProfileCache = new Map<string, CachedUserProfile>();
+
+  /**
+   * In-flight user profile requests to deduplicate parallel calls.
+   * Key: access token, Value: pending promise
+   */
+  private userProfilePending = new Map<
+    string,
+    Promise<HarmonizedUserProfile>
+  >();
+
+  /** Cache TTL for user profiles (30 seconds - enough for parallel calls) */
+  private static readonly USER_PROFILE_CACHE_TTL_MS = 30_000;
 
   constructor(config: TidalConfig) {
     super(config);
@@ -313,6 +350,20 @@ export class TidalProvider extends BaseProvider {
         this.tokenExpiresAt = null;
         throw new HttpError(
           `Tidal API authentication failed`,
+          response.status,
+          this.name
+        );
+      }
+      if (response.status === 429) {
+        // Rate limit error - check for Retry-After header
+        const retryAfter = response.headers.get('Retry-After');
+        const waitMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : 2000;
+        
+        // Wait before throwing so retry logic has a better chance
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+        
+        throw new HttpError(
+          `Tidal API rate limit exceeded - waited ${waitMs}ms`,
           response.status,
           this.name
         );
@@ -587,6 +638,20 @@ export class TidalProvider extends BaseProvider {
           this.name
         );
       }
+      if (response.status === 429) {
+        // Rate limit error - check for Retry-After header
+        const retryAfter = response.headers.get('Retry-After');
+        const waitMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : 2000;
+        
+        // Wait before throwing so retry logic has a better chance
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+        
+        throw new HttpError(
+          `Tidal API rate limit exceeded - waited ${waitMs}ms`,
+          response.status,
+          this.name
+        );
+      }
       throw new HttpError(
         `Tidal User API error: ${response.status} - ${errorText}`,
         response.status,
@@ -599,10 +664,54 @@ export class TidalProvider extends BaseProvider {
 
   /**
    * Get the current user's profile using their OAuth access token.
+   * Uses short-lived caching and request deduplication to avoid
+   * redundant /users/me calls when multiple methods need the user ID.
    * @param accessToken - The user's OAuth access token from the connected account
    * @returns The harmonized user profile with normalized fields and raw provider data
    */
   protected override async _getCurrentUser(
+    accessToken: string
+  ): Promise<HarmonizedUserProfile> {
+    // Check cache first
+    const cached = this.userProfileCache.get(accessToken);
+    if (cached && cached.expiresAt > new Date()) {
+      this.logger.debug('Using cached Tidal user profile');
+      return cached.profile;
+    }
+
+    // Check for in-flight request to deduplicate parallel calls
+    const pending = this.userProfilePending.get(accessToken);
+    if (pending) {
+      this.logger.debug('Waiting for in-flight Tidal user profile request');
+      return pending;
+    }
+
+    // Create the request promise and store it for deduplication
+    const requestPromise = this.fetchUserProfileInternal(accessToken);
+    this.userProfilePending.set(accessToken, requestPromise);
+
+    try {
+      const profile = await requestPromise;
+
+      // Cache the result
+      this.userProfileCache.set(accessToken, {
+        profile,
+        expiresAt: new Date(
+          Date.now() + TidalProvider.USER_PROFILE_CACHE_TTL_MS
+        ),
+      });
+
+      return profile;
+    } finally {
+      // Always clean up the pending request
+      this.userProfilePending.delete(accessToken);
+    }
+  }
+
+  /**
+   * Internal method to actually fetch the user profile from the API.
+   */
+  private async fetchUserProfileInternal(
     accessToken: string
   ): Promise<HarmonizedUserProfile> {
     const data = await this.fetchUserApi<TidalSingleResponse<TidalUser>>(
@@ -691,6 +800,60 @@ export class TidalProvider extends BaseProvider {
       nextCursor,
       hasMore,
     };
+  }
+
+  /**
+   * Get the count of the user's saved/favorited albums from Tidal.
+   * Uses the /userCollections/{id}/relationships/albums endpoint.
+   * @param accessToken - The user's OAuth access token
+   * @returns The count of saved albums, or null if not available
+   */
+  protected override async _getSavedAlbumsCount(
+    accessToken: string
+  ): Promise<number | null> {
+    const userProfile = await this._getCurrentUser(accessToken);
+    const data = await this.fetchUserApi<TidalRelationshipCountResponse>(
+      `/userCollections/${userProfile.id}/relationships/albums`,
+      accessToken,
+      { 'page[limit]': '1' } // Only need meta.total, minimize data transfer
+    );
+    return data?.meta?.total ?? data?.data?.length ?? null;
+  }
+
+  /**
+   * Get the count of the user's playlists from Tidal.
+   * Uses the /userCollections/{id}/relationships/playlists endpoint.
+   * @param accessToken - The user's OAuth access token
+   * @returns The count of user playlists, or null if not available
+   */
+  protected override async _getUserPlaylistsCount(
+    accessToken: string
+  ): Promise<number | null> {
+    const userProfile = await this._getCurrentUser(accessToken);
+    const data = await this.fetchUserApi<TidalRelationshipCountResponse>(
+      `/userCollections/${userProfile.id}/relationships/playlists`,
+      accessToken,
+      { 'page[limit]': '1' }
+    );
+    return data?.meta?.total ?? data?.data?.length ?? null;
+  }
+
+  /**
+   * Get the count of the user's followed artists from Tidal.
+   * Uses the /userCollections/{id}/relationships/artists endpoint.
+   * @param accessToken - The user's OAuth access token
+   * @returns The count of followed artists, or null if not available
+   */
+  protected override async _getFollowedArtistsCount(
+    accessToken: string
+  ): Promise<number | null> {
+    const userProfile = await this._getCurrentUser(accessToken);
+    const data = await this.fetchUserApi<TidalRelationshipCountResponse>(
+      `/userCollections/${userProfile.id}/relationships/artists`,
+      accessToken,
+      { 'page[limit]': '1' }
+    );
+    return data?.meta?.total ?? data?.data?.length ?? null;
   }
 
   // Transformation methods
