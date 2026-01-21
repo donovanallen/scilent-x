@@ -95,13 +95,13 @@ export function PostCardCommentInput({
           size="sm"
         />
       )}
-      <div className="flex-1 flex gap-2">
+      <div className="flex gap-2 flex-1">
         <SimpleTiptapEditor
           key={editorKey}
           value={content}
           onChange={handleEditorChange}
           placeholder={placeholder}
-          className="min-h-[44px] max-h-[120px] resize-none text-sm [&_.simple-tiptap-editor-content]:min-h-[32px] [&_.simple-tiptap-editor-content]:py-2 [&_.simple-tiptap-editor-content]:px-3"
+          className="flex-1 min-h-[44px] max-h-[120px] resize-none text-sm [&_.simple-tiptap-editor-content]:min-h-[32px] [&_.simple-tiptap-editor-content]:py-2 [&_.simple-tiptap-editor-content]:px-3"
           readOnly={isSubmitting}
           maxLength={maxLength}
           editorKey={editorKey}

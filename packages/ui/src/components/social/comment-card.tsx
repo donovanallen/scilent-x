@@ -51,9 +51,13 @@ export interface CommentCardProps {
   /** Callback when a user mention (@username) is clicked */
   onMentionClick?: ((username: string) => void) | undefined;
   /** Callback when an artist mention is clicked */
-  onArtistMentionClick?: ((artistId: string, provider: string) => void) | undefined;
+  onArtistMentionClick?:
+    | ((artistId: string, provider: string) => void)
+    | undefined;
   /** Custom renderer for artist mentions */
-  renderArtistMention?: ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
+  renderArtistMention?:
+    | ((props: ArtistMentionRenderProps) => React.ReactNode)
+    | undefined;
   /** Callback when the author's avatar, name, or username is clicked */
   onAuthorClick?: ((authorUsername: string) => void) | undefined;
   className?: string | undefined;
@@ -146,7 +150,9 @@ export function CommentCard({
             onClick={handleAuthorClick}
             className={cn(
               'font-semibold text-sm truncate focus:outline-none',
-              onAuthorClick && author.username && 'cursor-pointer hover:underline'
+              onAuthorClick &&
+                author.username &&
+                'cursor-pointer hover:underline'
             )}
             disabled={!onAuthorClick || !author.username}
           >
@@ -210,12 +216,16 @@ export function CommentCard({
             variant="ghost"
             size="sm"
             className={cn(
-              'h-9 sm:h-7 gap-1 px-2 text-xs min-w-[40px] active:scale-95 transition-transform',
-              isLiked && 'text-red-500 hover:text-red-600'
+              'h-9 sm:h-7 gap-1 px-2 text-xs min-w-[40px] active:scale-95 transition-transform hover:opacity-80'
             )}
             onClick={handleLikeClick}
           >
-            <Heart className={cn('h-3.5 w-3.5 sm:h-3 sm:w-3', isLiked && 'fill-current')} />
+            <Heart
+              className={cn(
+                'h-3.5 w-3.5 sm:h-3 sm:w-3',
+                isLiked && 'fill-current'
+              )}
+            />
             <span>{likesCount}</span>
           </Button>
           {!isReply && (
@@ -223,13 +233,16 @@ export function CommentCard({
               variant="ghost"
               size="sm"
               className={cn(
-                'h-9 sm:h-7 gap-1 px-2 text-xs min-w-[40px] active:scale-95 transition-transform',
+                'h-9 sm:h-7 gap-1 px-2 text-xs min-w-[40px] active:scale-95 transition-transform hover:opacity-80',
                 isReplying && 'text-primary'
               )}
               onClick={onReply}
             >
               <MessageCircle
-                className={cn('h-3.5 w-3.5 sm:h-3 sm:w-3', isReplying && 'fill-current')}
+                className={cn(
+                  'h-3.5 w-3.5 sm:h-3 sm:w-3',
+                  isReplying && 'fill-current'
+                )}
               />
               <span>{repliesCount}</span>
             </Button>
