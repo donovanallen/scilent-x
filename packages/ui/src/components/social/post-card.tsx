@@ -26,7 +26,14 @@ import {
 } from '../rich-text-content';
 import { TiptapEditor } from '../tiptap-editor';
 import { type MentionSuggestion } from '../mention-list';
+import { type CommentCardProps } from './comment-card';
+import {
+  PostCardCommentInput,
+  type PostCardCommentInputUser,
+} from './post-card-comment-input';
+import { PostCardComments } from './post-card-comments';
 import { cn } from '../../utils';
+import { Separator } from '../separator';
 
 export interface PostCardAuthor {
   id: string;
@@ -52,6 +59,7 @@ export interface PostCardProps {
   isSaving?: boolean;
   onLike?: () => void;
   onUnlike?: () => void;
+  /** Called when comment button is clicked (for navigation to post detail) */
   onComment?: () => void;
   /** Called when the user clicks the Edit button to enter edit mode */
   onEdit?: () => void;
@@ -82,6 +90,40 @@ export interface PostCardProps {
     | ((query: string) => Promise<MentionSuggestion[]>)
     | undefined;
   className?: string;
+
+  // ---- Inline comments props ----
+  /** Whether to show inline comments section */
+  showComments?: boolean | undefined;
+  /** Comments data to display inline */
+  comments?: CommentCardProps[] | undefined;
+  /** Whether there are more comments than what's shown */
+  hasMoreComments?: boolean | undefined;
+  /** Current user for the comment input */
+  currentUser?: (PostCardCommentInputUser & { id: string }) | undefined;
+  /** Whether a comment is currently being submitted */
+  isSubmittingComment?: boolean | undefined;
+  /** Called when user submits a new comment */
+  onCreateComment?: ((content: string, contentHtml: string) => Promise<void>) | undefined;
+  /** Called when "View all comments" is clicked */
+  onViewAllComments?: (() => void) | undefined;
+  /** Called when a comment is liked */
+  onLikeComment?: ((commentId: string) => void) | undefined;
+  /** Called when a comment is unliked */
+  onUnlikeComment?: ((commentId: string) => void) | undefined;
+  /** Called when user clicks reply button on a comment */
+  onReplyComment?: ((commentId: string) => void) | undefined;
+  /** Called when user submits a reply */
+  onSubmitReply?:
+    | ((commentId: string, content: string, contentHtml: string) => Promise<void>)
+    | undefined;
+  /** Called when user cancels replying */
+  onCancelReply?: (() => void) | undefined;
+  /** ID of the comment currently being replied to */
+  replyingToCommentId?: string | null | undefined;
+  /** Whether the reply is being submitted */
+  isSubmittingReply?: boolean | undefined;
+  /** Called when a comment is deleted */
+  onDeleteComment?: ((commentId: string) => void) | undefined;
 }
 
 function formatRelativeTime(date: Date | string): string {
@@ -127,12 +169,31 @@ export function PostCard({
   onMentionQuery,
   onArtistMentionQuery,
   className,
+  // Inline comments props
+  showComments = false,
+  comments = [],
+  hasMoreComments = false,
+  currentUser,
+  isSubmittingComment = false,
+  onCreateComment,
+  onViewAllComments,
+  onLikeComment,
+  onUnlikeComment,
+  onReplyComment,
+  onSubmitReply,
+  onCancelReply,
+  replyingToCommentId,
+  isSubmittingReply = false,
+  onDeleteComment,
 }: PostCardProps) {
   // Local state for edit content - tracks user's edits
   const [editContent, setEditContent] = React.useState('');
   const [editContentHtml, setEditContentHtml] = React.useState('');
   const [hasEdited, setHasEdited] = React.useState(false);
   const editorContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // State for inline comment input
+  const [isCommenting, setIsCommenting] = React.useState(false);
 
   // Reset edit state when entering/exiting edit mode
   React.useEffect(() => {
@@ -187,8 +248,26 @@ export function PostCard({
 
   const handleCommentClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onComment?.();
+    // If we have inline comment support, toggle the comment input
+    if (onCreateComment && currentUser) {
+      setIsCommenting((prev) => !prev);
+    } else {
+      // Otherwise, use the navigation callback
+      onComment?.();
+    }
   };
+
+  const handleCreateComment = React.useCallback(
+    async (commentContent: string, commentContentHtml: string) => {
+      await onCreateComment?.(commentContent, commentContentHtml);
+      setIsCommenting(false);
+    },
+    [onCreateComment]
+  );
+
+  const handleCancelComment = React.useCallback(() => {
+    setIsCommenting(false);
+  }, []);
 
   const handleAuthorClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -334,7 +413,7 @@ export function PostCard({
           />
         )}
       </CardContent>
-      <CardFooter className="pt-0">
+      <CardFooter className="pt-0 flex-col items-stretch">
         {isEditing ? (
           <div className="flex items-center justify-between w-full">
             <div className="text-xs text-muted-foreground">
@@ -370,28 +449,78 @@ export function PostCard({
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                'gap-1.5 px-2',
-                isLiked && 'text-red-500 hover:text-red-600'
-              )}
-              onClick={handleLikeClick}
-            >
-              <Heart className={cn('h-4 w-4', isLiked && 'fill-current')} />
-              <span className="text-sm">{likesCount}</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1.5 px-2"
-              onClick={handleCommentClick}
-            >
-              <MessageCircle className="h-4 w-4" />
-              <span className="text-sm">{commentsCount}</span>
-            </Button>
+          <div className="space-y-2">
+            {/* Action buttons */}
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  'gap-1.5 px-2',
+                  isLiked && 'text-red-500 hover:text-red-600'
+                )}
+                onClick={handleLikeClick}
+              >
+                <Heart className={cn('h-4 w-4', isLiked && 'fill-current')} />
+                <span className="text-sm">{likesCount}</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn('gap-1.5 px-2', isCommenting && 'text-primary')}
+                onClick={handleCommentClick}
+              >
+                <MessageCircle
+                  className={cn('h-4 w-4', isCommenting && 'fill-current')}
+                />
+                <span className="text-sm">{commentsCount}</span>
+              </Button>
+            </div>
+
+            {/* Inline comment input */}
+            {isCommenting && currentUser && (
+              <div onClick={(e) => e.stopPropagation()}>
+                <PostCardCommentInput
+                  user={currentUser}
+                  isSubmitting={isSubmittingComment}
+                  onSubmit={handleCreateComment}
+                  onCancel={handleCancelComment}
+                  onMentionQuery={onMentionQuery}
+                  onArtistMentionQuery={onArtistMentionQuery}
+                />
+              </div>
+            )}
+
+            {/* Inline comments section */}
+            {showComments && comments.length > 0 && (
+              <>
+                <Separator className="my-4" />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <PostCardComments
+                    comments={comments}
+                    totalCount={commentsCount}
+                    hasMore={hasMoreComments}
+                    currentUserId={currentUser?.id}
+                    onViewAll={onViewAllComments}
+                    currentUser={currentUser}
+                    replyingToCommentId={replyingToCommentId}
+                    isSubmittingReply={isSubmittingReply}
+                    onLikeComment={onLikeComment}
+                    onUnlikeComment={onUnlikeComment}
+                    onReplyComment={onReplyComment}
+                    onSubmitReply={onSubmitReply}
+                    onCancelReply={onCancelReply}
+                    onDeleteComment={onDeleteComment}
+                    onMentionClick={onMentionClick}
+                    onArtistMentionClick={onArtistMentionClick}
+                    renderArtistMention={renderArtistMention}
+                    onAuthorClick={onAuthorClick}
+                    onMentionQuery={onMentionQuery}
+                    onArtistMentionQuery={onArtistMentionQuery}
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
       </CardFooter>

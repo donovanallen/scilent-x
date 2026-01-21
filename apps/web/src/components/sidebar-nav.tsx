@@ -15,9 +15,12 @@ import { ROUTES } from '../lib/routes';
 export function SidebarNav() {
   const pathname = usePathname();
 
-  // Get protected routes (excluding admin routes for non-admins - can be enhanced later)
+  // Get protected routes (excluding admin routes and routes marked as hidden from nav)
   const protectedRoutes = Object.values(ROUTES).filter(
-    (route) => route.protected && !route.isAdmin
+    (route) =>
+      route.protected &&
+      !route.isAdmin &&
+      ('showInNav' in route ? route.showInNav !== false : true)
   );
 
   const isRouteActive = (route: (typeof protectedRoutes)[number]) => {
@@ -34,11 +37,7 @@ export function SidebarNav() {
 
           return (
             <SidebarMenuItem key={route.href}>
-              <SidebarMenuButton
-                tooltip={route.label}
-                isActive={isActive}
-                asChild
-              >
+              <SidebarMenuButton isActive={isActive} asChild>
                 <Link href={route.href}>
                   <Icon />
                   <span>{route.label}</span>

@@ -46,6 +46,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     const body = await request.json();
     const comment = await createComment(user.id, {
       content: body.content,
+      contentHtml: body.contentHtml,
       postId: id,
       parentId: body.parentId,
     });

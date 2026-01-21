@@ -78,7 +78,7 @@ function DefaultArtistMention({
   return (
     <button
       type="button"
-      className="artist-mention inline px-1 rounded font-medium transition-colors text-brand-dark bg-brand/20 hover:bg-brand/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="artist-mention inline px-1 rounded font-medium transition-colors cursor-pointer text-brand-dark bg-brand/20 hover:bg-brand/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       aria-label={`View artist ${name}`}
       onClick={(e) => {
         e.stopPropagation();
@@ -149,7 +149,7 @@ export function RichTextContent({
               <button
                 key={`user-${mentionId}`}
                 type="button"
-                className="inline text-primary bg-primary/10 hover:bg-primary/20 px-1 rounded font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="inline text-primary bg-primary/10 hover:bg-primary/20 px-1 rounded font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label={`View ${mentionLabel}'s profile`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -227,7 +227,7 @@ export function RichTextContent({
               <button
                 key={index}
                 type="button"
-                className="inline text-primary bg-primary/10 hover:bg-primary/20 px-1 rounded font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="inline text-primary bg-primary/10 hover:bg-primary/20 px-1 rounded font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label={`View ${part.value}'s profile`}
                 onClick={(e) => {
                   e.stopPropagation();
