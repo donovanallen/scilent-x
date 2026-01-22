@@ -1,0 +1,17 @@
+export {
+  CreditCategorySchema,
+  CollaboratorSchema,
+  EnrichedCreditSchema,
+  CreditGroupSchema,
+  EnrichedTrackCreditsSchema,
+  ROLE_CATEGORY_MAP,
+  getCategoryForRole,
+  type CreditCategory,
+  type Collaborator,
+  type EnrichedCredit,
+  type CreditGroup,
+  type EnrichedTrackCredits,
+  type CreditsProviderConfig,
+  type EnrichmentOptions,
+  type EnrichmentResult,
+} from './credits.types';
