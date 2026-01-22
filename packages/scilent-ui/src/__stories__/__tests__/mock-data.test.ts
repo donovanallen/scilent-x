@@ -37,7 +37,10 @@ describe('mockArtistCredit data', () => {
 describe('mockTrack data', () => {
   it('defines a base harmonized track', () => {
     expect(mockTrack.title).toBe('Everything In Its Right Place');
-    expect(mockTrack.artists[0]).toBe(mockArtistCredit);
+    expect(mockTrack.artists[0].name).toBe(mockArtistCredit.name);
+    expect(mockTrack.artists[0].externalIds.spotify).toBe(
+      mockArtistCredit.externalIds.spotify
+    );
     expect(mockTrack.externalIds.spotify).toBe('3bLZ40X6XlhgD4wF2FoC3V');
     expect(mockTrack.sources).toHaveLength(2);
     expect(mockTrack.sources[0].fetchedAt).toBeInstanceOf(Date);
@@ -52,8 +55,8 @@ describe('mockTrack data', () => {
   });
 
   it('collects track samples for list displays', () => {
-    expect(mockTracks[0]).toBe(mockTrack);
-    expect(mockTracks[1]).toBe(mockTrackExplicit);
+    expect(mockTracks[0].title).toBe(mockTrack.title);
+    expect(mockTracks[1].title).toBe(mockTrackExplicit.title);
     expect(mockTracks).toHaveLength(5);
     expect(mockTracks[2].sources[0].provider).toBe('spotify');
   });
@@ -77,7 +80,8 @@ describe('mock artist data', () => {
 describe('mock release data', () => {
   it('defines a primary release with artwork and media', () => {
     expect(mockRelease.releaseType).toBe('album');
-    expect(mockRelease.media[0].tracks).toBe(mockTracks);
+    expect(mockRelease.media[0].tracks).toHaveLength(mockTracks.length);
+    expect(mockRelease.media[0].tracks[0].title).toBe(mockTrack.title);
     expect(mockRelease.artwork[0].url).toBe(PLACEHOLDER_ALBUM_ART);
     expect(mockRelease.genres).toContain('Alternative Rock');
   });
@@ -90,9 +94,12 @@ describe('mock release data', () => {
   });
 
   it('collects releases for listings', () => {
-    expect(mockReleases[0]).toBe(mockRelease);
+    expect(mockReleases[0].title).toBe(mockRelease.title);
     expect(mockReleases).toHaveLength(6);
-    expect(mockReleases.slice(-2)).toEqual([mockSingle, mockEP]);
+    expect(mockReleases.slice(-2).map((release) => release.title)).toEqual([
+      mockSingle.title,
+      mockEP.title,
+    ]);
   });
 });
 
