@@ -487,7 +487,7 @@ describe('useInfiniteScroll', () => {
     vi.unstubAllGlobals();
   });
 
-  it('calls onLoadMore when intersecting with more data', () => {
+  it('uses threshold to derive rootMargin by default', () => {
     const onLoadMore = vi.fn();
     render(
       React.createElement(InfiniteScrollHarness, {
@@ -500,6 +500,30 @@ describe('useInfiniteScroll', () => {
 
     expect(observe).toHaveBeenCalledTimes(1);
     expect(observerOptions?.rootMargin).toBe('150px');
+
+    act(() => {
+      observerCallback?.(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver
+      );
+    });
+
+    expect(onLoadMore).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses the provided rootMargin when set', () => {
+    const onLoadMore = vi.fn();
+    render(
+      React.createElement(InfiniteScrollHarness, {
+        hasMore: true,
+        isLoading: false,
+        onLoadMore,
+        threshold: 150,
+        rootMargin: '25%',
+      })
+    );
+
+    expect(observerOptions?.rootMargin).toBe('25%');
 
     act(() => {
       observerCallback?.(
