@@ -24,12 +24,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "pino": "^9.9.0"
+    "pino": "^9.9.5"
   },
   "devDependencies": {
     "@scilent-one/tooling": "workspace:*",
-    "@types/node": "^25.0.3",
-    "next": "^16.1.1",
+    "@types/node": "^25.0.10",
+    "next": "^16.1.6",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
