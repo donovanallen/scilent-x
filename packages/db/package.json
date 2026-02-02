@@ -21,14 +21,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.2.0",
-    "@prisma/client": "^7.2.0",
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
     "@scilent-one/logger": "workspace:*",
     "dotenv": "^16.6.1"
   },
   "devDependencies": {
     "@scilent-one/tooling": "workspace:*",
-    "@types/node": "^25.0.3",
+    "@types/node": "^25.2.0",
     "prisma": "catalog:prisma",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
