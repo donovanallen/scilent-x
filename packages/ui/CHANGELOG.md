@@ -1,5 +1,27 @@
 # @scilent-one/ui
 
+## 0.5.0
+
+### Minor Changes
+
+- e2565e4: Design improvements, Track component updates
+- 081f182: Add user and artist mentions support in comments
+  - Added `contentHtml` field to Comment model to store rich text content
+  - Created `SimpleTiptapEditor` component for compact mention-enabled comment input
+  - Updated comment mutations to parse HTML mentions using `parseHtmlMentions()`
+  - Updated `PostCardCommentInput` to use `SimpleTiptapEditor` with @user and #artist mentions
+  - Updated `CommentCard` to render rich text content with `RichTextContent`
+  - Added mention query callback props throughout comment components
+
+### Patch Changes
+
+- 411406f: Updates to Editor component and PlatformProfileCard
+- 9583c33: A11y and test fixes
+- e844788: New primary color
+- d3ae508: Docs
+- 1effcfd: A11y fix
+- 336f53e: Comment/reply UX, styling, breadcrumbs, etc.
+
 ## 0.4.0
 
 ### Minor Changes
