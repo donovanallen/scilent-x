@@ -1,5 +1,30 @@
 # @scilent-one/scilent-ui
 
+## 1.0.0
+
+### Major Changes
+
+- 3f77a0d: Renamed package from `@scilent-one/harmony-ui` to `@scilent-one/scilent-ui`. Update all imports in consuming applications.
+
+### Minor Changes
+
+- e2565e4: Design improvements, Track component updates
+
+### Patch Changes
+
+- 411406f: Updates to Editor component and PlatformProfileCard
+- Updated dependencies [411406f]
+- Updated dependencies [9583c33]
+- Updated dependencies [e844788]
+- Updated dependencies [d3ae508]
+- Updated dependencies [e2565e4]
+- Updated dependencies [1effcfd]
+- Updated dependencies [248b89b]
+- Updated dependencies [336f53e]
+- Updated dependencies [081f182]
+  - @scilent-one/ui@0.5.0
+  - @scilent-one/harmony-engine@0.4.0
+
 ## 0.4.1
 
 ### Patch Changes
