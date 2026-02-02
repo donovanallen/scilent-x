@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@scilent-one/tooling": "workspace:*",
-    "@types/node": "^25.0.3",
+    "@types/node": "^25.2.0",
     "@vitest/coverage-v8": "^4.0.16",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
