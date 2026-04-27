@@ -30,9 +30,9 @@
     "tslib": "catalog:typescript"
   },
   "devDependencies": {
-    "@chromatic-com/storybook": "^5.0.0",
+    "@chromatic-com/storybook": "^5.0.2",
     "@scilent-one/tooling": "workspace:*",
-    "@vitest/coverage-v8": "^4.0.17",
+    "@vitest/coverage-v8": "^4.0.18",
     "@storybook/addon-a11y": "^10.1.11",
     "@storybook/addon-docs": "^10.1.11",
     "@storybook/react": "^10.1.11",
@@ -40,12 +40,12 @@
     "@tailwindcss/vite": "^4.1.18",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
-    "@vitejs/plugin-react": "^5.1.2",
+    "@vitejs/plugin-react": "^5.1.4",
     "class-variance-authority": "^0.7.1",
     "storybook": "^10.1.11",
     "tailwindcss": "^4.1.18",
     "typescript": "catalog:typescript",
-    "vite": "^7.3.1",
+    "vite": "^7.3.2",
     "vite-plugin-svgr": "^4.5.0",
     "vitest": "catalog:vitest"
   },
