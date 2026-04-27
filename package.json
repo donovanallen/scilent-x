@@ -20,7 +20,7 @@
     "reinstall": "pnpm clean:full && pnpm install"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.29.8",
+    "@changesets/cli": "^2.31.0",
     "@scilent-one/tooling": "workspace:*",
     "@turbo/gen": "^2.9.6",
     "eslint": "^9.39.4",
