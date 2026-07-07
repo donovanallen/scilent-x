@@ -4,6 +4,7 @@ import {
   HarmonizationEngine,
   TidalProvider,
   SpotifyProvider,
+  AppleMusicProvider,
   type HarmonizedArtist,
   type ProviderRegistryConfig,
   type PaginatedCollection,
@@ -282,6 +283,19 @@ export async function searchArtistsWithUserProvider(
     }
   }
 
+  // Apple Music search uses the catalog (developer token); the user's Music
+  // User Token is not required, so we search the catalog directly.
+  if (normalizedProvider === 'apple_music') {
+    const provider = engine.getProvider('apple_music');
+    if (provider) {
+      try {
+        return await engine.searchArtists(query, ['apple_music'], limit);
+      } catch (error) {
+        console.warn('Apple Music artist search failed, falling back:', error);
+      }
+    }
+  }
+
   return engine.searchArtists(query, ['musicbrainz'], limit);
 }
 
@@ -312,6 +326,15 @@ export async function getFollowedArtistsFromProvider(
   if (normalizedProvider === 'spotify') {
     const provider = engine.getProvider('spotify');
     if (provider instanceof SpotifyProvider) {
+      return provider.getFollowedArtists(accessToken, params);
+    }
+  }
+
+  // Apple Music has no "followed artists"; this returns the user's library
+  // artists via their Music User Token (passed as accessToken).
+  if (normalizedProvider === 'apple_music') {
+    const provider = engine.getProvider('apple_music');
+    if (provider instanceof AppleMusicProvider) {
       return provider.getFollowedArtists(accessToken, params);
     }
   }
