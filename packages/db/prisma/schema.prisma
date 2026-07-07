@@ -32,6 +32,10 @@ model User {
   bio           String?   @db.Text
   avatarUrl     String?
 
+  // UI preferences
+  // Selected color palette (theme preset); mode (light/dark) is client-only.
+  palette       String    @default("default")
+
   // Auth relations
   accounts Account[]
   sessions Session[]

@@ -51,6 +51,22 @@ This app uses Tailwind v4 and shadcn/ui with class-based dark mode.
 - Dark mode is toggled via the `dark` class using `next-themes`.
 - shadcn components live under `src/components/ui/*`.
 
+### Theming (mode x palette)
+
+Theme has two independent axes:
+
+- **Mode** (`light` / `dark` / `system`): managed by `next-themes` via the `.dark` class on
+  `<html>`.
+- **Palette** (color preset, e.g. `default` / `pro`): managed by
+  `src/components/palette-provider.tsx` via a `data-theme` attribute on `<html>`, persisted to
+  `localStorage` (`scilent-palette`). An inline no-flash script in `src/app/layout.tsx` applies it
+  before hydration.
+
+Palette color tokens live in `@scilent-one/ui`'s `globals.css` under `[data-theme='<id>']` (light)
+and `[data-theme='<id>'].dark` (dark). The registry of available palettes is `src/lib/themes.ts`.
+Both axes can be changed from Settings -> Appearance. To add a new palette, use the `add-theme`
+skill in `.cursor/skills/add-theme`.
+
 ### Commands
 
 ```bash
