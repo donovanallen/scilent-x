@@ -108,6 +108,13 @@ export class HarmonizationEngine {
   }
 
   /**
+   * Look up a track by a provider URL (e.g. an Apple Music or Spotify song link)
+   */
+  async lookupTrackByUrl(url: string, providers?: string[]) {
+    return this.coordinator.lookupTrackByUrl(url, providers);
+  }
+
+  /**
    * Look up a release by provider URL (e.g., MusicBrainz, Spotify)
    */
   async lookupByUrl(

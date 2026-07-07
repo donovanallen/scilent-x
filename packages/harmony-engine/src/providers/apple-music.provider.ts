@@ -436,6 +436,23 @@ export class AppleMusicProvider extends BaseProvider {
     return this.transformArtist(artist);
   }
 
+  protected override async _lookupTrackById(
+    id: string
+  ): Promise<HarmonizedTrack | null> {
+    const data = await this.fetchApi<AppleMusicDataResponse<AppleMusicSong>>(
+      `/songs/${id}`
+    );
+
+    const song = data?.data?.[0];
+    if (!song?.attributes) return null;
+
+    return this.transformTrack(
+      song,
+      song.attributes.trackNumber ?? 1,
+      song.attributes.discNumber
+    );
+  }
+
   protected async _searchReleases(
     query: string,
     limit = 25
