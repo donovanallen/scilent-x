@@ -2,6 +2,10 @@
 
 import { db } from '@scilent-one/db';
 
+export type ConnectedAccount = {
+  providerId: string;
+};
+
 export type UserListItem = {
   id: string;
   email: string;
@@ -10,6 +14,7 @@ export type UserListItem = {
   image: string | null;
   createdAt: Date;
   updatedAt: Date;
+  connectedAccounts: ConnectedAccount[];
 };
 
 /**
@@ -26,13 +31,21 @@ export async function getUsers(): Promise<UserListItem[]> {
         image: true,
         createdAt: true,
         updatedAt: true,
+        accounts: {
+          where: { providerId: { not: 'credential' } },
+          select: { providerId: true },
+        },
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
 
-    return users;
+    return users.map((user) => ({
+      ...user,
+      connectedAccounts: user.accounts,
+      accounts: undefined as never,
+    }));
   } catch (error) {
     console.error('Failed to fetch users:', error);
     return [];

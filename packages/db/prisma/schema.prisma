@@ -26,6 +26,8 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   // Social profile fields
+  // Username is auto-generated on signup (format: u_<hex>) and can be changed by user later
+  // Kept as nullable for backwards compatibility, but always set by auth hooks
   username      String?   @unique
   bio           String?   @db.Text
   avatarUrl     String?
@@ -128,13 +130,14 @@ model Post {
 
 /// Comment model - Comments on posts
 model Comment {
-  id        String   @id @default(cuid())
-  content   String   @db.Text
-  authorId  String
-  postId    String
-  parentId  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  content     String   @db.Text
+  contentHtml String?  @db.Text
+  authorId    String
+  postId      String
+  parentId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -185,13 +188,22 @@ model Follow {
   @@map("follows")
 }
 
+/// Mention type enum for extensibility
+enum MentionType {
+  USER
+  ARTIST // future
+  ALBUM // future
+  TRACK // future
+}
+
 /// Mention model - @mentions in posts or comments
 model Mention {
-  id        String   @id @default(cuid())
+  id        String      @id @default(cuid())
+  type      MentionType @default(USER)
   userId    String
   postId    String?
   commentId String?
-  createdAt DateTime @default(now())
+  createdAt DateTime    @default(now())
 
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -200,6 +212,7 @@ model Mention {
   @@index([userId])
   @@index([postId])
   @@index([commentId])
+  @@index([type])
   @@map("mentions")
 }
 
@@ -228,4 +241,21 @@ model Activity {
   @@index([userId])
   @@index([createdAt])
   @@map("activities")
+}
+
+// ============================================================================
+// Configuration Models
+// ============================================================================
+
+/// Stores runtime configuration for harmony engine providers
+model ProviderSetting {
+  id           String   @id @default(cuid())
+  providerName String   @unique @map("provider_name")
+  enabled      Boolean  @default(true)
+  priority     Int      @default(50)
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+
+  @@map("provider_settings")
 }

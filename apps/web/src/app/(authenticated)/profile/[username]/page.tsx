@@ -1,15 +1,25 @@
 'use client';
 
+import { ArtistMention } from '@scilent-one/scilent-ui';
 import {
   ProfileHeader,
   Feed,
   useInfiniteScroll,
   Skeleton,
   type PostCardProps,
+  Card,
+  CardTitle,
+  CardContent,
+  CardHeader,
 } from '@scilent-one/ui';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState, use } from 'react';
+import { useEffect, useMemo, useState, use } from 'react';
 import { toast } from 'sonner';
+import useSWR from 'swr';
+import useSWRInfinite from 'swr/infinite';
+
+import { ApiError, fetcher } from '@/lib/swr';
+import { useMentionSearch } from '@/lib/use-mention-search';
 
 interface UserProfile {
   id: string;
@@ -37,6 +47,16 @@ interface FeedPost extends PostCardProps {
   };
 }
 
+interface PaginatedPosts {
+  items: FeedPost[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+interface ProfileResponse extends UserProfile {
+  posts?: PaginatedPosts;
+}
+
 interface CurrentUser {
   id: string;
   name: string | null;
@@ -45,111 +65,83 @@ interface CurrentUser {
   image: string | null;
 }
 
-export default function ProfilePage({
+export default function PublicProfilePage({
   params,
 }: {
   params: Promise<{ username: string }>;
 }) {
   const { username } = use(params);
   const router = useRouter();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [posts, setPosts] = useState<FeedPost[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [postsLoading, setPostsLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const { searchUsers, searchArtists } = useMentionSearch();
   const [isFollowLoading, setIsFollowLoading] = useState(false);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
-  // Fetch current user
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await fetch('/api/v1/users/me');
-        if (res.ok) {
-          const user = await res.json();
-          setCurrentUser(user);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-      }
-    }
-    fetchUser();
-  }, []);
-
-  // Fetch profile
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await fetch(`/api/v1/users/${username}`);
-        if (!res.ok) {
-          if (res.status === 404) {
-            router.push('/feed');
-            toast.error('User not found');
-            return;
-          }
-          throw new Error('Failed to fetch profile');
-        }
-        const data = await res.json();
-        setProfile(data);
-      } catch (error) {
-        console.error('Failed to load profile:', error);
-        toast.error('Failed to load profile');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchProfile();
-  }, [username, router]);
-
-  // Fetch posts
-  const fetchPosts = useCallback(
-    async (cursorParam?: string) => {
-      if (!profile) return;
-
-      setPostsLoading(true);
-      try {
-        const url = new URL(
-          `/api/v1/users/${username}`,
-          window.location.origin
-        );
-        url.searchParams.set('includePosts', 'true');
-        if (cursorParam) {
-          url.searchParams.set('cursor', cursorParam);
-        }
-
-        const res = await fetch(url.toString());
-        if (!res.ok) throw new Error('Failed to fetch posts');
-
-        const data = await res.json();
-
-        if (data.posts) {
-          setPosts((prev) =>
-            cursorParam ? [...prev, ...data.posts.items] : data.posts.items
-          );
-          setHasMore(data.posts.hasMore);
-          setCursor(data.posts.nextCursor);
-        }
-      } catch (error) {
-        console.error('Failed to load posts:', error);
-        toast.error('Failed to load posts');
-      } finally {
-        setPostsLoading(false);
-      }
-    },
-    [username, profile]
+  const { data: currentUser } = useSWR<CurrentUser>(
+    '/api/v1/users/me',
+    fetcher
   );
 
-  useEffect(() => {
-    if (profile) {
-      fetchPosts();
+  const getKey = (
+    pageIndex: number,
+    previousPageData: ProfileResponse | null
+  ) => {
+    if (pageIndex === 0) {
+      return `/api/v1/users/${username}?includePosts=true`;
     }
-  }, [fetchPosts, profile]);
+    if (
+      !previousPageData?.posts?.hasMore ||
+      !previousPageData.posts?.nextCursor
+    ) {
+      return null;
+    }
+    return `/api/v1/users/${username}?includePosts=true&cursor=${encodeURIComponent(
+      previousPageData.posts.nextCursor
+    )}`;
+  };
+
+  const {
+    data: profilePages,
+    error: profileError,
+    isLoading,
+    isValidating,
+    setSize,
+    mutate,
+  } = useSWRInfinite<ProfileResponse>(getKey, fetcher);
+
+  useEffect(() => {
+    if (!profileError) return;
+    if (profileError instanceof ApiError && profileError.status === 404) {
+      router.push('/feed');
+      toast.error('User not found');
+      return;
+    }
+    console.error('Failed to load profile:', profileError);
+    toast.error('Failed to load profile');
+  }, [profileError, router]);
+
+  const profile = useMemo(() => {
+    const firstPage = profilePages?.[0];
+    if (!firstPage) return null;
+    const { posts: _posts, ...rest } = firstPage;
+    return rest;
+  }, [profilePages]);
+
+  const posts = useMemo(
+    () =>
+      profilePages?.flatMap((page) => page.posts?.items ?? []) ??
+      ([] as FeedPost[]),
+    [profilePages]
+  );
+  const lastPage = profilePages?.[profilePages.length - 1];
+  const hasMore = lastPage?.posts?.hasMore ?? false;
+  const isProfileLoading = isLoading && !profilePages;
+  const isPostsLoading = isLoading || isValidating;
 
   const { sentinelRef } = useInfiniteScroll({
     hasMore,
-    isLoading: postsLoading,
-    onLoadMore: () => cursor && fetchPosts(cursor),
+    isLoading: isPostsLoading,
+    onLoadMore: () => setSize((size) => size + 1),
   });
 
   const handleFollow = async () => {
@@ -161,13 +153,17 @@ export default function ProfilePage({
       });
       if (!res.ok) throw new Error('Failed to follow user');
 
-      setProfile({
-        ...profile,
-        isFollowing: true,
-        _count: profile._count
-          ? { ...profile._count, followers: profile._count.followers + 1 }
-          : undefined,
-      });
+      mutate(
+        (pages) =>
+          pages?.map((page) => ({
+            ...page,
+            isFollowing: true,
+            _count: page._count
+              ? { ...page._count, followers: page._count.followers + 1 }
+              : page._count,
+          })),
+        { revalidate: false }
+      );
       toast.success(`Following @${username}`);
     } catch (error) {
       console.error('Failed to follow user:', error);
@@ -186,13 +182,17 @@ export default function ProfilePage({
       });
       if (!res.ok) throw new Error('Failed to unfollow user');
 
-      setProfile({
-        ...profile,
-        isFollowing: false,
-        _count: profile._count
-          ? { ...profile._count, followers: profile._count.followers - 1 }
-          : undefined,
-      });
+      mutate(
+        (pages) =>
+          pages?.map((page) => ({
+            ...page,
+            isFollowing: false,
+            _count: page._count
+              ? { ...page._count, followers: page._count.followers - 1 }
+              : page._count,
+          })),
+        { revalidate: false }
+      );
       toast.success(`Unfollowed @${username}`);
     } catch (error) {
       console.error('Failed to unfollow user:', error);
@@ -209,12 +209,33 @@ export default function ProfilePage({
       });
       if (!res.ok) throw new Error('Failed to like post');
 
-      setPosts((prev) =>
-        prev.map((post) =>
-          post.id === postId
-            ? { ...post, isLiked: true, likesCount: post.likesCount + 1 }
-            : post
-        )
+      mutate(
+        (pages) =>
+          pages?.map((page) => {
+            if (!page.posts) {
+              return page;
+            }
+            return {
+              ...page,
+              posts: {
+                ...page.posts,
+                items: page.posts.items.map((post) => {
+                  if (post.id !== postId) return post;
+                  const currentLikes =
+                    post._count?.likes ?? post.likesCount ?? 0;
+                  return {
+                    ...post,
+                    isLiked: true,
+                    likesCount: currentLikes + 1,
+                    ...(post._count && {
+                      _count: { ...post._count, likes: currentLikes + 1 },
+                    }),
+                  };
+                }),
+              },
+            };
+          }),
+        { revalidate: false }
       );
     } catch (error) {
       console.error('Failed to like post:', error);
@@ -229,12 +250,33 @@ export default function ProfilePage({
       });
       if (!res.ok) throw new Error('Failed to unlike post');
 
-      setPosts((prev) =>
-        prev.map((post) =>
-          post.id === postId
-            ? { ...post, isLiked: false, likesCount: post.likesCount - 1 }
-            : post
-        )
+      mutate(
+        (pages) =>
+          pages?.map((page) => {
+            if (!page.posts) {
+              return page;
+            }
+            return {
+              ...page,
+              posts: {
+                ...page.posts,
+                items: page.posts.items.map((post) => {
+                  if (post.id !== postId) return post;
+                  const currentLikes =
+                    post._count?.likes ?? post.likesCount ?? 0;
+                  return {
+                    ...post,
+                    isLiked: false,
+                    likesCount: currentLikes - 1,
+                    ...(post._count && {
+                      _count: { ...post._count, likes: currentLikes - 1 },
+                    }),
+                  };
+                }),
+              },
+            };
+          }),
+        { revalidate: false }
       );
     } catch (error) {
       console.error('Failed to unlike post:', error);
@@ -242,7 +284,95 @@ export default function ProfilePage({
     }
   };
 
-  if (isLoading) {
+  const handleEditPost = (postId: string) => {
+    setEditingPostId(postId);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPostId(null);
+  };
+
+  const handleSaveEdit = async (
+    postId: string,
+    content: string,
+    contentHtml: string
+  ) => {
+    setIsSavingEdit(true);
+
+    const originalPages = profilePages;
+
+    // Optimistic update
+    mutate(
+      (pages) =>
+        pages?.map((page) => {
+          if (!page.posts) {
+            return page;
+          }
+          return {
+            ...page,
+            posts: {
+              ...page.posts,
+              items: page.posts.items.map((post) =>
+                post.id === postId ? { ...post, content, contentHtml } : post
+              ),
+            },
+          };
+        }),
+      { revalidate: false }
+    );
+
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, contentHtml }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update post');
+
+      setEditingPostId(null);
+      toast.success('Post updated');
+    } catch (error) {
+      // Rollback on error
+      mutate(originalPages, { revalidate: false });
+      console.error('Failed to update post:', error);
+      toast.error('Failed to update post');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete post');
+
+      mutate(
+        (pages) =>
+          pages?.map((page) => {
+            if (!page.posts) {
+              return page;
+            }
+            return {
+              ...page,
+              posts: {
+                ...page.posts,
+                items: page.posts.items.filter((post) => post.id !== postId),
+              },
+            };
+          }),
+        { revalidate: false }
+      );
+      toast.success('Post deleted');
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      toast.error('Failed to delete post');
+    }
+  };
+
+  if (isProfileLoading) {
     return (
       <div className='container max-w-2xl py-6 space-y-6'>
         <Skeleton className='h-48 w-full' />
@@ -258,47 +388,64 @@ export default function ProfilePage({
     return null;
   }
 
-  const isCurrentUser = currentUser?.id === profile.id;
-
   return (
-    <div className='container max-w-2xl py-6 space-y-6'>
-      <ProfileHeader
-        id={profile.id}
-        name={profile.name}
-        username={profile.username}
-        bio={profile.bio}
-        avatarUrl={profile.avatarUrl}
-        image={profile.image}
-        postsCount={profile._count?.posts ?? 0}
-        followersCount={profile._count?.followers ?? 0}
-        followingCount={profile._count?.following ?? 0}
-        isFollowing={profile.isFollowing}
-        isCurrentUser={isCurrentUser}
-        isLoading={isFollowLoading}
-        onFollow={handleFollow}
-        onUnfollow={handleUnfollow}
-        onEditProfile={() => router.push('/settings/profile')}
-        onFollowersClick={() => router.push(`/profile/${username}/followers`)}
-        onFollowingClick={() => router.push(`/profile/${username}/following`)}
-      />
-
-      <div className='space-y-4'>
-        <h2 className='text-lg font-semibold'>Posts</h2>
-
-        <Feed
-          posts={posts.map((post) => ({
-            ...post,
-            likesCount: post._count?.likes ?? post.likesCount ?? 0,
-            commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
-          }))}
-          currentUserId={currentUser?.id}
-          isLoading={postsLoading}
-          hasMore={hasMore}
-          loadMoreRef={sentinelRef}
-          onLikePost={handleLikePost}
-          onUnlikePost={handleUnlikePost}
-          onPostClick={(postId) => router.push(`/post/${postId}`)}
+    <div className='w-full h-full min-h-0 max-w-4xl mx-auto'>
+      <div className='flex flex-col space-y-6'>
+        <ProfileHeader
+          id={profile.id}
+          name={profile.name}
+          username={profile.username}
+          bio={profile.bio}
+          avatarUrl={profile.avatarUrl}
+          image={profile.image}
+          postsCount={profile._count?.posts ?? 0}
+          followersCount={profile._count?.followers ?? 0}
+          followingCount={profile._count?.following ?? 0}
+          isFollowing={profile.isFollowing}
+          isCurrentUser={false}
+          isLoading={isFollowLoading}
+          onFollow={handleFollow}
+          onUnfollow={handleUnfollow}
+          onFollowersClick={() => router.push(`/profile/${username}/followers`)}
+          onFollowingClick={() => router.push(`/profile/${username}/following`)}
         />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Posts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Feed
+              posts={posts.map((post) => ({
+                ...post,
+                likesCount: post._count?.likes ?? post.likesCount ?? 0,
+                commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
+              }))}
+              currentUserId={currentUser?.id}
+              isLoading={isPostsLoading}
+              hasMore={hasMore}
+              loadMoreRef={sentinelRef}
+              editingPostId={editingPostId}
+              isSavingEdit={isSavingEdit}
+              onLikePost={handleLikePost}
+              onUnlikePost={handleUnlikePost}
+              onPostClick={(postId) => router.push(`/post/${postId}`)}
+              onEditPost={handleEditPost}
+              onSaveEdit={handleSaveEdit}
+              onCancelEdit={handleCancelEdit}
+              onDeletePost={handleDeletePost}
+              onAuthorClick={(clickedUsername) =>
+                router.push(`/profile/${clickedUsername}`)
+              }
+              onMentionClick={(clickedUsername) =>
+                router.push(`/profile/${clickedUsername}`)
+              }
+              onMentionQuery={searchUsers}
+              onArtistMentionQuery={searchArtists}
+              renderArtistMention={(props) => <ArtistMention {...props} />}
+            />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

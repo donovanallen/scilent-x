@@ -24,11 +24,7 @@ export function SidebarAdminNav() {
 
           return (
             <SidebarMenuItem key={route.href}>
-              <SidebarMenuButton
-                tooltip={route.label}
-                isActive={isActive}
-                asChild
-              >
+              <SidebarMenuButton isActive={isActive} asChild>
                 <Link href={route.href}>
                   <Icon />
                   <span>{route.label}</span>

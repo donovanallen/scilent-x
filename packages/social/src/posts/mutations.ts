@@ -2,7 +2,7 @@ import { db } from '@scilent-one/db';
 import type { CreatePostInput, UpdatePostInput, PostWithAuthor } from '../types';
 import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errors';
 import { sanitizeHtml } from '../utils/sanitize';
-import { parseMentions, createMentions } from '../mentions/parser';
+import { parseMentions, createMentionsFromUsernames } from '../mentions/parser';
 
 const authorSelect = {
   id: true,
@@ -47,7 +47,7 @@ export async function createPost(
   // Parse and create mentions
   const mentions = parseMentions(input.content);
   if (mentions.length > 0) {
-    await createMentions(mentions, { postId: post.id });
+    await createMentionsFromUsernames(mentions, { postId: post.id });
   }
 
   // Create activity for followers
@@ -122,7 +122,7 @@ export async function updatePost(
   // Parse and create new mentions
   const mentions = parseMentions(input.content);
   if (mentions.length > 0) {
-    await createMentions(mentions, { postId: post.id });
+    await createMentionsFromUsernames(mentions, { postId: post.id });
   }
 
   return {

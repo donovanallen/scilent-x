@@ -1,6 +1,6 @@
 {
   "name": "@scilent-one/social",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Social features package for posts, comments, follows, and feeds",
   "type": "module",
@@ -13,15 +13,20 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@scilent-one/db": "workspace:*",
-    "isomorphic-dompurify": "^2.35.0"
+    "isomorphic-dompurify": "^3.18.0"
   },
   "devDependencies": {
     "@scilent-one/tooling": "workspace:*",
-    "@types/node": "^25.0.3",
-    "typescript": "^5.9.3"
+    "@types/node": "^26.1.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
   }
 }

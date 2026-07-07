@@ -9,8 +9,11 @@ import type {
   HarmonizedTrack,
   HarmonizedArtist,
   HarmonizedArtistCredit,
+  HarmonizedUserProfile,
   ReleaseType,
   PartialDate,
+  PaginatedCollection,
+  CollectionParams,
 } from '../types/index';
 import { HttpError, ProviderError } from '../errors/index';
 
@@ -102,6 +105,37 @@ interface SpotifyTokenResponse {
 }
 
 /**
+ * Spotify user profile response from /me endpoint.
+ * @see https://developer.spotify.com/documentation/web-api/reference/get-current-users-profile
+ */
+interface SpotifyUserProfile {
+  id: string;
+  display_name?: string;
+  email?: string;
+  country?: string;
+  images?: SpotifyImage[];
+  product?: string; // 'premium', 'free', 'open', etc.
+  followers?: { total: number };
+  external_urls?: { spotify?: string };
+  uri?: string;
+}
+
+/**
+ * Spotify followed artists response from /me/following?type=artist endpoint.
+ * Uses cursor-based pagination.
+ * @see https://developer.spotify.com/documentation/web-api/reference/get-followed
+ */
+interface SpotifyFollowedArtistsResponse {
+  artists: {
+    items: SpotifyArtist[];
+    next?: string;
+    cursors?: { after?: string };
+    total: number;
+    limit: number;
+  };
+}
+
+/**
  * Spotify metadata provider using the Spotify Web API.
  *
  * Features:
@@ -117,6 +151,13 @@ export class SpotifyProvider extends BaseProvider {
   readonly name = 'spotify';
   readonly displayName = 'Spotify';
   readonly priority = 80;
+
+  /**
+   * Spotify supports user-authenticated API calls via OAuth2.
+   */
+  override get supportsUserAuth(): boolean {
+    return true;
+  }
 
   private accessToken: string | null = null;
   private tokenExpiresAt: Date | null = null;
@@ -228,6 +269,154 @@ export class SpotifyProvider extends BaseProvider {
     }
 
     return response.json() as Promise<T>;
+  }
+
+  // User-authenticated API methods
+
+  /**
+   * Make a user-authenticated request to the Spotify API.
+   * Uses the user's OAuth access token instead of client credentials.
+   */
+  private async fetchUserApi<T>(
+    endpoint: string,
+    userAccessToken: string,
+    params?: Record<string, string>
+  ): Promise<T | null> {
+    const searchParams = params
+      ? `?${new URLSearchParams(params).toString()}`
+      : '';
+    const url = `${SPOTIFY_API}${endpoint}${searchParams}`;
+
+    this.logger.debug('Spotify User API request', { url });
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${userAccessToken}`,
+        Accept: 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      this.logger.warn('Spotify User API error response', {
+        status: response.status,
+        error: errorText,
+      });
+
+      if (response.status === 404) return null;
+      if (response.status === 401) {
+        throw new HttpError(
+          `Spotify user authentication failed - token may be expired`,
+          response.status,
+          this.name
+        );
+      }
+      throw new HttpError(
+        `Spotify User API error: ${response.status} - ${errorText}`,
+        response.status,
+        this.name
+      );
+    }
+
+    return response.json() as Promise<T>;
+  }
+
+  /**
+   * Get the current user's profile using their OAuth access token.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @returns The harmonized user profile with normalized fields and raw provider data
+   */
+  protected override async _getCurrentUser(
+    accessToken: string
+  ): Promise<HarmonizedUserProfile> {
+    const data = await this.fetchUserApi<SpotifyUserProfile>(
+      '/me',
+      accessToken
+    );
+
+    if (!data) {
+      throw new ProviderError('Failed to fetch Spotify user profile', this.name);
+    }
+
+    return this.transformUserProfile(data);
+  }
+
+  /**
+   * Get the user's followed artists from Spotify.
+   * Uses the /me/following?type=artist endpoint with cursor-based pagination.
+   * @see https://developer.spotify.com/documentation/web-api/reference/get-followed
+   * @param accessToken - The user's OAuth access token
+   * @param params - Pagination parameters (limit, cursor)
+   * @returns Paginated list of harmonized artists the user follows
+   */
+  protected override async _getFollowedArtists(
+    accessToken: string,
+    params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedArtist>> {
+    const queryParams: Record<string, string> = {
+      type: 'artist',
+      limit: String(params?.limit ?? 20),
+    };
+
+    // Spotify uses 'after' cursor for pagination
+    if (params?.cursor) {
+      queryParams['after'] = params.cursor;
+    }
+
+    const data = await this.fetchUserApi<SpotifyFollowedArtistsResponse>(
+      '/me/following',
+      accessToken,
+      queryParams
+    );
+
+    if (!data?.artists) {
+      const emptyResult: PaginatedCollection<HarmonizedArtist> = {
+        items: [],
+        total: 0,
+        nextCursor: null,
+        hasMore: false,
+      };
+      return emptyResult;
+    }
+
+    const harmonizedArtists = data.artists.items.map((artist) =>
+      this.transformArtist(artist)
+    );
+
+    // Extract next cursor from cursors.after
+    const nextCursor = data.artists.cursors?.after ?? null;
+    const hasMore = nextCursor !== null && data.artists.items.length > 0;
+
+    return {
+      items: harmonizedArtists,
+      total: data.artists.total,
+      nextCursor,
+      hasMore,
+    };
+  }
+
+  /**
+   * Search artists using a user's OAuth access token.
+   * Falls back to the same transformation pipeline as public search.
+   */
+  async searchArtistsWithUserToken(
+    query: string,
+    accessToken: string,
+    limit = 25
+  ): Promise<HarmonizedArtist[]> {
+    const data = await this.fetchUserApi<SpotifySearchResponse>(
+      '/search',
+      accessToken,
+      {
+        q: query,
+        type: 'artist',
+        limit: String(limit),
+      }
+    );
+
+    if (!data?.artists?.items) return [];
+
+    return data.artists.items.map((artist) => this.transformArtist(artist));
   }
 
   protected async _lookupReleaseByGtin(
@@ -469,5 +658,34 @@ export class SpotifyProvider extends BaseProvider {
       ep: 'ep',
     };
     return map[type.toLowerCase()] ?? 'other';
+  }
+
+  private transformUserProfile(raw: SpotifyUserProfile): HarmonizedUserProfile {
+    // Get largest profile image if available
+    const profileImage = raw.images?.[0]
+      ? {
+          url: raw.images[0].url,
+          width: raw.images[0].width,
+          height: raw.images[0].height,
+        }
+      : undefined;
+
+    return {
+      id: raw.id,
+      username: raw.id, // Spotify uses ID as the unique identifier
+      email: raw.email,
+      displayName: raw.display_name,
+      country: raw.country,
+      profileImage,
+      subscription: raw.product
+        ? {
+            type: raw.product,
+          }
+        : undefined,
+      provider: this.name,
+      fetchedAt: new Date(),
+      // Preserve raw response for provider-specific features
+      providerData: raw as unknown as Record<string, unknown>,
+    };
   }
 }

@@ -18,7 +18,7 @@ export async function lookupByGtin(gtin: string): Promise<{
     return { error: 'Invalid GTIN format', data: null };
   }
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   try {
     const result = await engine.lookupByGtin(gtin);
     return { error: null, data: result };
@@ -38,7 +38,7 @@ export async function lookupByIsrc(isrc: string): Promise<{
     return { error: 'Invalid ISRC format', data: null };
   }
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   try {
     const result = await engine.lookupByIsrc(isrc);
     return { error: null, data: result };
@@ -57,7 +57,7 @@ export async function searchReleases(
   error: string | null;
   data: HarmonizedRelease[] | null;
 }> {
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   try {
     const result = await engine.search(query, undefined, limit);
     return { error: null, data: result };
@@ -69,14 +69,45 @@ export async function searchReleases(
   }
 }
 
+export interface ProviderCapabilities {
+  /** Supports user-authenticated API calls (e.g., /users/me) */
+  userAuth: boolean;
+  /** Supports release lookup by GTIN/UPC */
+  releaseLookup: boolean;
+  /** Supports track lookup by ISRC */
+  trackLookup: boolean;
+  /** Supports artist lookup */
+  artistLookup: boolean;
+  /** Supports search functionality */
+  search: boolean;
+}
+
+export interface ProviderStatus {
+  name: string;
+  displayName: string;
+  priority: number;
+  capabilities: ProviderCapabilities;
+}
+
 export async function getEngineStatus() {
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   const providers = engine.getEnabledProviders();
+
   return {
-    enabledProviders: providers.map((p) => ({
-      name: p.name,
-      displayName: p.displayName,
-      priority: p.priority,
-    })),
+    enabledProviders: providers.map(
+      (p): ProviderStatus => ({
+        name: p.name,
+        displayName: p.displayName,
+        priority: p.priority,
+        capabilities: {
+          userAuth: p.supportsUserAuth,
+          // All providers support these core features when enabled
+          releaseLookup: true,
+          trackLookup: true,
+          artistLookup: true,
+          search: true,
+        },
+      })
+    ),
   };
 }

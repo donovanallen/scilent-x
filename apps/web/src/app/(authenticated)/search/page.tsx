@@ -17,9 +17,6 @@ async function SearchPageContent() {
 export default function SearchPage() {
   return (
     <div className='flex flex-col h-full min-h-0'>
-      <div className='mb-6'>
-        <h2>Search</h2>
-      </div>
       <Suspense
         fallback={
           <div className='flex-1 flex items-center justify-center'>

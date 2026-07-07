@@ -4,6 +4,13 @@ import { db } from '@scilent-one/db';
 
 export type DbStatus = 'connected' | 'error' | 'not_configured';
 
+export interface AuthProviderInfo {
+  id: string;
+  name: string;
+  type: 'email' | 'social' | 'oauth';
+  configured: boolean;
+}
+
 export interface DbStatusResult {
   status: DbStatus;
   message: string;
@@ -182,4 +189,64 @@ export async function getTableCounts(): Promise<Record<string, number | null>> {
     console.error('Failed to get table counts:', error);
     return {};
   }
+}
+
+/**
+ * Get configured authentication providers
+ * Checks environment variables to determine which providers are configured
+ */
+export async function getAuthProviders(): Promise<AuthProviderInfo[]> {
+  const providers: AuthProviderInfo[] = [
+    // Email/Password - always configured if enabled in auth config
+    {
+      id: 'email',
+      name: 'Email & Password',
+      type: 'email',
+      configured: true, // Enabled by default in auth config
+    },
+    // Social OAuth Providers
+    {
+      id: 'google',
+      name: 'Google',
+      type: 'social',
+      configured: Boolean(
+        process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ),
+    },
+    {
+      id: 'github',
+      name: 'GitHub',
+      type: 'social',
+      configured: Boolean(
+        process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+      ),
+    },
+    {
+      id: 'apple',
+      name: 'Apple',
+      type: 'social',
+      configured: Boolean(
+        process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET
+      ),
+    },
+    // Generic OAuth Providers (streaming services)
+    {
+      id: 'tidal',
+      name: 'Tidal',
+      type: 'oauth',
+      configured: Boolean(
+        process.env.TIDAL_CLIENT_ID && process.env.TIDAL_CLIENT_SECRET
+      ),
+    },
+    {
+      id: 'spotify',
+      name: 'Spotify',
+      type: 'oauth',
+      configured: Boolean(
+        process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET
+      ),
+    },
+  ];
+
+  return providers;
 }

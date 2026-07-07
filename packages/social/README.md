@@ -13,6 +13,7 @@ pnpm add @scilent-one/social@workspace:*
 ## Prerequisites
 
 This package depends on:
+
 - `@scilent-one/db` - Prisma database client with social models
 
 Ensure your database has been migrated with the social schema:
@@ -91,7 +92,11 @@ const { items, nextCursor, hasMore } = await getCommentsByPost(
 );
 
 // Get more replies for a specific comment
-const replies = await getCommentReplies(commentId, { limit: 10 }, currentUserId);
+const replies = await getCommentReplies(
+  commentId,
+  { limit: 10 },
+  currentUserId
+);
 
 // Update a comment
 const updated = await updateComment(userId, commentId, {
@@ -216,7 +221,10 @@ const updated = await updateProfile(userId, {
 });
 
 // Check if username is available
-const { available, reason } = await checkUsernameAvailability('newusername', currentUserId);
+const { available, reason } = await checkUsernameAvailability(
+  'newusername',
+  currentUserId
+);
 ```
 
 ### Mentions
@@ -323,6 +331,7 @@ if (page1.hasMore && page1.nextCursor) {
 ```
 
 The `PaginatedResult` type includes:
+
 - `items: T[]` - The items for this page
 - `nextCursor: string | null` - Cursor for the next page (null if no more)
 - `hasMore: boolean` - Whether there are more items
@@ -350,6 +359,7 @@ export function handleApiError(error: unknown) {
 ## Activity Feed
 
 The package automatically creates activity records when:
+
 - A post is created (`POST_CREATED`)
 - A post is liked (`POST_LIKED`)
 - A comment is created (`COMMENT_CREATED`)
@@ -362,6 +372,7 @@ These can be used to build notification systems.
 ## Validation Rules
 
 ### Username
+
 - 3-30 characters
 - Must start with a letter
 - Can contain letters, numbers, and underscores
@@ -369,14 +380,172 @@ These can be used to build notification systems.
 - Reserved usernames are blocked (admin, api, help, etc.)
 
 ### Post Content
+
 - Cannot be empty
 - Maximum 5000 characters
 - @mentions are automatically parsed and linked
 
 ### Comment Content
+
 - Cannot be empty
 - Maximum 2000 characters
 - @mentions are automatically parsed and linked
 
 ### Bio
+
 - Maximum 500 characters
+
+## Testing
+
+This package includes a comprehensive unit test suite using [Vitest](https://vitest.dev/).
+
+### Running Tests
+
+```bash
+# Run tests in watch mode (development)
+pnpm test
+
+# Run tests once
+pnpm test:run
+
+# Run tests with coverage report
+pnpm test:coverage
+```
+
+From the monorepo root, you can also use Turborepo:
+
+```bash
+# Run tests for this package only
+pnpm turbo test --filter=@scilent-one/social
+
+# Run tests for all packages
+pnpm test
+```
+
+### Test Structure
+
+Tests are located alongside source files in `__tests__` directories:
+
+```
+src/
+├── mentions/
+│   ├── __tests__/
+│   │   └── parser.test.ts    # Tests for mention parsing
+│   └── parser.ts
+└── utils/
+    ├── __tests__/
+    │   ├── errors.test.ts    # Tests for error classes
+    │   ├── pagination.test.ts # Tests for pagination utilities
+    │   └── sanitize.test.ts  # Tests for HTML sanitization
+    ├── errors.ts
+    ├── pagination.ts
+    └── sanitize.ts
+```
+
+### What's Tested
+
+The test suite covers pure functions that don't require database mocking:
+
+| Module                | Coverage | Description                                      |
+| --------------------- | -------- | ------------------------------------------------ |
+| `utils/errors.ts`     | 100%     | Error class inheritance, status codes, messages  |
+| `utils/pagination.ts` | 100%     | Cursor pagination, limit clamping, hasMore logic |
+| `utils/sanitize.ts`   | 100%     | HTML sanitization, XSS prevention, allowed tags  |
+| `mentions/parser.ts`  | ~59%     | Mention parsing (pure functions only)            |
+
+Functions that interact with the database (mutations, queries, feeds) are better suited for integration tests with a test database.
+
+### Coverage Configuration
+
+Coverage is configured in `vitest.config.ts` using the V8 provider:
+
+```typescript
+coverage: {
+  provider: 'v8',
+  reporter: ['text', 'json-summary', 'json'],
+  include: ['src/**/*.ts'],
+  exclude: ['src/**/*.test.ts', 'src/index.ts'],
+}
+```
+
+Coverage reports are generated in the `coverage/` directory:
+
+- `coverage-summary.json` - Summary statistics
+- `coverage-final.json` - Detailed line-by-line coverage
+
+### CI Integration
+
+Tests run automatically on pull requests and merges to `main` via GitHub Actions (`.github/workflows/test.yml`). The workflow:
+
+1. **Path filtering** - Only runs when `packages/social/**` or `packages/db/**` changes
+2. **Turborepo caching** - Skips unchanged packages for faster builds
+3. **Codecov integration** - Uploads coverage and posts PR comments (See [Coverage Reporting](#coverage-reporting))
+
+## Coverage Reporting
+
+Coverage is tracked via [Codecov](https://codecov.io), which provides detailed coverage analysis, historical trends, and PR annotations.
+
+### How It Works
+
+When a pull request modifies this package, the CI workflow automatically:
+
+1. Runs all tests with coverage enabled
+2. Generates `coverage-final.json`
+3. Uploads the report to Codecov
+4. Codecov posts a detailed comment on the PR
+
+### What Codecov Provides
+
+- **PR comments** - Detailed coverage summary with diff vs base branch
+- **Line annotations** - Shows which lines are covered/uncovered directly in the PR diff
+- **Historical trends** - Track coverage over time via the Codecov dashboard
+- **Sunburst charts** - Visualize coverage distribution across the codebase
+
+### Codecov Configuration
+
+The repository includes a `codecov.yml` at the root with:
+
+- Comment layout configuration
+- Ignore patterns for test files and stories
+- Placeholder thresholds (commented out until baseline is established)
+- Placeholder flags for per-package grouping
+
+### Configuring Thresholds
+
+Thresholds can be configured in two places:
+
+**1. Codecov (recommended for PRs)** - Edit `codecov.yml` at the repo root:
+
+```yaml
+coverage:
+  status:
+    project:
+      default:
+        target: 70% # Overall project coverage
+        threshold: 2% # Allowed drop
+    patch:
+      default:
+        target: 80% # New code must have 80% coverage
+```
+
+**2. Vitest (for local enforcement)** - Edit `vitest.config.ts`:
+
+```typescript
+coverage: {
+  // ... existing config
+  thresholds: {
+    statements: 80,
+    branches: 80,
+    functions: 80,
+    lines: 80,
+  },
+}
+```
+
+### Local Coverage Report
+
+Run `pnpm test:coverage` to generate a local coverage report. The terminal will show a summary table, and detailed reports are saved to `coverage/`.
+
+### Codecov Dashboard
+
+View detailed coverage reports at: `https://codecov.io/gh/<org>/scilent-x`

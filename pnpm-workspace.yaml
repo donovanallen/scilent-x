@@ -4,12 +4,18 @@ packages:
 
 catalogs:
   better-auth:
-    better-auth: latest
+    better-auth: ^1.6.23
   prisma:
-    prisma: latest
+    prisma: ^7.8.0
+  react:
+    '@types/react': ^19.2.17
+    '@types/react-dom': ^19.2.3
+  typescript:
+    tslib: ^2.8.1
+    typescript: ^5.9.3
+  vitest:
+    vitest: ^4.1.10
 
-# Only allow these packages to run their build scripts
-# All other packages with install scripts will be ignored
 onlyBuiltDependencies:
   - '@prisma/engines'
   - prisma

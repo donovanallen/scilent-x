@@ -4,3 +4,7 @@
 @source "../**/*.{ts,tsx}";
 
 /* Any app-specific overrides below */
+.search-result-item {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 88px;
+}

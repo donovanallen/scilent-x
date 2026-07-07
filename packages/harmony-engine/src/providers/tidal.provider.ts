@@ -9,8 +9,11 @@ import type {
   HarmonizedTrack,
   HarmonizedArtist,
   HarmonizedArtistCredit,
+  HarmonizedUserProfile,
   ReleaseType,
   PartialDate,
+  PaginatedCollection,
+  CollectionParams,
 } from '../types/index';
 import { HttpError, ProviderError } from '../errors/index';
 
@@ -127,6 +130,49 @@ interface TidalTokenResponse {
 }
 
 /**
+ * Response from /userCollections/{id}/relationships/artists endpoint.
+ * Returns artist relationships with pagination via links.next cursor.
+ */
+interface TidalUserCollectionArtistsResponse {
+  data: Array<{
+    id: string;
+    type: 'artists';
+    meta?: {
+      addedAt?: string;
+    };
+  }>;
+  included?: Array<TidalArtist | TidalTrack | TidalAlbum>;
+  links?: {
+    self: string;
+    next?: string;
+  };
+  meta?: {
+    total?: number;
+  };
+}
+
+/**
+ * Tidal user profile attributes from the /users/me endpoint.
+ * @see https://tidal-music.github.io/tidal-api-reference/#/users
+ */
+interface TidalUserAttributes {
+  username?: string;
+  email?: string;
+  emailVerified?: boolean;
+  firstName?: string;
+  lastName?: string;
+  country?: string;
+  picture?: TidalImage[];
+  subscription?: {
+    type?: string;
+    status?: string;
+  };
+  created?: string;
+}
+
+type TidalUser = TidalResource<'users', TidalUserAttributes>;
+
+/**
  * Tidal metadata provider using the Tidal Developer API.
  *
  * Features:
@@ -142,6 +188,13 @@ export class TidalProvider extends BaseProvider {
   readonly name = 'tidal';
   readonly displayName = 'Tidal';
   readonly priority = 75;
+
+  /**
+   * Tidal supports user-authenticated API calls via OAuth2.
+   */
+  override get supportsUserAuth(): boolean {
+    return true;
+  }
 
   private accessToken: string | null = null;
   private tokenExpiresAt: Date | null = null;
@@ -432,6 +485,34 @@ export class TidalProvider extends BaseProvider {
     return artists.map((artist) => this.transformArtist(artist));
   }
 
+  /**
+   * Search artists using a user's OAuth access token.
+   * Falls back to the same transformation pipeline as public search.
+   */
+  async searchArtistsWithUserToken(
+    query: string,
+    accessToken: string,
+    limit = 25
+  ): Promise<HarmonizedArtist[]> {
+    const encodedQuery = encodeURIComponent(query);
+    const data = await this.fetchUserApi<TidalSearchResultsResponse>(
+      `/searchResults/${encodedQuery}`,
+      accessToken,
+      {
+        include: 'artists',
+        limit: String(limit),
+      }
+    );
+
+    if (!data?.included) return [];
+
+    const artists = data.included.filter(
+      (item): item is TidalArtist => item.type === 'artists'
+    );
+
+    return artists.map((artist) => this.transformArtist(artist));
+  }
+
   protected async _searchTracks(
     query: string,
     limit = 25
@@ -461,6 +542,155 @@ export class TidalProvider extends BaseProvider {
         data.included
       )
     );
+  }
+
+  // User-authenticated API methods
+
+  /**
+   * Make a user-authenticated request to the Tidal v2 API.
+   * Uses the user's OAuth access token instead of client credentials.
+   */
+  private async fetchUserApi<T>(
+    endpoint: string,
+    userAccessToken: string,
+    params?: Record<string, string>
+  ): Promise<T | null> {
+    const searchParams = new URLSearchParams({
+      countryCode: this.countryCode,
+      ...params,
+    });
+
+    const url = `${TIDAL_API}${endpoint}?${searchParams.toString()}`;
+
+    this.logger.debug('Tidal User API request', { url });
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${userAccessToken}`,
+        Accept: 'application/vnd.api+json',
+        'Content-Type': 'application/vnd.api+json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      this.logger.warn('Tidal User API error response', {
+        status: response.status,
+        error: errorText,
+      });
+
+      if (response.status === 404) return null;
+      if (response.status === 401) {
+        throw new HttpError(
+          `Tidal user authentication failed - token may be expired`,
+          response.status,
+          this.name
+        );
+      }
+      throw new HttpError(
+        `Tidal User API error: ${response.status} - ${errorText}`,
+        response.status,
+        this.name
+      );
+    }
+
+    return response.json() as Promise<T>;
+  }
+
+  /**
+   * Get the current user's profile using their OAuth access token.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @returns The harmonized user profile with normalized fields and raw provider data
+   */
+  protected override async _getCurrentUser(
+    accessToken: string
+  ): Promise<HarmonizedUserProfile> {
+    const data = await this.fetchUserApi<TidalSingleResponse<TidalUser>>(
+      '/users/me',
+      accessToken
+    );
+
+    if (!data?.data) {
+      throw new ProviderError('Failed to fetch Tidal user profile', this.name);
+    }
+
+    return this.transformUserProfile(data.data);
+  }
+
+  /**
+   * Get the user's followed/favorite artists from Tidal.
+   * Uses the /userCollections/{id}/relationships/artists endpoint.
+   * @see https://developer.tidal.com/apiref#tag/User-Collections
+   * @param accessToken - The user's OAuth access token
+   * @param params - Pagination parameters (limit, cursor)
+   * @returns Paginated list of harmonized artists the user follows
+   */
+  protected override async _getFollowedArtists(
+    accessToken: string,
+    params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedArtist>> {
+    // First, get the user's ID to construct the collection endpoint
+    const userProfile = await this._getCurrentUser(accessToken);
+    const userId = userProfile.id;
+
+    const queryParams: Record<string, string> = {
+      include: 'artists',
+      countryCode: this.countryCode,
+    };
+
+    // Tidal API v2 uses cursor-based pagination via page[cursor]
+    if (params?.cursor) {
+      queryParams['page[cursor]'] = params.cursor;
+    }
+
+    // Sort by most recently added first
+    queryParams['sort'] = '-artists.addedAt';
+
+    const data = await this.fetchUserApi<TidalUserCollectionArtistsResponse>(
+      `/userCollections/${userId}/relationships/artists`,
+      accessToken,
+      queryParams
+    );
+
+    if (!data?.included) {
+      const emptyResult: PaginatedCollection<HarmonizedArtist> = {
+        items: [],
+        total: 0,
+        nextCursor: null,
+        hasMore: false,
+      };
+      return emptyResult;
+    }
+
+    // Extract artists from the included resources
+    const artists = data.included.filter(
+      (item): item is TidalArtist => item.type === 'artists'
+    );
+
+    const harmonizedArtists = artists.map((artist) =>
+      this.transformArtist(artist)
+    );
+
+    // Extract next cursor from links.next URL if present
+    let nextCursor: string | null = null;
+    if (data.links?.next) {
+      const nextUrl = new URL(data.links.next, 'https://openapi.tidal.com');
+      nextCursor = nextUrl.searchParams.get('page[cursor]');
+    }
+
+    // The data array contains the relationship entries for the current page
+    // Use it to determine the total followed artists count
+    // This works because the relationships endpoint returns all relationship IDs
+    // while `included` contains only the detailed artist objects for the page
+    const total = data.meta?.total ?? data.data.length;
+    const hasMore = nextCursor !== null;
+
+    return {
+      items: harmonizedArtists,
+      total,
+      nextCursor,
+      hasMore,
+    };
   }
 
   // Transformation methods
@@ -625,5 +855,47 @@ export class TidalProvider extends BaseProvider {
       COMPILATION: 'compilation',
     };
     return map[type.toUpperCase()] ?? 'other';
+  }
+
+  private transformUserProfile(raw: TidalUser): HarmonizedUserProfile {
+    const attrs = raw.attributes;
+
+    // Build display name from available name fields
+    const displayName =
+      [attrs.firstName, attrs.lastName].filter(Boolean).join(' ') ||
+      attrs.username;
+
+    // Get largest profile image if available
+    const profileImage = attrs.picture?.[0]
+      ? {
+          url: attrs.picture[0].url,
+          width: attrs.picture[0].width,
+          height: attrs.picture[0].height,
+        }
+      : undefined;
+
+    return {
+      id: raw.id,
+      username: attrs.username,
+      email: attrs.email,
+      emailVerified: attrs.emailVerified,
+      firstName: attrs.firstName,
+      lastName: attrs.lastName,
+      displayName,
+      country: attrs.country,
+      profileImage,
+      subscription:
+        attrs.subscription && attrs.subscription.type != null
+          ? {
+              type: attrs.subscription.type,
+              status: attrs.subscription.status,
+            }
+          : undefined,
+      createdAt: attrs.created ? new Date(attrs.created) : undefined,
+      provider: this.name,
+      fetchedAt: new Date(),
+      // Preserve raw response for provider-specific features
+      providerData: raw.attributes as Record<string, unknown>,
+    };
   }
 }

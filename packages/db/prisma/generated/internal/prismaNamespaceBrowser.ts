@@ -60,7 +60,8 @@ export const ModelName = {
   Like: 'Like',
   Follow: 'Follow',
   Mention: 'Mention',
-  Activity: 'Activity'
+  Activity: 'Activity',
+  ProviderSetting: 'ProviderSetting'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -69,12 +70,12 @@ export type ModelName = (typeof ModelName)[keyof typeof ModelName]
  * Enums
  */
 
-export const TransactionIsolationLevel = {
+export const TransactionIsolationLevel = runtime.makeStrictEnum({
   ReadUncommitted: 'ReadUncommitted',
   ReadCommitted: 'ReadCommitted',
   RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
-} as const
+} as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
@@ -155,6 +156,7 @@ export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof Post
 export const CommentScalarFieldEnum = {
   id: 'id',
   content: 'content',
+  contentHtml: 'contentHtml',
   authorId: 'authorId',
   postId: 'postId',
   parentId: 'parentId',
@@ -188,6 +190,7 @@ export type FollowScalarFieldEnum = (typeof FollowScalarFieldEnum)[keyof typeof 
 
 export const MentionScalarFieldEnum = {
   id: 'id',
+  type: 'type',
   userId: 'userId',
   postId: 'postId',
   commentId: 'commentId',
@@ -208,6 +211,18 @@ export const ActivityScalarFieldEnum = {
 } as const
 
 export type ActivityScalarFieldEnum = (typeof ActivityScalarFieldEnum)[keyof typeof ActivityScalarFieldEnum]
+
+
+export const ProviderSettingScalarFieldEnum = {
+  id: 'id',
+  providerName: 'providerName',
+  enabled: 'enabled',
+  priority: 'priority',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ProviderSettingScalarFieldEnum = (typeof ProviderSettingScalarFieldEnum)[keyof typeof ProviderSettingScalarFieldEnum]
 
 
 export const SortOrder = {

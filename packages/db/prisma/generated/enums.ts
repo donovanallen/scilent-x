@@ -9,6 +9,16 @@
 * 🟢 You can import this file directly.
 */
 
+export const MentionType = {
+  USER: 'USER',
+  ARTIST: 'ARTIST',
+  ALBUM: 'ALBUM',
+  TRACK: 'TRACK'
+} as const
+
+export type MentionType = (typeof MentionType)[keyof typeof MentionType]
+
+
 export const ActivityType = {
   POST_CREATED: 'POST_CREATED',
   POST_LIKED: 'POST_LIKED',

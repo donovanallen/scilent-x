@@ -7,6 +7,7 @@ import type {
   ReleaseType,
   ReleaseStatus,
 } from '@scilent-one/harmony-engine';
+import { withLogging } from '@scilent-one/logger/next';
 
 import { getHarmonizationEngine } from '@/lib/harmonization';
 
@@ -78,9 +79,7 @@ function sortReleases(
   releases: HarmonizedRelease[],
   sort: SortOption
 ): HarmonizedRelease[] {
-  const sorted = [...releases];
-
-  sorted.sort((a, b) => {
+  const sorted = releases.toSorted((a, b) => {
     let comparison = 0;
 
     switch (sort.field) {
@@ -182,7 +181,7 @@ function extractAvailableFilters(releases: HarmonizedRelease[]) {
   };
 }
 
-export async function searchReleases(
+async function searchReleasesImpl(
   query: string,
   filters?: SearchFilters,
   sort?: SortOption,
@@ -202,7 +201,7 @@ export async function searchReleases(
     };
   }
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
 
   try {
     // Fetch more results than limit to allow for filtering
@@ -251,7 +250,12 @@ export async function searchReleases(
   }
 }
 
-export async function searchTracks(
+export const searchReleases = withLogging(
+  'search:releases',
+  searchReleasesImpl
+);
+
+async function searchTracksImpl(
   query: string,
   filters?: SearchFilters,
   sort?: SortOption,
@@ -269,7 +273,7 @@ export async function searchTracks(
     };
   }
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
 
   try {
     // Fetch track results
@@ -296,8 +300,7 @@ export async function searchTracks(
 
     // Apply sorting for tracks
     if (sort && sort.field !== 'relevance') {
-      const sorted = [...filteredResults];
-      sorted.sort((a, b) => {
+      const sorted = filteredResults.toSorted((a, b) => {
         let comparison = 0;
 
         switch (sort.field) {
@@ -347,7 +350,9 @@ export async function searchTracks(
   }
 }
 
-export async function searchArtists(
+export const searchTracks = withLogging('search:tracks', searchTracksImpl);
+
+async function searchArtistsImpl(
   query: string,
   filters?: SearchFilters,
   sort?: SortOption,
@@ -365,7 +370,7 @@ export async function searchArtists(
     };
   }
 
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
 
   try {
     // Fetch artist results
@@ -392,8 +397,7 @@ export async function searchArtists(
 
     // Apply sorting for artists
     if (sort && sort.field !== 'relevance') {
-      const sorted = [...filteredResults];
-      sorted.sort((a, b) => {
+      const sorted = filteredResults.toSorted((a, b) => {
         let comparison = 0;
 
         switch (sort.field) {
@@ -440,8 +444,10 @@ export async function searchArtists(
   }
 }
 
+export const searchArtists = withLogging('search:artists', searchArtistsImpl);
+
 export async function getEnabledProviders() {
-  const engine = getHarmonizationEngine();
+  const engine = await getHarmonizationEngine();
   const providers = engine.getEnabledProviders();
   return providers.map((p) => ({
     name: p.name,

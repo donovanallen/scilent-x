@@ -1,10 +1,10 @@
 'use client';
 
+import { ArtistMention } from '@scilent-one/scilent-ui';
 import {
   Button,
   PostCard,
   CommentList,
-  CommentForm,
   Skeleton,
   type PostCardProps,
   type CommentCardProps,
@@ -13,6 +13,8 @@ import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState, use } from 'react';
 import { toast } from 'sonner';
+
+import { useMentionSearch } from '@/lib/use-mention-search';
 
 interface PostWithComments extends PostCardProps {
   _count?: {
@@ -58,6 +60,7 @@ export default function PostPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  const { searchUsers, searchArtists } = useMentionSearch();
   const [post, setPost] = useState<PostWithComments | null>(null);
   const [comments, setComments] = useState<CommentWithReplies[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,7 +68,8 @@ export default function PostPage({
   const [hasMoreComments, setHasMoreComments] = useState(false);
   const [commentsCursor, setCommentsCursor] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Fetch current user
   useEffect(() => {
@@ -196,33 +200,46 @@ export default function PostPage({
     }
   };
 
-  const handleCreateComment = async (content: string) => {
-    setIsSubmitting(true);
+  const handleEditPost = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleSaveEdit = async (content: string, contentHtml: string) => {
+    if (!post) return;
+    setIsSavingEdit(true);
+
+    // Store original post for rollback
+    const originalPost = { ...post };
+
+    // Optimistic update
+    setPost({
+      ...post,
+      content,
+      contentHtml,
+    });
+
     try {
-      const res = await fetch(`/api/v1/posts/${id}/comments`, {
-        method: 'POST',
+      const res = await fetch(`/api/v1/posts/${id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, contentHtml }),
       });
 
-      if (!res.ok) throw new Error('Failed to create comment');
+      if (!res.ok) throw new Error('Failed to update post');
 
-      const newComment = await res.json();
-      setComments((prev) => [newComment, ...prev]);
-
-      if (post) {
-        setPost({
-          ...post,
-          commentsCount: (post._count?.comments ?? post.commentsCount ?? 0) + 1,
-        });
-      }
-
-      toast.success('Comment added!');
+      setIsEditing(false);
+      toast.success('Post updated');
     } catch (error) {
-      console.error('Failed to add comment:', error);
-      toast.error('Failed to add comment');
+      // Rollback on error
+      setPost(originalPost);
+      console.error('Failed to update post:', error);
+      toast.error('Failed to update post');
     } finally {
-      setIsSubmitting(false);
+      setIsSavingEdit(false);
     }
   };
 
@@ -276,12 +293,16 @@ export default function PostPage({
     }
   };
 
-  const handleReplyComment = async (commentId: string, content: string) => {
+  const handleReplyComment = async (
+    commentId: string,
+    content: string,
+    contentHtml?: string
+  ) => {
     try {
       const res = await fetch(`/api/v1/posts/${id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, parentId: commentId }),
+        body: JSON.stringify({ content, contentHtml, parentId: commentId }),
       });
 
       if (!res.ok) throw new Error('Failed to add reply');
@@ -348,9 +369,9 @@ export default function PostPage({
   }
 
   return (
-    <div className='container max-w-2xl py-6 space-y-6'>
-      <Button variant='ghost' onClick={() => router.back()}>
-        <ArrowLeft className='mr-2 h-4 w-4' />
+    <div className='flex flex-col h-full min-h-0 space-y-4'>
+      <Button variant='ghost' onClick={() => router.back()} className='w-fit'>
+        <ArrowLeft className='h-4 w-4' />
         Back
       </Button>
 
@@ -359,26 +380,23 @@ export default function PostPage({
         likesCount={post._count?.likes ?? post.likesCount ?? 0}
         commentsCount={post._count?.comments ?? post.commentsCount ?? 0}
         isOwner={currentUser?.id === post.author.id}
+        isEditing={isEditing}
+        isSaving={isSavingEdit}
         onLike={handleLikePost}
         onUnlike={handleUnlikePost}
+        onEdit={handleEditPost}
+        onSaveEdit={handleSaveEdit}
+        onCancelEdit={handleCancelEdit}
         onDelete={handleDeletePost}
+        onAuthorClick={(username) => router.push(`/profile/${username}`)}
+        onMentionClick={(username) => router.push(`/profile/${username}`)}
+        onMentionQuery={searchUsers}
+        onArtistMentionQuery={searchArtists}
+        renderArtistMention={(props) => <ArtistMention {...props} />}
       />
 
       <div className='space-y-4'>
-        <h2 className='text-lg font-semibold'>Comments</h2>
-
-        {currentUser && (
-          <CommentForm
-            user={{
-              name: currentUser.name,
-              username: currentUser.username,
-              avatarUrl: currentUser.avatarUrl,
-              image: currentUser.image,
-            }}
-            onSubmit={handleCreateComment}
-            isSubmitting={isSubmitting}
-          />
-        )}
+        <h3>Comments</h3>
 
         <CommentList
           comments={comments.map((comment) => ({
@@ -399,6 +417,8 @@ export default function PostPage({
           onUnlikeComment={handleUnlikeComment}
           onReplyComment={handleReplyComment}
           onDeleteComment={handleDeleteComment}
+          onMentionClick={(username) => router.push(`/profile/${username}`)}
+          renderArtistMention={(props) => <ArtistMention {...props} />}
         />
       </div>
     </div>

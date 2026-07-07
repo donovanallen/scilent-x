@@ -1,6 +1,6 @@
 {
   "name": "@scilent-one/auth",
-  "version": "0.1.3",
+  "version": "0.3.0",
   "private": true,
   "description": "Authentication package using Better Auth for the monorepo",
   "type": "module",
@@ -26,11 +26,12 @@
   },
   "dependencies": {
     "@scilent-one/db": "workspace:*",
+    "@scilent-one/logger": "workspace:*",
     "better-auth": "catalog:better-auth"
   },
   "devDependencies": {
     "@scilent-one/tooling": "workspace:*",
-    "@types/node": "^25.0.3",
+    "@types/node": "^26.1.0",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {

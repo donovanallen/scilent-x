@@ -53,6 +53,8 @@ export interface PostWithAuthor extends Post {
     comments: number;
   };
   isLiked?: boolean;
+  /** Recent comments for inline display (optional, not always included) */
+  comments?: CommentWithAuthor[];
 }
 
 export interface CreatePostInput {
@@ -78,12 +80,14 @@ export interface CommentWithAuthor extends Comment {
 
 export interface CreateCommentInput {
   content: string;
+  contentHtml?: string;
   postId: string;
   parentId?: string;
 }
 
 export interface UpdateCommentInput {
   content: string;
+  contentHtml?: string;
 }
 
 // Follow types
@@ -98,7 +102,29 @@ export interface ActivityWithDetails extends Activity {
 }
 
 // Mention types
+export type MentionType = 'USER' | 'ARTIST' | 'ALBUM' | 'TRACK';
+
+export interface ArtistMentionEntity {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+  provider: string;
+  externalIds: Record<string, string>;
+}
+
 export interface ParsedMention {
+  type: MentionType;
+  entityId: string;
+  label: string;
+  startIndex?: number;
+  endIndex?: number;
+}
+
+/**
+ * Legacy mention type for backwards compatibility
+ * @deprecated Use ParsedMention with type field instead
+ */
+export interface LegacyParsedMention {
   username: string;
   startIndex: number;
   endIndex: number;

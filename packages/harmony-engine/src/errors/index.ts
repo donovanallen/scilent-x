@@ -54,3 +54,14 @@ export class ProviderError extends HarmonizationError {
     this.name = "ProviderError";
   }
 }
+
+export class UserAuthNotSupportedError extends HarmonizationError {
+  constructor(provider: string) {
+    super(
+      `User authentication is not supported by ${provider}`,
+      "USER_AUTH_NOT_SUPPORTED",
+      provider
+    );
+    this.name = "UserAuthNotSupportedError";
+  }
+}

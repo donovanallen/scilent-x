@@ -9,3 +9,12 @@ export { FollowButton, type FollowButtonProps } from './follow-button';
 export { UserCard, type UserCardProps } from './user-card';
 export { ProfileHeader, type ProfileHeaderProps } from './profile-header';
 export { Feed, type FeedProps } from './feed';
+export {
+  PostCardCommentInput,
+  type PostCardCommentInputProps,
+  type PostCardCommentInputUser,
+} from './post-card-comment-input';
+export {
+  PostCardComments,
+  type PostCardCommentsProps,
+} from './post-card-comments';

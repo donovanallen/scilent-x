@@ -1,12 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { cn } from '../../utils';
 
 export interface MentionTextProps {
   content: string;
   className?: string;
-  onMentionClick?: (username: string) => void;
+  onMentionClick?: ((username: string) => void) | undefined;
 }
 
 // Regex to match @username mentions
@@ -61,8 +60,8 @@ export function MentionText({
           return (
             <button
               key={index}
-              type='button'
-              className='text-primary hover:underline font-medium'
+              type="button"
+              className="text-primary hover:underline font-medium"
               onClick={(e) => {
                 e.stopPropagation();
                 onMentionClick?.(part.value);

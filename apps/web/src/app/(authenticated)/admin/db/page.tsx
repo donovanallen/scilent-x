@@ -17,6 +17,8 @@ import {
   getDbMetadata,
   getDbTables,
   getTableCounts,
+  getAuthProviders,
+  type AuthProviderInfo,
 } from './actions';
 
 export const metadata: Metadata = {
@@ -31,18 +33,15 @@ function StatusBadge({
   const variants = {
     connected: {
       label: 'Connected',
-      className:
-        'bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/20',
+      className: 'bg-success/15 text-success-dark border-success/20',
     },
     error: {
       label: 'Error',
-      className:
-        'bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/20',
+      className: 'bg-destructive/15 text-destructive border-destructive/20',
     },
     not_configured: {
       label: 'Not Configured',
-      className:
-        'bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border-yellow-500/20',
+      className: 'bg-warning/15 text-warning border-warning/20',
     },
   };
 
@@ -154,6 +153,95 @@ async function DbTablesCard() {
   );
 }
 
+function ProviderTypeBadge({ type }: { type: AuthProviderInfo['type'] }) {
+  const variants = {
+    email: {
+      label: 'Email',
+      className:
+        'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/20',
+    },
+    social: {
+      label: 'Social',
+      className:
+        'bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/20',
+    },
+    oauth: {
+      label: 'OAuth',
+      className:
+        'bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/20',
+    },
+  };
+
+  const variant = variants[type];
+
+  return (
+    <Badge
+      variant='outline'
+      className={cn(variant.className, 'text-xs px-1.5 py-0.5')}
+    >
+      {variant.label}
+    </Badge>
+  );
+}
+
+async function AuthProvidersCard() {
+  const providers = await getAuthProviders();
+  const configuredCount = providers.filter((p) => p.configured).length;
+
+  // Sort providers so configured ones appear first
+  const sortedProviders = [...providers].sort((a, b) => {
+    if (a.configured === b.configured) return 0;
+    return a.configured ? -1 : 1;
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Auth Providers</CardTitle>
+        <CardDescription>
+          {configuredCount} of {providers.length} providers configured
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className='space-y-2'>
+          {sortedProviders.map((provider) => (
+            <div
+              key={provider.id}
+              className={cn(
+                'flex items-center justify-between py-2 px-3 rounded-md',
+                provider.configured ? 'bg-muted/50' : 'bg-muted/20 opacity-60'
+              )}
+            >
+              <div className='flex items-center gap-2'>
+                <span
+                  className={cn(
+                    'font-medium',
+                    !provider.configured && 'text-muted-foreground'
+                  )}
+                >
+                  {provider.name}
+                </span>
+                <ProviderTypeBadge type={provider.type} />
+              </div>
+              <Badge
+                variant={provider.configured ? 'default' : 'secondary'}
+                className={cn(
+                  'rounded-full px-2 py-0.5 text-xs',
+                  provider.configured
+                    ? 'bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/20'
+                    : ''
+                )}
+              >
+                {provider.configured ? 'Configured' : 'Not Configured'}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function LoadingCard() {
   return (
     <Card>
@@ -170,28 +258,20 @@ function LoadingCard() {
 
 export default function DatabasePage() {
   return (
-    <div className='w-full py-10 space-y-8'>
-      <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold'>Database</h1>
-          <p className='text-muted-foreground mt-1'>
-            Monitor and manage your database connection
-          </p>
-        </div>
-        <div className='flex items-center gap-2'>
-          <Button variant='outline' asChild>
-            <a
-              href='http://localhost:5555'
-              target='_blank'
-              rel='noopener noreferrer'
-            >
-              Prisma Studio
-            </a>
-          </Button>
-          <Button asChild>
-            <Link href='/db/setup'>Setup Guide</Link>
-          </Button>
-        </div>
+    <div className='w-full flex flex-col h-full min-h-0 space-y-6'>
+      <div className='flex items-center justify-end gap-2'>
+        <Button variant='outline' asChild>
+          <a
+            href='http://localhost:5555'
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            Prisma Studio
+          </a>
+        </Button>
+        <Button asChild>
+          <Link href='/db/setup'>Setup Guide</Link>
+        </Button>
       </div>
 
       <div className='grid gap-6'>
@@ -205,9 +285,13 @@ export default function DatabasePage() {
           </Suspense>
 
           <Suspense fallback={<LoadingCard />}>
-            <DbTablesCard />
+            <AuthProvidersCard />
           </Suspense>
         </div>
+
+        <Suspense fallback={<LoadingCard />}>
+          <DbTablesCard />
+        </Suspense>
       </div>
 
       <Card className='border-dashed'>

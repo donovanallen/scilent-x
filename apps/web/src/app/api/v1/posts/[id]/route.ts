@@ -10,10 +10,13 @@ interface RouteParams {
 // GET /api/v1/posts/:id - Get a single post
 export async function GET(request: Request, { params }: RouteParams) {
   try {
-    const { id } = await params;
-    const user = await getCurrentUser();
-
-    const post = await getPostById(id, user?.id);
+    const paramsPromise = params;
+    const userPromise = getCurrentUser();
+    const { id } = await paramsPromise;
+    const [_user, post] = await Promise.all([
+      userPromise,
+      userPromise.then((resolvedUser) => getPostById(id, resolvedUser?.id)),
+    ]);
 
     return NextResponse.json(post);
   } catch (error) {
@@ -24,8 +27,9 @@ export async function GET(request: Request, { params }: RouteParams) {
 // PATCH /api/v1/posts/:id - Update a post
 export async function PATCH(request: Request, { params }: RouteParams) {
   try {
-    const { id } = await params;
-    const user = await getCurrentUser();
+    const paramsPromise = params;
+    const userPromise = getCurrentUser();
+    const [{ id }, user] = await Promise.all([paramsPromise, userPromise]);
 
     if (!user) {
       return NextResponse.json(
@@ -49,8 +53,9 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 // DELETE /api/v1/posts/:id - Delete a post
 export async function DELETE(request: Request, { params }: RouteParams) {
   try {
-    const { id } = await params;
-    const user = await getCurrentUser();
+    const paramsPromise = params;
+    const userPromise = getCurrentUser();
+    const [{ id }, user] = await Promise.all([paramsPromise, userPromise]);
 
     if (!user) {
       return NextResponse.json(

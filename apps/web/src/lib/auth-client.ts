@@ -36,6 +36,9 @@ export {
   signOut,
   useSession,
   getSession,
+  linkSocial,
+  unlinkAccount,
+  listAccounts,
 } from '@scilent-one/auth/client';
 
 export type { Session } from '@scilent-one/auth/client';

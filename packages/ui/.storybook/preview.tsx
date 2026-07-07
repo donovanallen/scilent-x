@@ -13,6 +13,52 @@ const withDarkMode: DecoratorFunction = (Story, context) => {
   );
 };
 
+// Custom viewport definitions for mobile testing
+const CUSTOM_VIEWPORTS = {
+  mobileS: {
+    name: 'Mobile S (320px)',
+    styles: {
+      width: '320px',
+      height: '568px',
+    },
+  },
+  mobileM: {
+    name: 'Mobile M (375px)',
+    styles: {
+      width: '375px',
+      height: '667px',
+    },
+  },
+  mobileL: {
+    name: 'Mobile L (425px)',
+    styles: {
+      width: '425px',
+      height: '812px',
+    },
+  },
+  tablet: {
+    name: 'Tablet (768px)',
+    styles: {
+      width: '768px',
+      height: '1024px',
+    },
+  },
+  laptop: {
+    name: 'Laptop (1024px)',
+    styles: {
+      width: '1024px',
+      height: '768px',
+    },
+  },
+  desktop: {
+    name: 'Desktop (1440px)',
+    styles: {
+      width: '1440px',
+      height: '900px',
+    },
+  },
+};
+
 const preview: Preview = {
   parameters: {
     controls: {
@@ -31,6 +77,10 @@ const preview: Preview = {
     },
     a11y: {
       test: 'warn',
+    },
+    viewport: {
+      viewports: CUSTOM_VIEWPORTS,
+      defaultViewport: 'responsive',
     },
   },
   decorators: [withDarkMode],

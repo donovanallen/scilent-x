@@ -1,12 +1,12 @@
 ---
 name: Harmony UI Interactions
-overview: Implement a configurable interaction system for harmony-ui components using a React Context Provider pattern, enabling context menus (right-click/long-press) and hover previews with platform-adaptive behavior.
+overview: Implement a configurable interaction system for scilent-ui components using a React Context Provider pattern, enabling context menus (right-click/long-press) and hover previews with platform-adaptive behavior.
 todos:
   - id: add-shadcn-components
     content: Add context-menu, dropdown-menu, hover-card, popover to @scilent-one/ui
     status: pending
   - id: interaction-types
-    content: Create interaction types and interfaces in harmony-ui/src/interactions/types.ts
+    content: Create interaction types and interfaces in scilent-ui/src/interactions/types.ts
     status: pending
     dependencies:
       - add-shadcn-components
@@ -42,7 +42,7 @@ todos:
 
 ## Architecture Overview
 
-Create a `HarmonyInteractionProvider` that wraps harmony-ui components and provides configurable interaction behaviors. This provider-based approach allows:
+Create a `HarmonyInteractionProvider` that wraps scilent-ui components and provides configurable interaction behaviors. This provider-based approach allows:
 
 - Platform-specific configuration (web vs mobile)
 - Consistent interaction patterns across all entity types (Album, Artist, Track)
@@ -56,7 +56,7 @@ graph TD
         Config[Platform Config]
     end
 
-    subgraph HarmonyUI["@scilent-one/harmony-ui"]
+    subgraph ScilentUI["@scilent-one/scilent-ui"]
         Hook[useHarmonyInteraction hook]
         Wrapper[InteractiveWrapper component]
 
@@ -111,7 +111,7 @@ Add the following components to [`packages/ui/`](packages/ui/):
 
 ### Phase 2: Create Interaction Provider Infrastructure
 
-Create new files in [`packages/harmony-ui/src/interactions/`](packages/harmony-ui/src/interactions/):
+Create new files in [`packages/scilent-ui/src/interactions/`](packages/scilent-ui/src/interactions/):
 
 **Core Types** (`types.ts`):
 
@@ -178,7 +178,7 @@ export function useHarmonyInteraction() {
 
 ### Phase 3: Create Entity-Specific Context Menus
 
-Create menu components in [`packages/harmony-ui/src/interactions/menus/`](packages/harmony-ui/src/interactions/menus/):
+Create menu components in [`packages/scilent-ui/src/interactions/menus/`](packages/scilent-ui/src/interactions/menus/):
 
 - `TrackContextMenu.tsx` - Menu for tracks (view track, view album, view artist, external links, copy ISRC)
 - `AlbumContextMenu.tsx` - Menu for albums (view album, view artist, external links, copy UPC)
@@ -194,7 +194,7 @@ Menu actions based on your selections:
 
 ### Phase 4: Create Configurable Hover Previews
 
-Create preview components in [`packages/harmony-ui/src/interactions/previews/`](packages/harmony-ui/src/interactions/previews/):
+Create preview components in [`packages/scilent-ui/src/interactions/previews/`](packages/scilent-ui/src/interactions/previews/):
 
 - `TrackHoverPreview.tsx` - Configurable track preview
 - `AlbumHoverPreview.tsx` - Configurable album preview
@@ -210,7 +210,7 @@ Preview modes (configurable per entity type):
 
 ### Phase 5: Create Interactive Wrapper Component
 
-Create [`packages/harmony-ui/src/interactions/InteractiveWrapper.tsx`](packages/harmony-ui/src/interactions/InteractiveWrapper.tsx):
+Create [`packages/scilent-ui/src/interactions/InteractiveWrapper.tsx`](packages/scilent-ui/src/interactions/InteractiveWrapper.tsx):
 
 ```typescript
 interface InteractiveWrapperProps {
@@ -243,11 +243,11 @@ export function InteractiveWrapper({
 
 ### Phase 6: Update Existing Components (Optional Enhancement)
 
-Optionally update existing components like [`TrackCard`](packages/harmony-ui/src/components/track/TrackCard.tsx), [`AlbumCard`](packages/harmony-ui/src/components/album/AlbumCard.tsx), and [`ArtistCard`](packages/harmony-ui/src/components/artist/ArtistCard.tsx) to include an `interactive` prop that auto-wraps with `InteractiveWrapper`. This keeps backwards compatibility while enabling opt-in enhanced interactions.
+Optionally update existing components like [`TrackCard`](packages/scilent-ui/src/components/track/TrackCard.tsx), [`AlbumCard`](packages/scilent-ui/src/components/album/AlbumCard.tsx), and [`ArtistCard`](packages/scilent-ui/src/components/artist/ArtistCard.tsx) to include an `interactive` prop that auto-wraps with `InteractiveWrapper`. This keeps backwards compatibility while enabling opt-in enhanced interactions.
 
 ### Phase 7: Export and Document
 
-Update [`packages/harmony-ui/src/index.ts`](packages/harmony-ui/src/index.ts) to export:
+Update [`packages/scilent-ui/src/index.ts`](packages/scilent-ui/src/index.ts) to export:
 
 - `HarmonyInteractionProvider`
 - `useHarmonyInteraction`
@@ -260,7 +260,7 @@ Update [`packages/harmony-ui/src/index.ts`](packages/harmony-ui/src/index.ts) to
 
 ```tsx
 // apps/web/src/app/layout.tsx or a providers file
-import { HarmonyInteractionProvider } from '@scilent-one/harmony-ui';
+import { HarmonyInteractionProvider } from '@scilent-one/scilent-ui';
 import { useRouter } from 'next/navigation';
 
 function HarmonyProvider({ children }) {
@@ -293,7 +293,7 @@ function HarmonyProvider({ children }) {
 ## File Structure
 
 ```
-packages/harmony-ui/src/
+packages/scilent-ui/src/
   interactions/
     index.ts                    # Barrel exports
     types.ts                    # TypeScript types
@@ -315,7 +315,7 @@ packages/harmony-ui/src/
 
 ## Key Design Decisions
 
-1. **Provider Pattern**: Allows platform configuration at the app level while keeping harmony-ui components platform-agnostic
+1. **Provider Pattern**: Allows platform configuration at the app level while keeping scilent-ui components platform-agnostic
 
 2. **Graceful Degradation**: Components work without the provider (interactions simply disabled), maintaining backwards compatibility
 

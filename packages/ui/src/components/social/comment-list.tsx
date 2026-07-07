@@ -4,6 +4,7 @@ import * as React from 'react';
 import { CommentCard, type CommentCardProps } from './comment-card';
 import { CommentForm } from './comment-form';
 import { Button } from '../button';
+import { type ArtistMentionRenderProps } from '../rich-text-content';
 import { cn } from '../../utils';
 
 export interface CommentListProps {
@@ -23,6 +24,12 @@ export interface CommentListProps {
   onReplyComment?: (commentId: string, content: string) => void;
   onEditComment?: (commentId: string) => void;
   onDeleteComment?: (commentId: string) => void;
+  /** Callback when a user mention (@username) is clicked */
+  onMentionClick?: ((username: string) => void) | undefined;
+  /** Callback when an artist mention is clicked */
+  onArtistMentionClick?: ((artistId: string, provider: string) => void) | undefined;
+  /** Custom renderer for artist mentions */
+  renderArtistMention?: ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
   className?: string;
 }
 
@@ -37,6 +44,9 @@ export function CommentList({
   onReplyComment,
   onEditComment,
   onDeleteComment,
+  onMentionClick,
+  onArtistMentionClick,
+  renderArtistMention,
   className,
 }: CommentListProps) {
   const [replyingTo, setReplyingTo] = React.useState<string | null>(null);
@@ -53,6 +63,9 @@ export function CommentList({
             onReply={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
             onEdit={() => onEditComment?.(comment.id)}
             onDelete={() => onDeleteComment?.(comment.id)}
+            onMentionClick={onMentionClick}
+            onArtistMentionClick={onArtistMentionClick}
+            renderArtistMention={renderArtistMention}
           />
 
           {/* Replies */}
@@ -68,6 +81,9 @@ export function CommentList({
                   onUnlike={() => onUnlikeComment?.(reply.id)}
                   onEdit={() => onEditComment?.(reply.id)}
                   onDelete={() => onDeleteComment?.(reply.id)}
+                  onMentionClick={onMentionClick}
+                  onArtistMentionClick={onArtistMentionClick}
+                  renderArtistMention={renderArtistMention}
                 />
               ))}
             </div>

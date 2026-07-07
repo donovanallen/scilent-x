@@ -17,6 +17,7 @@ export interface CommentFormProps {
   maxLength?: number;
   isSubmitting?: boolean;
   isReply?: boolean;
+  autoFocus?: boolean;
   onSubmit: (content: string) => void | Promise<void>;
   onCancel?: () => void;
   className?: string;
@@ -28,12 +29,20 @@ export function CommentForm({
   maxLength = 2000,
   isSubmitting = false,
   isReply = false,
+  autoFocus = false,
   onSubmit,
   onCancel,
   className,
 }: CommentFormProps) {
   const [content, setContent] = React.useState('');
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  // Auto-focus when mounted if autoFocus is true
+  React.useEffect(() => {
+    if (autoFocus) {
+      textareaRef.current?.focus();
+    }
+  }, [autoFocus]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

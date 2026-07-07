@@ -1,5 +1,7 @@
 # Scilent X
 
+[![Unit Tests](https://codecov.io/github/donovanallen/scilent-x/graph/badge.svg?token=BEPTXH1JIK)](https://codecov.io/github/donovanallen/scilent-x)
+
 Based on [Scilent One](https://www.github.com/scilentdigital/scilent-one) Template
 
 ## 🚀 Tech Stack

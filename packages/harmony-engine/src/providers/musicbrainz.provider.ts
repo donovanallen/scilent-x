@@ -215,7 +215,9 @@ export class MusicBrainzProvider extends BaseProvider {
       recordings?: MusicBrainzRecording[];
     } | null;
 
-    return (data?.recordings ?? []).map((r, i) => this.transformTrack(r, i + 1));
+    return (data?.recordings ?? []).map((r, i) =>
+      this.transformTrack(r, i + 1)
+    );
   }
 
   private async fetch(url: string): Promise<unknown> {

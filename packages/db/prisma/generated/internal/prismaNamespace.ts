@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.2.0
- * Query Engine version: 0c8ef2ce45c83248ab3df073180d5eda9e8be7a3
+ * Prisma Client JS version: 7.8.0
+ * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.2.0",
-  engine: "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3"
+  client: "7.8.0",
+  engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
 }
 
 /**
@@ -393,7 +393,8 @@ export const ModelName = {
   Like: 'Like',
   Follow: 'Follow',
   Mention: 'Mention',
-  Activity: 'Activity'
+  Activity: 'Activity',
+  ProviderSetting: 'ProviderSetting'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verification" | "post" | "comment" | "like" | "follow" | "mention" | "activity"
+    modelProps: "user" | "account" | "session" | "verification" | "post" | "comment" | "like" | "follow" | "mention" | "activity" | "providerSetting"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1153,6 +1154,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProviderSetting: {
+      payload: Prisma.$ProviderSettingPayload<ExtArgs>
+      fields: Prisma.ProviderSettingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProviderSettingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProviderSettingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        findFirst: {
+          args: Prisma.ProviderSettingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProviderSettingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        findMany: {
+          args: Prisma.ProviderSettingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>[]
+        }
+        create: {
+          args: Prisma.ProviderSettingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        createMany: {
+          args: Prisma.ProviderSettingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProviderSettingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>[]
+        }
+        delete: {
+          args: Prisma.ProviderSettingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        update: {
+          args: Prisma.ProviderSettingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProviderSettingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProviderSettingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProviderSettingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProviderSettingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderSettingPayload>
+        }
+        aggregate: {
+          args: Prisma.ProviderSettingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProviderSetting>
+        }
+        groupBy: {
+          args: Prisma.ProviderSettingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProviderSettingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProviderSettingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProviderSettingCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1268,6 +1343,7 @@ export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof Post
 export const CommentScalarFieldEnum = {
   id: 'id',
   content: 'content',
+  contentHtml: 'contentHtml',
   authorId: 'authorId',
   postId: 'postId',
   parentId: 'parentId',
@@ -1301,6 +1377,7 @@ export type FollowScalarFieldEnum = (typeof FollowScalarFieldEnum)[keyof typeof 
 
 export const MentionScalarFieldEnum = {
   id: 'id',
+  type: 'type',
   userId: 'userId',
   postId: 'postId',
   commentId: 'commentId',
@@ -1321,6 +1398,18 @@ export const ActivityScalarFieldEnum = {
 } as const
 
 export type ActivityScalarFieldEnum = (typeof ActivityScalarFieldEnum)[keyof typeof ActivityScalarFieldEnum]
+
+
+export const ProviderSettingScalarFieldEnum = {
+  id: 'id',
+  providerName: 'providerName',
+  enabled: 'enabled',
+  priority: 'priority',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ProviderSettingScalarFieldEnum = (typeof ProviderSettingScalarFieldEnum)[keyof typeof ProviderSettingScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1389,6 +1478,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'MentionType'
+ */
+export type EnumMentionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MentionType'>
+    
+
+
+/**
+ * Reference to a field of type 'MentionType[]'
+ */
+export type ListEnumMentionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MentionType[]'>
+    
+
+
+/**
  * Reference to a field of type 'ActivityType'
  */
 export type EnumActivityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ActivityType'>
@@ -1413,6 +1516,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -1508,6 +1625,21 @@ export type PrismaClientOptions = ({
    * ```
    */
   comments?: runtime.SqlCommenterPlugin[]
+  /**
+   * Optional maximum size for the query plan cache. If not provided, a default size will be used.
+   * A value of `0` can be used to disable the cache entirely. A higher cache size can improve
+   * performance for applications that execute a large number of unique queries, while a smaller
+   * cache size can reduce memory usage.
+   * 
+   * @example
+   * ```
+   * const prisma = new PrismaClient({
+   *   adapter,
+   *   queryPlanCacheMaxSize: 100,
+   * })
+   * ```
+   */
+  queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
@@ -1520,6 +1652,7 @@ export type GlobalOmitConfig = {
   follow?: Prisma.FollowOmit
   mention?: Prisma.MentionOmit
   activity?: Prisma.ActivityOmit
+  providerSetting?: Prisma.ProviderSettingOmit
 }
 
 /* Types for Logging */

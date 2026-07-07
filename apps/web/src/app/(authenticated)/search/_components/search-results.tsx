@@ -7,29 +7,18 @@ import type {
 } from '@scilent-one/harmony-engine';
 import {
   AlbumCard,
+  AlbumListItem,
+  AlbumCardSkeleton,
   TrackCard,
+  TrackCardSkeleton,
   ArtistCard,
-  GridSkeleton,
+  ArtistCardSkeleton,
+  ArtistListItem,
   ListSkeleton,
-  PlatformBadgeList,
-  formatDuration,
-  formatArtistCredits,
-  getFrontArtworkUrl,
-  InteractiveWrapper,
-  type HarmonizedArtistCredit,
-} from '@scilent-one/harmony-ui';
-import { Badge, cn } from '@scilent-one/ui';
+} from '@scilent-one/scilent-ui';
+import { cn, ScrollArea } from '@scilent-one/ui';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import {
-  AlertCircle,
-  Music2,
-  Search,
-  Calendar,
-  Disc,
-  Music,
-  Clock,
-  User,
-} from 'lucide-react';
+import { AlertCircle, Music2, Search } from 'lucide-react';
 import { useRef, useMemo, useState, useEffect } from 'react';
 
 import type { SearchType } from '../actions';
@@ -46,242 +35,18 @@ interface SearchResultsProps {
 }
 
 // Estimated sizes for virtualization
-const LIST_ITEM_HEIGHT = 88; // ~80px + padding
+const LIST_ITEM_HEIGHT = 80; // Track/item row height with spacing
 const GRID_ITEM_HEIGHT = 280; // Card height
+
+// Grid columns must match the CSS grid-cols-* classes used in rendering
+// Different content types may use different column layouts
 const GRID_COLUMNS = {
-  sm: 2,
-  md: 3,
-  lg: 4,
-  xl: 5,
+  // For releases: grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5
+  release: { sm: 2, md: 3, lg: 4, xl: 5 },
+  // For tracks/artists: grid-cols-2 lg:grid-cols-4 xl:grid-cols-4
+  track: { sm: 2, md: 2, lg: 4, xl: 4 },
+  artist: { sm: 2, md: 2, lg: 4, xl: 4 },
 };
-
-// Inline list item components for search results
-// These provide a compact horizontal layout for list view
-
-interface ReleaseListItemProps {
-  release: HarmonizedRelease;
-  showProviders?: boolean;
-  className?: string;
-}
-
-function ReleaseListItem({
-  release,
-  showProviders = false,
-  className,
-}: ReleaseListItemProps) {
-  const artworkUrl = getFrontArtworkUrl(release.artwork);
-  const year = release.releaseDate?.year;
-  const trackCount = release.media.reduce((acc, m) => acc + m.tracks.length, 0);
-  const totalDuration = release.media.reduce(
-    (acc, m) =>
-      acc + m.tracks.reduce((t, track) => t + (track.duration || 0), 0),
-    0
-  );
-  const providers = release.sources.map((s) => s.provider);
-
-  return (
-    <InteractiveWrapper
-      entityType='album'
-      entity={release}
-      previewSide='bottom'
-    >
-      <div
-        className={cn(
-          'group flex items-center gap-4 p-3 rounded-lg transition-colors hover:bg-accent/50 cursor-pointer',
-          className
-        )}
-      >
-        <div className='size-16 rounded-md overflow-hidden bg-muted shrink-0'>
-          {artworkUrl ? (
-            <img
-              src={artworkUrl}
-              alt={release.title}
-              className='size-full object-cover'
-            />
-          ) : (
-            <div className='size-full flex items-center justify-center'>
-              <Disc className='size-6 text-muted-foreground' />
-            </div>
-          )}
-        </div>
-        <div className='flex-1 min-w-0 space-y-1'>
-          <div className='flex items-start gap-2'>
-            <h3 className='font-medium text-sm leading-tight truncate group-hover:text-primary transition-colors'>
-              {release.title}
-            </h3>
-            <Badge
-              variant='outline'
-              className='text-[10px] uppercase tracking-wider shrink-0'
-            >
-              {release.releaseType}
-            </Badge>
-          </div>
-          <p className='text-sm text-muted-foreground truncate'>
-            {formatArtistCredits(release.artists as HarmonizedArtistCredit[])}
-          </p>
-          <div className='flex items-center gap-3 text-xs text-muted-foreground'>
-            {year && (
-              <span className='inline-flex items-center gap-1'>
-                <Calendar className='size-3' />
-                {year}
-              </span>
-            )}
-            {trackCount > 0 && (
-              <span className='inline-flex items-center gap-1'>
-                <Music className='size-3' />
-                {trackCount} {trackCount === 1 ? 'track' : 'tracks'}
-              </span>
-            )}
-            {totalDuration > 0 && (
-              <span className='inline-flex items-center gap-1'>
-                <Disc className='size-3' />
-                {formatDuration(totalDuration)}
-              </span>
-            )}
-          </div>
-        </div>
-        {showProviders && providers.length > 0 && (
-          <PlatformBadgeList platforms={providers} abbreviated />
-        )}
-      </div>
-    </InteractiveWrapper>
-  );
-}
-
-interface TrackListItemProps {
-  track: HarmonizedTrack;
-  showProviders?: boolean;
-  className?: string;
-}
-
-function TrackListItem({
-  track,
-  showProviders = false,
-  className,
-}: TrackListItemProps) {
-  const providers = track.sources.map((s) => s.provider);
-
-  return (
-    <InteractiveWrapper entityType='track' entity={track} previewSide='bottom'>
-      <div
-        className={cn(
-          'flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors group',
-          className
-        )}
-      >
-        <div className='w-8 text-center text-muted-foreground text-sm font-mono'>
-          {track.position || '-'}
-        </div>
-        <div className='flex-1 min-w-0'>
-          <div className='flex items-center gap-2'>
-            <h4 className='font-medium truncate'>{track.title}</h4>
-            {track.explicit && (
-              <Badge variant='outline' className='text-[10px] px-1 py-0 h-4'>
-                E
-              </Badge>
-            )}
-          </div>
-          <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-            <span className='truncate'>
-              {formatArtistCredits(track.artists as HarmonizedArtistCredit[])}
-            </span>
-            {track.isrc && (
-              <>
-                <span className='text-muted-foreground/50'>·</span>
-                <span className='font-mono text-xs'>{track.isrc}</span>
-              </>
-            )}
-          </div>
-        </div>
-        <div className='flex items-center gap-1 text-sm text-muted-foreground'>
-          <Clock className='size-3' />
-          <span className='font-mono'>{formatDuration(track.duration)}</span>
-        </div>
-        {showProviders && providers.length > 0 && (
-          <PlatformBadgeList platforms={providers} abbreviated />
-        )}
-      </div>
-    </InteractiveWrapper>
-  );
-}
-
-interface ArtistListItemProps {
-  artist: HarmonizedArtist;
-  showProviders?: boolean;
-  className?: string;
-}
-
-function ArtistListItem({
-  artist,
-  showProviders = false,
-  className,
-}: ArtistListItemProps) {
-  const providers = artist.sources.map((s) => s.provider);
-
-  return (
-    <InteractiveWrapper
-      entityType='artist'
-      entity={artist}
-      previewSide='bottom'
-    >
-      <div
-        className={cn(
-          'flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors group',
-          className
-        )}
-      >
-        <div className='size-14 rounded-full bg-linear-to-br from-muted to-muted/50 flex items-center justify-center shrink-0'>
-          <User className='size-6 text-muted-foreground/50' />
-        </div>
-        <div className='flex-1 min-w-0'>
-          <div className='flex items-center gap-2'>
-            <h4 className='font-medium truncate'>{artist.name}</h4>
-            {artist.type && (
-              <Badge
-                variant='outline'
-                className='text-[10px] px-1.5 py-0 h-4 capitalize'
-              >
-                {artist.type}
-              </Badge>
-            )}
-          </div>
-          <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-            {artist.country && <span>{artist.country}</span>}
-            {artist.disambiguation && (
-              <>
-                {artist.country && (
-                  <span className='text-muted-foreground/50'>·</span>
-                )}
-                <span className='truncate'>{artist.disambiguation}</span>
-              </>
-            )}
-          </div>
-          {artist.genres && artist.genres.length > 0 && (
-            <div className='flex items-center gap-1 mt-1'>
-              {artist.genres.slice(0, 3).map((genre) => (
-                <Badge
-                  key={genre}
-                  variant='secondary'
-                  className='text-[10px] px-1.5 py-0 h-4'
-                >
-                  {genre}
-                </Badge>
-              ))}
-              {artist.genres.length > 3 && (
-                <span className='text-xs text-muted-foreground'>
-                  +{artist.genres.length - 3}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-        {showProviders && providers.length > 0 && (
-          <PlatformBadgeList platforms={providers} abbreviated />
-        )}
-      </div>
-    </InteractiveWrapper>
-  );
-}
 
 function EmptyState({
   icon: Icon,
@@ -303,18 +68,63 @@ function EmptyState({
   );
 }
 
-function LoadingGrid() {
+function LoadingGrid({ searchType }: { searchType: SearchType }) {
+  if (searchType === 'track') {
+    return (
+      <div className='p-1'>
+        <div className='grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4'>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <TrackCardSkeleton key={i} variant='card' showArtwork />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (searchType === 'artist') {
+    return (
+      <div className='p-1'>
+        <div className='grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4'>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <ArtistCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Release/album grid
   return (
     <div className='p-1'>
-      <GridSkeleton count={10} columns={5} aspectRatio='square' showContent />
+      <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'>
+        {Array.from({ length: 10 }).map((_, i) => (
+          <AlbumCardSkeleton key={i} />
+        ))}
+      </div>
     </div>
   );
 }
 
-function LoadingList() {
+function LoadingList({ searchType }: { searchType: SearchType }) {
+  if (searchType === 'track') {
+    return (
+      <div className='p-1 space-y-1'>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <TrackCardSkeleton key={i} variant='list' showArtwork />
+        ))}
+      </div>
+    );
+  }
+
+  // Artists and releases use the generic list skeleton
   return (
     <div className='p-1'>
-      <ListSkeleton count={8} showAvatar avatarShape='square' lines={3} />
+      <ListSkeleton
+        count={8}
+        showAvatar
+        avatarShape={searchType === 'artist' ? 'circle' : 'square'}
+        lines={searchType === 'artist' ? 2 : 3}
+      />
     </div>
   );
 }
@@ -330,27 +140,31 @@ export function SearchResults({
   hasSearched,
 }: SearchResultsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [columnCount, setColumnCount] = useState(GRID_COLUMNS.lg);
+  const [columnCount, setColumnCount] = useState(4);
 
-  // Responsive column count based on window width
+  // Get the column config for the current search type
+  const columnConfig = GRID_COLUMNS[searchType];
+
+  // Responsive column count based on window width AND search type
+  // This MUST match the CSS grid-cols-* classes used in the grid rendering
   useEffect(() => {
     const updateColumns = () => {
       const width = window.innerWidth;
       if (width >= 1280) {
-        setColumnCount(GRID_COLUMNS.xl);
+        setColumnCount(columnConfig.xl);
       } else if (width >= 1024) {
-        setColumnCount(GRID_COLUMNS.lg);
+        setColumnCount(columnConfig.lg);
       } else if (width >= 768) {
-        setColumnCount(GRID_COLUMNS.md);
+        setColumnCount(columnConfig.md);
       } else {
-        setColumnCount(GRID_COLUMNS.sm);
+        setColumnCount(columnConfig.sm);
       }
     };
 
     updateColumns();
     window.addEventListener('resize', updateColumns);
     return () => window.removeEventListener('resize', updateColumns);
-  }, []);
+  }, [columnConfig]);
 
   // Get the appropriate results count based on search type
   const resultCount = useMemo(() => {
@@ -430,7 +244,11 @@ export function SearchResults({
 
   // Loading state
   if (isLoading && resultCount === 0) {
-    return view === 'grid' ? <LoadingGrid /> : <LoadingList />;
+    return view === 'grid' ? (
+      <LoadingGrid searchType={searchType} />
+    ) : (
+      <LoadingList searchType={searchType} />
+    );
   }
 
   // No results
@@ -451,7 +269,11 @@ export function SearchResults({
   }
 
   return (
-    <div ref={scrollRef} className='flex-1 overflow-auto -mx-1 px-1'>
+    <ScrollArea
+      viewportRef={scrollRef}
+      showShadow
+      className='flex-1 -mx-1 px-1'
+    >
       <div
         style={{
           height: `${listVirtualizer.getTotalSize()}px`,
@@ -470,17 +292,18 @@ export function SearchResults({
                   key={virtualItem.key}
                   data-index={virtualItem.index}
                   ref={listVirtualizer.measureElement}
-                  className={cn(
-                    'absolute top-0 left-0 w-full',
-                    virtualItem.index % 2 === 0
-                      ? 'bg-transparent'
-                      : 'bg-muted/30'
-                  )}
+                  className='search-result-item absolute top-0 left-0 w-full py-1'
                   style={{
                     transform: `translateY(${virtualItem.start}px)`,
                   }}
                 >
-                  <ArtistListItem artist={artist} showProviders />
+                  <ArtistListItem
+                    artist={artist}
+                    showProviders
+                    interactive
+                    previewSide='bottom'
+                    className={cn(virtualItem.index % 2 !== 0 && 'bg-muted/30')}
+                  />
                 </div>
               );
             }
@@ -493,17 +316,23 @@ export function SearchResults({
                   key={virtualItem.key}
                   data-index={virtualItem.index}
                   ref={listVirtualizer.measureElement}
-                  className={cn(
-                    'absolute top-0 left-0 w-full',
-                    virtualItem.index % 2 === 0
-                      ? 'bg-transparent'
-                      : 'bg-muted/30'
-                  )}
+                  className='search-result-item absolute top-0 left-0 w-full py-1.5'
                   style={{
                     transform: `translateY(${virtualItem.start}px)`,
                   }}
                 >
-                  <TrackListItem track={track} showProviders />
+                  <TrackCard
+                    track={track}
+                    variant='list'
+                    showArtwork
+                    showSources
+                    showDurationIcon
+                    showIsrc
+                    inlineIsrc
+                    interactive
+                    previewSide='bottom'
+                    className={cn(virtualItem.index % 2 !== 0 && 'bg-muted/30')}
+                  />
                 </div>
               );
             }
@@ -515,15 +344,20 @@ export function SearchResults({
                 key={virtualItem.key}
                 data-index={virtualItem.index}
                 ref={listVirtualizer.measureElement}
-                className={cn(
-                  'absolute top-0 left-0 w-full',
-                  virtualItem.index % 2 === 0 ? 'bg-transparent' : 'bg-muted/30'
-                )}
+                className='search-result-item absolute top-0 left-0 w-full py-1'
                 style={{
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
-                <ReleaseListItem release={release} showProviders />
+                <AlbumListItem
+                  release={release}
+                  showProviders
+                  showDuration
+                  typePlacement='title'
+                  interactive
+                  previewSide='bottom'
+                  className={cn(virtualItem.index % 2 !== 0 && 'bg-muted/30')}
+                />
               </div>
             );
           }
@@ -542,7 +376,7 @@ export function SearchResults({
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
-                <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 py-2'>
+                <div className='grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 py-2'>
                   {row.map((artist) => (
                     <ArtistCard
                       key={artist.externalIds?.musicbrainz || artist.name}
@@ -570,14 +404,15 @@ export function SearchResults({
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
-                <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 py-2'>
+                <div className='grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 py-2'>
                   {row.map((track) => (
                     <TrackCard
                       key={track.isrc || track.title}
                       track={track}
+                      showArtwork
                       interactive
                       previewSide='bottom'
-                      previewAlign='start'
+                      previewAlign='center'
                     />
                   ))}
                 </div>
@@ -614,6 +449,6 @@ export function SearchResults({
           );
         })}
       </div>
-    </div>
+    </ScrollArea>
   );
 }

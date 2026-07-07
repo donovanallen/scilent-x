@@ -21,6 +21,7 @@
  */
 
 import { createAuthClient } from 'better-auth/react';
+import { genericOAuthClient } from 'better-auth/client/plugins';
 
 /**
  * Auth client instance for client-side authentication.
@@ -32,6 +33,9 @@ import { createAuthClient } from 'better-auth/react';
  * - authClient.signOut() - Sign out current user
  * - authClient.useSession() - React hook for session state
  * - authClient.getSession() - Get current session (async)
+ * - authClient.linkSocial({ provider, callbackURL }) - Link streaming account
+ * - authClient.unlinkAccount({ providerId }) - Unlink streaming account
+ * - authClient.listAccounts() - Get all linked accounts
  */
 export const authClient = createAuthClient({
   /**
@@ -40,6 +44,7 @@ export const authClient = createAuthClient({
    * Set this if your auth API is on a different domain.
    */
   // baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+  plugins: [genericOAuthClient()],
 });
 
 /**
@@ -51,6 +56,9 @@ export const {
   signOut,
   useSession,
   getSession,
+  linkSocial,
+  unlinkAccount,
+  listAccounts,
 } = authClient;
 
 /**
