@@ -88,6 +88,55 @@ The following major version updates were applied during the audit:
 
 ---
 
+## Major Version Updates Applied (July 2026 audit)
+
+The following major/tricky version updates were applied during the July 2026 dependency audit,
+in addition to a broad batch of in-range minor/patch bumps across the monorepo (Radix UI, Tiptap,
+Storybook, Vitest, Prisma, `@typescript-eslint/*`, Turbo, `@types/node`, etc.):
+
+| Package                          | From    | To      | Notes                                                                                             |
+| --------------------------------- | ------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `zod`                              | 3.x     | 4.4.3   | `z.record()` now requires 2 args (`z.record(z.string(), valueType)`); updated `packages/harmony-engine/src/types/harmonized.types.ts` accordingly. |
+| `eslint`                           | 9.x     | 10.6.0  | Flat config still compatible; some plugins (`eslint-plugin-import`, `eslint-plugin-jsx-a11y`, `eslint-plugin-react`) emit peer-dependency warnings for ESLint 9 but lint still passes clean. Monitor for plugin updates. |
+| `lucide-react`                     | 0.562.0 | 1.23.0  | v1 removed brand icons (e.g. `Github`). Fixed by swapping to `Code2` in `packages/ui/src/components/stories/dropdown-menu.stories.tsx`. Bumped peer dependency ranges in `packages/ui` and `packages/scilent-ui` to `>=1.0.0`. |
+| `pino`                             | 9.x     | 10.3.1  | No breaking changes hit in `packages/logger` or `packages/harmony-engine` usage. |
+| `date-fns`                         | 3.x     | 4.4.0   | No breaking changes hit in `apps/web` usage. |
+| `better-auth`                      | 1.4.x   | 1.6.23  | No breaking changes hit in `packages/auth` or `apps/web/src/app/api/auth`. |
+| `prisma` / `@prisma/client`        | 7.2.x   | 7.8.0   | Ran `pnpm --filter @scilent-one/db db:generate` after bumping; generated client checked into `packages/db/prisma/generated/internal/class.ts` as expected. |
+| `storybook` / `@storybook/*`       | 10.1.x  | 10.4.6  | Storybook/test configs in `packages/ui` and `packages/scilent-ui` unaffected. |
+| `vite`                             | 7.x     | 8.1.3   | Paired with `@vitejs/plugin-react` 5→6 and `vite-plugin-svgr` 4→5. |
+| `vitest`                           | 4.0.x   | 4.1.10  | No config changes required. |
+| `chromatic`                        | 13.x    | 18.0.1  | Config in `packages/ui` unaffected. |
+| `@typescript-eslint/*`             | 8.50.x  | 8.63.x  | Minor updates, no rule breakage. |
+| `p-retry`                          | 6.x     | 8.0.0   | `onFailedAttempt` callback now receives a `RetryContext` object; updated `packages/harmony-engine/src/utils/retry.ts` to read `context.error.message` instead of `error.message`. |
+| `isomorphic-dompurify`             | 2.x     | 3.x     | No breaking changes hit. |
+| `html-react-parser`                | 5.x     | 6.x     | No breaking changes hit. |
+| `eslint-import-resolver-typescript`| 3.x     | 4.x     | No breaking changes hit. |
+| `@types/node`                      | 25.x    | 26.x    | No breaking changes hit. |
+| `dotenv`                            | 16.x    | 17.x    | No breaking changes hit. |
+
+### Deferred: TypeScript 5.9 → 6.0
+
+**Status:** ⏸️ Deferred, staying on `typescript@5.9.3`.
+
+TypeScript 6.0 deprecates the `downlevelIteration` compiler option (`TS5101`), which is set in the
+shared `packages/tooling/tsconfig` base config inherited by every workspace package. Removing it
+is not a one-line fix — it requires auditing every package for reliance on down-level iteration
+behavior (e.g. spreading `Map`/`Set`/generators when targeting older JS) and would touch the
+shared tsconfig base used repo-wide, which is out of scope for a routine dependency-maintenance
+pass. Revisit this in a dedicated follow-up once TypeScript 6.0 has had time to stabilize and/or
+once there's a change budget for auditing `downlevelIteration` usage across all packages.
+
+### Lint fix: unused `SpotifyProfileCard` import
+
+Fixed the pre-existing `@typescript-eslint/no-unused-vars` lint failure in
+`apps/web/src/app/(authenticated)/profile/page.tsx` — the component existed but was never
+rendered. Added conditional rendering (mirroring the existing `TidalProfileCard` pattern) so
+`SpotifyProfileCard` now renders when a user has a connected Spotify platform, instead of removing
+the import.
+
+---
+
 ## Future Considerations
 
 ### Next.js 16 Changes
@@ -111,4 +160,4 @@ Version 7 of eslint-plugin-react-hooks may have stricter rules. Watch for new wa
 
 For future dependency audits, see: `agents/DEPENDENCY_AUDIT.md`
 
-_Last updated: December 28, 2025_
+_Last updated: July 7, 2026_
