@@ -527,6 +527,66 @@ describe('AppleMusicProvider', () => {
     });
   });
 
+  describe('release type mapping', () => {
+    async function releaseTypeFor(
+      attributes: Record<string, unknown>
+    ): Promise<string | undefined> {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          data: [{ id: '1', type: 'albums', attributes }],
+        })
+      );
+      const release = await provider.lookupReleaseById('1');
+      return release?.releaseType;
+    }
+
+    it('detects EPs from a " - EP" title suffix', async () => {
+      expect(
+        await releaseTypeFor({ name: 'Some Songs - EP', artistName: 'A' })
+      ).toBe('ep');
+    });
+
+    it('detects EPs from a "(EP)" title suffix', async () => {
+      expect(
+        await releaseTypeFor({ name: 'Some Songs (EP)', artistName: 'A' })
+      ).toBe('ep');
+    });
+
+    it('detects singles from the isSingle flag', async () => {
+      expect(
+        await releaseTypeFor({ name: 'Hit', artistName: 'A', isSingle: true })
+      ).toBe('single');
+    });
+
+    it('detects singles from a " - Single" title suffix', async () => {
+      expect(
+        await releaseTypeFor({ name: 'Hit - Single', artistName: 'A' })
+      ).toBe('single');
+    });
+
+    it('prefers compilation over other signals', async () => {
+      expect(
+        await releaseTypeFor({
+          name: 'Best Of - EP',
+          artistName: 'A',
+          isCompilation: true,
+        })
+      ).toBe('compilation');
+    });
+
+    it('defaults to album', async () => {
+      expect(
+        await releaseTypeFor({ name: 'A Normal Album', artistName: 'A' })
+      ).toBe('album');
+    });
+
+    it('does not misclassify albums that merely contain "EP" mid-title', async () => {
+      expect(await releaseTypeFor({ name: 'EPiphany', artistName: 'A' })).toBe(
+        'album'
+      );
+    });
+  });
+
   describe('searchTracks', () => {
     it('transforms the search results payload', async () => {
       mockFetch.mockResolvedValueOnce(

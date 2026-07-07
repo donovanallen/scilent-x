@@ -831,9 +831,22 @@ function parseAppleDate(date?: string): PartialDate | undefined {
   };
 }
 
+/**
+ * Apple Music has no explicit EP flag, but titles EPs with a " - EP" (or
+ * "(EP)") suffix and singles with a " - Single" suffix. Combined with the
+ * `isSingle`/`isCompilation` booleans, these let us classify releases more
+ * precisely than defaulting everything to "album".
+ */
+const EP_TITLE_PATTERN = /\s[-–]\s*EP$|\(EP\)$/i;
+const SINGLE_TITLE_PATTERN = /\s[-–]\s*Single$|\(Single\)$/i;
+
 function mapAlbumType(attrs?: AppleMusicAlbumAttributes): ReleaseType {
   if (!attrs) return 'album';
   if (attrs.isCompilation) return 'compilation';
-  if (attrs.isSingle) return 'single';
+
+  const name = attrs.name ?? '';
+  if (EP_TITLE_PATTERN.test(name)) return 'ep';
+  if (attrs.isSingle || SINGLE_TITLE_PATTERN.test(name)) return 'single';
+
   return 'album';
 }
