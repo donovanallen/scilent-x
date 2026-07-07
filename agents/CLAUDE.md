@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with this repository.
 
+> **Cursor users:** Cursor-specific agent configuration (Cloud Agent bootstrap, hooks, skills) lives
+> under `.cursor/` and is documented in `docs/AGENT_TOOLING.md`. The root `AGENTS.md` is the
+> Cursor-native equivalent of this file — both should stay in sync on tech stack and commands.
+
 ## Project Overview
 
 **scilent-x** is a monorepo for a Next.js web application with shared packages for UI components, authentication, and database access.

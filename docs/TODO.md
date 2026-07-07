@@ -3,6 +3,9 @@
 This document tracks technical debt and refactoring opportunities identified during the dependency
 audit process.
 
+> **Agent tooling:** Cursor-specific agent configuration (Cloud Agent bootstrap, hooks, skills)
+> lives under `.cursor/` — see `docs/AGENT_TOOLING.md` for what's there and why.
+
 ---
 
 ## ESLint Configuration Modernization
