@@ -1,5 +1,49 @@
 # @scilent-one/scilent-ui
 
+## 1.0.0
+
+### Major Changes
+
+- 3f77a0d: Renamed package from `@scilent-one/harmony-ui` to `@scilent-one/scilent-ui`. Update all imports in consuming applications.
+
+### Minor Changes
+
+- e2565e4: Design improvements, Track component updates
+
+### Patch Changes
+
+- 411406f: Updates to Editor component and PlatformProfileCard
+- Routine dependency maintenance across the monorepo.
+
+  - Updated all in-range dependencies to their latest minor/patch versions
+    (Radix UI, Tiptap, Storybook, Vitest, Prisma, @typescript-eslint, Turbo, etc.)
+  - Bumped `next` to 16.2.10, `react`/`react-dom` to 19.2.7, and `lucide-react`
+    to 1.23.0 (fixed the one breaking change: the removed `Github` brand icon
+    in a Storybook story)
+  - Deliberately upgraded several majors after verifying no breaking impact:
+    `date-fns` 3 -> 4, `pino` 9 -> 10, `zod` 3 -> 4 (updated `z.record()` calls
+    to the new two-argument signature), `eslint` 9 -> 10, `chromatic` 13 -> 18,
+    `vite` 7 -> 8, `@vitejs/plugin-react` 5 -> 6, `vite-plugin-svgr` 4 -> 5,
+    `p-retry` 6 -> 8 (updated `onFailedAttempt` to the new `RetryContext` shape),
+    `@types/node` 25 -> 26, `dotenv` 16 -> 17, `isomorphic-dompurify` 2 -> 3,
+    `html-react-parser` 5 -> 6, and `eslint-import-resolver-typescript` 3 -> 4
+  - Deferred the TypeScript 5.9 -> 6.0 major upgrade; see `docs/TODO.md` for
+    the reason (deprecated `downlevelIteration` compiler option breaks the
+    shared tsconfig base repo-wide)
+
+- Updated dependencies [411406f]
+- Updated dependencies [9583c33]
+- Updated dependencies [e844788]
+- Updated dependencies
+- Updated dependencies [d3ae508]
+- Updated dependencies [e2565e4]
+- Updated dependencies [1effcfd]
+- Updated dependencies [248b89b]
+- Updated dependencies [336f53e]
+- Updated dependencies [081f182]
+  - @scilent-one/ui@0.5.0
+  - @scilent-one/harmony-engine@0.4.0
+
 ## 0.4.1
 
 ### Patch Changes

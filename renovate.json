@@ -4,9 +4,7 @@
     "config:recommended",
     ":dependencyDashboard",
     ":semanticCommits",
-    ":semanticCommitTypeAll(chore)",
-    ":automergePatch",
-    ":automergeMinor"
+    ":semanticCommitTypeAll(chore)"
   ],
   "rangeStrategy": "bump",
   "dependencyDashboard": true,
@@ -16,44 +14,120 @@
   "schedule": ["before 6am on monday"],
   "rebaseWhen": "behind-base-branch",
   "rollbackPrs": true,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "schedule": ["before 6am on monday"]
+  },
   "packageRules": [
     {
-      "description": "Auto-merge safe updates (minor/patch)",
-      "matchUpdateTypes": ["minor", "patch"],
+      "description": "Auto-merge safe non-major updates once required status checks pass. platformAutomerge defers the actual merge to GitHub's native auto-merge, which respects branch protection (see NOTE at bottom of this file for the branch protection settings this relies on).",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true,
       "labels": ["dependencies", "automerge"]
     },
     {
-      "description": "Major updates require manual approval",
+      "description": "Never auto-merge major updates; always require manual review",
       "matchUpdateTypes": ["major"],
       "automerge": false,
       "labels": ["dependencies", "major"]
     },
     {
-      "description": "DevDependencies auto-merge (minor/patch)",
-      "matchDepTypes": ["devDependencies"],
-      "automerge": true,
-      "labels": ["dependencies", "dev"]
-    },
-    {
-      "description": "Group all workspace package updates",
-      "matchManagers": ["npm"],
-      "matchFileNames": ["apps/**", "packages/**"],
-      "groupName": "workspace packages",
-      "prPriority": 1
-    },
-    {
-      "description": "Important libraries like Next.js, React, TS require review",
+      "description": "Important frameworks/toolchain deps require manual review even for minor updates",
       "matchPackageNames": [
         "next",
         "react",
         "react-dom",
         "typescript",
-        "turbo"
+        "turbo",
+        "prisma",
+        "@prisma/client",
+        "@prisma/adapter-pg",
+        "better-auth"
       ],
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": ["minor", "major"],
       "automerge": false,
-      "labels": ["dependencies", "major", "framework"]
+      "labels": ["dependencies", "framework"]
+    },
+    {
+      "description": "Group all Radix UI primitive updates together",
+      "matchPackageNames": ["@radix-ui/**"],
+      "groupName": "Radix UI",
+      "labels": ["dependencies", "ui"]
+    },
+    {
+      "description": "Group all TypeScript ESLint tooling updates together",
+      "matchPackageNames": ["@typescript-eslint/**"],
+      "groupName": "TypeScript ESLint",
+      "labels": ["dependencies", "lint"]
+    },
+    {
+      "description": "Group all Storybook ecosystem updates together",
+      "matchPackageNames": [
+        "storybook",
+        "@storybook/**",
+        "eslint-plugin-storybook",
+        "chromatic",
+        "@chromatic-com/**"
+      ],
+      "groupName": "Storybook",
+      "labels": ["dependencies", "storybook"]
+    },
+    {
+      "description": "Group Vite/Vitest ecosystem updates together",
+      "matchPackageNames": [
+        "vite",
+        "vite-plugin-**",
+        "vitest",
+        "@vitest/**",
+        "@vitejs/**"
+      ],
+      "groupName": "Vite / Vitest",
+      "labels": ["dependencies", "build-tooling"]
+    },
+    {
+      "description": "Group Tiptap editor updates together",
+      "matchPackageNames": ["@tiptap/**"],
+      "groupName": "Tiptap"
+    },
+    {
+      "description": "Group ESLint core + plugins together (excluding @typescript-eslint, grouped separately above)",
+      "matchPackageNames": [
+        "eslint",
+        "eslint-plugin-**",
+        "eslint-config-**",
+        "eslint-import-resolver-**",
+        "@eslint/**",
+        "!@typescript-eslint/eslint-plugin",
+        "!@typescript-eslint/parser"
+      ],
+      "groupName": "ESLint"
+    },
+    {
+      "description": "Group all internal workspace package updates (apps/packages cross-references)",
+      "matchManagers": ["npm"],
+      "matchFileNames": ["apps/**", "packages/**"],
+      "matchPackageNames": ["@scilent-one/**"],
+      "groupName": "workspace packages",
+      "prPriority": 1
+    },
+    {
+      "description": "Group all @types/* type-definition-only updates (low risk, safe to batch)",
+      "matchPackageNames": ["@types/**"],
+      "groupName": "type definitions",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "platformAutomerge": true
+    },
+    {
+      "description": "DevDependencies auto-merge (minor/patch) once checks pass",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "platformAutomerge": true,
+      "labels": ["dependencies", "dev"]
     }
   ],
   "npm": {
@@ -64,6 +138,12 @@
   "prBodyNotes": [
     "### ℹ️ Upgrade Details",
     "This PR was created automatically by Renovate.",
-    "Changelog: {{changelogUrl}}"
+    "Changelog: {{changelogUrl}}",
+    "",
+    "NOTE: Auto-merge for non-major updates relies on `platformAutomerge` deferring to GitHub's native auto-merge feature, which only merges once all *required* status checks pass. For this to be effective, configure GitHub branch protection on `main` with:",
+    "- \"Require status checks to pass before merging\" enabled",
+    "- The `Unit Tests` and `Storybook Tests (UI/A11y)` jobs from `.github/workflows/test.yml` (and any other required CI jobs) added as required checks",
+    "- \"Require branches to be up to date before merging\" (optional, but recommended since `rebaseWhen: behind-base-branch` is set above)",
+    "These settings must be configured in the GitHub repository UI/API (Settings > Branches) and cannot be set from this file."
   ]
 }
