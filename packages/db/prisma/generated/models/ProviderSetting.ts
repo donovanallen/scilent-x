@@ -199,7 +199,7 @@ export type ProviderSettingGroupByOutputType = {
   _max: ProviderSettingMaxAggregateOutputType | null
 }
 
-type GetProviderSettingGroupByPayload<T extends ProviderSettingGroupByArgs> = Prisma.PrismaPromise<
+export type GetProviderSettingGroupByPayload<T extends ProviderSettingGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ProviderSettingGroupByOutputType, T['by']> &
       {
@@ -1034,6 +1034,11 @@ export type ProviderSettingFindManyArgs<ExtArgs extends runtime.Types.Extensions
    * Skip the first `n` ProviderSettings.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of ProviderSettings.
+   */
   distinct?: Prisma.ProviderSettingScalarFieldEnum | Prisma.ProviderSettingScalarFieldEnum[]
 }
 

@@ -48,11 +48,11 @@ export async function withRetry<T>(
       minTimeout: config.minTimeout,
       maxTimeout: config.maxTimeout,
       factor: config.factor,
-      onFailedAttempt: (error) => {
+      onFailedAttempt: (context) => {
         logger?.warn('Attempt failed', {
-          attempt: error.attemptNumber,
-          retriesLeft: error.retriesLeft,
-          error: error.message,
+          attempt: context.attemptNumber,
+          retriesLeft: context.retriesLeft,
+          error: context.error.message,
         });
       },
     }

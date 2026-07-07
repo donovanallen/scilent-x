@@ -15,7 +15,7 @@ export const HarmonizedArtistCreditSchema = z.object({
   creditedName: z.string().optional(),
   joinPhrase: z.string().optional(),
   roles: z.array(z.string()).optional(),
-  externalIds: z.record(z.string()).optional(),
+  externalIds: z.record(z.string(), z.string()).optional(),
 });
 
 export type HarmonizedArtistCredit = z.infer<
@@ -40,7 +40,7 @@ export const HarmonizedTrackSchema = z.object({
     )
     .optional(),
   explicit: z.boolean().optional(),
-  externalIds: z.record(z.string()),
+  externalIds: z.record(z.string(), z.string()),
   sources: z.array(ProviderSourceSchema),
 });
 
@@ -141,7 +141,7 @@ export const HarmonizedReleaseSchema = z.object({
     })
     .optional(),
 
-  externalIds: z.record(z.string()),
+  externalIds: z.record(z.string(), z.string()),
   sources: z.array(ProviderSourceSchema),
 
   mergedAt: z.coerce.date(),
@@ -175,7 +175,7 @@ export const HarmonizedArtistSchema = z.object({
   aliases: z.array(z.string()).optional(),
   genres: z.array(z.string()).optional(),
 
-  externalIds: z.record(z.string()),
+  externalIds: z.record(z.string(), z.string()),
   sources: z.array(ProviderSourceSchema),
 
   mergedAt: z.coerce.date(),
@@ -219,7 +219,7 @@ export const HarmonizedUserProfileSchema = z.object({
 
   // Raw provider response - preserves all original data for provider-specific features
   // Access via profile.providerData?.subscription?.audioQuality for Tidal-specific fields
-  providerData: z.record(z.unknown()).optional(),
+  providerData: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type HarmonizedUserProfile = z.infer<typeof HarmonizedUserProfileSchema>;

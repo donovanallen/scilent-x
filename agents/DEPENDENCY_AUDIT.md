@@ -215,6 +215,19 @@ When updating `prisma` and `@prisma/client`:
 
 For database-specific agent instructions, see: `agents/DB.md`
 
+### Renovate Auto-merge
+
+The root `renovate.json` auto-merges safe (`minor`/`patch`/`pin`/`digest`) updates via
+`platformAutomerge: true`, deferring the actual merge to GitHub's native auto-merge so it still
+respects branch protection / required status checks whenever those are configured. Major updates,
+and minor updates to a curated list of high-risk packages (`next`, `react`, `react-dom`,
+`typescript`, `turbo`, `prisma`, `@prisma/client`, `better-auth`), always require manual review.
+Related packages are grouped into single PRs (`@radix-ui/*`, `@typescript-eslint/*`, Storybook
+ecosystem, Vite/Vitest ecosystem, `@tiptap/*`, ESLint core+plugins, `@scilent-one/*` workspace
+packages, `@types/*`) to reduce PR noise. See the `prBodyNotes` in `renovate.json` for the GitHub
+branch protection settings this relies on (must be configured manually in the GitHub UI/API — not
+settable from this file).
+
 ---
 
 ## Quick Reference Commands
@@ -288,4 +301,4 @@ pnpm install
 
 ---
 
-_Last updated: December 28, 2025_
+_Last updated: July 7, 2026_
