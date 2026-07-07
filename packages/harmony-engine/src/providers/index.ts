@@ -12,8 +12,12 @@ import {
   TidalProvider,
   // type TidalConfig,
 } from './tidal.provider';
+import {
+  AppleMusicProvider,
+  // type AppleMusicConfig,
+} from './apple-music.provider';
 
-export type ProviderName = 'musicbrainz' | 'spotify' | 'tidal';
+export type ProviderName = 'musicbrainz' | 'spotify' | 'tidal' | 'apple_music';
 
 export interface ProviderRegistryConfig {
   providers: Partial<Record<ProviderName, ProviderConfig>>;
@@ -36,6 +40,7 @@ export class ProviderRegistry {
       musicbrainz: MusicBrainzProvider as unknown as ProviderConstructor,
       spotify: SpotifyProvider as unknown as ProviderConstructor,
       tidal: TidalProvider as unknown as ProviderConstructor,
+      apple_music: AppleMusicProvider as unknown as ProviderConstructor,
     };
 
     for (const [name, providerConfig] of Object.entries(config.providers)) {
@@ -92,3 +97,7 @@ export {
 } from './musicbrainz.provider';
 export { SpotifyProvider, type SpotifyConfig } from './spotify.provider';
 export { TidalProvider, type TidalConfig } from './tidal.provider';
+export {
+  AppleMusicProvider,
+  type AppleMusicConfig,
+} from './apple-music.provider';

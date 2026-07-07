@@ -31,6 +31,10 @@ export {
 } from './providers/spotify.provider';
 export { TidalProvider, type TidalConfig } from './providers/tidal.provider';
 export {
+  AppleMusicProvider,
+  type AppleMusicConfig,
+} from './providers/apple-music.provider';
+export {
   LookupCoordinator,
   type LookupRequest,
   type LookupResult,
@@ -101,6 +105,13 @@ export class HarmonizationEngine {
    */
   async lookupByIsrc(isrc: string, providers?: string[]) {
     return this.coordinator.lookupTrack(isrc, providers);
+  }
+
+  /**
+   * Look up a track by a provider URL (e.g. an Apple Music or Spotify song link)
+   */
+  async lookupTrackByUrl(url: string, providers?: string[]) {
+    return this.coordinator.lookupTrackByUrl(url, providers);
   }
 
   /**

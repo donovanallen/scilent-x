@@ -4,6 +4,7 @@ import {
   HarmonizationEngine,
   TidalProvider,
   SpotifyProvider,
+  AppleMusicProvider,
   type HarmonizedArtist,
   type ProviderRegistryConfig,
   type PaginatedCollection,
@@ -154,6 +155,36 @@ function buildProviderConfig(
     };
   }
 
+  // Apple Music provider - requires a MusicKit developer token, minted from an
+  // Apple Developer Team ID, a MusicKit Key ID, and the matching .p8 private key.
+  const appleMusicTeamId = process.env.APPLE_MUSIC_TEAM_ID;
+  const appleMusicKeyId = process.env.APPLE_MUSIC_KEY_ID;
+  const appleMusicPrivateKey = process.env.APPLE_MUSIC_PRIVATE_KEY;
+
+  if (
+    appleMusicTeamId &&
+    appleMusicKeyId &&
+    appleMusicPrivateKey &&
+    isProviderEnabled('apple_music')
+  ) {
+    providers.apple_music = {
+      enabled: true,
+      priority: getProviderPriority('apple_music', 70),
+      rateLimit: { requests: 10, windowMs: 1000 },
+      cache: { ttlSeconds: 3600 },
+      retry: {
+        retries: 3,
+        minTimeout: 500,
+        maxTimeout: 5000,
+        factor: 2,
+      },
+      teamId: appleMusicTeamId,
+      keyId: appleMusicKeyId,
+      privateKey: appleMusicPrivateKey,
+      storefront: process.env.APPLE_MUSIC_STOREFRONT ?? 'us',
+    };
+  }
+
   return { providers };
 }
 
@@ -175,6 +206,15 @@ export function getProvidersWithCredentials(): Set<string> {
   // Tidal - check for client credentials
   if (process.env.TIDAL_CLIENT_ID && process.env.TIDAL_CLIENT_SECRET) {
     providers.add('tidal');
+  }
+
+  // Apple Music - check for the MusicKit developer-token credentials
+  if (
+    process.env.APPLE_MUSIC_TEAM_ID &&
+    process.env.APPLE_MUSIC_KEY_ID &&
+    process.env.APPLE_MUSIC_PRIVATE_KEY
+  ) {
+    providers.add('apple_music');
   }
 
   return providers;
@@ -243,6 +283,19 @@ export async function searchArtistsWithUserProvider(
     }
   }
 
+  // Apple Music search uses the catalog (developer token); the user's Music
+  // User Token is not required, so we search the catalog directly.
+  if (normalizedProvider === 'apple_music') {
+    const provider = engine.getProvider('apple_music');
+    if (provider) {
+      try {
+        return await engine.searchArtists(query, ['apple_music'], limit);
+      } catch (error) {
+        console.warn('Apple Music artist search failed, falling back:', error);
+      }
+    }
+  }
+
   return engine.searchArtists(query, ['musicbrainz'], limit);
 }
 
@@ -273,6 +326,15 @@ export async function getFollowedArtistsFromProvider(
   if (normalizedProvider === 'spotify') {
     const provider = engine.getProvider('spotify');
     if (provider instanceof SpotifyProvider) {
+      return provider.getFollowedArtists(accessToken, params);
+    }
+  }
+
+  // Apple Music has no "followed artists"; this returns the user's library
+  // artists via their Music User Token (passed as accessToken).
+  if (normalizedProvider === 'apple_music') {
+    const provider = engine.getProvider('apple_music');
+    if (provider instanceof AppleMusicProvider) {
       return provider.getFollowedArtists(accessToken, params);
     }
   }

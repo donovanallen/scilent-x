@@ -135,6 +135,29 @@ export abstract class BaseProvider {
     );
   }
 
+  async lookupTrackById(
+    id: string,
+    options?: LookupOptions
+  ): Promise<HarmonizedTrack | null> {
+    return this.withRateLimitAndRetry(() => this._lookupTrackById(id, options));
+  }
+
+  /**
+   * Look up a track from a provider URL (e.g. a song link).
+   * Uses `parseUrl` to extract a track ID, then `_lookupTrackById`.
+   * Returns null when the URL is not a track URL this provider understands.
+   */
+  async lookupTrackByUrl(
+    url: string,
+    options?: LookupOptions
+  ): Promise<HarmonizedTrack | null> {
+    const parsed = this.parseUrl(url);
+    if (!parsed || parsed.type !== 'track') return null;
+    return this.withRateLimitAndRetry(() =>
+      this._lookupTrackById(parsed.id, options)
+    );
+  }
+
   async searchReleases(
     query: string,
     limit = 25
@@ -148,6 +171,18 @@ export abstract class BaseProvider {
 
   async searchTracks(query: string, limit = 25): Promise<HarmonizedTrack[]> {
     return this.withRateLimitAndRetry(() => this._searchTracks(query, limit));
+  }
+
+  /**
+   * Look up a track by its provider-specific ID.
+   * Optional: override in providers that expose direct track lookups.
+   * Defaults to null (not supported), which callers treat as "no result".
+   */
+  protected async _lookupTrackById(
+    _id: string,
+    _options?: LookupOptions
+  ): Promise<HarmonizedTrack | null> {
+    return null;
   }
 
   // User-authenticated methods (optional - override in subclasses that support user auth)
