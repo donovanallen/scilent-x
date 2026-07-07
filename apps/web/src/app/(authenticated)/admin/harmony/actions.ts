@@ -13,7 +13,12 @@ import {
  * List of known/supported provider names.
  * Used for validation to prevent arbitrary provider names in the database.
  */
-const SUPPORTED_PROVIDERS = ['musicbrainz', 'spotify', 'tidal'] as const;
+const SUPPORTED_PROVIDERS = [
+  'musicbrainz',
+  'spotify',
+  'tidal',
+  'apple_music',
+] as const;
 type SupportedProvider = (typeof SUPPORTED_PROVIDERS)[number];
 
 function isValidProviderName(name: string): name is SupportedProvider {
@@ -75,7 +80,7 @@ export async function getProviderCredentialsStatus(): Promise<
   const map = new Map<string, boolean>();
 
   // All known providers
-  const allProviders = ['musicbrainz', 'spotify', 'tidal'];
+  const allProviders = ['musicbrainz', 'spotify', 'tidal', 'apple_music'];
 
   for (const provider of allProviders) {
     map.set(provider, providersWithCredentials.has(provider));
@@ -196,10 +201,13 @@ const DEFAULT_PROVIDER_PRIORITIES: Record<string, number> = {
   musicbrainz: 100,
   spotify: 80,
   tidal: 75,
+  apple_music: 70,
 };
 
 const FALLBACK_PROVIDER_PRIORITY = 50;
 
 function getDefaultPriority(providerName: string): number {
-  return DEFAULT_PROVIDER_PRIORITIES[providerName] ?? FALLBACK_PROVIDER_PRIORITY;
+  return (
+    DEFAULT_PROVIDER_PRIORITIES[providerName] ?? FALLBACK_PROVIDER_PRIORITY
+  );
 }
