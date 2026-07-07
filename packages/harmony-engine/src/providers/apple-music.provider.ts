@@ -1,0 +1,620 @@
+import { createPrivateKey, sign, type KeyObject } from 'node:crypto';
+import { BaseProvider } from './base.provider';
+import type {
+  ProviderConfig,
+  LookupOptions,
+  ParsedUrl,
+} from '../types/provider.types';
+import type {
+  HarmonizedRelease,
+  HarmonizedTrack,
+  HarmonizedArtist,
+  HarmonizedArtistCredit,
+  ReleaseType,
+  PartialDate,
+} from '../types/index';
+import { HttpError, ProviderError } from '../errors/index';
+
+const APPLE_MUSIC_API = 'https://api.music.apple.com';
+
+/**
+ * Developer tokens can be minted for up to six months, but since generation is
+ * a cheap local signing operation we mint short-lived tokens and refresh them
+ * well before expiry.
+ */
+const DEVELOPER_TOKEN_TTL_SECONDS = 60 * 60 * 12; // 12 hours
+
+/**
+ * Configuration for the Apple Music provider.
+ *
+ * Unlike Spotify/Tidal (OAuth2 client credentials), Apple Music authenticates
+ * catalog requests with a developer token: an ES256-signed JWT built from an
+ * Apple Developer Team ID, a MusicKit Key ID, and the matching `.p8` private
+ * key. User-scoped features (library) additionally require a Music User Token,
+ * which is handled outside the catalog provider.
+ *
+ * @see https://developer.apple.com/documentation/applemusicapi/generating-developer-tokens
+ */
+export interface AppleMusicConfig extends ProviderConfig {
+  /** Apple Developer Team ID (the JWT `iss` claim) */
+  teamId: string;
+  /** MusicKit private key identifier (the JWT header `kid`) */
+  keyId: string;
+  /** PEM-encoded MusicKit private key contents (from the downloaded `.p8` file) */
+  privateKey: string;
+  /** Default storefront used for catalog lookups (e.g. 'us', 'gb'). Defaults to 'us'. */
+  storefront?: string;
+}
+
+// Apple Music API response types
+// @see https://developer.apple.com/documentation/applemusicapi
+
+interface AppleMusicArtwork {
+  url: string;
+  width?: number;
+  height?: number;
+  bgColor?: string;
+}
+
+interface AppleMusicSongAttributes {
+  name: string;
+  artistName: string;
+  albumName?: string;
+  isrc?: string;
+  durationInMillis?: number;
+  trackNumber?: number;
+  discNumber?: number;
+  contentRating?: string; // 'explicit' | 'clean'
+  genreNames?: string[];
+  releaseDate?: string;
+  url?: string;
+  artwork?: AppleMusicArtwork;
+}
+
+interface AppleMusicArtistAttributes {
+  name: string;
+  genreNames?: string[];
+  url?: string;
+  artwork?: AppleMusicArtwork;
+}
+
+interface AppleMusicAlbumAttributes {
+  name: string;
+  artistName: string;
+  upc?: string;
+  releaseDate?: string;
+  trackCount?: number;
+  genreNames?: string[];
+  recordLabel?: string;
+  copyright?: string;
+  isSingle?: boolean;
+  isCompilation?: boolean;
+  contentRating?: string;
+  url?: string;
+  artwork?: AppleMusicArtwork;
+}
+
+interface AppleMusicRelationship<T> {
+  data?: T[];
+  href?: string;
+  next?: string;
+}
+
+interface AppleMusicResource<T extends string, A> {
+  id: string;
+  type: T;
+  href?: string;
+  attributes?: A;
+  relationships?: {
+    artists?: AppleMusicRelationship<AppleMusicArtist>;
+    tracks?: AppleMusicRelationship<AppleMusicSong>;
+  };
+}
+
+type AppleMusicSong = AppleMusicResource<'songs', AppleMusicSongAttributes>;
+type AppleMusicArtist = AppleMusicResource<
+  'artists',
+  AppleMusicArtistAttributes
+>;
+type AppleMusicAlbum = AppleMusicResource<'albums', AppleMusicAlbumAttributes>;
+
+interface AppleMusicDataResponse<T> {
+  data: T[];
+  next?: string;
+}
+
+interface AppleMusicSearchResponse {
+  results: {
+    songs?: { data: AppleMusicSong[] };
+    albums?: { data: AppleMusicAlbum[] };
+    artists?: { data: AppleMusicArtist[] };
+  };
+}
+
+/**
+ * Apple Music catalog provider using the Apple Music API.
+ *
+ * Features:
+ * - Developer-token (ES256 JWT) authentication
+ * - Album, track, and artist lookups
+ * - ISRC-based track lookup (`filter[isrc]`)
+ * - UPC lookup for albums (`filter[upc]`)
+ * - `music.apple.com` URL parsing
+ * - Artwork retrieval (resolves Apple's `{w}`/`{h}` templated URLs)
+ *
+ * @see https://developer.apple.com/documentation/applemusicapi
+ */
+export class AppleMusicProvider extends BaseProvider {
+  readonly name = 'apple_music';
+  readonly displayName = 'Apple Music';
+  readonly priority = 70;
+
+  private developerToken: string | null = null;
+  private tokenExpiresAt: Date | null = null;
+  private privateKeyObject: KeyObject | null = null;
+  private storefront: string;
+
+  constructor(config: AppleMusicConfig) {
+    super(config);
+    this.storefront = (config.storefront ?? 'us').toLowerCase();
+    this.initializeLogger();
+  }
+
+  canHandleUrl(url: string): boolean {
+    return /music\.apple\.com/.test(url) || /itunes\.apple\.com/.test(url);
+  }
+
+  parseUrl(url: string): ParsedUrl | null {
+    if (!this.canHandleUrl(url)) return null;
+
+    // A song is expressed as an album URL with an `?i=<songId>` query param:
+    // https://music.apple.com/us/album/album-name/1234567890?i=9876543210
+    const songParam = url.match(/[?&]i=(\d+)/);
+    if (songParam?.[1]) {
+      return { type: 'track', id: songParam[1] };
+    }
+
+    // Artist: /artist/<slug>/<id> or legacy /artist/id<id>
+    const artistMatch = url.match(/\/artist\/(?:[^/?#]+\/)?(?:id)?(\d+)/);
+    if (artistMatch?.[1]) {
+      return { type: 'artist', id: artistMatch[1] };
+    }
+
+    // Album/release: /album/<slug>/<id>
+    const albumMatch = url.match(/\/album\/(?:[^/?#]+\/)?(\d+)/);
+    if (albumMatch?.[1]) {
+      return { type: 'release', id: albumMatch[1] };
+    }
+
+    // Standalone song URL: /song/<slug>/<id>
+    const songMatch = url.match(/\/song\/(?:[^/?#]+\/)?(\d+)/);
+    if (songMatch?.[1]) {
+      return { type: 'track', id: songMatch[1] };
+    }
+
+    return null;
+  }
+
+  /**
+   * Get or mint a developer token (ES256 JWT) used to authenticate catalog
+   * requests. Tokens are cached in memory and refreshed shortly before expiry.
+   */
+  private getDeveloperToken(): string {
+    if (
+      this.developerToken &&
+      this.tokenExpiresAt &&
+      this.tokenExpiresAt > new Date()
+    ) {
+      return this.developerToken;
+    }
+
+    const config = this.config as AppleMusicConfig;
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const expSeconds = nowSeconds + DEVELOPER_TOKEN_TTL_SECONDS;
+
+    const header = { alg: 'ES256', kid: config.keyId };
+    const payload = { iss: config.teamId, iat: nowSeconds, exp: expSeconds };
+
+    const signingInput = `${base64UrlJson(header)}.${base64UrlJson(payload)}`;
+
+    let signature: Buffer;
+    try {
+      signature = sign('sha256', Buffer.from(signingInput), {
+        key: this.getPrivateKeyObject(),
+        dsaEncoding: 'ieee-p1363',
+      });
+    } catch (error) {
+      throw new ProviderError(
+        `Failed to sign Apple Music developer token: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        this.name
+      );
+    }
+
+    this.developerToken = `${signingInput}.${signature.toString('base64url')}`;
+    // Refresh 60 seconds before expiry
+    this.tokenExpiresAt = new Date((expSeconds - 60) * 1000);
+
+    this.logger.debug('Minted new Apple Music developer token', {
+      expiresIn: DEVELOPER_TOKEN_TTL_SECONDS,
+    });
+
+    return this.developerToken;
+  }
+
+  /**
+   * Lazily parse and cache the PEM private key. Supports keys stored in env
+   * vars with escaped newlines (`\n`).
+   */
+  private getPrivateKeyObject(): KeyObject {
+    if (this.privateKeyObject) return this.privateKeyObject;
+
+    const config = this.config as AppleMusicConfig;
+    const pem = config.privateKey.includes('\\n')
+      ? config.privateKey.replace(/\\n/g, '\n')
+      : config.privateKey;
+
+    try {
+      this.privateKeyObject = createPrivateKey(pem);
+    } catch (error) {
+      throw new ProviderError(
+        `Invalid Apple Music private key: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        this.name
+      );
+    }
+
+    return this.privateKeyObject;
+  }
+
+  /**
+   * Make an authenticated request to the Apple Music catalog API.
+   * Endpoints are relative to `/v1/catalog/{storefront}`.
+   */
+  private async fetchApi<T>(
+    endpoint: string,
+    params?: Record<string, string>
+  ): Promise<T | null> {
+    const token = this.getDeveloperToken();
+    const searchParams = params
+      ? `?${new URLSearchParams(params).toString()}`
+      : '';
+    const url = `${APPLE_MUSIC_API}/v1/catalog/${this.storefront}${endpoint}${searchParams}`;
+
+    this.logger.debug('Apple Music API request', { url });
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      this.logger.warn('Apple Music API error response', {
+        status: response.status,
+        error: errorText,
+      });
+
+      if (response.status === 404) return null;
+      if (response.status === 401 || response.status === 403) {
+        // Token may be invalid/expired; clear it so the next call re-mints.
+        this.developerToken = null;
+        this.tokenExpiresAt = null;
+        throw new HttpError(
+          `Apple Music API authentication failed`,
+          response.status,
+          this.name
+        );
+      }
+      throw new HttpError(
+        `Apple Music API error: ${response.status} - ${errorText}`,
+        response.status,
+        this.name
+      );
+    }
+
+    return response.json() as Promise<T>;
+  }
+
+  protected async _lookupReleaseByGtin(
+    gtin: string
+  ): Promise<HarmonizedRelease | null> {
+    // Try the full GTIN, then without leading zeros for UPC/EAN compatibility.
+    const candidates = [gtin];
+    const cleaned = gtin.replace(/^0+/, '');
+    if (cleaned !== gtin) candidates.push(cleaned);
+
+    for (const upc of candidates) {
+      const data = await this.fetchApi<AppleMusicDataResponse<AppleMusicAlbum>>(
+        '/albums',
+        { 'filter[upc]': upc }
+      );
+
+      const album = data?.data?.[0];
+      if (album) {
+        // Re-fetch by id to pick up the tracks/artists relationships.
+        return this._lookupReleaseById(album.id);
+      }
+    }
+
+    return null;
+  }
+
+  protected async _lookupReleaseById(
+    id: string,
+    _options?: LookupOptions
+  ): Promise<HarmonizedRelease | null> {
+    const data = await this.fetchApi<AppleMusicDataResponse<AppleMusicAlbum>>(
+      `/albums/${id}`,
+      { include: 'tracks,artists' }
+    );
+
+    const album = data?.data?.[0];
+    if (!album) return null;
+
+    return this.transformAlbum(album);
+  }
+
+  protected async _lookupReleaseByUrl(
+    url: string
+  ): Promise<HarmonizedRelease | null> {
+    const parsed = this.parseUrl(url);
+    if (!parsed || parsed.type !== 'release') return null;
+    return this._lookupReleaseById(parsed.id);
+  }
+
+  protected async _lookupTrackByIsrc(
+    isrc: string
+  ): Promise<HarmonizedTrack | null> {
+    const data = await this.fetchApi<AppleMusicDataResponse<AppleMusicSong>>(
+      '/songs',
+      { 'filter[isrc]': isrc }
+    );
+
+    const song = data?.data?.[0];
+    if (!song?.attributes) return null;
+
+    return this.transformTrack(
+      song,
+      song.attributes.trackNumber ?? 1,
+      song.attributes.discNumber
+    );
+  }
+
+  protected async _lookupArtistById(
+    id: string
+  ): Promise<HarmonizedArtist | null> {
+    const data = await this.fetchApi<AppleMusicDataResponse<AppleMusicArtist>>(
+      `/artists/${id}`
+    );
+
+    const artist = data?.data?.[0];
+    if (!artist?.attributes) return null;
+
+    return this.transformArtist(artist);
+  }
+
+  protected async _searchReleases(
+    query: string,
+    limit = 25
+  ): Promise<HarmonizedRelease[]> {
+    const data = await this.search(query, 'albums', limit);
+    const albums = data?.results?.albums?.data ?? [];
+    return albums.map((album) => this.transformAlbum(album));
+  }
+
+  protected async _searchArtists(
+    query: string,
+    limit = 25
+  ): Promise<HarmonizedArtist[]> {
+    const data = await this.search(query, 'artists', limit);
+    const artists = data?.results?.artists?.data ?? [];
+    return artists.map((artist) => this.transformArtist(artist));
+  }
+
+  protected async _searchTracks(
+    query: string,
+    limit = 25
+  ): Promise<HarmonizedTrack[]> {
+    const data = await this.search(query, 'songs', limit);
+    const songs = data?.results?.songs?.data ?? [];
+    return songs.map((song) =>
+      this.transformTrack(
+        song,
+        song.attributes?.trackNumber ?? 1,
+        song.attributes?.discNumber
+      )
+    );
+  }
+
+  private async search(
+    query: string,
+    type: 'albums' | 'artists' | 'songs',
+    limit: number
+  ): Promise<AppleMusicSearchResponse | null> {
+    // Apple caps `limit` at 25 for search.
+    return this.fetchApi<AppleMusicSearchResponse>('/search', {
+      term: query,
+      types: type,
+      limit: String(Math.min(limit, 25)),
+    });
+  }
+
+  // Transformation methods
+
+  private transformAlbum(raw: AppleMusicAlbum): HarmonizedRelease {
+    const attrs = raw.attributes;
+    const songs = raw.relationships?.tracks?.data ?? [];
+
+    const tracks = songs
+      .filter((song): song is AppleMusicSong => song.attributes !== undefined)
+      .map((song) =>
+        this.transformTrack(
+          song,
+          song.attributes?.trackNumber ?? 1,
+          song.attributes?.discNumber
+        )
+      );
+
+    // Group tracks into media (discs)
+    const discMap = new Map<number, HarmonizedTrack[]>();
+    for (const track of tracks) {
+      const discNum = track.discNumber ?? 1;
+      if (!discMap.has(discNum)) {
+        discMap.set(discNum, []);
+      }
+      discMap.get(discNum)!.push(track);
+    }
+
+    const media = Array.from(discMap.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([position, discTracks]) => ({
+        position,
+        tracks: discTracks.sort((a, b) => a.position - b.position),
+      }));
+
+    if (media.length === 0) {
+      media.push({ position: 1, tracks: [] });
+    }
+
+    const artwork = attrs?.artwork
+      ? [
+          {
+            url: resolveArtworkUrl(attrs.artwork),
+            type: 'front' as const,
+            width: attrs.artwork.width,
+            height: attrs.artwork.height,
+            provider: this.name,
+          },
+        ]
+      : undefined;
+
+    return {
+      gtin: attrs?.upc,
+      title: attrs?.name ?? '',
+      titleNormalized: this.normalizeString(attrs?.name ?? ''),
+
+      artists: this.buildArtistCredits(attrs?.artistName, raw.relationships),
+
+      releaseDate: parseAppleDate(attrs?.releaseDate),
+      releaseType: mapAlbumType(attrs),
+
+      labels: attrs?.recordLabel ? [{ name: attrs.recordLabel }] : undefined,
+
+      media,
+
+      artwork,
+
+      genres: attrs?.genreNames?.length ? attrs.genreNames : undefined,
+
+      externalIds: { [this.name]: raw.id },
+      sources: [this.createSource(raw.id, attrs?.url)],
+
+      mergedAt: new Date(),
+      confidence: 0.9,
+    };
+  }
+
+  private transformTrack(
+    raw: AppleMusicSong,
+    position: number,
+    discNumber?: number
+  ): HarmonizedTrack {
+    const attrs = raw.attributes;
+
+    return {
+      isrc: attrs?.isrc,
+      title: attrs?.name ?? '',
+      titleNormalized: this.normalizeString(attrs?.name ?? ''),
+      position,
+      discNumber,
+      duration: attrs?.durationInMillis,
+      explicit: attrs?.contentRating
+        ? attrs.contentRating === 'explicit'
+        : undefined,
+      artists: this.buildArtistCredits(attrs?.artistName, raw.relationships),
+      externalIds: { [this.name]: raw.id },
+      sources: [this.createSource(raw.id, attrs?.url)],
+    };
+  }
+
+  private transformArtist(raw: AppleMusicArtist): HarmonizedArtist {
+    const attrs = raw.attributes;
+
+    return {
+      name: attrs?.name ?? '',
+      nameNormalized: this.normalizeString(attrs?.name ?? ''),
+      genres: attrs?.genreNames?.length ? attrs.genreNames : undefined,
+      externalIds: { [this.name]: raw.id },
+      sources: [this.createSource(raw.id, attrs?.url)],
+      mergedAt: new Date(),
+      confidence: 0.9,
+    };
+  }
+
+  /**
+   * Build artist credits, preferring the detailed `artists` relationship (which
+   * carries stable IDs) and falling back to the `artistName` string that every
+   * song/album attribute set includes.
+   */
+  private buildArtistCredits(
+    artistName: string | undefined,
+    relationships: AppleMusicAlbum['relationships']
+  ): HarmonizedArtistCredit[] {
+    const related = relationships?.artists?.data;
+    if (related?.length) {
+      const credits = related
+        .filter((artist) => artist.attributes?.name)
+        .map((artist) => ({
+          name: artist.attributes!.name,
+          externalIds: { [this.name]: artist.id },
+        }));
+      if (credits.length) return credits;
+    }
+
+    if (artistName) {
+      return [{ name: artistName }];
+    }
+
+    return [];
+  }
+}
+
+/** Base64url-encode a JSON object (JWT header/payload). */
+function base64UrlJson(value: Record<string, unknown>): string {
+  return Buffer.from(JSON.stringify(value)).toString('base64url');
+}
+
+/**
+ * Apple returns artwork URLs with `{w}` and `{h}` placeholders that must be
+ * replaced with concrete dimensions before the URL is usable.
+ */
+function resolveArtworkUrl(artwork: AppleMusicArtwork): string {
+  const width = artwork.width ?? 1000;
+  const height = artwork.height ?? 1000;
+  return artwork.url
+    .replace('{w}', String(width))
+    .replace('{h}', String(height));
+}
+
+/** Parse Apple's release dates, which may be `YYYY`, `YYYY-MM`, or `YYYY-MM-DD`. */
+function parseAppleDate(date?: string): PartialDate | undefined {
+  if (!date) return undefined;
+  const parts = date.split('-').map(Number);
+  return {
+    year: parts[0],
+    month: parts[1],
+    day: parts[2],
+  };
+}
+
+function mapAlbumType(attrs?: AppleMusicAlbumAttributes): ReleaseType {
+  if (!attrs) return 'album';
+  if (attrs.isCompilation) return 'compilation';
+  if (attrs.isSingle) return 'single';
+  return 'album';
+}

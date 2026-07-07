@@ -31,6 +31,10 @@ export {
 } from './providers/spotify.provider';
 export { TidalProvider, type TidalConfig } from './providers/tidal.provider';
 export {
+  AppleMusicProvider,
+  type AppleMusicConfig,
+} from './providers/apple-music.provider';
+export {
   LookupCoordinator,
   type LookupRequest,
   type LookupResult,
