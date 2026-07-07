@@ -20,11 +20,11 @@
   },
   "dependencies": {
     "@scilent-one/db": "workspace:*",
-    "isomorphic-dompurify": "^2.36.0"
+    "isomorphic-dompurify": "^3.18.0"
   },
   "devDependencies": {
     "@scilent-one/tooling": "workspace:*",
-    "@types/node": "^25.9.4",
+    "@types/node": "^26.1.0",
     "@vitest/coverage-v8": "^4.1.10",
     "typescript": "^5.9.3",
     "vitest": "^4.1.10"
