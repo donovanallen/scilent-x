@@ -27,10 +27,7 @@ import { Suspense } from 'react';
 import { getEngineStatus, type ProviderCapabilities } from '../actions';
 
 import { ProviderToggle } from './_components';
-import {
-  getProviderSettings,
-  getProviderCredentialsStatus,
-} from './actions';
+import { getProviderSettings, getProviderCredentialsStatus } from './actions';
 
 export const metadata = {
   title: 'Harmony Engine',
@@ -157,12 +154,15 @@ async function EngineStatusCard() {
       displayName: 'Tidal',
       authType: 'OAuth Client Credentials',
     },
+    {
+      name: 'apple_music',
+      displayName: 'Apple Music',
+      authType: 'Developer Token (JWT)',
+    },
   ];
 
   // Create a map of provider settings for quick lookup
-  const settingsMap = new Map(
-    providerSettings.map((s) => [s.providerName, s])
-  );
+  const settingsMap = new Map(providerSettings.map((s) => [s.providerName, s]));
 
   const enabledNames = new Set(status.enabledProviders.map((p) => p.name));
 
@@ -219,13 +219,16 @@ async function EngineStatusCard() {
               const enabledInfo = status.enabledProviders.find(
                 (p) => p.name === provider.name
               );
-              const hasCredentials = credentialsStatus.get(provider.name) ?? false;
+              const hasCredentials =
+                credentialsStatus.get(provider.name) ?? false;
               const setting = settingsMap.get(provider.name);
               // Provider is considered toggled ON if:
               // - there is a DB setting: has credentials AND setting.enabled
               // - or there is no DB setting: fall back to engine status (isEnabled)
               const isToggledOn =
-                setting !== undefined ? hasCredentials && setting.enabled : isEnabled;
+                setting !== undefined
+                  ? hasCredentials && setting.enabled
+                  : isEnabled;
 
               return (
                 <div key={provider.name} className='py-4 first:pt-0 last:pb-0'>

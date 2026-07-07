@@ -547,6 +547,111 @@ describe('AppleMusicProvider', () => {
       expect(url).toContain('types=songs');
     });
   });
+
+  describe('user authentication', () => {
+    it('reports that it supports user auth', () => {
+      expect(provider.supportsUserAuth).toBe(true);
+    });
+
+    it('getCurrentUser returns the storefront as the profile', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          data: [
+            {
+              id: 'us',
+              type: 'storefronts',
+              attributes: {
+                name: 'United States',
+                defaultLanguageTag: 'en-US',
+              },
+            },
+          ],
+        })
+      );
+
+      const profile = await provider.getCurrentUser('music-user-token-123');
+
+      expect(profile.id).toBe('us');
+      expect(profile.displayName).toBe('United States');
+      expect(profile.country).toBe('US');
+      expect(profile.provider).toBe('apple_music');
+
+      // Verify both the developer token and the Music User Token are sent.
+      const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(url).toContain('/v1/me/storefront');
+      const headers = init.headers as Record<string, string>;
+      expect(headers['Authorization']).toMatch(/^Bearer /);
+      expect(headers['Music-User-Token']).toBe('music-user-token-123');
+    });
+
+    it('getFollowedArtists returns library artists, preferring catalog data', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          data: [
+            {
+              id: 'r.abc',
+              type: 'library-artists',
+              attributes: { name: 'Library Name' },
+              relationships: {
+                catalog: {
+                  data: [
+                    {
+                      id: '159260351',
+                      type: 'artists',
+                      attributes: {
+                        name: 'Taylor Swift',
+                        url: 'https://music.apple.com/us/artist/taylor-swift/159260351',
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              id: 'r.def',
+              type: 'library-artists',
+              attributes: { name: 'Local Only Artist' },
+            },
+          ],
+          meta: { total: 42 },
+          next: '/v1/me/library/artists?offset=25',
+        })
+      );
+
+      const result = await provider.getFollowedArtists('music-user-token-123', {
+        limit: 25,
+      });
+
+      expect(result.items).toHaveLength(2);
+      // Prefers the catalog artist (stable catalog id) when present.
+      expect(result.items[0]?.name).toBe('Taylor Swift');
+      expect(result.items[0]?.externalIds).toEqual({
+        apple_music: '159260351',
+      });
+      // Falls back to the library entry when no catalog link exists.
+      expect(result.items[1]?.name).toBe('Local Only Artist');
+      expect(result.items[1]?.externalIds).toEqual({ apple_music: 'r.def' });
+
+      expect(result.total).toBe(42);
+      expect(result.hasMore).toBe(true);
+      expect(result.nextCursor).toBe('25');
+
+      const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(url).toContain('/v1/me/library/artists');
+      expect(url).toContain('include=catalog');
+      const headers = init.headers as Record<string, string>;
+      expect(headers['Music-User-Token']).toBe('music-user-token-123');
+    });
+
+    it('getFollowedArtists returns an empty collection when the library is empty', async () => {
+      mockFetch.mockResolvedValueOnce(jsonResponse({ data: [] }));
+
+      const result = await provider.getFollowedArtists('music-user-token-123');
+      expect(result.items).toEqual([]);
+      expect(result.hasMore).toBe(false);
+      expect(result.nextCursor).toBeNull();
+    });
+  });
 });
 
 describe('ProviderRegistry', () => {
