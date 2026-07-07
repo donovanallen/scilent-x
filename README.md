@@ -4,14 +4,23 @@
 
 Based on [Scilent One](https://www.github.com/scilentdigital/scilent-one) Template
 
+**scilent-x** is a pnpm + Turborepo monorepo for a music-focused social platform: a Next.js 16
+web application (`apps/web`) backed by shared packages for UI, authentication, database access,
+logging, social features, and music-metadata harmonization.
+
 ## 🚀 Tech Stack
 
-- **[Next.js 15.5.2](https://nextjs.org/)** - React framework with App Router
-- **[React 19.1.0](https://react.dev/)** - UI library
-- **[TypeScript 5.7.2](https://www.typescriptlang.org/)** - Type safety
-- **[Tailwind CSS 4.1.12](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[Turborepo 2.3.1](https://turbo.build/repo)** - Monorepo management
-- **[pnpm 10.15.0](https://pnpm.io/)** - Fast, disk space efficient package manager
+- **[Next.js 16.2.10](https://nextjs.org/)** - React framework with App Router + Turbopack
+- **[React 19.2.7](https://react.dev/)** - UI library
+- **[TypeScript 5.9.3](https://www.typescriptlang.org/)** - Type safety
+- **[Tailwind CSS v4](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Turborepo](https://turbo.build/repo)** - Monorepo build orchestration
+- **[pnpm 10](https://pnpm.io/)** - Fast, disk space efficient package manager
+- **[Prisma 7](https://www.prisma.io/)** + PostgreSQL (`@prisma/adapter-pg`) - Database ORM
+- **[Better Auth](https://www.better-auth.com/)** - Authentication (email/password + OAuth)
+- **[Radix UI](https://www.radix-ui.com/)** primitives with shadcn/ui-style patterns
+- **[Vitest](https://vitest.dev/)** - Unit testing, **[Storybook 10](https://storybook.js.org/)** - Component development
+- **[Changesets](https://github.com/changesets/changesets)** - Versioning and changelogs for packages
 - **[@scilent-one/tooling](./packages/tooling)** - Unified ESLint, TypeScript, and Prettier configurations
 
 ## 📁 Project Structure
@@ -19,58 +28,47 @@ Based on [Scilent One](https://www.github.com/scilentdigital/scilent-one) Templa
 ```bash
 scilent-x/
 ├── apps/
-│   └── web/                     # Next.js application
+│   └── web/                       # Next.js 16 application (Turbopack, App Router)
 │       ├── src/
-│       │   ├── app/             # App Router pages
-│       │   │   ├── layout.tsx
-│       │   │   ├── page.tsx
-│       │   │   └── globals.css
-│       │   └── components/      # Reusable components
-│       ├── public/              # Static assets
-│       ├── package.json
-│       ├── tsconfig.json        # Uses @scilent-one/tooling/typescript/nextjs
-│       ├── eslint.config.mjs    # Uses @scilent-one/tooling/eslint/next
-│       ├── .prettierrc.js       # Uses @scilent-one/tooling/prettier
-│       ├── next.config.ts
-│       └── tailwind.config.ts
+│       │   ├── app/                # App Router routes
+│       │   │   ├── (authenticated)/  # admin, explore, feed, post, profile, search, settings, users
+│       │   │   ├── (unauthenticated)/ # login, signup
+│       │   │   └── api/            # Route handlers (incl. Better Auth)
+│       │   └── components/         # App-specific components
+│       └── public/                 # Static assets
 ├── packages/
-│   └── tooling/                 # Shared development tooling
-│       ├── eslint/              # ESLint configurations
-│       │   ├── base.js          # Base TypeScript rules
-│       │   ├── react.js         # React-specific rules
-│       │   └── next.js          # Next.js optimizations
-│       ├── typescript/          # TypeScript configurations
-│       │   ├── base.json        # Base TypeScript config
-│       │   ├── react.json       # React projects
-│       │   └── nextjs.json      # Next.js projects
-│       ├── prettier/            # Prettier configuration
-│       │   └── index.js         # Formatting rules
-│       ├── package.json
-│       ├── README.md            # Detailed tooling documentation
-│       └── SETUP.md             # Step-by-step setup guide
-├── package.json                 # Root package.json
-├── pnpm-workspace.yaml          # pnpm workspace configuration
-├── turbo.json                   # Turborepo configuration
-├── eslint.config.mjs            # Root ESLint config
-├── .prettierrc.js               # Root Prettier config
-├── .prettierignore              # Prettier ignore patterns
-└── README.md
+│   ├── ui/                        # @scilent-one/ui - shared UI primitives (Radix + shadcn patterns)
+│   ├── scilent-ui/                # @scilent-one/scilent-ui - composite UI for harmonized music data
+│   ├── db/                        # @scilent-one/db - Prisma 7 + PostgreSQL client
+│   ├── auth/                      # @scilent-one/auth - Better Auth server/client config
+│   ├── logger/                    # @scilent-one/logger - structured logging (pino)
+│   ├── social/                    # @scilent-one/social - posts, comments, follows, feeds
+│   ├── harmony-engine/            # @scilent-one/harmony-engine - music metadata harmonization
+│   └── tooling/                   # @scilent-one/tooling - shared ESLint/TypeScript/Prettier configs
+├── docs/                          # Product/process docs (auth, database, release, setup)
+├── agents/                        # Claude-Code-oriented docs (tech stack, DB, dependency audit, specs)
+├── .cursor/                       # Cursor Cloud Agent config, hooks, skills
+├── package.json                   # Root package.json (turbo scripts)
+├── pnpm-workspace.yaml             # pnpm workspace + dependency catalogs
+├── turbo.json                     # Turborepo task pipeline
+└── AGENTS.md                      # Entry point for AI coding agents
 ```
 
 ## 🛠 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ (recommended: use [nvm](https://github.com/nvm-sh/nvm))
-- pnpm (will be installed automatically)
+- **Node.js** - version pinned in [`.nvmrc`](./.nvmrc) (recommended: use [nvm](https://github.com/nvm-sh/nvm))
+- **pnpm** - version pinned in the root `package.json` `packageManager` field (use [Corepack](https://pnpm.io/installation#using-corepack) to pick it up automatically)
+- **PostgreSQL** - only required if you want to run the app with a live database (see [Database Setup](#-database-setup))
 
 ### Installation
 
 1. **Clone the repository**:
 
    ```bash
-   git clone <repository-url> my-project
-   cd my-project
+   git clone https://github.com/donovanallen/scilent-x.git
+   cd scilent-x
    ```
 
 2. **Install dependencies**:
@@ -90,165 +88,117 @@ scilent-x/
 
 ### Available Scripts
 
-- `pnpm dev` - Start development servers for all apps
-- `pnpm build` - Build all apps and packages
-- `pnpm lint` - Run ESLint on all packages
-- `pnpm lint:check` - Check for linting issues without fixing
-- `pnpm format` - Format code with Prettier
-- `pnpm format:check` - Check code formatting
-- `pnpm typecheck` - Run TypeScript type checking
+Run from the repo root via Turborepo; add `--filter <package>` to scope to a single package.
+
+| Script                | Description                                            |
+| --------------------- | ------------------------------------------------------ |
+| `pnpm dev`            | Start development servers for all apps                 |
+| `pnpm dev:ui`         | Run the `@scilent-one/ui` sandbox (Vite)               |
+| `pnpm storybook:ui`   | Run Storybook for `@scilent-one/ui`                    |
+| `pnpm storybook:h-ui` | Run Storybook for `@scilent-one/scilent-ui`            |
+| `pnpm build`          | Build all apps and packages                            |
+| `pnpm lint`           | Run ESLint across all packages                         |
+| `pnpm format`         | Format code with Prettier                              |
+| `pnpm typecheck`      | Run TypeScript type checking                           |
+| `pnpm test`           | Run unit tests (Vitest)                                |
+| `pnpm test:coverage`  | Run unit tests with coverage                           |
+| `pnpm fix`            | Run `lint` + `format` + `typecheck`                    |
+| `pnpm db:generate`    | Generate the Prisma client                             |
+| `pnpm db:migrate`     | Run Prisma migrations (dev)                            |
+| `pnpm db:push`        | Push schema changes without migrations                 |
+| `pnpm db:studio`      | Open Prisma Studio                                     |
+| `pnpm changeset`      | Author a changeset for a package change                |
+| `pnpm version`        | Apply pending changesets to package versions           |
+| `pnpm release`        | Publish packages (private packages are skipped)        |
+| `pnpm reinstall`      | Clean all build artifacts/`node_modules` and reinstall |
+
+See [`package.json`](./package.json) and [`turbo.json`](./turbo.json) for the authoritative list.
+
+## 🗄 Database Setup
+
+The app uses Prisma 7 with PostgreSQL via `@scilent-one/db`. To run it locally:
+
+```bash
+cp packages/db/.env.example packages/db/.env
+# edit packages/db/.env with your DATABASE_URL
+
+pnpm --filter @scilent-one/db db:generate
+pnpm --filter @scilent-one/db db:push
+```
+
+A live database status dashboard is available at [`/db`](http://localhost:3000/db) once the app
+is running. See [`docs/DATABASE.mdx`](./docs/DATABASE.mdx) for full setup, schema, and
+troubleshooting details.
+
+## 🔐 Authentication Setup
+
+Authentication is handled by [Better Auth](https://www.better-auth.com/) via `@scilent-one/auth`,
+supporting email/password and OAuth (Google, GitHub, Apple). Configure `apps/web/.env` (see
+`apps/web/.env.example`) with `DATABASE_URL`, `BETTER_AUTH_SECRET`, and `BETTER_AUTH_URL`, plus any
+OAuth provider credentials you need. Full setup instructions and API reference are in
+[`docs/AUTH.md`](./docs/AUTH.md).
 
 ## 🧰 Tooling Package
 
-This template includes a comprehensive tooling package (`@scilent-one/tooling`) that provides:
+`@scilent-one/tooling` centralizes code-quality configuration across the monorepo:
 
-### Features
+- **ESLint**: layered configs — `eslint/base.js` (TypeScript) → `eslint/react.js` (React/hooks/a11y) → `eslint/next.js` (Next.js + Core Web Vitals)
+- **TypeScript**: layered `tsconfig` bases — `typescript/base.json` → `typescript/react.json` → `typescript/nextjs.json`
+- **Prettier**: shared formatting rules with file-specific overrides (JSON, Markdown, YAML)
 
-- **ESLint Configurations**: Multiple configurations for different project types
-  - Base TypeScript configuration with import rules and strict type checking
-  - React configuration with hooks and accessibility rules
-  - Next.js configuration with performance and Core Web Vitals optimizations
-
-- **TypeScript Configurations**: Reusable tsconfig.json files
-  - Strict type checking with modern JavaScript support
-  - Project-specific optimizations for React and Next.js
-  - Path mapping and incremental compilation support
-
-- **Prettier Configuration**: Consistent code formatting
-  - Modern JavaScript defaults (single quotes, trailing commas)
-  - File-specific rules for JSON, Markdown, and YAML
-  - Comprehensive ignore patterns for build outputs and dependencies
-
-### Quick Setup for New Projects
-
-When adding a new package or app to the monorepo:
-
-1. **Install the tooling package**:
-
-   ```bash
-   pnpm add -D @scilent-one/tooling eslint prettier typescript
-   ```
-
-2. **For Next.js apps**, create `eslint.config.mjs`:
-
-   ```javascript
-   import nextConfig from '@scilent-one/tooling/eslint/next';
-   export default nextConfig;
-   ```
-
-3. **Create `tsconfig.json`**:
-
-   ```json
-   {
-     "extends": "@scilent-one/tooling/typescript/nextjs"
-   }
-   ```
-
-4. **Create `.prettierrc.js`**:
-
-```javascript
-module.exports = require('@scilent-one/tooling/prettier');
-```
-
-For detailed setup instructions, see [`packages/tooling/SETUP.md`](./packages/tooling/SETUP.md).
+For detailed setup instructions when adding a new app/package, see
+[`packages/tooling/SETUP.md`](./packages/tooling/SETUP.md).
 
 ## 🎯 Development Workflow
 
 ### Code Quality
 
-This template enforces high code quality through:
+- **Static Analysis**: ESLint catches bugs and enforces best practices
+- **Type Safety**: TypeScript provides compile-time checking
+- **Formatting**: Prettier ensures consistent code style
+- **Testing**: Vitest for unit tests, Storybook for isolated component development
+- **CI**: GitHub Actions run tests, changeset status checks, and releases (see [`.github/workflows`](./.github/workflows))
 
-- **Static Analysis**: ESLint catches potential bugs and enforces best practices
-- **Type Safety**: TypeScript provides compile-time error checking
-- **Code Formatting**: Prettier ensures consistent code style
-- **Import Organization**: Automatic import sorting and unused import removal
+### Versioning (Changesets)
+
+Any change under `packages/*` (except `packages/tooling`) requires a changeset:
+
+```bash
+pnpm changeset
+```
+
+See [`docs/RELEASE.md`](./docs/RELEASE.md) for the full release flow. `apps/web` changes are
+excluded from changeset versioning.
 
 ### Editor Setup
 
-For the best development experience, install these VS Code extensions:
+For the best development experience, install:
 
 - **ESLint** (`ms-vscode.vscode-eslint`)
 - **Prettier** (`esbenp.prettier-vscode`)
-- **TypeScript Importer** (`pmneo.tsimporter`)
 - **Tailwind CSS IntelliSense** (`bradlc.vscode-tailwindcss`)
 
-The repository includes `.vscode/settings.json` with optimized configuration.
+## 📚 Documentation
 
-### Monorepo Benefits
-
-- **Shared Dependencies**: Common packages are hoisted to the root
-- **Consistent Tooling**: Same ESLint, TypeScript, and Prettier configs across all packages
-- **Fast Builds**: Turborepo caches and parallelizes builds
-- **Type Safety**: Cross-package type checking and imports
-
-## 🏗 Architecture Decisions
-
-### Why This Structure?
-
-- **Scalability**: Easy to add new apps and packages
-- **Maintainability**: Shared tooling reduces configuration drift
-- **Developer Experience**: Consistent setup across all projects
-- **Performance**: Optimized build pipeline with caching
-
-### Package Organization
-
-- **`apps/`**: Deployable applications (web apps, mobile apps, etc.)
-- **`packages/`**: Shared libraries and tooling
-- **`tooling/`**: Development configurations and tools
-
-### Technology Choices
-
-- **Next.js**: Full-stack React framework with excellent DX
-- **Tailwind CSS**: Utility-first CSS for rapid UI development
-- **TypeScript**: Type safety and better developer experience
-- **Turborepo**: Efficient monorepo management with smart caching
-- **pnpm**: Fast package manager with efficient disk usage
-
-## 📦 Adding New Packages
-
-### Creating a New App
-
-1. **Create the app directory**:
-
-   ```bash
-   mkdir apps/my-new-app
-   cd apps/my-new-app
-   ```
-
-2. **Initialize package.json**:
-
-   ```bash
-   pnpm init
-   ```
-
-3. **Install dependencies** including the tooling package:
-
-   ```bash
-   pnpm add -D @scilent-one/tooling eslint prettier typescript
-   ```
-
-4. **Set up configurations** following the [setup guide](./packages/tooling/SETUP.md)
-
-5. **Add to Turborepo** by updating `turbo.json` if needed
-
-### Creating a Shared Package
-
-1. **Create the package directory**:
-
-   ```bash
-   mkdir packages/my-package
-   cd packages/my-package
-   ```
-
-2. **Follow the same setup process** as above
-
-3. **Export the package** in the main `package.json` if it should be publishable
+| Doc                                                                | Description                                          |
+| ------------------------------------------------------------------ | ---------------------------------------------------- |
+| [`AGENTS.md`](./AGENTS.md)                                         | Entry point for AI coding agents (Cursor et al.)     |
+| [`agents/CLAUDE.md`](./agents/CLAUDE.md)                           | Tech stack + commands for Claude Code                |
+| [`docs/INITIAL_SETUP.md`](./docs/INITIAL_SETUP.md)                 | Detailed onboarding/customization guide              |
+| [`docs/AUTH.md`](./docs/AUTH.md)                                   | Better Auth setup, OAuth providers, API reference    |
+| [`docs/DATABASE.mdx`](./docs/DATABASE.mdx)                         | Prisma/PostgreSQL setup, schema, troubleshooting     |
+| [`docs/RELEASE.md`](./docs/RELEASE.md)                             | Changesets versioning and release flow               |
+| [`docs/AGENT_TOOLING.md`](./docs/AGENT_TOOLING.md)                 | Cursor Cloud Agent config, hooks, and skills         |
+| [`docs/TODO.md`](./docs/TODO.md)                                   | Dependency audit history and technical debt tracking |
+| [`agents/HARMONY_ENGINE_SPEC.md`](./agents/HARMONY_ENGINE_SPEC.md) | Music metadata harmonization engine spec             |
+| [`agents/HARMONY_IX_SPEC.md`](./agents/HARMONY_IX_SPEC.md)         | Harmony interaction/UX spec                          |
+| [`packages/tooling/SETUP.md`](./packages/tooling/SETUP.md)         | Step-by-step guide for adding new apps/packages      |
 
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
 
-1. **Connect your repository** to Vercel
+1. **Connect the repository** to Vercel
 2. **Configure build settings**:
    - Build Command: `pnpm turbo build --filter=web`
    - Output Directory: `apps/web/.next`
@@ -256,52 +206,23 @@ The repository includes `.vscode/settings.json` with optimized configuration.
 
 ### Self-Hosted
 
-1. **Build the application**:
-
-   ```bash
-   pnpm build
-   ```
-
-2. **Start the production server**:
-
-   ```bash
-   cd apps/web
-   pnpm start
-   ```
+```bash
+pnpm build
+cd apps/web
+pnpm start
+```
 
 ## 🤝 Contributing
 
-### Development Guidelines
-
-- Follow the established code style (enforced by ESLint/Prettier)
-- Write TypeScript for all new code
-- Add tests for new functionality
-- Update documentation for significant changes
-
-### Pull Request Process
-
 1. **Create a feature branch** from `main`
-2. **Make your changes** following the coding standards
+2. **Make your changes**, following the existing conventions (see [`AGENTS.md`](./AGENTS.md))
 3. **Run quality checks**:
 
    ```bash
-   pnpm lint:check
-   pnpm format:check
-   pnpm typecheck
+   pnpm fix
    pnpm build
+   pnpm test
    ```
 
-4. **Submit a pull request** with a clear description
-
-## 📚 Resources
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [React Documentation](https://react.dev/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [Turborepo Documentation](https://turbo.build/repo/docs)
-- [Tooling Package Guide](./packages/tooling/README.md)
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+4. **Add a changeset** if your change touches a versioned package: `pnpm changeset`
+5. **Submit a pull request** with a clear description
