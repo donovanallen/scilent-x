@@ -251,6 +251,11 @@ export default function MyProfilePage() {
         <TidalProfileCard userId={profile.id} isCurrentUser={true} />
       )}
 
+      {/* Show Spotify profile card if user has Spotify connected */}
+      {profile.connectedPlatforms?.some((p) => p.providerId === 'spotify') && (
+        <SpotifyProfileCard userId={profile.id} isCurrentUser={true} />
+      )}
+
       {/* Placeholder for other platforms - can be extended later */}
       {(!profile.connectedPlatforms ||
         profile.connectedPlatforms.length === 0) && (
