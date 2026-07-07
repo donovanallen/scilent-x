@@ -10,8 +10,11 @@ import type {
   HarmonizedTrack,
   HarmonizedArtist,
   HarmonizedArtistCredit,
+  HarmonizedUserProfile,
   ReleaseType,
   PartialDate,
+  PaginatedCollection,
+  CollectionParams,
 } from '../types/index';
 import { HttpError, ProviderError } from '../errors/index';
 
@@ -131,6 +134,32 @@ interface AppleMusicSearchResponse {
   };
 }
 
+interface AppleMusicStorefrontAttributes {
+  name?: string;
+  defaultLanguageTag?: string;
+  supportedLanguageTags?: string[];
+}
+
+type AppleMusicStorefront = AppleMusicResource<
+  'storefronts',
+  AppleMusicStorefrontAttributes
+>;
+
+interface AppleMusicLibraryArtist {
+  id: string;
+  type: 'library-artists';
+  attributes?: { name?: string };
+  relationships?: {
+    catalog?: { data?: AppleMusicArtist[] };
+  };
+}
+
+interface AppleMusicLibraryArtistsResponse {
+  data: AppleMusicLibraryArtist[];
+  meta?: { total?: number };
+  next?: string;
+}
+
 /**
  * Apple Music catalog provider using the Apple Music API.
  *
@@ -148,6 +177,15 @@ export class AppleMusicProvider extends BaseProvider {
   readonly name = 'apple_music';
   readonly displayName = 'Apple Music';
   readonly priority = 70;
+
+  /**
+   * Apple Music supports user-scoped API calls via a Music User Token, which is
+   * obtained client-side through MusicKit and passed here as the `accessToken`.
+   * The developer token required alongside it is minted internally from config.
+   */
+  override get supportsUserAuth(): boolean {
+    return true;
+  }
 
   private developerToken: string | null = null;
   private tokenExpiresAt: Date | null = null;
@@ -444,6 +482,147 @@ export class AppleMusicProvider extends BaseProvider {
     });
   }
 
+  // User-authenticated API methods
+
+  /**
+   * Make a user-scoped request to the Apple Music API (`/v1/me/...`).
+   *
+   * Apple requires two tokens: the developer token (minted internally and sent
+   * as `Authorization: Bearer`) and the Music User Token (obtained client-side
+   * via MusicKit and sent as `Music-User-Token`).
+   */
+  private async fetchUserApi<T>(
+    endpoint: string,
+    musicUserToken: string,
+    params?: Record<string, string>
+  ): Promise<T | null> {
+    const developerToken = this.getDeveloperToken();
+    const searchParams = params
+      ? `?${new URLSearchParams(params).toString()}`
+      : '';
+    const url = `${APPLE_MUSIC_API}/v1/me${endpoint}${searchParams}`;
+
+    this.logger.debug('Apple Music User API request', { url });
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${developerToken}`,
+        'Music-User-Token': musicUserToken,
+        Accept: 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      this.logger.warn('Apple Music User API error response', {
+        status: response.status,
+        error: errorText,
+      });
+
+      if (response.status === 404) return null;
+      if (response.status === 401 || response.status === 403) {
+        throw new HttpError(
+          `Apple Music user authentication failed - Music User Token may be expired`,
+          response.status,
+          this.name
+        );
+      }
+      throw new HttpError(
+        `Apple Music User API error: ${response.status} - ${errorText}`,
+        response.status,
+        this.name
+      );
+    }
+
+    return response.json() as Promise<T>;
+  }
+
+  /**
+   * Get the current user's storefront as their provider "profile".
+   *
+   * Apple Music does not expose a public user profile (no display name, avatar,
+   * or email), so the user's storefront is the closest available identity.
+   * @param accessToken - The user's Music User Token
+   */
+  protected override async _getCurrentUser(
+    accessToken: string
+  ): Promise<HarmonizedUserProfile> {
+    const data = await this.fetchUserApi<
+      AppleMusicDataResponse<AppleMusicStorefront>
+    >('/storefront', accessToken);
+
+    const storefront = data?.data?.[0];
+    if (!storefront) {
+      throw new ProviderError(
+        'Failed to fetch Apple Music storefront',
+        this.name
+      );
+    }
+
+    return {
+      id: storefront.id,
+      username: storefront.id,
+      displayName: storefront.attributes?.name,
+      country: storefront.id.toUpperCase(),
+      provider: this.name,
+      fetchedAt: new Date(),
+      providerData: storefront.attributes as Record<string, unknown>,
+    };
+  }
+
+  /**
+   * Get the artists in the user's Apple Music library.
+   *
+   * Apple Music has no "followed artists" concept; library artists are the
+   * closest analogue. Uses offset-based pagination.
+   * @param accessToken - The user's Music User Token
+   * @param params - Pagination parameters (limit, cursor=offset)
+   */
+  protected override async _getFollowedArtists(
+    accessToken: string,
+    params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedArtist>> {
+    const limit = params?.limit ?? 25;
+    const queryParams: Record<string, string> = {
+      limit: String(Math.min(limit, 100)),
+      include: 'catalog',
+    };
+    if (params?.cursor) {
+      queryParams['offset'] = params.cursor;
+    }
+
+    const data = await this.fetchUserApi<AppleMusicLibraryArtistsResponse>(
+      '/library/artists',
+      accessToken,
+      queryParams
+    );
+
+    if (!data?.data?.length) {
+      return { items: [], total: 0, nextCursor: null, hasMore: false };
+    }
+
+    const items = data.data.map((artist) =>
+      this.transformLibraryArtist(artist)
+    );
+
+    // Apple returns a `next` path carrying the next offset when more exist.
+    let nextCursor: string | null = null;
+    if (data.next) {
+      const nextUrl = new URL(data.next, APPLE_MUSIC_API);
+      nextCursor = nextUrl.searchParams.get('offset');
+    }
+
+    const result: PaginatedCollection<HarmonizedArtist> = {
+      items,
+      nextCursor,
+      hasMore: nextCursor !== null,
+    };
+    if (data.meta?.total !== undefined) {
+      result.total = data.meta.total;
+    }
+    return result;
+  }
+
   // Transformation methods
 
   private transformAlbum(raw: AppleMusicAlbum): HarmonizedRelease {
@@ -553,6 +732,29 @@ export class AppleMusicProvider extends BaseProvider {
       sources: [this.createSource(raw.id, attrs?.url)],
       mergedAt: new Date(),
       confidence: 0.9,
+    };
+  }
+
+  /**
+   * Transform a library artist, preferring the linked catalog artist (which
+   * carries a stable catalog ID, genres, and a public URL) when available.
+   */
+  private transformLibraryArtist(
+    raw: AppleMusicLibraryArtist
+  ): HarmonizedArtist {
+    const catalogArtist = raw.relationships?.catalog?.data?.[0];
+    if (catalogArtist?.attributes?.name) {
+      return this.transformArtist(catalogArtist);
+    }
+
+    const name = raw.attributes?.name ?? '';
+    return {
+      name,
+      nameNormalized: this.normalizeString(name),
+      externalIds: { [this.name]: raw.id },
+      sources: [this.createSource(raw.id)],
+      mergedAt: new Date(),
+      confidence: 0.8,
     };
   }
 
