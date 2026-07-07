@@ -35,6 +35,7 @@ export type UserMinAggregateOutputType = {
   username: string | null
   bio: string | null
   avatarUrl: string | null
+  palette: string | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -48,6 +49,7 @@ export type UserMaxAggregateOutputType = {
   username: string | null
   bio: string | null
   avatarUrl: string | null
+  palette: string | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -61,6 +63,7 @@ export type UserCountAggregateOutputType = {
   username: number
   bio: number
   avatarUrl: number
+  palette: number
   _all: number
 }
 
@@ -76,6 +79,7 @@ export type UserMinAggregateInputType = {
   username?: true
   bio?: true
   avatarUrl?: true
+  palette?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -89,6 +93,7 @@ export type UserMaxAggregateInputType = {
   username?: true
   bio?: true
   avatarUrl?: true
+  palette?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -102,6 +107,7 @@ export type UserCountAggregateInputType = {
   username?: true
   bio?: true
   avatarUrl?: true
+  palette?: true
   _all?: true
 }
 
@@ -188,6 +194,7 @@ export type UserGroupByOutputType = {
   username: string | null
   bio: string | null
   avatarUrl: string | null
+  palette: string
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
@@ -222,6 +229,7 @@ export type UserWhereInput = {
   username?: Prisma.StringNullableFilter<"User"> | string | null
   bio?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  palette?: Prisma.StringFilter<"User"> | string
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
   posts?: Prisma.PostListRelationFilter
@@ -244,6 +252,7 @@ export type UserOrderByWithRelationInput = {
   username?: Prisma.SortOrderInput | Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  palette?: Prisma.SortOrder
   accounts?: Prisma.AccountOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   posts?: Prisma.PostOrderByRelationAggregateInput
@@ -269,6 +278,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   bio?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  palette?: Prisma.StringFilter<"User"> | string
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
   posts?: Prisma.PostListRelationFilter
@@ -291,6 +301,7 @@ export type UserOrderByWithAggregationInput = {
   username?: Prisma.SortOrderInput | Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  palette?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
@@ -310,6 +321,7 @@ export type UserScalarWhereWithAggregatesInput = {
   username?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   bio?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  palette?: Prisma.StringWithAggregatesFilter<"User"> | string
 }
 
 export type UserCreateInput = {
@@ -323,6 +335,7 @@ export type UserCreateInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -345,6 +358,7 @@ export type UserUncheckedCreateInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -367,6 +381,7 @@ export type UserUpdateInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -389,6 +404,7 @@ export type UserUncheckedUpdateInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -411,6 +427,7 @@ export type UserCreateManyInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
 }
 
 export type UserUpdateManyMutationInput = {
@@ -424,6 +441,7 @@ export type UserUpdateManyMutationInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -437,6 +455,7 @@ export type UserUncheckedUpdateManyInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -450,6 +469,7 @@ export type UserCountOrderByAggregateInput = {
   username?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  palette?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -463,6 +483,7 @@ export type UserMaxOrderByAggregateInput = {
   username?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  palette?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -476,6 +497,7 @@ export type UserMinOrderByAggregateInput = {
   username?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  palette?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -636,6 +658,7 @@ export type UserCreateWithoutAccountsInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
   comments?: Prisma.CommentCreateNestedManyWithoutAuthorInput
@@ -657,6 +680,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutAuthorInput
@@ -694,6 +718,7 @@ export type UserUpdateWithoutAccountsInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
   comments?: Prisma.CommentUpdateManyWithoutAuthorNestedInput
@@ -715,6 +740,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutAuthorNestedInput
@@ -736,6 +762,7 @@ export type UserCreateWithoutSessionsInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
   comments?: Prisma.CommentCreateNestedManyWithoutAuthorInput
@@ -757,6 +784,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutAuthorInput
@@ -794,6 +822,7 @@ export type UserUpdateWithoutSessionsInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
   comments?: Prisma.CommentUpdateManyWithoutAuthorNestedInput
@@ -815,6 +844,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutAuthorNestedInput
@@ -836,6 +866,7 @@ export type UserCreateWithoutPostsInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutAuthorInput
@@ -857,6 +888,7 @@ export type UserUncheckedCreateWithoutPostsInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutAuthorInput
@@ -894,6 +926,7 @@ export type UserUpdateWithoutPostsInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutAuthorNestedInput
@@ -915,6 +948,7 @@ export type UserUncheckedUpdateWithoutPostsInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutAuthorNestedInput
@@ -936,6 +970,7 @@ export type UserCreateWithoutCommentsInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -957,6 +992,7 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -994,6 +1030,7 @@ export type UserUpdateWithoutCommentsInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1015,6 +1052,7 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1036,6 +1074,7 @@ export type UserCreateWithoutLikesInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1057,6 +1096,7 @@ export type UserUncheckedCreateWithoutLikesInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1094,6 +1134,7 @@ export type UserUpdateWithoutLikesInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1115,6 +1156,7 @@ export type UserUncheckedUpdateWithoutLikesInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1136,6 +1178,7 @@ export type UserCreateWithoutFollowingInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1157,6 +1200,7 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1183,6 +1227,7 @@ export type UserCreateWithoutFollowersInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1204,6 +1249,7 @@ export type UserUncheckedCreateWithoutFollowersInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1241,6 +1287,7 @@ export type UserUpdateWithoutFollowingInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1262,6 +1309,7 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1294,6 +1342,7 @@ export type UserUpdateWithoutFollowersInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1315,6 +1364,7 @@ export type UserUncheckedUpdateWithoutFollowersInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1336,6 +1386,7 @@ export type UserCreateWithoutMentionsInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1357,6 +1408,7 @@ export type UserUncheckedCreateWithoutMentionsInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1394,6 +1446,7 @@ export type UserUpdateWithoutMentionsInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1415,6 +1468,7 @@ export type UserUncheckedUpdateWithoutMentionsInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1436,6 +1490,7 @@ export type UserCreateWithoutActivitiesInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1457,6 +1512,7 @@ export type UserUncheckedCreateWithoutActivitiesInput = {
   username?: string | null
   bio?: string | null
   avatarUrl?: string | null
+  palette?: string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1494,6 +1550,7 @@ export type UserUpdateWithoutActivitiesInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1515,6 +1572,7 @@ export type UserUncheckedUpdateWithoutActivitiesInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  palette?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1639,6 +1697,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   username?: boolean
   bio?: boolean
   avatarUrl?: boolean
+  palette?: boolean
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   posts?: boolean | Prisma.User$postsArgs<ExtArgs>
@@ -1662,6 +1721,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   username?: boolean
   bio?: boolean
   avatarUrl?: boolean
+  palette?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1675,6 +1735,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   username?: boolean
   bio?: boolean
   avatarUrl?: boolean
+  palette?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -1688,9 +1749,10 @@ export type UserSelectScalar = {
   username?: boolean
   bio?: boolean
   avatarUrl?: boolean
+  palette?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "emailVerified" | "name" | "image" | "createdAt" | "updatedAt" | "username" | "bio" | "avatarUrl", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "emailVerified" | "name" | "image" | "createdAt" | "updatedAt" | "username" | "bio" | "avatarUrl" | "palette", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
@@ -1730,6 +1792,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     username: string | null
     bio: string | null
     avatarUrl: string | null
+    palette: string
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -2172,6 +2235,7 @@ export interface UserFieldRefs {
   readonly username: Prisma.FieldRef<"User", 'String'>
   readonly bio: Prisma.FieldRef<"User", 'String'>
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
+  readonly palette: Prisma.FieldRef<"User", 'String'>
 }
     
 

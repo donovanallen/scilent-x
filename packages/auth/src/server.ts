@@ -87,6 +87,22 @@ export const auth = betterAuth({
   }),
 
   /**
+   * Additional User Fields
+   * Exposes app-specific preferences on the user/session object.
+   * `input: true` lets the client persist changes via authClient.updateUser().
+   */
+  user: {
+    additionalFields: {
+      palette: {
+        type: 'string',
+        required: false,
+        defaultValue: 'default',
+        input: true,
+      },
+    },
+  },
+
+  /**
    * Database Hooks
    * Auto-generate username for new users to ensure profile routes work
    */

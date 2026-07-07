@@ -21,7 +21,12 @@
  */
 
 import { createAuthClient } from 'better-auth/react';
-import { genericOAuthClient } from 'better-auth/client/plugins';
+import {
+  genericOAuthClient,
+  inferAdditionalFields,
+} from 'better-auth/client/plugins';
+
+import type { Auth } from './server';
 
 /**
  * Auth client instance for client-side authentication.
@@ -44,7 +49,7 @@ export const authClient = createAuthClient({
    * Set this if your auth API is on a different domain.
    */
   // baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
-  plugins: [genericOAuthClient()],
+  plugins: [genericOAuthClient(), inferAdditionalFields<Auth>()],
 });
 
 /**

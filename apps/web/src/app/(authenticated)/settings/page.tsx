@@ -20,6 +20,7 @@ import {
 import {
   ChevronDown,
   Link2,
+  Palette,
   RefreshCw,
   Trash2,
   Unlink,
@@ -27,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 
+import { AppearanceSettings } from '@/components/appearance-settings';
 import { authClient, useSession } from '@/lib/auth-client';
 
 type LinkedAccount = {
@@ -52,6 +54,7 @@ function formatDate(date: Date) {
 export default function SettingsPage() {
   const { data: session, isPending } = useSession();
   const [profileOpen, setProfileOpen] = useState(true);
+  const [appearanceOpen, setAppearanceOpen] = useState(true);
   const [connectedOpen, setConnectedOpen] = useState(true);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
@@ -223,6 +226,37 @@ export default function SettingsPage() {
                     </div>
                   )}
                 </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </Card>
+
+        {/* Appearance Section */}
+        <Card>
+          <Collapsible open={appearanceOpen} onOpenChange={setAppearanceOpen}>
+            <CollapsibleTrigger asChild>
+              <CardHeader className='cursor-pointer hover:bg-muted/50 transition-colors'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-3'>
+                    <Palette className='size-5 text-muted-foreground' />
+                    <div>
+                      <CardTitle className='text-lg'>Appearance</CardTitle>
+                      <CardDescription>
+                        Customize the theme and color palette
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`size-5 text-muted-foreground transition-transform duration-200 ${
+                      appearanceOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </div>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent>
+                <AppearanceSettings />
               </CardContent>
             </CollapsibleContent>
           </Collapsible>

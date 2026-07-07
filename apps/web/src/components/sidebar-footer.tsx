@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Button,
   Separator,
   SidebarMenu,
   SidebarMenuButton,
@@ -13,6 +14,8 @@ import { useRouter } from 'next/navigation';
 
 import { signOut, useSession } from '@/lib/auth-client';
 import { ROUTES } from '@/lib/routes';
+
+import { ThemeToggle } from './theme-toggle';
 
 export function SidebarFooterContent() {
   const router = useRouter();
@@ -34,10 +37,10 @@ export function SidebarFooterContent() {
     <SidebarMenu>
       <Separator />
       {user && (
-        <SidebarMenuItem>
+        <SidebarMenuItem className='flex items-center gap-1'>
           <SidebarMenuButton
             asChild
-            className='group-data-[state=expanded]:h-auto group-data-[state=expanded]:py-3 md:group-data-[state=expanded]:py-2'
+            className='flex-1 group-data-[state=expanded]:h-auto group-data-[state=expanded]:py-3 md:group-data-[state=expanded]:py-2'
           >
             <Link
               href={ROUTES.profile.href}
@@ -59,31 +62,32 @@ export function SidebarFooterContent() {
               </div>
             </Link>
           </SidebarMenuButton>
-        </SidebarMenuItem>
-      )}
-      {user && (
-        <div className='flex flex-col gap-1 group-data-[state=expanded]:flex-row'>
-          <SidebarMenuItem className='group-data-[state=expanded]:flex-1'>
-            <SidebarMenuButton
+          <div className='flex shrink-0 items-center gap-1 group-data-[state=collapsed]:hidden'>
+            <ThemeToggle />
+            <Button
               asChild
-              className='text-muted-foreground min-h-[44px] md:min-h-0'
+              size='icon'
+              variant='ghost'
+              aria-label='Settings'
+              className='text-muted-foreground'
             >
               <Link href={ROUTES.settings.href}>
                 <Settings />
-                <span>Settings</span>
               </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem className='group-data-[state=expanded]:flex-1'>
-            <SidebarMenuButton
-              onClick={handleLogout}
-              className='cursor-pointer text-muted-foreground hover:text-destructive active:text-destructive min-h-[44px] md:min-h-0'
-            >
-              <LogOut />
-              <span>Logout</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </div>
+            </Button>
+          </div>
+        </SidebarMenuItem>
+      )}
+      {user && (
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            onClick={handleLogout}
+            className='cursor-pointer text-muted-foreground hover:text-destructive active:text-destructive min-h-[44px] md:min-h-0'
+          >
+            <LogOut />
+            <span>Logout</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       )}
     </SidebarMenu>
   );
