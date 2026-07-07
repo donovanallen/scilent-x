@@ -30,6 +30,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { AppearanceSettings } from '@/components/appearance-settings';
 import { authClient, useSession } from '@/lib/auth-client';
+import { connectAppleMusic, disconnectAppleMusic } from '@/lib/musickit';
 
 type LinkedAccount = {
   id: string;
@@ -38,11 +39,17 @@ type LinkedAccount = {
   createdAt: Date;
 };
 
-/** Streaming providers available for account linking */
+/**
+ * Streaming providers available for account linking.
+ *
+ * `auth: 'oauth'` providers link via Better Auth `linkSocial`; `auth: 'musickit'`
+ * (Apple Music) uses the MusicKit JS flow instead, since Apple Music is not an
+ * OAuth2 provider.
+ */
 const STREAMING_PROVIDERS = [
-  { id: 'tidal', name: 'Tidal' },
-  { id: 'spotify', name: 'Spotify' },
-  // Future: { id: 'apple_music', name: 'Apple Music' },
+  { id: 'tidal', name: 'Tidal', auth: 'oauth' },
+  { id: 'spotify', name: 'Spotify', auth: 'oauth' },
+  { id: 'apple_music', name: 'Apple Music', auth: 'musickit' },
 ] as const;
 
 function formatDate(date: Date) {
@@ -91,10 +98,16 @@ export default function SettingsPage() {
   const handleLinkAccount = async (providerId: string) => {
     setLinkingProvider(providerId);
     try {
-      await authClient.linkSocial({
-        provider: providerId,
-        callbackURL: '/settings',
-      });
+      if (providerId === 'apple_music') {
+        // Apple Music uses MusicKit (not OAuth2); this stores a Music User Token.
+        await connectAppleMusic();
+        await fetchLinkedAccounts();
+      } else {
+        await authClient.linkSocial({
+          provider: providerId,
+          callbackURL: '/settings',
+        });
+      }
     } catch (error) {
       console.error(`Failed to link ${providerId}:`, error);
     } finally {
@@ -105,7 +118,11 @@ export default function SettingsPage() {
   const handleUnlinkAccount = async (providerId: string) => {
     setUnlinkingProvider(providerId);
     try {
-      await authClient.unlinkAccount({ providerId });
+      if (providerId === 'apple_music') {
+        await disconnectAppleMusic();
+      } else {
+        await authClient.unlinkAccount({ providerId });
+      }
       await fetchLinkedAccounts();
     } catch (error) {
       console.error(`Failed to unlink ${providerId}:`, error);
@@ -117,10 +134,15 @@ export default function SettingsPage() {
   const handleReconnect = async (providerId: string) => {
     setReconnectingProvider(providerId);
     try {
-      await authClient.linkSocial({
-        provider: providerId,
-        callbackURL: '/settings',
-      });
+      if (providerId === 'apple_music') {
+        await connectAppleMusic();
+        await fetchLinkedAccounts();
+      } else {
+        await authClient.linkSocial({
+          provider: providerId,
+          callbackURL: '/settings',
+        });
+      }
     } catch (error) {
       console.error(`Failed to reconnect ${providerId}:`, error);
     } finally {

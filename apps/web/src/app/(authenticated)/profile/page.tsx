@@ -19,7 +19,11 @@ import { toast } from 'sonner';
 
 import { useMentionSearch } from '@/lib/use-mention-search';
 
-import { TidalProfileCard, SpotifyProfileCard } from './[username]/_components';
+import {
+  TidalProfileCard,
+  SpotifyProfileCard,
+  AppleMusicProfileCard,
+} from './[username]/_components';
 
 interface UserProfile {
   id: string;
@@ -255,6 +259,11 @@ export default function MyProfilePage() {
       {profile.connectedPlatforms?.some((p) => p.providerId === 'spotify') && (
         <SpotifyProfileCard userId={profile.id} isCurrentUser={true} />
       )}
+
+      {/* Show Apple Music profile card if user has Apple Music connected */}
+      {profile.connectedPlatforms?.some(
+        (p) => p.providerId === 'apple_music'
+      ) && <AppleMusicProfileCard userId={profile.id} isCurrentUser={true} />}
 
       {/* Placeholder for other platforms - can be extended later */}
       {(!profile.connectedPlatforms ||
