@@ -150,6 +150,17 @@ describe('SpotifyProvider', () => {
       expect(provider.priority).toBe(80);
     });
   });
+
+  describe('lookupTrackByUrl (base default)', () => {
+    it('returns null for providers that do not implement track-by-id lookup', async () => {
+      // Spotify does not override _lookupTrackById, so the base no-op applies.
+      const track = await provider.lookupTrackByUrl(
+        'https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh'
+      );
+      expect(track).toBeNull();
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+  });
 });
 
 describe('TidalProvider', () => {
@@ -545,6 +556,98 @@ describe('AppleMusicProvider', () => {
       const [url] = mockFetch.mock.calls[0] as [string];
       expect(url).toContain('/v1/catalog/us/search');
       expect(url).toContain('types=songs');
+    });
+  });
+
+  describe('lookupTrackById', () => {
+    it('fetches a song by id from the catalog', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          data: [
+            {
+              id: '1440783625',
+              type: 'songs',
+              attributes: {
+                name: 'Delicate',
+                artistName: 'Taylor Swift',
+                isrc: 'USUM71703861',
+                trackNumber: 5,
+                discNumber: 1,
+              },
+            },
+          ],
+        })
+      );
+
+      const track = await provider.lookupTrackById('1440783625');
+      expect(track?.title).toBe('Delicate');
+      expect(track?.externalIds).toEqual({ apple_music: '1440783625' });
+
+      const [url] = mockFetch.mock.calls[0] as [string];
+      expect(url).toContain('/v1/catalog/us/songs/1440783625');
+    });
+
+    it('returns null when the song is not found', async () => {
+      mockFetch.mockResolvedValueOnce(jsonResponse({ data: [] }));
+      expect(await provider.lookupTrackById('missing')).toBeNull();
+    });
+  });
+
+  describe('lookupTrackByUrl', () => {
+    it('resolves a song URL expressed via the ?i= param', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          data: [
+            {
+              id: '1440783625',
+              type: 'songs',
+              attributes: {
+                name: 'Delicate',
+                artistName: 'Taylor Swift',
+                trackNumber: 5,
+              },
+            },
+          ],
+        })
+      );
+
+      const track = await provider.lookupTrackByUrl(
+        'https://music.apple.com/us/album/some-album/1440783617?i=1440783625'
+      );
+      expect(track?.title).toBe('Delicate');
+
+      const [url] = mockFetch.mock.calls[0] as [string];
+      // Resolves the song id from the ?i= param, not the album id in the path.
+      expect(url).toContain('/v1/catalog/us/songs/1440783625');
+    });
+
+    it('resolves a standalone /song/ URL', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          data: [
+            {
+              id: '987',
+              type: 'songs',
+              attributes: { name: 'Standalone', artistName: 'Artist' },
+            },
+          ],
+        })
+      );
+
+      const track = await provider.lookupTrackByUrl(
+        'https://music.apple.com/us/song/standalone/987'
+      );
+      expect(track?.title).toBe('Standalone');
+      const [url] = mockFetch.mock.calls[0] as [string];
+      expect(url).toContain('/v1/catalog/us/songs/987');
+    });
+
+    it('returns null for a non-track URL without making a request', async () => {
+      const track = await provider.lookupTrackByUrl(
+        'https://music.apple.com/us/artist/taylor-swift/159260351'
+      );
+      expect(track).toBeNull();
+      expect(mockFetch).not.toHaveBeenCalled();
     });
   });
 

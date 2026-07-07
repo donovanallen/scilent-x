@@ -207,6 +207,85 @@ export class LookupCoordinator {
     };
   }
 
+  /**
+   * Look up a track by a provider URL (e.g. an Apple Music / Spotify song link).
+   * Prefers the provider that recognizes the URL, then falls back to any
+   * target provider. Returns the first non-null match.
+   */
+  async lookupTrackByUrl(
+    url: string,
+    providers?: string[]
+  ): Promise<LookupResult<HarmonizedTrack>> {
+    const cacheKey = `track:url:${url}`;
+
+    if (this.cache) {
+      const cached = await this.cache.get<HarmonizedTrack>(cacheKey);
+      if (cached) {
+        return {
+          data: cached,
+          sources: [],
+          cached: true,
+          timestamp: new Date(),
+          errors: undefined,
+        };
+      }
+    }
+
+    // Prefer the provider that recognizes the URL; otherwise try targets.
+    const urlProvider = this.registry.findByUrl(url);
+    const targetProviders = urlProvider
+      ? [urlProvider]
+      : this.getTargetProviders(providers);
+    const errors: Array<{ provider: string; error: string }> = [];
+
+    for (const provider of targetProviders) {
+      try {
+        const track = await provider.lookupTrackByUrl(url);
+        if (track) {
+          if (this.cache) {
+            await this.cache.set(cacheKey, track);
+          }
+
+          if (this.config.persistTrack) {
+            try {
+              await this.config.persistTrack(track);
+            } catch (error) {
+              this.logger.warn('Failed to persist track', {
+                error: error instanceof Error ? error.message : 'Unknown',
+              });
+            }
+          }
+
+          return {
+            data: track,
+            sources: [provider.name],
+            cached: false,
+            timestamp: new Date(),
+            errors: undefined,
+          };
+        }
+      } catch (error) {
+        this.logger.warn('Provider track URL lookup failed', {
+          provider: provider.name,
+          url,
+          error: error instanceof Error ? error.message : 'Unknown',
+        });
+        errors.push({
+          provider: provider.name,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    }
+
+    return {
+      data: null,
+      sources: [],
+      cached: false,
+      timestamp: new Date(),
+      errors: errors.length > 0 ? errors : undefined,
+    };
+  }
+
   async searchReleases(
     query: string,
     providers?: string[],
