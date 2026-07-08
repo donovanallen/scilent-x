@@ -31,6 +31,10 @@ export type {
   Mention,
   Activity,
   ActivityType,
+  // Messaging types
+  Conversation,
+  ConversationParticipant,
+  Message,
   // Configuration types
   ProviderSetting,
 } from '../prisma/generated/client.js';
