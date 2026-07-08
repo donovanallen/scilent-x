@@ -31,7 +31,10 @@ import {
 import { ProviderIcon } from '../../icons/ProviderIcon';
 import { type Provider, PROVIDER_LABELS } from '../../icons/types';
 import { type PlatformName } from './PlatformBadge';
-import { ProviderSyncStatus, type ProviderSyncStatusType } from './ProviderSyncStatus';
+import {
+  ProviderSyncStatus,
+  type ProviderSyncStatusType,
+} from './ProviderSyncStatus';
 
 /** Profile image data */
 export interface ProfileImage {
@@ -246,7 +249,7 @@ export function PlatformProfileCard({
               {hasProviderIcon ? (
                 <ProviderIcon
                   provider={normalizedPlatform as Provider}
-                  color="white"
+                  color="auto"
                 />
               ) : (
                 <User className="h-5 w-5 text-muted-foreground" />
@@ -317,7 +320,7 @@ export function PlatformProfileCard({
             {hasProviderIcon ? (
               <ProviderIcon
                 provider={normalizedPlatform as Provider}
-                color="white"
+                color="auto"
               />
             ) : (
               <User className="h-5 w-5 shrink-0" />
@@ -353,7 +356,7 @@ export function PlatformProfileCard({
             {hasProviderIcon ? (
               <ProviderIcon
                 provider={normalizedPlatform as Provider}
-                color="white"
+                color="auto"
               />
             ) : (
               <User className="h-5 w-5" />
