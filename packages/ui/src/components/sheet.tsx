@@ -21,7 +21,7 @@ const SheetOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
-      'fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      'fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-fast data-[state=open]:ease-out data-[state=closed]:duration-fast data-[state=closed]:ease-in',
       className
     )}
     {...props}
@@ -31,9 +31,9 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  // Faster animations on mobile for better responsiveness
-  // Opening is fast (200ms) for snappy feel, closing slightly slower (250ms) for user tracking
-  'fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:duration-200 data-[state=closed]:duration-[250ms] data-[state=open]:animate-in data-[state=closed]:animate-out',
+  // Opening uses the base duration for a snappy feel; closing is a touch
+  // slower so users can track the sheet leaving the viewport.
+  'fixed z-50 gap-4 bg-background p-6 shadow-lg transition data-[state=open]:duration-base data-[state=open]:ease-out data-[state=closed]:duration-slow data-[state=closed]:ease-in data-[state=open]:animate-in data-[state=closed]:animate-out',
   {
     variants: {
       side: {
@@ -52,7 +52,8 @@ const sheetVariants = cva(
 );
 
 interface SheetContentProps
-  extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
+  extends
+    React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {}
 
 const SheetContent = React.forwardRef<
