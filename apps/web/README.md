@@ -101,4 +101,4 @@ npx shadcn@latest add accordion avatar dropdown-menu select textarea tooltip
 
 - If you change the base palette, update CSS variables in `globals.css` under `:root` and `.dark`.
 - Sonner is used for toasts instead of the deprecated `toast` component.
-- Tailwind plugins used: `tailwindcss-animate`.
+- Tailwind plugins used: `tw-animate-css`.
