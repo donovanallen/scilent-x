@@ -1,8 +1,21 @@
 import { db } from '@scilent-one/db';
-import type { CreatePostInput, UpdatePostInput, PostWithAuthor } from '../types';
-import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errors';
+import type {
+  CreatePostInput,
+  UpdatePostInput,
+  PostWithAuthor,
+} from '../types';
+import {
+  NotFoundError,
+  ForbiddenError,
+  ValidationError,
+} from '../utils/errors';
 import { sanitizeHtml } from '../utils/sanitize';
-import { parseMentions, createMentionsFromUsernames } from '../mentions/parser';
+import {
+  parseMentions,
+  parseHtmlMentions,
+  createMentions,
+  createMentionsFromUsernames,
+} from '../mentions/parser';
 
 const authorSelect = {
   id: true,
@@ -11,6 +24,32 @@ const authorSelect = {
   avatarUrl: true,
   image: true,
 } as const;
+
+/**
+ * Parse and persist mentions for a post. Prefers the HTML-based parser (which
+ * reads Tiptap's `data-mention-*` spans directly and supports both USER and
+ * ARTIST mentions) when `contentHtml` is available, falling back to the
+ * legacy plain-text `@username` parser otherwise. This mirrors the comment
+ * mutations so posts and comments behave consistently.
+ */
+async function createPostMentions(
+  content: string,
+  contentHtml: string | null | undefined,
+  context: { postId: string }
+): Promise<void> {
+  if (contentHtml) {
+    const mentions = parseHtmlMentions(contentHtml);
+    if (mentions.length > 0) {
+      await createMentions(mentions, context);
+    }
+    return;
+  }
+
+  const mentions = parseMentions(content);
+  if (mentions.length > 0) {
+    await createMentionsFromUsernames(mentions, context);
+  }
+}
 
 export async function createPost(
   userId: string,
@@ -39,29 +78,35 @@ export async function createPost(
         select: {
           likes: true,
           comments: true,
+          reposts: true,
         },
       },
     },
   });
 
-  // Parse and create mentions
-  const mentions = parseMentions(input.content);
-  if (mentions.length > 0) {
-    await createMentionsFromUsernames(mentions, { postId: post.id });
-  }
+  await createPostMentions(input.content, sanitizedHtml, { postId: post.id });
 
-  // Create activity for followers
-  await db.activity.create({
-    data: {
-      type: 'POST_CREATED',
-      userId,
-      postId: post.id,
-    },
+  // Notify followers that the author published a new post
+  const followers = await db.follow.findMany({
+    where: { followingId: userId },
+    select: { followerId: true },
   });
+
+  if (followers.length > 0) {
+    await db.activity.createMany({
+      data: followers.map((follower) => ({
+        type: 'POST_CREATED' as const,
+        userId: follower.followerId,
+        actorId: userId,
+        postId: post.id,
+      })),
+    });
+  }
 
   return {
     ...post,
     isLiked: false,
+    isReposted: false,
   };
 }
 
@@ -110,29 +155,35 @@ export async function updatePost(
         select: {
           likes: true,
           comments: true,
+          reposts: true,
         },
       },
       likes: {
         where: { userId },
         take: 1,
       },
+      reposts: {
+        where: { userId },
+        take: 1,
+      },
     },
   });
 
-  // Parse and create new mentions
-  const mentions = parseMentions(input.content);
-  if (mentions.length > 0) {
-    await createMentionsFromUsernames(mentions, { postId: post.id });
-  }
+  await createPostMentions(input.content, sanitizedHtml, { postId: post.id });
 
   return {
     ...post,
     isLiked: post.likes.length > 0,
+    isReposted: post.reposts.length > 0,
     likes: undefined as unknown as never,
+    reposts: undefined as unknown as never,
   } as PostWithAuthor;
 }
 
-export async function deletePost(userId: string, postId: string): Promise<void> {
+export async function deletePost(
+  userId: string,
+  postId: string
+): Promise<void> {
   const existingPost = await db.post.findUnique({
     where: { id: postId },
   });

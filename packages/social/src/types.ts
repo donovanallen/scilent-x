@@ -2,6 +2,7 @@ import type {
   Post,
   Comment,
   Like,
+  Repost,
   Follow,
   Mention,
   Activity,
@@ -51,8 +52,10 @@ export interface PostWithAuthor extends Post {
   _count: {
     likes: number;
     comments: number;
+    reposts: number;
   };
   isLiked?: boolean;
+  isReposted?: boolean;
   /** Recent comments for inline display (optional, not always included) */
   comments?: CommentWithAuthor[];
 }
@@ -131,4 +134,4 @@ export interface LegacyParsedMention {
 }
 
 // Re-export Prisma types
-export type { Post, Comment, Like, Follow, Mention, Activity, User };
+export type { Post, Comment, Like, Repost, Follow, Mention, Activity, User };
