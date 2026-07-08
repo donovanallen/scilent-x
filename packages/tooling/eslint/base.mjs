@@ -1,12 +1,14 @@
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
-import importPlugin from 'eslint-plugin-import';
+import importPlugin from 'eslint-plugin-import-x';
 
 /**
  * Base ESLint configuration for TypeScript projects (ES Module version)
  * Flat config format for ESLint 9+
  *
- * Note: eslint-plugin-import v2.32.0+ has full support for ESLint 9 flat config.
+ * Note: uses eslint-plugin-import-x (the maintained fork of eslint-plugin-import)
+ * because eslint-plugin-import's `import/order` autofixer relies on APIs removed
+ * in ESLint 10 and crashes there. import-x supports ESLint 9 and 10.
  */
 
 /** @type {import("eslint").Linter.Config[]} */
@@ -56,7 +58,7 @@ const config = [
     },
     plugins: {
       '@typescript-eslint': tseslint,
-      import: importPlugin,
+      'import-x': importPlugin,
     },
     rules: {
       // TypeScript-specific rules
@@ -67,7 +69,7 @@ const config = [
       '@typescript-eslint/no-explicit-any': 'warn',
 
       // Import rules
-      'import/order': [
+      'import-x/order': [
         'error',
         {
           groups: [
@@ -82,8 +84,8 @@ const config = [
           alphabetize: { order: 'asc', caseInsensitive: true },
         },
       ],
-      'import/no-duplicates': 'error',
-      'import/no-unresolved': 'error',
+      'import-x/no-duplicates': 'error',
+      'import-x/no-unresolved': 'error',
 
       // General rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
