@@ -13,7 +13,7 @@ import {
   CardHeader,
   PostForm,
 } from '@scilent-one/ui';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter } from 'next-view-transitions';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -52,7 +52,7 @@ interface FeedPost extends PostCardProps {
 }
 
 export default function MyProfilePage() {
-  const router = useRouter();
+  const router = useTransitionRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);

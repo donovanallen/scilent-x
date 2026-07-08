@@ -2,7 +2,7 @@
 
 import { useSession } from '@scilent-one/auth/client';
 import { Button } from '@scilent-one/ui';
-import Link from 'next/link';
+import { Link } from 'next-view-transitions';
 
 import { ROUTES } from '../lib/routes';
 

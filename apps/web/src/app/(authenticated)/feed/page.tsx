@@ -7,7 +7,7 @@ import {
   useInfiniteScroll,
   type PostCardProps,
 } from '@scilent-one/ui';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter } from 'next-view-transitions';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import useSWR from 'swr';
@@ -57,7 +57,7 @@ interface CurrentUser {
 }
 
 export default function FeedPage() {
-  const router = useRouter();
+  const router = useTransitionRouter();
   const { searchUsers, searchArtists } = useMentionSearch();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);

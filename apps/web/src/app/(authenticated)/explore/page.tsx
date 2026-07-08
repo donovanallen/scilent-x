@@ -10,7 +10,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from '@scilent-one/ui';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter } from 'next-view-transitions';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -37,7 +37,7 @@ interface CurrentUser {
 }
 
 export default function ExplorePage() {
-  const router = useRouter();
+  const router = useTransitionRouter();
   const { searchUsers, searchArtists } = useMentionSearch();
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);

@@ -8,7 +8,7 @@ import {
   type ProviderActions,
   type EnabledProvider,
 } from '@scilent-one/scilent-ui';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter } from 'next-view-transitions';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
@@ -35,7 +35,7 @@ export function HarmonyInteractionProvider({
   config,
   connectedProviders = [],
 }: HarmonyInteractionProviderProps) {
-  const router = useRouter();
+  const router = useTransitionRouter();
 
   // Navigate to entity detail pages
   const handleNavigate = useCallback(

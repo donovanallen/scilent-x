@@ -13,8 +13,7 @@ import {
   cn,
 } from '@scilent-one/ui';
 import { Loader2 } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useTransitionRouter } from 'next-view-transitions';
 import * as React from 'react';
 
 import { signIn, signUp } from '@/lib/auth-client';
@@ -46,7 +45,7 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const router = useRouter();
+  const router = useTransitionRouter();
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
