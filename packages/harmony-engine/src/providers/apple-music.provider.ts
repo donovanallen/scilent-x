@@ -194,7 +194,7 @@ export class AppleMusicProvider extends BaseProvider {
 
   constructor(config: AppleMusicConfig) {
     super(config);
-    this.storefront = (config.storefront ?? 'us').toLowerCase();
+    this.storefront = (config.storefront || 'us').toLowerCase();
     this.initializeLogger();
   }
 

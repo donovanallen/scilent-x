@@ -297,6 +297,8 @@ export class LookupCoordinator {
       targetProviders.map((p) => p.searchReleases(query, limit))
     );
 
+    this.logRejectedSearches('searchReleases', query, targetProviders, results);
+
     return results
       .filter(
         (r): r is PromiseFulfilledResult<HarmonizedRelease[]> =>
@@ -315,6 +317,8 @@ export class LookupCoordinator {
     const results = await Promise.allSettled(
       targetProviders.map((p) => p.searchTracks(query, limit))
     );
+
+    this.logRejectedSearches('searchTracks', query, targetProviders, results);
 
     return results
       .filter(
@@ -335,12 +339,42 @@ export class LookupCoordinator {
       targetProviders.map((p) => p.searchArtists(query, limit))
     );
 
+    this.logRejectedSearches('searchArtists', query, targetProviders, results);
+
     return results
       .filter(
         (r): r is PromiseFulfilledResult<HarmonizedArtist[]> =>
           r.status === 'fulfilled'
       )
       .flatMap((r) => r.value);
+  }
+
+  /**
+   * Log any provider whose search promise rejected. Rejected results are
+   * otherwise silently dropped from the aggregated output, which makes a broken
+   * provider (bad credentials, API errors, etc.) indistinguishable from a
+   * genuine "no results" — so we surface it here at warn level for diagnostics.
+   */
+  private logRejectedSearches(
+    operation: string,
+    query: string,
+    providers: BaseProvider[],
+    results: PromiseSettledResult<unknown>[]
+  ): void {
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        const provider = providers[index];
+        this.logger.warn('Provider search failed', {
+          operation,
+          query,
+          provider: provider?.name ?? 'unknown',
+          error:
+            result.reason instanceof Error
+              ? result.reason.message
+              : String(result.reason),
+        });
+      }
+    });
   }
 
   private getTargetProviders(names?: string[]): BaseProvider[] {

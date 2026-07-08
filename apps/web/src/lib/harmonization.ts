@@ -181,7 +181,7 @@ function buildProviderConfig(
       teamId: appleMusicTeamId,
       keyId: appleMusicKeyId,
       privateKey: appleMusicPrivateKey,
-      storefront: process.env.APPLE_MUSIC_STOREFRONT ?? 'us',
+      storefront: process.env.APPLE_MUSIC_STOREFRONT || 'us',
     };
   }
 
