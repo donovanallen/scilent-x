@@ -24,6 +24,8 @@ import {
   AtSign,
   ExternalLink,
   Users,
+  ListMusic,
+  History,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
@@ -83,6 +85,46 @@ export interface FollowedArtistsData {
   hasMore?: boolean;
 }
 
+/** Playlist summary data */
+export interface PlaylistSummary {
+  /** Playlist name */
+  name: string;
+  /** Unique identifier (platform-specific) */
+  id?: string;
+  /** Whether the playlist is publicly shared */
+  isPublic?: boolean;
+  /** Number of tracks, when known */
+  trackCount?: number;
+}
+
+/** Playlists result */
+export interface PlaylistsData {
+  /** List of playlists */
+  playlists: PlaylistSummary[];
+  /** Total count of playlists */
+  total?: number;
+  /** Whether there are more playlists beyond the fetched list */
+  hasMore?: boolean;
+}
+
+/** A single recently played track */
+export interface RecentTrack {
+  /** Track title */
+  title: string;
+  /** Artist name, when available */
+  artistName?: string;
+  /** Unique identifier (platform-specific) */
+  id?: string;
+}
+
+/** Recent listen history result */
+export interface RecentTracksData {
+  /** List of recently played tracks, most recent first */
+  tracks: RecentTrack[];
+  /** Whether there is more history beyond the fetched list */
+  hasMore?: boolean;
+}
+
 /** Error state information */
 export interface ProfileError {
   /** Error message to display */
@@ -101,6 +143,10 @@ export interface PlatformProfileCardProps extends Omit<
   profile?: PlatformProfile | null;
   /** Followed artists data */
   followedArtists?: FollowedArtistsData | null;
+  /** Playlists data */
+  playlists?: PlaylistsData | null;
+  /** Recent listen history data */
+  recentTracks?: RecentTracksData | null;
   /** Error state */
   error?: ProfileError | null;
   /** Loading state */
@@ -117,6 +163,14 @@ export interface PlatformProfileCardProps extends Omit<
   showFollowedArtists?: boolean;
   /** Maximum number of artist badges to show */
   maxArtistBadges?: number;
+  /** Whether to show the playlists section */
+  showPlaylists?: boolean;
+  /** Maximum number of playlist badges to show */
+  maxPlaylistBadges?: number;
+  /** Whether to show the recent listen history section */
+  showRecentTracks?: boolean;
+  /** Maximum number of recent tracks to show */
+  maxRecentTracks?: number;
   /** Custom footer content (replaces default external link button) */
   footer?: React.ReactNode;
   /** Whether to hide the card when not connected (error code: NOT_CONNECTED) */
@@ -186,6 +240,8 @@ export function PlatformProfileCard({
   platform,
   profile,
   followedArtists,
+  playlists,
+  recentTracks,
   error,
   isLoading = false,
   isReconnecting = false,
@@ -194,6 +250,10 @@ export function PlatformProfileCard({
   externalLinkLabel,
   showFollowedArtists = true,
   maxArtistBadges = 5,
+  showPlaylists = true,
+  maxPlaylistBadges = 5,
+  showRecentTracks = true,
+  maxRecentTracks = 5,
   footer,
   hideWhenNotConnected = true,
   defaultCollapsed = false,
@@ -460,6 +520,81 @@ export function PlatformProfileCard({
               </div>
             </>
           )}
+
+        {/* Playlists Section */}
+        {showPlaylists && playlists && playlists.playlists.length > 0 && (
+          <>
+            <Separator className="my-4" />
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <ListMusic className="size-4" />
+                <span>Playlists</span>
+                {playlists.total !== undefined && (
+                  <Badge variant="secondary" className="text-xs">
+                    {playlists.total.toLocaleString()}
+                  </Badge>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-1">
+                {playlists.playlists
+                  .slice(0, maxPlaylistBadges)
+                  .map((playlist) => (
+                    <Badge
+                      key={playlist.id ?? playlist.name}
+                      variant="outline"
+                      className="text-xs"
+                    >
+                      {playlist.name}
+                      {playlist.isPublic && (
+                        <Globe className="size-3 ml-1 text-muted-foreground" />
+                      )}
+                    </Badge>
+                  ))}
+                {playlists.hasMore && (
+                  <Badge
+                    variant="outline"
+                    className="text-xs text-muted-foreground"
+                  >
+                    +more
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Recent Listen History Section */}
+        {showRecentTracks && recentTracks && recentTracks.tracks.length > 0 && (
+          <>
+            <Separator className="my-4" />
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <History className="size-4" />
+                <span>Recently Played</span>
+              </div>
+
+              <ul className="space-y-1">
+                {recentTracks.tracks
+                  .slice(0, maxRecentTracks)
+                  .map((track, index) => (
+                    <li
+                      key={track.id ?? `${track.title}-${index}`}
+                      className="text-xs truncate"
+                    >
+                      <span className="font-medium">{track.title}</span>
+                      {track.artistName && (
+                        <span className="text-muted-foreground">
+                          {' '}
+                          — {track.artistName}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          </>
+        )}
       </CardContent>
 
       {/* Footer */}

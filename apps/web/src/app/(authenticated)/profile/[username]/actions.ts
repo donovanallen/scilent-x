@@ -4,12 +4,16 @@ import { db } from '@scilent-one/db';
 import type {
   HarmonizedUserProfile,
   HarmonizedArtist,
+  HarmonizedPlaylist,
+  HarmonizedListenHistoryItem,
 } from '@scilent-one/harmony-engine';
 
 import { getCurrentUser } from '@/lib/api-utils';
 import {
   getHarmonizationEngine,
   getFollowedArtistsFromProvider,
+  getPlaylistsFromProvider,
+  getRecentlyPlayedFromProvider,
 } from '@/lib/harmonization';
 import { getFreshAccessToken } from '@/lib/music-provider';
 
@@ -214,6 +218,168 @@ export async function getFollowedArtists(
     return response;
   } catch (error) {
     console.error(`Failed to fetch ${providerId} followed artists:`, error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorCode: 'PROVIDER_ERROR',
+    };
+  }
+}
+
+export interface PlaylistsResult {
+  success: boolean;
+  playlists?: HarmonizedPlaylist[];
+  total?: number;
+  hasMore?: boolean;
+  nextCursor?: string | null;
+  error?: string;
+  errorCode?:
+    'UNAUTHORIZED' | 'NOT_CONNECTED' | 'TOKEN_EXPIRED' | 'PROVIDER_ERROR';
+}
+
+/**
+ * Get a user's playlists from a connected streaming provider's library.
+ * @param userId - The user ID to fetch playlists for
+ * @param providerId - The provider ID (e.g., 'apple_music')
+ * @param limit - Maximum number of playlists to return (default: 10)
+ * @param cursor - Pagination cursor for fetching more results
+ * @param publicOnly - When true, only return playlists marked public/shared
+ */
+export async function getPlaylists(
+  userId: string,
+  providerId: string,
+  limit = 10,
+  cursor?: string,
+  publicOnly?: boolean
+): Promise<PlaylistsResult> {
+  try {
+    const canView = await canViewProviderProfiles(userId);
+    if (!canView) {
+      return {
+        success: false,
+        error: 'Unauthorized',
+        errorCode: 'UNAUTHORIZED',
+      };
+    }
+
+    const token = await getFreshAccessToken(userId, providerId);
+
+    if (!token.ok) {
+      return {
+        success: false,
+        error:
+          token.code === 'NOT_CONNECTED'
+            ? `${providerId} account not connected`
+            : `${providerId} token expired`,
+        errorCode: token.code,
+      };
+    }
+
+    const params: {
+      limit: number;
+      cursor?: string;
+      publicOnly?: boolean;
+    } = { limit };
+    if (cursor) {
+      params.cursor = cursor;
+    }
+    if (publicOnly) {
+      params.publicOnly = publicOnly;
+    }
+
+    const result = await getPlaylistsFromProvider(
+      token.accessToken,
+      providerId,
+      params
+    );
+
+    const response: PlaylistsResult = {
+      success: true,
+      playlists: result.items,
+      hasMore: result.hasMore,
+      nextCursor: result.nextCursor,
+    };
+
+    if (result.total !== undefined) {
+      response.total = result.total;
+    }
+
+    return response;
+  } catch (error) {
+    console.error(`Failed to fetch ${providerId} playlists:`, error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorCode: 'PROVIDER_ERROR',
+    };
+  }
+}
+
+export interface RecentlyPlayedResult {
+  success: boolean;
+  items?: HarmonizedListenHistoryItem[];
+  hasMore?: boolean;
+  nextCursor?: string | null;
+  error?: string;
+  errorCode?:
+    'UNAUTHORIZED' | 'NOT_CONNECTED' | 'TOKEN_EXPIRED' | 'PROVIDER_ERROR';
+}
+
+/**
+ * Get a user's recent listen history from a connected streaming provider.
+ * @param userId - The user ID to fetch listen history for
+ * @param providerId - The provider ID (e.g., 'apple_music')
+ * @param limit - Maximum number of tracks to return (default: 10)
+ * @param cursor - Pagination cursor for fetching more results
+ */
+export async function getRecentlyPlayed(
+  userId: string,
+  providerId: string,
+  limit = 10,
+  cursor?: string
+): Promise<RecentlyPlayedResult> {
+  try {
+    const canView = await canViewProviderProfiles(userId);
+    if (!canView) {
+      return {
+        success: false,
+        error: 'Unauthorized',
+        errorCode: 'UNAUTHORIZED',
+      };
+    }
+
+    const token = await getFreshAccessToken(userId, providerId);
+
+    if (!token.ok) {
+      return {
+        success: false,
+        error:
+          token.code === 'NOT_CONNECTED'
+            ? `${providerId} account not connected`
+            : `${providerId} token expired`,
+        errorCode: token.code,
+      };
+    }
+
+    const params: { limit: number; cursor?: string } = { limit };
+    if (cursor) {
+      params.cursor = cursor;
+    }
+
+    const result = await getRecentlyPlayedFromProvider(
+      token.accessToken,
+      providerId,
+      params
+    );
+
+    return {
+      success: true,
+      items: result.items,
+      hasMore: result.hasMore,
+      nextCursor: result.nextCursor,
+    };
+  } catch (error) {
+    console.error(`Failed to fetch ${providerId} recently played:`, error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

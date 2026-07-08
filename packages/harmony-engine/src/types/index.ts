@@ -24,6 +24,11 @@ export {
   PaginatedCollectionSchema,
   type PaginatedCollection,
   type CollectionParams,
+  HarmonizedPlaylistSchema,
+  type HarmonizedPlaylist,
+  type PlaylistCollectionParams,
+  HarmonizedListenHistoryItemSchema,
+  type HarmonizedListenHistoryItem,
 } from './harmonized.types';
 
 export type {
