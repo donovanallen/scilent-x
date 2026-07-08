@@ -37,6 +37,7 @@ interface FeedPost extends PostCardProps {
   _count?: {
     likes: number;
     comments: number;
+    reposts: number;
   };
   comments?: FeedComment[];
 }
@@ -244,6 +245,75 @@ export default function FeedPage() {
     }
   };
 
+  const handleRepostPost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/repost`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Failed to repost');
+
+      mutate(
+        (pages) =>
+          pages?.map((page) => ({
+            ...page,
+            items: page.items.map((post) => {
+              if (post.id !== postId) return post;
+              const currentReposts =
+                post._count?.reposts ?? post.repostsCount ?? 0;
+              return {
+                ...post,
+                isReposted: true,
+                repostsCount: currentReposts + 1,
+                ...(post._count && {
+                  _count: { ...post._count, reposts: currentReposts + 1 },
+                }),
+              };
+            }),
+          })),
+        { revalidate: false }
+      );
+    } catch (error) {
+      console.error('Failed to repost:', error);
+      toast.error('Failed to repost');
+    }
+  };
+
+  const handleUnrepostPost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/repost`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to remove repost');
+
+      mutate(
+        (pages) =>
+          pages?.map((page) => ({
+            ...page,
+            items: page.items.map((post) => {
+              if (post.id !== postId) return post;
+              const currentReposts =
+                post._count?.reposts ?? post.repostsCount ?? 0;
+              return {
+                ...post,
+                isReposted: false,
+                repostsCount: Math.max(0, currentReposts - 1),
+                ...(post._count && {
+                  _count: {
+                    ...post._count,
+                    reposts: Math.max(0, currentReposts - 1),
+                  },
+                }),
+              };
+            }),
+          })),
+        { revalidate: false }
+      );
+    } catch (error) {
+      console.error('Failed to remove repost:', error);
+      toast.error('Failed to remove repost');
+    }
+  };
+
   const handleEditPost = (postId: string) => {
     setEditingPostId(postId);
   };
@@ -309,7 +379,9 @@ export default function FeedPage() {
 
       if (!res.ok) throw new Error('Failed to create comment');
 
-      // Update comment count optimistically
+      const newComment: FeedComment = await res.json();
+
+      // Update comment count and inline comments list optimistically
       mutate(
         (pages) =>
           pages?.map((page) => ({
@@ -321,6 +393,7 @@ export default function FeedPage() {
               return {
                 ...post,
                 commentsCount: currentComments + 1,
+                comments: [newComment, ...(post.comments ?? [])],
                 ...(post._count && {
                   _count: { ...post._count, comments: currentComments + 1 },
                 }),
@@ -536,6 +609,7 @@ export default function FeedPage() {
           ...post,
           likesCount: post._count?.likes ?? post.likesCount ?? 0,
           commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
+          repostsCount: post._count?.reposts ?? post.repostsCount ?? 0,
         }))}
         currentUserId={currentUser?.id}
         isLoading={isFeedLoading}
@@ -545,6 +619,8 @@ export default function FeedPage() {
         isSavingEdit={isSavingEdit}
         onLikePost={handleLikePost}
         onUnlikePost={handleUnlikePost}
+        onRepostPost={handleRepostPost}
+        onUnrepostPost={handleUnrepostPost}
         onPostClick={(postId) => router.push(`/post/${postId}`)}
         onEditPost={handleEditPost}
         onSaveEdit={handleSaveEdit}

@@ -168,6 +168,13 @@ export async function convertLegacyMentions(
 /**
  * Create mention records in the database from parsed mentions
  * Supports both new ParsedMention format (with type/entityId) and legacy format
+ *
+ * USER mentions are stored via `userId` (a real FK to the `User` table) and
+ * trigger a `USER_MENTIONED` activity so the mentioned user is notified.
+ *
+ * Non-USER mentions (ARTIST/ALBUM/TRACK) reference external, provider-backed
+ * entities with no local table, so they're stored via `entityId`/`entityLabel`
+ * instead. There's no local user to notify, so no activity is created for them.
  */
 export async function createMentions(
   mentions: ParsedMention[],
@@ -175,33 +182,41 @@ export async function createMentions(
 ): Promise<void> {
   if (mentions.length === 0) return;
 
-  // Filter for USER type mentions (other types like ARTIST/ALBUM/TRACK are future)
   const userMentions = mentions.filter((m) => m.type === 'USER');
+  const entityMentions = mentions.filter((m) => m.type !== 'USER');
 
-  if (userMentions.length === 0) return;
+  if (userMentions.length > 0) {
+    await db.mention.createMany({
+      data: userMentions.map((mention) => ({
+        type: mention.type,
+        userId: mention.entityId,
+        postId: context.postId ?? null,
+        commentId: context.commentId ?? null,
+      })),
+    });
 
-  // Create mention records using userId field
-  const mentionData = userMentions.map((mention) => ({
-    userId: mention.entityId,
-    postId: context.postId ?? null,
-    commentId: context.commentId ?? null,
-  }));
+    // Create activity for mentioned users
+    await db.activity.createMany({
+      data: userMentions.map((mention) => ({
+        type: 'USER_MENTIONED' as const,
+        userId: mention.entityId,
+        postId: context.postId ?? null,
+        commentId: context.commentId ?? null,
+      })),
+    });
+  }
 
-  await db.mention.createMany({
-    data: mentionData,
-  });
-
-  // Create activity for mentioned users
-  const activityData = userMentions.map((mention) => ({
-    type: 'USER_MENTIONED' as const,
-    userId: mention.entityId,
-    postId: context.postId ?? null,
-    commentId: context.commentId ?? null,
-  }));
-
-  await db.activity.createMany({
-    data: activityData,
-  });
+  if (entityMentions.length > 0) {
+    await db.mention.createMany({
+      data: entityMentions.map((mention) => ({
+        type: mention.type,
+        entityId: mention.entityId,
+        entityLabel: mention.label,
+        postId: context.postId ?? null,
+        commentId: context.commentId ?? null,
+      })),
+    });
+  }
 }
 
 /**

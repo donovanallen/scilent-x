@@ -21,6 +21,8 @@ export interface FeedProps {
   isSavingEdit?: boolean;
   onLikePost?: (postId: string) => void;
   onUnlikePost?: (postId: string) => void;
+  onRepostPost?: (postId: string) => void;
+  onUnrepostPost?: (postId: string) => void;
   onCommentPost?: (postId: string) => void;
   /** Called when user clicks Edit to enter edit mode */
   onEditPost?: (postId: string) => void;
@@ -116,6 +118,8 @@ export function Feed({
   isSavingEdit = false,
   onLikePost,
   onUnlikePost,
+  onRepostPost,
+  onUnrepostPost,
   onCommentPost,
   onEditPost,
   onSaveEdit,
@@ -154,6 +158,10 @@ export function Feed({
             isSaving={editingPostId === post.id && isSavingEdit}
             onLike={() => onLikePost?.(post.id)}
             onUnlike={() => onUnlikePost?.(post.id)}
+            onRepost={onRepostPost ? () => onRepostPost(post.id) : undefined}
+            onUnrepost={
+              onUnrepostPost ? () => onUnrepostPost(post.id) : undefined
+            }
             onComment={() => onCommentPost?.(post.id)}
             onEdit={() => onEditPost?.(post.id)}
             onSaveEdit={

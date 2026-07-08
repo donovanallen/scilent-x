@@ -22,6 +22,7 @@ export type MentionType = (typeof MentionType)[keyof typeof MentionType]
 export const ActivityType = {
   POST_CREATED: 'POST_CREATED',
   POST_LIKED: 'POST_LIKED',
+  POST_REPOSTED: 'POST_REPOSTED',
   COMMENT_CREATED: 'COMMENT_CREATED',
   COMMENT_LIKED: 'COMMENT_LIKED',
   USER_FOLLOWED: 'USER_FOLLOWED',

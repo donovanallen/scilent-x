@@ -8,9 +8,12 @@ import {
   Skeleton,
   type PostCardProps,
   Card,
-  CardTitle,
   CardContent,
   CardHeader,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
 } from '@scilent-one/ui';
 import { useTransitionRouter } from 'next-view-transitions';
 import { useEffect, useMemo, useState, use } from 'react';
@@ -44,6 +47,7 @@ interface FeedPost extends PostCardProps {
   _count?: {
     likes: number;
     comments: number;
+    reposts: number;
   };
 }
 
@@ -53,8 +57,24 @@ interface PaginatedPosts {
   hasMore: boolean;
 }
 
+type ProfileTab = 'posts' | 'liked' | 'reposts';
+
+const TAB_QUERY_PARAM: Record<ProfileTab, string> = {
+  posts: 'includePosts',
+  liked: 'includeLiked',
+  reposts: 'includeReposts',
+};
+
+const TAB_RESPONSE_FIELD: Record<ProfileTab, 'posts' | 'liked' | 'reposts'> = {
+  posts: 'posts',
+  liked: 'liked',
+  reposts: 'reposts',
+};
+
 interface ProfileResponse extends UserProfile {
   posts?: PaginatedPosts;
+  liked?: PaginatedPosts;
+  reposts?: PaginatedPosts;
 }
 
 interface CurrentUser {
@@ -76,27 +96,28 @@ export default function PublicProfilePage({
   const [isFollowLoading, setIsFollowLoading] = useState(false);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [activeTab, setActiveTab] = useState<ProfileTab>('posts');
 
   const { data: currentUser } = useSWR<CurrentUser>(
     '/api/v1/users/me',
     fetcher
   );
 
+  const field = TAB_RESPONSE_FIELD[activeTab];
+
   const getKey = (
     pageIndex: number,
     previousPageData: ProfileResponse | null
   ) => {
     if (pageIndex === 0) {
-      return `/api/v1/users/${username}?includePosts=true`;
+      return `/api/v1/users/${username}?${TAB_QUERY_PARAM[activeTab]}=true`;
     }
-    if (
-      !previousPageData?.posts?.hasMore ||
-      !previousPageData.posts?.nextCursor
-    ) {
+    const previousPage = previousPageData?.[field];
+    if (!previousPage?.hasMore || !previousPage?.nextCursor) {
       return null;
     }
-    return `/api/v1/users/${username}?includePosts=true&cursor=${encodeURIComponent(
-      previousPageData.posts.nextCursor
+    return `/api/v1/users/${username}?${TAB_QUERY_PARAM[activeTab]}=true&cursor=${encodeURIComponent(
+      previousPage.nextCursor
     )}`;
   };
 
@@ -123,18 +144,23 @@ export default function PublicProfilePage({
   const profile = useMemo(() => {
     const firstPage = profilePages?.[0];
     if (!firstPage) return null;
-    const { posts: _posts, ...rest } = firstPage;
+    const {
+      posts: _posts,
+      liked: _liked,
+      reposts: _reposts,
+      ...rest
+    } = firstPage;
     return rest;
   }, [profilePages]);
 
   const posts = useMemo(
     () =>
-      profilePages?.flatMap((page) => page.posts?.items ?? []) ??
+      profilePages?.flatMap((page) => page[field]?.items ?? []) ??
       ([] as FeedPost[]),
-    [profilePages]
+    [profilePages, field]
   );
   const lastPage = profilePages?.[profilePages.length - 1];
-  const hasMore = lastPage?.posts?.hasMore ?? false;
+  const hasMore = lastPage?.[field]?.hasMore ?? false;
   const isProfileLoading = isLoading && !profilePages;
   const isPostsLoading = isLoading || isValidating;
 
@@ -212,14 +238,15 @@ export default function PublicProfilePage({
       mutate(
         (pages) =>
           pages?.map((page) => {
-            if (!page.posts) {
+            const currentPage = page[field];
+            if (!currentPage) {
               return page;
             }
             return {
               ...page,
-              posts: {
-                ...page.posts,
-                items: page.posts.items.map((post) => {
+              [field]: {
+                ...currentPage,
+                items: currentPage.items.map((post) => {
                   if (post.id !== postId) return post;
                   const currentLikes =
                     post._count?.likes ?? post.likesCount ?? 0;
@@ -253,23 +280,27 @@ export default function PublicProfilePage({
       mutate(
         (pages) =>
           pages?.map((page) => {
-            if (!page.posts) {
+            const currentPage = page[field];
+            if (!currentPage) {
               return page;
             }
             return {
               ...page,
-              posts: {
-                ...page.posts,
-                items: page.posts.items.map((post) => {
+              [field]: {
+                ...currentPage,
+                items: currentPage.items.map((post) => {
                   if (post.id !== postId) return post;
                   const currentLikes =
                     post._count?.likes ?? post.likesCount ?? 0;
                   return {
                     ...post,
                     isLiked: false,
-                    likesCount: currentLikes - 1,
+                    likesCount: Math.max(0, currentLikes - 1),
                     ...(post._count && {
-                      _count: { ...post._count, likes: currentLikes - 1 },
+                      _count: {
+                        ...post._count,
+                        likes: Math.max(0, currentLikes - 1),
+                      },
                     }),
                   };
                 }),
@@ -281,6 +312,93 @@ export default function PublicProfilePage({
     } catch (error) {
       console.error('Failed to unlike post:', error);
       toast.error('Failed to unlike post');
+    }
+  };
+
+  const handleRepostPost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/repost`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Failed to repost');
+
+      mutate(
+        (pages) =>
+          pages?.map((page) => {
+            const currentPage = page[field];
+            if (!currentPage) {
+              return page;
+            }
+            return {
+              ...page,
+              [field]: {
+                ...currentPage,
+                items: currentPage.items.map((post) => {
+                  if (post.id !== postId) return post;
+                  const currentReposts =
+                    post._count?.reposts ?? post.repostsCount ?? 0;
+                  return {
+                    ...post,
+                    isReposted: true,
+                    repostsCount: currentReposts + 1,
+                    ...(post._count && {
+                      _count: { ...post._count, reposts: currentReposts + 1 },
+                    }),
+                  };
+                }),
+              },
+            };
+          }),
+        { revalidate: false }
+      );
+    } catch (error) {
+      console.error('Failed to repost:', error);
+      toast.error('Failed to repost');
+    }
+  };
+
+  const handleUnrepostPost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/repost`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to remove repost');
+
+      mutate(
+        (pages) =>
+          pages?.map((page) => {
+            const currentPage = page[field];
+            if (!currentPage) {
+              return page;
+            }
+            return {
+              ...page,
+              [field]: {
+                ...currentPage,
+                items: currentPage.items.map((post) => {
+                  if (post.id !== postId) return post;
+                  const currentReposts =
+                    post._count?.reposts ?? post.repostsCount ?? 0;
+                  return {
+                    ...post,
+                    isReposted: false,
+                    repostsCount: Math.max(0, currentReposts - 1),
+                    ...(post._count && {
+                      _count: {
+                        ...post._count,
+                        reposts: Math.max(0, currentReposts - 1),
+                      },
+                    }),
+                  };
+                }),
+              },
+            };
+          }),
+        { revalidate: false }
+      );
+    } catch (error) {
+      console.error('Failed to remove repost:', error);
+      toast.error('Failed to remove repost');
     }
   };
 
@@ -305,14 +423,15 @@ export default function PublicProfilePage({
     mutate(
       (pages) =>
         pages?.map((page) => {
-          if (!page.posts) {
+          const currentPage = page[field];
+          if (!currentPage) {
             return page;
           }
           return {
             ...page,
-            posts: {
-              ...page.posts,
-              items: page.posts.items.map((post) =>
+            [field]: {
+              ...currentPage,
+              items: currentPage.items.map((post) =>
                 post.id === postId ? { ...post, content, contentHtml } : post
               ),
             },
@@ -352,14 +471,15 @@ export default function PublicProfilePage({
       mutate(
         (pages) =>
           pages?.map((page) => {
-            if (!page.posts) {
+            const currentPage = page[field];
+            if (!currentPage) {
               return page;
             }
             return {
               ...page,
-              posts: {
-                ...page.posts,
-                items: page.posts.items.filter((post) => post.id !== postId),
+              [field]: {
+                ...currentPage,
+                items: currentPage.items.filter((post) => post.id !== postId),
               },
             };
           }),
@@ -411,40 +531,57 @@ export default function PublicProfilePage({
         />
 
         <Card>
-          <CardHeader>
-            <CardTitle>Posts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Feed
-              posts={posts.map((post) => ({
-                ...post,
-                likesCount: post._count?.likes ?? post.likesCount ?? 0,
-                commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
-              }))}
-              currentUserId={currentUser?.id}
-              isLoading={isPostsLoading}
-              hasMore={hasMore}
-              loadMoreRef={sentinelRef}
-              editingPostId={editingPostId}
-              isSavingEdit={isSavingEdit}
-              onLikePost={handleLikePost}
-              onUnlikePost={handleUnlikePost}
-              onPostClick={(postId) => router.push(`/post/${postId}`)}
-              onEditPost={handleEditPost}
-              onSaveEdit={handleSaveEdit}
-              onCancelEdit={handleCancelEdit}
-              onDeletePost={handleDeletePost}
-              onAuthorClick={(clickedUsername) =>
-                router.push(`/profile/${clickedUsername}`)
-              }
-              onMentionClick={(clickedUsername) =>
-                router.push(`/profile/${clickedUsername}`)
-              }
-              onMentionQuery={searchUsers}
-              onArtistMentionQuery={searchArtists}
-              renderArtistMention={(props) => <ArtistMention {...props} />}
-            />
-          </CardContent>
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as ProfileTab)}
+          >
+            <CardHeader>
+              <TabsList className='grid w-full grid-cols-3'>
+                <TabsTrigger value='posts'>Posts</TabsTrigger>
+                <TabsTrigger value='liked'>Liked</TabsTrigger>
+                <TabsTrigger value='reposts'>Reposts</TabsTrigger>
+              </TabsList>
+            </CardHeader>
+            <CardContent>
+              <TabsContent value={activeTab} className='mt-0'>
+                <Feed
+                  posts={posts.map((post) => ({
+                    ...post,
+                    likesCount: post._count?.likes ?? post.likesCount ?? 0,
+                    commentsCount:
+                      post._count?.comments ?? post.commentsCount ?? 0,
+                    repostsCount:
+                      post._count?.reposts ?? post.repostsCount ?? 0,
+                  }))}
+                  currentUserId={currentUser?.id}
+                  isLoading={isPostsLoading}
+                  hasMore={hasMore}
+                  loadMoreRef={sentinelRef}
+                  editingPostId={editingPostId}
+                  isSavingEdit={isSavingEdit}
+                  onLikePost={handleLikePost}
+                  onUnlikePost={handleUnlikePost}
+                  onRepostPost={handleRepostPost}
+                  onUnrepostPost={handleUnrepostPost}
+                  onPostClick={(postId) => router.push(`/post/${postId}`)}
+                  onCommentPost={(postId) => router.push(`/post/${postId}`)}
+                  onEditPost={handleEditPost}
+                  onSaveEdit={handleSaveEdit}
+                  onCancelEdit={handleCancelEdit}
+                  onDeletePost={handleDeletePost}
+                  onAuthorClick={(clickedUsername) =>
+                    router.push(`/profile/${clickedUsername}`)
+                  }
+                  onMentionClick={(clickedUsername) =>
+                    router.push(`/profile/${clickedUsername}`)
+                  }
+                  onMentionQuery={searchUsers}
+                  onArtistMentionQuery={searchArtists}
+                  renderArtistMention={(props) => <ArtistMention {...props} />}
+                />
+              </TabsContent>
+            </CardContent>
+          </Tabs>
         </Card>
       </div>
     </div>

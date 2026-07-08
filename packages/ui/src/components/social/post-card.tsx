@@ -5,6 +5,7 @@ import {
   Heart,
   MessageCircle,
   MoreHorizontal,
+  Repeat2,
   Trash2,
   Pencil,
   Loader2,
@@ -51,7 +52,9 @@ export interface PostCardProps {
   createdAt: Date | string;
   likesCount: number;
   commentsCount: number;
+  repostsCount?: number;
   isLiked?: boolean;
+  isReposted?: boolean;
   isOwner?: boolean;
   /** Whether the post is currently in edit mode */
   isEditing?: boolean;
@@ -59,14 +62,15 @@ export interface PostCardProps {
   isSaving?: boolean;
   onLike?: () => void;
   onUnlike?: () => void;
+  onRepost?: (() => void) | undefined;
+  onUnrepost?: (() => void) | undefined;
   /** Called when comment button is clicked (for navigation to post detail) */
   onComment?: () => void;
   /** Called when the user clicks the Edit button to enter edit mode */
   onEdit?: () => void;
   /** Called when the user saves edited content */
   onSaveEdit?:
-    | ((content: string, contentHtml: string) => Promise<void>)
-    | undefined;
+    ((content: string, contentHtml: string) => Promise<void>) | undefined;
   /** Called when the user cancels editing */
   onCancelEdit?: (() => void) | undefined;
   onDelete?: () => void;
@@ -75,20 +79,16 @@ export interface PostCardProps {
   onAuthorClick?: ((authorUsername: string) => void) | undefined;
   onMentionClick?: ((username: string) => void) | undefined;
   onArtistMentionClick?:
-    | ((artistId: string, provider: string) => void)
-    | undefined;
+    ((artistId: string, provider: string) => void) | undefined;
   /** Custom renderer for artist mentions (for interactive behaviors) */
   renderArtistMention?:
-    | ((props: ArtistMentionRenderProps) => React.ReactNode)
-    | undefined;
+    ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
   /** Callback to search for mention suggestions (for edit mode) */
   onMentionQuery?:
-    | ((query: string) => Promise<MentionSuggestion[]>)
-    | undefined;
+    ((query: string) => Promise<MentionSuggestion[]>) | undefined;
   /** Callback to search for artist mention suggestions (for edit mode) */
   onArtistMentionQuery?:
-    | ((query: string) => Promise<MentionSuggestion[]>)
-    | undefined;
+    ((query: string) => Promise<MentionSuggestion[]>) | undefined;
   className?: string;
 
   // ---- Inline comments props ----
@@ -104,8 +104,7 @@ export interface PostCardProps {
   isSubmittingComment?: boolean | undefined;
   /** Called when user submits a new comment */
   onCreateComment?:
-    | ((content: string, contentHtml: string) => Promise<void>)
-    | undefined;
+    ((content: string, contentHtml: string) => Promise<void>) | undefined;
   /** Called when "View all comments" is clicked */
   onViewAllComments?: (() => void) | undefined;
   /** Called when a comment is liked */
@@ -156,12 +155,16 @@ export function PostCard({
   createdAt,
   likesCount,
   commentsCount,
+  repostsCount = 0,
   isLiked = false,
+  isReposted = false,
   isOwner = false,
   isEditing = false,
   isSaving = false,
   onLike,
   onUnlike,
+  onRepost,
+  onUnrepost,
   onComment,
   onEdit,
   onSaveEdit,
@@ -249,6 +252,15 @@ export function PostCard({
       onUnlike?.();
     } else {
       onLike?.();
+    }
+  };
+
+  const handleRepostClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isReposted) {
+      onUnrepost?.();
+    } else {
+      onRepost?.();
     }
   };
 
@@ -483,6 +495,24 @@ export function PostCard({
                 />
                 <span className="text-sm">{commentsCount}</span>
               </Button>
+              {(onRepost || onUnrepost) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    'gap-1.5 px-2 touch-target active:scale-95 transition-transform hover:opacity-80',
+                    isReposted && 'text-emerald-600 dark:text-emerald-500'
+                  )}
+                  onClick={handleRepostClick}
+                  aria-pressed={isReposted}
+                >
+                  <Repeat2 className="h-4 w-4" />
+                  <span className="text-sm">{repostsCount}</span>
+                  <span className="sr-only">
+                    {isReposted ? 'Undo repost' : 'Repost'}
+                  </span>
+                </Button>
+              )}
             </div>
 
             {/* Inline comment input */}

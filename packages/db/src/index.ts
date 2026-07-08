@@ -27,6 +27,7 @@ export type {
   Post,
   Comment,
   Like,
+  Repost,
   Follow,
   Mention,
   Activity,

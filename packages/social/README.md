@@ -130,6 +130,18 @@ await likeComment(userId, commentId);
 await unlikeComment(userId, commentId);
 ```
 
+### Reposts
+
+```typescript
+import { repostPost, unrepostPost } from '@scilent-one/social';
+
+// Repost a post to your followers
+await repostPost(userId, postId);
+
+// Remove a repost
+await unrepostPost(userId, postId);
+```
+
 ### Follows
 
 ```typescript
@@ -186,6 +198,9 @@ const profile = await getProfileFeed(userId, { limit: 20 }, currentUserId);
 
 // Liked posts - posts that a user has liked
 const liked = await getLikedPosts(userId, { limit: 20 }, currentUserId);
+
+// Reposts - posts that a user has reposted
+const reposts = await getUserReposts(userId, { limit: 20 }, currentUserId);
 ```
 
 ### Users & Profiles
@@ -360,12 +375,15 @@ export function handleApiError(error: unknown) {
 
 The package automatically creates activity records when:
 
-- A post is created (`POST_CREATED`)
+- A post is created (`POST_CREATED`) - one activity per follower of the author
 - A post is liked (`POST_LIKED`)
+- A post is reposted (`POST_REPOSTED`)
 - A comment is created (`COMMENT_CREATED`)
 - A comment is liked (`COMMENT_LIKED`)
 - A user is followed (`USER_FOLLOWED`)
-- A user is mentioned (`USER_MENTIONED`)
+- A user is mentioned (`USER_MENTIONED`) - only for `@user` mentions; `#artist`
+  mentions reference external, provider-backed entities with no local user to
+  notify
 
 These can be used to build notification systems.
 
@@ -383,13 +401,15 @@ These can be used to build notification systems.
 
 - Cannot be empty
 - Maximum 5000 characters
-- @mentions are automatically parsed and linked
+- `@user` and `#artist` mentions are automatically parsed from the rich-text
+  HTML (falling back to plain-text `@user` parsing when no HTML is provided)
 
 ### Comment Content
 
 - Cannot be empty
 - Maximum 2000 characters
-- @mentions are automatically parsed and linked
+- `@user` and `#artist` mentions are automatically parsed from the rich-text
+  HTML (falling back to plain-text `@user` parsing when no HTML is provided)
 
 ### Bio
 

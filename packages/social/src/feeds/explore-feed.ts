@@ -1,6 +1,14 @@
 import { db } from '@scilent-one/db';
-import type { PaginationParams, PostWithAuthor, PaginatedResult } from '../types';
-import { getPaginationParams, createPaginatedResult, DEFAULT_PAGE_SIZE } from '../utils/pagination';
+import type {
+  PaginationParams,
+  PostWithAuthor,
+  PaginatedResult,
+} from '../types';
+import {
+  getPaginationParams,
+  createPaginatedResult,
+  DEFAULT_PAGE_SIZE,
+} from '../utils/pagination';
 
 const authorSelect = {
   id: true,
@@ -28,9 +36,16 @@ export async function getExploreFeed(
         select: {
           likes: true,
           comments: true,
+          reposts: true,
         },
       },
       likes: currentUserId
+        ? {
+            where: { userId: currentUserId },
+            take: 1,
+          }
+        : false,
+      reposts: currentUserId
         ? {
             where: { userId: currentUserId },
             take: 1,
@@ -48,7 +63,9 @@ export async function getExploreFeed(
   const items = posts.map((post) => ({
     ...post,
     isLiked: currentUserId ? post.likes.length > 0 : false,
+    isReposted: currentUserId ? post.reposts.length > 0 : false,
     likes: undefined as unknown as never,
+    reposts: undefined as unknown as never,
   })) as PostWithAuthor[];
 
   return createPaginatedResult(items, limit);
@@ -78,9 +95,16 @@ export async function getTrendingPosts(
         select: {
           likes: true,
           comments: true,
+          reposts: true,
         },
       },
       likes: currentUserId
+        ? {
+            where: { userId: currentUserId },
+            take: 1,
+          }
+        : false,
+      reposts: currentUserId
         ? {
             where: { userId: currentUserId },
             take: 1,
@@ -110,7 +134,9 @@ export async function getTrendingPosts(
   const items = posts.map((post) => ({
     ...post,
     isLiked: currentUserId ? post.likes.length > 0 : false,
+    isReposted: currentUserId ? post.reposts.length > 0 : false,
     likes: undefined as unknown as never,
+    reposts: undefined as unknown as never,
   })) as PostWithAuthor[];
 
   return createPaginatedResult(items, limit);
