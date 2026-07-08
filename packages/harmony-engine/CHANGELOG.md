@@ -1,5 +1,63 @@
 # @scilent-one/harmony-engine
 
+## 0.5.0
+
+### Minor Changes
+
+- f34093a: Add an Apple Music catalog provider. `AppleMusicProvider` authenticates with a
+  MusicKit developer token (ES256 JWT minted from a Team ID, Key ID, and `.p8`
+  private key) and supports ISRC track lookup, UPC album lookup, catalog search
+  for releases/artists/tracks, and `music.apple.com` URL parsing. The provider is
+  registered under the `apple_music` name in the `ProviderRegistry`.
+- a4c6686: Add `HarmonizedPlaylist` and `HarmonizedListenHistoryItem` types, plus
+  `getPlaylists`/`getRecentlyPlayed` hooks on `BaseProvider`. `AppleMusicProvider`
+  implements both: `getPlaylists` returns the user's library playlists (with an
+  `isPublic` flag, and an optional `publicOnly` filter), and `getRecentlyPlayed`
+  returns their recent listen history via `/v1/me/recent/played/tracks`. Both
+  use the same Music User Token-based user authentication as the existing
+  `getFollowedArtists` support.
+- df96c8f: Add track lookup by URL. `BaseProvider` now exposes `lookupTrackById` and
+  `lookupTrackByUrl` (with an opt-in `_lookupTrackById` hook, defaulting to no-op),
+  the `LookupCoordinator` and `HarmonizationEngine` gain `lookupTrackByUrl`, and
+  the Apple Music provider implements `_lookupTrackById` (`GET /v1/catalog/{storefront}/songs/{id}`).
+  This makes Apple Music song links (both standalone `/song/` URLs and album URLs
+  with an `?i=<songId>` param) resolve to tracks, closing a gap where `parseUrl`
+  returned a track but nothing could look it up.
+- f6796bb: Add user-scoped support to the Apple Music provider. `AppleMusicProvider` now
+  implements `getCurrentUser` (returning the user's storefront as their profile,
+  since Apple Music has no public user profile) and `getFollowedArtists`
+  (returning the user's library artists, preferring linked catalog data). These
+  requests use Apple's two-token model: the developer token is minted internally
+  and the Music User Token is passed as the `accessToken`.
+- 36b85f3: Provider `priority` now derives from the instance configuration instead of a
+  hardcoded class constant. `BaseProvider` exposes `priority` as a getter that
+  returns the configured `ProviderConfig.priority`, falling back to a new
+  `defaultPriority` declared on each provider class. Previously the `priority`
+  supplied via configuration (which the web app derives from the
+  `provider_settings` table) was ignored, so admin priority overrides never
+  affected `ProviderRegistry.getByPriority()` ordering, lookup fallback order, or
+  status reporting. Provider defaults are unchanged (MusicBrainz 100, Spotify 80,
+  Tidal 75, Apple Music 70).
+- ee977a8: Resolve Spotify and Tidal song links via `lookupTrackByUrl`. Both providers now
+  implement the `_lookupTrackById` hook (Spotify: `GET /tracks/{id}`; Tidal:
+  `GET /tracks/{id}` with `include=artists`), so their track URLs/URIs
+  (e.g. `https://open.spotify.com/track/...`, `https://tidal.com/browse/track/...`)
+  resolve to harmonized tracks instead of returning `null`. This extends the
+  track-URL lookup already supported by Apple Music to Spotify and Tidal.
+
+### Patch Changes
+
+- db7cc4d: Improve Apple Music release-type detection. Since the Apple Music API has no
+  explicit EP flag, `mapAlbumType` now recognizes EPs from Apple's " - EP"/"(EP)"
+  title convention (and singles from the " - Single" suffix) in addition to the
+  `isSingle`/`isCompilation` flags, so EPs are no longer misclassified as albums.
+- cd33b0c: Fix Apple Music catalog requests when the configured storefront is an empty
+  string. `AppleMusicProvider` now falls back to `'us'` for empty/blank storefront
+  values (previously only `undefined` triggered the default), preventing malformed
+  `/v1/catalog//search` requests that silently returned no results. Additionally,
+  `LookupCoordinator` now logs a warning when a provider's search rejects, so
+  provider failures are no longer indistinguishable from genuine empty results.
+
 ## 0.4.0
 
 ### Minor Changes

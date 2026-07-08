@@ -1,5 +1,53 @@
 # @scilent-one/ui
 
+## 0.6.0
+
+### Minor Changes
+
+- 3ba4d08: Add a basic direct-message inbox. `packages/db` gains `Conversation`,
+  `ConversationParticipant`, and `Message` models (1:1 conversations only, with
+  `lastReadAt`-based unread tracking). `packages/social` adds `conversations/`
+  and `messages/` domain modules — `getInboxConversations`, `getConversationById`,
+  `getConversationSummary`, `getOrCreateDirectConversation`, `markConversationRead`,
+  `getMessages`, and `sendMessage` — gated so a conversation can only be started
+  between mutual followers (`isMutualFollow`), and exposes `canMessage` on
+  `UserProfile`. `packages/ui` adds presentational messaging components
+  (`ConversationListItem`, `ConversationList`, `MessageBubble`, `MessageThread`,
+  `MessageComposer`) plus Storybook stories, and `ProfileHeader` gains an
+  optional `canMessage`/`onMessage` "Message" action. Notifications and
+  real-time delivery are explicitly out of scope for this pass.
+- add1a19: Add a shared motion foundation and apply it across core UI primitives (Phase 1 of the global motion system).
+
+  - Migrated from the deprecated `tailwindcss-animate` plugin to `tw-animate-css` (Tailwind v4-native, CSS-first).
+  - Added a shared motion scale: named `duration-instant/fast/base/slow/slower` utilities and polished `ease-out`/`ease-in`/`ease-in-out` easing curves, wired through to both CSS transitions and `animate-in`/`animate-out` entrance/exit animations.
+  - Added `useReducedMotion` and `useInViewport` hooks, plus a `Reveal` component for IntersectionObserver-based fade/slide-in-view reveals with a capped stagger delay (skipped entirely under `prefers-reduced-motion`).
+  - Applied the new tokens to `Button` (press/hover feedback), `Dialog`, `Sheet`, `DropdownMenu`, `ContextMenu`, `Popover`, `HoverCard`, `Select`, `Tooltip` (consistent enter/exit timing), `Tabs`, `Switch`, and `Sidebar` (collapse/expand easing).
+  - Replaced `Skeleton`'s flat pulse with a shimmer sweep, falling back to the pulse under reduced motion.
+  - Standardized hover-lift/scale transitions across `AlbumArtwork`, `AlbumCard`, `TrackCard`, and `ArtistCard` on the shared tokens.
+  - Applied the `Reveal` stagger pattern to the web app's search results grid and the social feed's post list (reference implementations).
+
+  This is a visual-only, backwards-compatible change - no public component APIs changed shape (aside from the new `useReducedMotion`, `useInViewport`, and `Reveal` exports from `@scilent-one/ui`).
+
+- a011feb: Add preset color palette support to the shared stylesheet. `globals.css` now
+  includes a brand-forward `pro` palette via `[data-theme='pro']` and
+  `[data-theme='pro'].dark` token blocks, layered on top of the existing default
+  palette. Palette tokens are color-only for now; radius, shadow, and fonts still
+  inherit the base tokens.
+- 81d78d4: Add repost support and fix several posts-feature bugs:
+
+  - Add a `Repost` model plus `repostPost`/`unrepostPost` mutations and
+    `getUserReposts` query, with a `POST_REPOSTED` activity for the post author.
+  - Persist artist (and other non-`USER`) mentions by making `Mention.userId`
+    optional and adding `entityId`/`entityLabel` columns; posts now use the same
+    HTML-based mention parser as comments so `#artist` mentions are saved.
+  - Fix `POST_CREATED` activity fan-out to actually notify followers (it
+    previously only notified the author).
+  - Fix a pagination bug in `getLikedPosts` where the `Like` row's cursor id was
+    leaking into the returned `Post.id`.
+  - Fix the comment `PATCH` API route to persist `contentHtml`, and add inline
+    comment editing UI (`CommentCard`/`CommentList`).
+  - Add `PostCard`/`Feed` repost button, counts, and `isReposted` state.
+
 ## 0.5.0
 
 ### Minor Changes

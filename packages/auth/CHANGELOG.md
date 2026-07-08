@@ -1,5 +1,21 @@
 # @scilent-one/auth
 
+## 0.4.0
+
+### Minor Changes
+
+- a011feb: Persist the selected color palette per user. The `User` model gains a `palette`
+  field (defaults to `default`), exposed on the session via Better Auth
+  `additionalFields` and settable through `authClient.updateUser({ palette })`
+  (client typing via `inferAdditionalFields`).
+
+### Patch Changes
+
+- Updated dependencies [3ba4d08]
+- Updated dependencies [81d78d4]
+- Updated dependencies [a011feb]
+  - @scilent-one/db@0.5.0
+
 ## 0.3.0
 
 ### Minor Changes
