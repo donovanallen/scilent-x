@@ -17,6 +17,7 @@ import {
 } from '../actions';
 
 import { SearchInput } from './search-input';
+import { ALL_PROVIDERS_VALUE } from './search-provider-toggle';
 import { SearchResults } from './search-results';
 import { SearchToolbar } from './search-toolbar';
 
@@ -200,6 +201,23 @@ export function SearchContainer({ providers }: SearchContainerProps) {
     [query, filters, handleSearch]
   );
 
+  // Provider filter is single-select and defaults to searching all providers.
+  // 'all' maps to `filters.providers === undefined` (current behavior).
+  const selectedProvider =
+    filters.providers?.length === 1
+      ? (filters.providers[0] ?? ALL_PROVIDERS_VALUE)
+      : ALL_PROVIDERS_VALUE;
+
+  const handleProviderChange = useCallback(
+    (provider: string) => {
+      handleFilterChange({
+        ...filters,
+        providers: provider === ALL_PROVIDERS_VALUE ? undefined : [provider],
+      });
+    },
+    [filters, handleFilterChange]
+  );
+
   return (
     <div className='flex flex-col flex-1 min-h-0 gap-2'>
       <SearchInput
@@ -211,6 +229,8 @@ export function SearchContainer({ providers }: SearchContainerProps) {
         isLoading={isPending}
         searchType={searchType}
         onSearchTypeChange={handleSearchTypeChange}
+        selectedProvider={selectedProvider}
+        onProviderChange={handleProviderChange}
       />
 
       {hasSearched && (

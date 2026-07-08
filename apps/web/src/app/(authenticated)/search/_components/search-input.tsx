@@ -6,8 +6,8 @@ import { useCallback, useRef, useState } from 'react';
 
 import type { SearchFilters, SearchType } from '../actions';
 
-// import { SearchFiltersProvider } from './search-filters-provider';
 import { SearchFiltersReleaseType } from './search-filters-release-type';
+import { SearchProviderToggle } from './search-provider-toggle';
 import { SearchTypeToggle } from './search-type-toggle';
 
 interface SearchInputProps {
@@ -23,16 +23,20 @@ interface SearchInputProps {
   isLoading?: boolean;
   searchType: SearchType;
   onSearchTypeChange: (type: SearchType) => void;
+  selectedProvider: string;
+  onProviderChange: (value: string) => void;
 }
 
 export function SearchInput({
   onSearch,
   filters,
   onFilterChange,
-  // providers,
+  providers,
   isLoading,
   searchType,
   onSearchTypeChange,
+  selectedProvider,
+  onProviderChange,
 }: SearchInputProps) {
   const [inputValue, setInputValue] = useState('');
   const [_showSuggestions, setShowSuggestions] = useState(false);
@@ -118,33 +122,25 @@ export function SearchInput({
               </Button>
             </div>
           </div>
+          <SearchProviderToggle
+            selectedProvider={selectedProvider}
+            onProviderChange={onProviderChange}
+            enabledProviders={providers.map((p) => p.name)}
+          />
         </div>
       </form>
 
-      {/* Search Type Toggle & Filter Pills */}
-      <div className='flex flex-col lg:flex-row gap-2'>
+      {/* Filter Pills */}
+      <div className='flex flex-col lg:flex-row lg:items-center gap-2'>
         {/* Release Type Pills - only shown for release search */}
-        <div className='flex flex-wrap items-center gap-2'>
-          {searchType === 'release' && (
-            <>
-              <SearchFiltersReleaseType
-                filters={filters}
-                onFilterChange={onFilterChange}
-              />
-              {/* <Separator
-                orientation='vertical'
-                className='bg-amber-500 border-amber-400'
-              /> */}
-            </>
-          )}
-
-          {/* Provider Pills */}
-          {/* <SearchFiltersProvider
-            providers={providers}
-            filters={filters}
-            onFilterChange={onFilterChange}
-          /> */}
-        </div>
+        {searchType === 'release' && (
+          <div className='flex flex-wrap items-center gap-2'>
+            <SearchFiltersReleaseType
+              filters={filters}
+              onFilterChange={onFilterChange}
+            />
+          </div>
+        )}
 
         {hasActiveFilters && (
           <div className='flex items-center gap-2'>
