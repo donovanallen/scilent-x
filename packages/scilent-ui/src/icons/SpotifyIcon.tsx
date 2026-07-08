@@ -78,18 +78,26 @@ export function SpotifyIcon({
   const isWordmark = effectiveVariant === 'wordmark';
   const defaultLabel = isWordmark ? 'Spotify' : 'Spotify icon';
 
-  // For "current" color, we use the brand SVG but override the fill
-  const effectiveColor = color === 'current' ? 'brand' : color;
+  // For "current" and theme-aware "auto", render the brand SVG and override the
+  // fill with `currentColor`. `auto` additionally pins the text color to the
+  // themed foreground so the mark stays legible in both light and dark mode.
+  const usesCurrentColor = color === 'current' || color === 'auto';
+  const effectiveColor: 'brand' | 'black' | 'white' = usesCurrentColor
+    ? 'brand'
+    : color;
   const SvgComponent = SVG_COMPONENTS[effectiveVariant][effectiveColor];
 
-  // Determine fill color
-  const fill = color === 'current' ? 'currentColor' : undefined;
+  const fill = usesCurrentColor ? 'currentColor' : undefined;
 
   return (
     <SvgComponent
       width={width}
       height={height}
-      className={cn('shrink-0', className)}
+      className={cn(
+        'shrink-0',
+        color === 'auto' && 'text-foreground',
+        className
+      )}
       role="img"
       aria-label={ariaLabel ?? defaultLabel}
       aria-hidden={ariaHidden}
@@ -103,8 +111,8 @@ export const spotifyIconMetadata: ProviderIconMetadata = {
   provider: 'spotify',
   supportedVariants: ['icon', 'wordmark'],
   supportedColors: {
-    icon: ['brand', 'black', 'white', 'current'],
-    wordmark: ['brand', 'black', 'white', 'current'],
+    icon: ['brand', 'black', 'white', 'current', 'auto'],
+    wordmark: ['brand', 'black', 'white', 'current', 'auto'],
     'wordmark-vertical': [], // Not available
   },
   availableFormats: {

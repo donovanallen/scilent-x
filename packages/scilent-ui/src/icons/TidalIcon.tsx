@@ -37,8 +37,13 @@ export interface TidalIconProps extends ProviderSpecificIconProps {}
  * Tidal provider icon component
  *
  * Renders the official Tidal icon or wordmark as a PNG image.
- * Note: Tidal does not provide official SVG assets, so this component
- * uses PNG images and does not support `color="current"` or dynamic fill colors.
+ * Note: Tidal does not provide official SVG assets or a colored brand mark, so
+ * this component uses monochrome PNG images.
+ *
+ * Because the mark is monochrome, the default (`auto`) — as well as `brand` and
+ * `current` — is theme-aware: it renders the black asset in light mode and the
+ * white asset in dark mode so the logo never disappears against a low-contrast
+ * background. Pass an explicit `black` or `white` to opt out of theme swapping.
  *
  * Available variants:
  * - `icon`: Square Tidal logo mark
@@ -47,19 +52,16 @@ export interface TidalIconProps extends ProviderSpecificIconProps {}
  *
  * @example
  * ```tsx
- * // Black icon on light background
- * <TidalIcon size="lg" color="black" />
+ * // Theme-aware (black in light mode, white in dark mode)
+ * <TidalIcon size="lg" />
  *
- * // White wordmark for dark backgrounds
+ * // Force a fixed color (e.g. on a known background)
  * <TidalIcon variant="wordmark" color="white" size={32} />
- *
- * // Vertical wordmark
- * <TidalIcon variant="wordmark-vertical" color="black" size={64} />
  * ```
  */
 export function TidalIcon({
   variant = 'icon',
-  color = 'black',
+  color = 'auto',
   size = 'md',
   className,
   'aria-label': ariaLabel,
@@ -67,39 +69,9 @@ export function TidalIcon({
 }: TidalIconProps) {
   const resolvedSize = resolveSize(size);
 
-  // Tidal doesn't have a brand color variant - default to black
-  // Also doesn't support currentColor since we're using PNGs
-  const effectiveColor = color === 'brand' || color === 'current' ? 'black' : color;
-
-  if (process.env.NODE_ENV === 'development') {
-    if (color === 'brand') {
-      console.warn(
-        'TidalIcon: color="brand" is not available. Tidal uses black/white variants. Falling back to "black".'
-      );
-    }
-    if (color === 'current') {
-      console.warn(
-        'TidalIcon: color="current" is not supported for PNG-based icons. Falling back to "black".'
-      );
-    }
-  }
-
   const aspectRatio = ASPECT_RATIOS[variant];
-  const src = PNG_PATHS[variant][effectiveColor];
-
-  // Calculate dimensions based on variant orientation
-  let width: number;
-  let height: number;
-
-  if (variant === 'wordmark-vertical') {
-    // For vertical wordmark, size is the height
-    height = resolvedSize;
-    width = Math.round(height * aspectRatio);
-  } else {
-    // For icon and horizontal wordmark, size is the height
-    height = resolvedSize;
-    width = Math.round(height * aspectRatio);
-  }
+  const height = resolvedSize;
+  const width = Math.round(height * aspectRatio);
 
   const defaultLabel =
     variant === 'icon'
@@ -107,18 +79,56 @@ export function TidalIcon({
       : variant === 'wordmark'
         ? 'Tidal'
         : 'Tidal logo';
+  const label = ariaLabel ?? defaultLabel;
 
+  const sharedProps = {
+    width,
+    height,
+    role: 'img' as const,
+    'aria-hidden': ariaHidden,
+    loading: 'lazy' as const,
+    decoding: 'async' as const,
+  };
+
+  // Explicit black/white opt out of theme-aware swapping.
+  if (color === 'black' || color === 'white') {
+    return (
+      <img
+        {...sharedProps}
+        src={PNG_PATHS[variant][color]}
+        alt={label}
+        className={cn('shrink-0 object-contain', className)}
+      />
+    );
+  }
+
+  // Theme-aware (auto/brand/current): Tidal ships only monochrome PNGs and this
+  // app themes via CSS-variable tokens (not `dark:` utilities), so we use the
+  // PNG's alpha as a CSS mask and paint it with `currentColor`. Pinning the text
+  // color to `--foreground` (via `text-foreground`) means the mark tracks the
+  // active theme automatically — legible in both light and dark mode, SSR-safe,
+  // and with no hydration flash. The PNG color is irrelevant to a mask (only its
+  // alpha matters), so either asset works as the source.
+  const maskUrl = `url(${PNG_PATHS[variant].black})`;
   return (
-    <img
-      src={src}
-      alt={ariaLabel ?? defaultLabel}
-      width={width}
-      height={height}
-      className={cn('shrink-0 object-contain', className)}
+    <span
       role="img"
+      aria-label={ariaHidden ? undefined : label}
       aria-hidden={ariaHidden}
-      loading="lazy"
-      decoding="async"
+      className={cn('inline-block shrink-0 text-foreground', className)}
+      style={{
+        width,
+        height,
+        backgroundColor: 'currentColor',
+        WebkitMaskImage: maskUrl,
+        maskImage: maskUrl,
+        WebkitMaskRepeat: 'no-repeat',
+        maskRepeat: 'no-repeat',
+        WebkitMaskPosition: 'center',
+        maskPosition: 'center',
+        WebkitMaskSize: 'contain',
+        maskSize: 'contain',
+      }}
     />
   );
 }
@@ -128,9 +138,9 @@ export const tidalIconMetadata: ProviderIconMetadata = {
   provider: 'tidal',
   supportedVariants: ['icon', 'wordmark', 'wordmark-vertical'],
   supportedColors: {
-    icon: ['black', 'white'],
-    wordmark: ['black', 'white'],
-    'wordmark-vertical': ['black', 'white'],
+    icon: ['auto', 'black', 'white'],
+    wordmark: ['auto', 'black', 'white'],
+    'wordmark-vertical': ['auto', 'black', 'white'],
   },
   availableFormats: {
     icon: ['png'],
@@ -146,6 +156,7 @@ export function getTidalIconUrl(
   variant: IconVariant = 'icon',
   color: Exclude<IconColor, 'current' | 'brand'> = 'black'
 ): string {
-  const effectiveColor = color === 'black' || color === 'white' ? color : 'black';
+  const effectiveColor =
+    color === 'black' || color === 'white' ? color : 'black';
   return PNG_PATHS[variant][effectiveColor];
 }
