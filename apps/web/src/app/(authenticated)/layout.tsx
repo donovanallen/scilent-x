@@ -12,8 +12,8 @@ import {
   SidebarTrigger,
   Separator,
 } from '@scilent-one/ui';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Link } from 'next-view-transitions';
 import * as React from 'react';
 
 import { ROUTES } from '@/lib/routes';
@@ -113,7 +113,10 @@ export default function AuthenticatedLayout({
           )}
           <div className='flex-1' />
         </header>
-        <main className='flex flex-1 flex-col overflow-auto p-3 sm:p-4 pt-0'>
+        <main
+          className='flex flex-1 flex-col overflow-auto p-3 sm:p-4 pt-0'
+          style={{ viewTransitionName: 'page-content' }}
+        >
           <HarmonyInteractionProvider>{children}</HarmonyInteractionProvider>
         </main>
       </SidebarInset>
