@@ -124,7 +124,7 @@ export function AlbumArtwork({
         className={cn(
           'h-full w-full object-cover',
           hoverEffect &&
-            'transition-transform duration-300 group-hover:scale-105',
+            'transition-transform duration-base ease-out group-hover:scale-105',
           isImageLoading && 'opacity-0'
         )}
         loading="lazy"

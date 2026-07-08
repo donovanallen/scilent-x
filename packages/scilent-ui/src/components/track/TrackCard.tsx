@@ -320,7 +320,7 @@ export function TrackCard({
     element = (
       <Card
         className={cn(
-          'group relative transition-colors hover:bg-accent/50 cursor-pointer overflow-hidden',
+          'group relative cursor-pointer overflow-hidden transition-[background-color,transform,box-shadow] duration-base ease-out hover:bg-accent/50 hover:-translate-y-0.5 hover:shadow-md',
           isPlaying && 'bg-accent ring-1 ring-primary/20',
           className
         )}
@@ -338,7 +338,7 @@ export function TrackCard({
     element = (
       <div
         className={cn(
-          'flex items-center gap-2.5 py-2 px-2 rounded-md hover:bg-accent/50 transition-colors group cursor-pointer relative',
+          'flex items-center gap-2.5 py-2 px-2 rounded-md hover:bg-accent/50 transition-colors duration-base ease-out group cursor-pointer relative',
           isPlaying && 'bg-accent',
           className
         )}
@@ -354,7 +354,7 @@ export function TrackCard({
     element = (
       <div
         className={cn(
-          'flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer relative',
+          'flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-accent/50 transition-colors duration-base ease-out group cursor-pointer relative',
           isPlaying && 'bg-accent',
           className
         )}
