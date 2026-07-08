@@ -423,6 +423,27 @@ export class TidalProvider extends BaseProvider {
     );
   }
 
+  protected override async _lookupTrackById(
+    id: string
+  ): Promise<HarmonizedTrack | null> {
+    const data = await this.fetchApi<TidalSingleResponse<TidalTrack>>(
+      `/tracks/${id}`,
+      {
+        include: 'artists',
+      }
+    );
+
+    if (!data?.data) return null;
+
+    const track = data.data;
+    return this.transformTrack(
+      track,
+      track.attributes.trackNumber,
+      track.attributes.volumeNumber,
+      data.included
+    );
+  }
+
   protected async _lookupArtistById(
     id: string
   ): Promise<HarmonizedArtist | null> {

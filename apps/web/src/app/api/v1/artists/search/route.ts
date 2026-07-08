@@ -1,8 +1,12 @@
-import { db } from '@scilent-one/db';
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 import { getCurrentUser, handleApiError } from '@/lib/api-utils';
 import { searchArtistsWithUserProvider } from '@/lib/harmonization';
+import {
+  getConnectedMusicProviderAccount,
+  getValidProviderAccessToken,
+} from '@/lib/music-provider';
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 25;
@@ -26,26 +30,23 @@ export async function GET(request: Request) {
     let accessToken: string | null = null;
     let providerId: string | null = null;
 
+    // Resolve the user's connected music provider (any supported provider, not
+    // just Tidal). If the token is expired we transparently refresh it; if that
+    // fails we simply fall back to the anonymous musicbrainz search below,
+    // preserving the "search always works" behavior.
     if (user?.id) {
-      const account = await db.account.findFirst({
-        where: {
-          userId: user.id,
-          providerId: 'tidal',
-        },
-        select: {
-          accessToken: true,
-          accessTokenExpiresAt: true,
-          providerId: true,
-        },
-      });
+      const account = await getConnectedMusicProviderAccount(user.id);
 
-      const isExpired = account?.accessTokenExpiresAt
-        ? account.accessTokenExpiresAt.getTime() <= Date.now()
-        : false;
+      if (account) {
+        const token = await getValidProviderAccessToken(
+          account,
+          await headers()
+        );
 
-      if (account?.accessToken && !isExpired) {
-        accessToken = account.accessToken;
-        providerId = account.providerId;
+        if (token.ok) {
+          accessToken = token.accessToken;
+          providerId = account.providerId;
+        }
       }
     }
 

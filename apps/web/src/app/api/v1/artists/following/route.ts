@@ -1,4 +1,4 @@
-import { db } from '@scilent-one/db';
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 import {
@@ -7,6 +7,10 @@ import {
   parseSearchParams,
 } from '@/lib/api-utils';
 import { getFollowedArtistsFromProvider } from '@/lib/harmonization';
+import {
+  getConnectedMusicProviderAccount,
+  getValidProviderAccessToken,
+} from '@/lib/music-provider';
 
 // GET /api/v1/artists/following - Get list of followed artists from connected provider
 export async function GET(request: Request) {
@@ -20,34 +24,28 @@ export async function GET(request: Request) {
       );
     }
 
-    // Get connected provider account (currently only Tidal is supported)
-    const account = await db.account.findFirst({
-      where: {
-        userId: user.id,
-        providerId: 'tidal',
-      },
-      select: {
-        accessToken: true,
-        accessTokenExpiresAt: true,
-        providerId: true,
-      },
-    });
+    // Resolve the user's connected music provider (any supported provider, not
+    // just Tidal).
+    const account = await getConnectedMusicProviderAccount(user.id);
 
-    if (!account?.accessToken) {
+    if (!account) {
       return NextResponse.json(
         { error: 'No connected music provider found', code: 'NO_PROVIDER' },
         { status: 400 }
       );
     }
 
-    // Check if token is expired
-    const isExpired = account.accessTokenExpiresAt
-      ? account.accessTokenExpiresAt.getTime() <= Date.now()
-      : false;
+    // Get a valid access token, transparently refreshing an expired one via the
+    // stored refresh token. Only surface TOKEN_EXPIRED when refresh genuinely
+    // can't recover (no refresh token, or the refresh call failed).
+    const token = await getValidProviderAccessToken(account, await headers());
 
-    if (isExpired) {
+    if (!token.ok) {
       return NextResponse.json(
-        { error: 'Provider access token has expired', code: 'TOKEN_EXPIRED' },
+        {
+          error: 'Provider access token has expired',
+          code: token.code,
+        },
         { status: 401 }
       );
     }
@@ -55,7 +53,7 @@ export async function GET(request: Request) {
     const paginationParams = parseSearchParams(request);
 
     const result = await getFollowedArtistsFromProvider(
-      account.accessToken,
+      token.accessToken,
       account.providerId,
       paginationParams
     );
