@@ -11,16 +11,14 @@ import {
   getHarmonizationEngine,
   getFollowedArtistsFromProvider,
 } from '@/lib/harmonization';
+import { getFreshAccessToken } from '@/lib/music-provider';
 
 export interface ProviderProfileResult {
   success: boolean;
   profile?: HarmonizedUserProfile;
   error?: string;
   errorCode?:
-    | 'UNAUTHORIZED'
-    | 'NOT_CONNECTED'
-    | 'TOKEN_EXPIRED'
-    | 'PROVIDER_ERROR';
+    'UNAUTHORIZED' | 'NOT_CONNECTED' | 'TOKEN_EXPIRED' | 'PROVIDER_ERROR';
 }
 
 /**
@@ -33,35 +31,20 @@ export async function getProviderProfile(
   providerId: string
 ): Promise<ProviderProfileResult> {
   try {
-    // Get the user's connected account with access token
-    const account = await db.account.findFirst({
-      where: {
-        userId,
-        providerId,
-      },
-      select: {
-        accessToken: true,
-        accessTokenExpiresAt: true,
-      },
-    });
+    // Resolve a valid access token, transparently refreshing an expired one via
+    // the stored refresh token (Spotify/Tidal). Only surface TOKEN_EXPIRED when
+    // a refresh genuinely can't recover; Apple Music has no server-side refresh
+    // and reports back so the UI can prompt a MusicKit reconnect.
+    const token = await getFreshAccessToken(userId, providerId);
 
-    if (!account?.accessToken) {
+    if (!token.ok) {
       return {
         success: false,
-        error: `${providerId} account not connected`,
-        errorCode: 'NOT_CONNECTED',
-      };
-    }
-
-    // Check if token is expired
-    if (
-      account.accessTokenExpiresAt &&
-      account.accessTokenExpiresAt < new Date()
-    ) {
-      return {
-        success: false,
-        error: `${providerId} token expired`,
-        errorCode: 'TOKEN_EXPIRED',
+        error:
+          token.code === 'NOT_CONNECTED'
+            ? `${providerId} account not connected`
+            : `${providerId} token expired`,
+        errorCode: token.code,
       };
     }
 
@@ -86,7 +69,7 @@ export async function getProviderProfile(
     }
 
     // Fetch the user's provider profile
-    const profile = await provider.getCurrentUser(account.accessToken);
+    const profile = await provider.getCurrentUser(token.accessToken);
 
     return {
       success: true,
@@ -161,10 +144,7 @@ export interface FollowedArtistsResult {
   nextCursor?: string | null;
   error?: string;
   errorCode?:
-    | 'UNAUTHORIZED'
-    | 'NOT_CONNECTED'
-    | 'TOKEN_EXPIRED'
-    | 'PROVIDER_ERROR';
+    'UNAUTHORIZED' | 'NOT_CONNECTED' | 'TOKEN_EXPIRED' | 'PROVIDER_ERROR';
 }
 
 /**
@@ -191,35 +171,20 @@ export async function getFollowedArtists(
       };
     }
 
-    // Get the user's connected account with access token
-    const account = await db.account.findFirst({
-      where: {
-        userId,
-        providerId,
-      },
-      select: {
-        accessToken: true,
-        accessTokenExpiresAt: true,
-      },
-    });
+    // Resolve a valid access token, transparently refreshing an expired one via
+    // the stored refresh token (Spotify/Tidal). Only surface TOKEN_EXPIRED when
+    // a refresh genuinely can't recover; Apple Music has no server-side refresh
+    // and reports back so the UI can prompt a MusicKit reconnect.
+    const token = await getFreshAccessToken(userId, providerId);
 
-    if (!account?.accessToken) {
+    if (!token.ok) {
       return {
         success: false,
-        error: `${providerId} account not connected`,
-        errorCode: 'NOT_CONNECTED',
-      };
-    }
-
-    // Check if token is expired
-    if (
-      account.accessTokenExpiresAt &&
-      account.accessTokenExpiresAt < new Date()
-    ) {
-      return {
-        success: false,
-        error: `${providerId} token expired`,
-        errorCode: 'TOKEN_EXPIRED',
+        error:
+          token.code === 'NOT_CONNECTED'
+            ? `${providerId} account not connected`
+            : `${providerId} token expired`,
+        errorCode: token.code,
       };
     }
 
@@ -230,7 +195,7 @@ export async function getFollowedArtists(
     }
 
     const result = await getFollowedArtistsFromProvider(
-      account.accessToken,
+      token.accessToken,
       providerId,
       params
     );
