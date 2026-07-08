@@ -27,7 +27,16 @@ export {
 } from './components/mention-list';
 
 // Hooks
-export { useIsMobile, useIsMobileWithDefault, useIsTouchDevice } from './hooks/use-mobile';
+export {
+  useIsMobile,
+  useIsMobileWithDefault,
+  useIsTouchDevice,
+} from './hooks/use-mobile';
+export { useReducedMotion } from './hooks/use-reduced-motion';
+export {
+  useInViewport,
+  type UseInViewportOptions,
+} from './hooks/use-in-viewport';
 export {
   useInfiniteScroll,
   type UseInfiniteScrollOptions,
@@ -125,6 +134,7 @@ export {
 } from './components/empty';
 export { Input } from './components/input';
 export { Label } from './components/label';
+export { Reveal, type RevealProps } from './components/reveal';
 export {
   navigationMenuTriggerStyle,
   NavigationMenu,
