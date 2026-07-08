@@ -3,11 +3,9 @@
  * Builds a per-package coverage summary as a Markdown table, suitable for
  * posting as a sticky PR comment (see .github/workflows/test.yml).
  *
- * Packages are rolled out one at a time: an entry with a `summaryPath` is
- * read from its Vitest `coverage-summary.json` and rendered with real
- * numbers, while every other configured package renders as "TBA" until it
- * gets the same treatment. Update the `PACKAGES` list below as more packages
- * are wired up.
+ * Packages with a `summaryPath` are read from their Vitest `coverage-summary.json`
+ * and rendered with real numbers; others render as "TBA" until wired up.
+ * Update the `PACKAGES` list below as more packages gain coverage reporting.
  */
 import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -24,8 +22,14 @@ const PACKAGES = [
     name: '@scilent-one/social',
     summaryPath: 'packages/social/coverage/coverage-summary.json',
   },
-  { name: '@scilent-one/scilent-ui' },
-  { name: '@scilent-one/ui' },
+  {
+    name: '@scilent-one/scilent-ui',
+    summaryPath: 'packages/scilent-ui/coverage/coverage-summary.json',
+  },
+  {
+    name: '@scilent-one/ui',
+    summaryPath: 'packages/ui/coverage/coverage-summary.json',
+  },
   { name: '@scilent-one/db' },
   { name: '@scilent-one/harmony-engine' },
 ];
@@ -89,7 +93,7 @@ function buildComment() {
 
 ${table}
 
-<sub>Coverage is rolled out incrementally, one package at a time — packages marked \`TBA\` don't report coverage in this comment yet. Generated from \`vitest --coverage\` output by \`.github/workflows/test.yml\`.</sub>
+<sub>Packages marked \`TBA\` don't report coverage in this comment yet. Generated from \`vitest --coverage\` output by \`.github/workflows/test.yml\`.</sub>
 `;
 }
 
