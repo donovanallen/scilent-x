@@ -44,12 +44,7 @@ export {
 } from './comments';
 
 // Likes
-export {
-  likePost,
-  unlikePost,
-  likeComment,
-  unlikeComment,
-} from './likes';
+export { likePost, unlikePost, likeComment, unlikeComment } from './likes';
 
 // Follows
 export {
@@ -91,3 +86,16 @@ export {
   updateProfile,
   checkUsernameAvailability,
 } from './users';
+
+// Conversations (direct messages)
+export {
+  isMutualFollow,
+  getConversationById,
+  getConversationSummary,
+  getInboxConversations,
+  getOrCreateDirectConversation,
+  markConversationRead,
+} from './conversations';
+
+// Messages
+export { getMessages, sendMessage } from './messages';

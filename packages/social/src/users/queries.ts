@@ -1,7 +1,12 @@
 import { db } from '@scilent-one/db';
 import type { PaginationParams, UserProfile, PaginatedResult } from '../types';
-import { getPaginationParams, createPaginatedResult, DEFAULT_PAGE_SIZE } from '../utils/pagination';
+import {
+  getPaginationParams,
+  createPaginatedResult,
+  DEFAULT_PAGE_SIZE,
+} from '../utils/pagination';
 import { NotFoundError } from '../utils/errors';
+import { isMutualFollow } from '../conversations/queries';
 
 export async function getUserById(
   userId: string,
@@ -49,6 +54,11 @@ export async function getUserById(
     accounts?: { providerId: string; createdAt: Date }[];
   };
 
+  const canMessage =
+    currentUserId && currentUserId !== typedUser.id
+      ? await isMutualFollow(currentUserId, typedUser.id)
+      : undefined;
+
   const result: UserProfile & {
     connectedPlatforms?: { providerId: string; connectedAt: Date }[];
   } = {
@@ -64,6 +74,7 @@ export async function getUserById(
     isFollowing: currentUserId
       ? (typedUser.followers as { followerId: string }[]).length > 0
       : false,
+    canMessage,
   };
 
   // Add connected platforms if requested
@@ -123,6 +134,11 @@ export async function getUserByUsername(
     accounts?: { providerId: string; createdAt: Date }[];
   };
 
+  const canMessage =
+    currentUserId && currentUserId !== typedUser.id
+      ? await isMutualFollow(currentUserId, typedUser.id)
+      : undefined;
+
   const result: UserProfile & {
     connectedPlatforms?: { providerId: string; connectedAt: Date }[];
   } = {
@@ -138,6 +154,7 @@ export async function getUserByUsername(
     isFollowing: currentUserId
       ? (typedUser.followers as { followerId: string }[]).length > 0
       : false,
+    canMessage,
   };
 
   // Add connected platforms if requested
