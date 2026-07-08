@@ -187,7 +187,7 @@ type TidalUser = TidalResource<'users', TidalUserAttributes>;
 export class TidalProvider extends BaseProvider {
   readonly name = 'tidal';
   readonly displayName = 'Tidal';
-  readonly priority = 75;
+  protected readonly defaultPriority = 75;
 
   /**
    * Tidal supports user-authenticated API calls via OAuth2.

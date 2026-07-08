@@ -150,7 +150,7 @@ interface SpotifyFollowedArtistsResponse {
 export class SpotifyProvider extends BaseProvider {
   readonly name = 'spotify';
   readonly displayName = 'Spotify';
-  readonly priority = 80;
+  protected readonly defaultPriority = 80;
 
   /**
    * Spotify supports user-authenticated API calls via OAuth2.
@@ -335,7 +335,10 @@ export class SpotifyProvider extends BaseProvider {
     );
 
     if (!data) {
-      throw new ProviderError('Failed to fetch Spotify user profile', this.name);
+      throw new ProviderError(
+        'Failed to fetch Spotify user profile',
+        this.name
+      );
     }
 
     return this.transformUserProfile(data);
