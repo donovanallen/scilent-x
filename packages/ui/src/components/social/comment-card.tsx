@@ -7,6 +7,9 @@ import {
   MoreHorizontal,
   Trash2,
   Pencil,
+  Loader2,
+  X,
+  Check,
 } from 'lucide-react';
 import { Button } from '../button';
 import {
@@ -20,6 +23,8 @@ import {
   RichTextContent,
   type ArtistMentionRenderProps,
 } from '../rich-text-content';
+import { SimpleTiptapEditor } from '../simple-tiptap-editor';
+import { type MentionSuggestion } from '../mention-list';
 import { cn } from '../../utils';
 
 export interface CommentCardAuthor {
@@ -43,23 +48,36 @@ export interface CommentCardProps {
   isReply?: boolean | undefined;
   /** Whether the reply input is currently open for this comment */
   isReplying?: boolean | undefined;
+  /** Whether the comment is currently in edit mode */
+  isEditing?: boolean | undefined;
+  /** Whether the comment edit is being saved */
+  isSavingEdit?: boolean | undefined;
   onLike?: (() => void) | undefined;
   onUnlike?: (() => void) | undefined;
   onReply?: (() => void) | undefined;
   onEdit?: (() => void) | undefined;
+  /** Called when the user saves edited content */
+  onSaveEdit?:
+    ((content: string, contentHtml: string) => Promise<void>) | undefined;
+  /** Called when the user cancels editing */
+  onCancelEdit?: (() => void) | undefined;
   onDelete?: (() => void) | undefined;
   /** Callback when a user mention (@username) is clicked */
   onMentionClick?: ((username: string) => void) | undefined;
   /** Callback when an artist mention is clicked */
   onArtistMentionClick?:
-    | ((artistId: string, provider: string) => void)
-    | undefined;
+    ((artistId: string, provider: string) => void) | undefined;
   /** Custom renderer for artist mentions */
   renderArtistMention?:
-    | ((props: ArtistMentionRenderProps) => React.ReactNode)
-    | undefined;
+    ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
   /** Callback when the author's avatar, name, or username is clicked */
   onAuthorClick?: ((authorUsername: string) => void) | undefined;
+  /** Callback to search for mention suggestions (for edit mode) */
+  onMentionQuery?:
+    ((query: string) => Promise<MentionSuggestion[]>) | undefined;
+  /** Callback to search for artist mention suggestions (for edit mode) */
+  onArtistMentionQuery?:
+    ((query: string) => Promise<MentionSuggestion[]>) | undefined;
   className?: string | undefined;
 }
 
@@ -91,17 +109,54 @@ export function CommentCard({
   isOwner = false,
   isReply = false,
   isReplying = false,
+  isEditing = false,
+  isSavingEdit = false,
   onLike,
   onUnlike,
   onReply,
   onEdit,
+  onSaveEdit,
+  onCancelEdit,
   onDelete,
   onMentionClick,
   onArtistMentionClick,
   renderArtistMention,
   onAuthorClick,
+  onMentionQuery,
+  onArtistMentionQuery,
   className,
 }: CommentCardProps) {
+  const [editContent, setEditContent] = React.useState('');
+  const [editContentHtml, setEditContentHtml] = React.useState('');
+  const [hasEdited, setHasEdited] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isEditing) {
+      setEditContent(content);
+      setEditContentHtml(contentHtml || '');
+      setHasEdited(false);
+    }
+  }, [isEditing, content, contentHtml]);
+
+  React.useEffect(() => {
+    if (!isEditing) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isSavingEdit) {
+        onCancelEdit?.();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isEditing, isSavingEdit, onCancelEdit]);
+
+  const handleEditorChange = React.useCallback((text: string, html: string) => {
+    setEditContent(text);
+    setEditContentHtml(html);
+    setHasEdited(true);
+  }, []);
+
   const handleLikeClick = () => {
     if (isLiked) {
       onUnlike?.();
@@ -115,6 +170,19 @@ export function CommentCard({
       onAuthorClick(author.username);
     }
   };
+
+  const handleSaveEdit = async () => {
+    if (!editContent.trim() || isSavingEdit) return;
+    await onSaveEdit?.(editContent, editContentHtml);
+  };
+
+  const handleCancelEdit = () => {
+    if (isSavingEdit) return;
+    onCancelEdit?.();
+  };
+
+  const canSave =
+    editContent.trim().length > 0 && (hasEdited || editContent !== content);
 
   return (
     <div
@@ -175,7 +243,10 @@ export function CommentCard({
           <span className="text-muted-foreground text-xs whitespace-nowrap">
             {formatRelativeTime(createdAt)}
           </span>
-          {isOwner && (
+          {isEditing && (
+            <span className="text-primary text-xs font-medium">Editing</span>
+          )}
+          {isOwner && !isEditing && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -203,51 +274,99 @@ export function CommentCard({
             </DropdownMenu>
           )}
         </div>
-        <RichTextContent
-          html={contentHtml}
-          content={content}
-          className="text-sm whitespace-pre-wrap break-words mt-1 [&.rich-text-content]:prose-sm"
-          onMentionClick={onMentionClick}
-          onArtistMentionClick={onArtistMentionClick}
-          renderArtistMention={renderArtistMention}
-        />
-        <div className="flex items-center gap-2 sm:gap-3 mt-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              'h-9 sm:h-7 gap-1 px-2 text-xs min-w-[40px] active:scale-95 transition-transform hover:opacity-80'
-            )}
-            onClick={handleLikeClick}
-          >
-            <Heart
-              className={cn(
-                'h-3.5 w-3.5 sm:h-3 sm:w-3',
-                isLiked && 'fill-current'
-              )}
+
+        {isEditing ? (
+          <div className="mt-1 space-y-2">
+            <SimpleTiptapEditor
+              key={`edit-comment`}
+              value={contentHtml || content}
+              onChange={handleEditorChange}
+              readOnly={isSavingEdit}
+              maxLength={2000}
+              onMentionQuery={onMentionQuery}
+              onArtistMentionQuery={onArtistMentionQuery}
+              className={cn(isSavingEdit && 'opacity-50')}
             />
-            <span>{likesCount}</span>
-          </Button>
-          {!isReply && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                'h-9 sm:h-7 gap-1 px-2 text-xs min-w-[40px] active:scale-95 transition-transform hover:opacity-80',
-                isReplying && 'text-primary'
-              )}
-              onClick={onReply}
-            >
-              <MessageCircle
-                className={cn(
-                  'h-3.5 w-3.5 sm:h-3 sm:w-3',
-                  isReplying && 'fill-current'
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleCancelEdit}
+                disabled={isSavingEdit}
+              >
+                <X className="h-3.5 w-3.5 mr-1" />
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleSaveEdit}
+                disabled={!canSave || isSavingEdit}
+              >
+                {isSavingEdit ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-3.5 w-3.5 mr-1" />
+                    Save
+                  </>
                 )}
-              />
-              <span>{repliesCount}</span>
-            </Button>
-          )}
-        </div>
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <RichTextContent
+              html={contentHtml}
+              content={content}
+              className="text-sm whitespace-pre-wrap break-words mt-1 [&.rich-text-content]:prose-sm"
+              onMentionClick={onMentionClick}
+              onArtistMentionClick={onArtistMentionClick}
+              renderArtistMention={renderArtistMention}
+            />
+            <div className="flex items-center gap-2 sm:gap-3 mt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  'h-9 sm:h-7 gap-1 px-2 text-xs min-w-[40px] active:scale-95 transition-transform hover:opacity-80'
+                )}
+                onClick={handleLikeClick}
+              >
+                <Heart
+                  className={cn(
+                    'h-3.5 w-3.5 sm:h-3 sm:w-3',
+                    isLiked && 'fill-current'
+                  )}
+                />
+                <span>{likesCount}</span>
+              </Button>
+              {!isReply && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    'h-9 sm:h-7 gap-1 px-2 text-xs min-w-[40px] active:scale-95 transition-transform hover:opacity-80',
+                    isReplying && 'text-primary'
+                  )}
+                  onClick={onReply}
+                >
+                  <MessageCircle
+                    className={cn(
+                      'h-3.5 w-3.5 sm:h-3 sm:w-3',
+                      isReplying && 'fill-current'
+                    )}
+                  />
+                  <span>{repliesCount}</span>
+                </Button>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

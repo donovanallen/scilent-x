@@ -2,6 +2,7 @@ import type {
   Post,
   Comment,
   Like,
+  Repost,
   Follow,
   Mention,
   Activity,
@@ -56,8 +57,10 @@ export interface PostWithAuthor extends Post {
   _count: {
     likes: number;
     comments: number;
+    reposts: number;
   };
   isLiked?: boolean;
+  isReposted?: boolean;
   /** Recent comments for inline display (optional, not always included) */
   comments?: CommentWithAuthor[];
 }
@@ -171,6 +174,7 @@ export type {
   Post,
   Comment,
   Like,
+  Repost,
   Follow,
   Mention,
   Activity,

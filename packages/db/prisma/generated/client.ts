@@ -67,6 +67,11 @@ export type Verification = Prisma.VerificationModel
  */
 export type Post = Prisma.PostModel
 /**
+ * Model Repost
+ * Repost model - Reposts (reshares) of a post to a user's followers
+ */
+export type Repost = Prisma.RepostModel
+/**
  * Model Comment
  * Comment model - Comments on posts
  */
@@ -83,7 +88,12 @@ export type Like = Prisma.LikeModel
 export type Follow = Prisma.FollowModel
 /**
  * Model Mention
- * Mention model - @mentions in posts or comments
+ * Mention model - @mentions or #mentions in posts or comments
+ * 
+ * USER mentions reference a local `User` row via `userId`. Non-USER mentions
+ * (ARTIST/ALBUM/TRACK) reference an external, provider-backed entity that has
+ * no local table, so they're stored via `entityId` (format: "provider:id")
+ * and a denormalized `entityLabel` captured at mention time instead.
  */
 export type Mention = Prisma.MentionModel
 /**

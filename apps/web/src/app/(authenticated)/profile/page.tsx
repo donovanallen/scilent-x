@@ -12,6 +12,10 @@ import {
   CardContent,
   CardHeader,
   PostForm,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
 } from '@scilent-one/ui';
 import { useTransitionRouter } from 'next-view-transitions';
 import { useCallback, useEffect, useState } from 'react';
@@ -48,18 +52,36 @@ interface FeedPost extends PostCardProps {
   _count?: {
     likes: number;
     comments: number;
+    reposts: number;
   };
 }
+
+type ProfileTab = 'posts' | 'liked' | 'reposts';
+
+const TAB_QUERY_PARAM: Record<ProfileTab, string> = {
+  posts: 'includePosts',
+  liked: 'includeLiked',
+  reposts: 'includeReposts',
+};
+
+const TAB_RESPONSE_FIELD: Record<ProfileTab, string> = {
+  posts: 'posts',
+  liked: 'liked',
+  reposts: 'reposts',
+};
 
 export default function MyProfilePage() {
   const router = useTransitionRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [activeTab, setActiveTab] = useState<ProfileTab>('posts');
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [postsLoading, setPostsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [cursor, setCursor] = useState<string | null>(null);
   const [isSubmittingPost, setIsSubmittingPost] = useState(false);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   const { searchUsers, searchArtists } = useMentionSearch();
 
@@ -101,9 +123,9 @@ export default function MyProfilePage() {
     fetchProfile();
   }, [router]);
 
-  // Fetch posts
+  // Fetch posts for the active tab
   const fetchPosts = useCallback(
-    async (cursorParam?: string) => {
+    async (tab: ProfileTab, cursorParam?: string) => {
       if (!profile?.username) return;
 
       setPostsLoading(true);
@@ -112,7 +134,7 @@ export default function MyProfilePage() {
           `/api/v1/users/${profile.username}`,
           window.location.origin
         );
-        url.searchParams.set('includePosts', 'true');
+        url.searchParams.set(TAB_QUERY_PARAM[tab], 'true');
         if (cursorParam) {
           url.searchParams.set('cursor', cursorParam);
         }
@@ -121,13 +143,14 @@ export default function MyProfilePage() {
         if (!res.ok) throw new Error('Failed to fetch posts');
 
         const data = await res.json();
+        const page = data[TAB_RESPONSE_FIELD[tab]];
 
-        if (data.posts) {
+        if (page) {
           setPosts((prev) =>
-            cursorParam ? [...prev, ...data.posts.items] : data.posts.items
+            cursorParam ? [...prev, ...page.items] : page.items
           );
-          setHasMore(data.posts.hasMore);
-          setCursor(data.posts.nextCursor);
+          setHasMore(page.hasMore);
+          setCursor(page.nextCursor);
         }
       } catch (error) {
         console.error('Failed to load posts:', error);
@@ -139,16 +162,19 @@ export default function MyProfilePage() {
     [profile?.username]
   );
 
+  // Reset and refetch when the profile loads or the active tab changes
   useEffect(() => {
     if (profile?.username) {
-      fetchPosts();
+      setPosts([]);
+      setCursor(null);
+      fetchPosts(activeTab);
     }
-  }, [fetchPosts, profile?.username]);
+  }, [fetchPosts, profile?.username, activeTab]);
 
   const { sentinelRef } = useInfiniteScroll({
     hasMore,
     isLoading: postsLoading,
-    onLoadMore: () => cursor && fetchPosts(cursor),
+    onLoadMore: () => cursor && fetchPosts(activeTab, cursor),
   });
 
   const handleLikePost = async (postId: string) => {
@@ -159,11 +185,18 @@ export default function MyProfilePage() {
       if (!res.ok) throw new Error('Failed to like post');
 
       setPosts((prev) =>
-        prev.map((post) =>
-          post.id === postId
-            ? { ...post, isLiked: true, likesCount: post.likesCount + 1 }
-            : post
-        )
+        prev.map((post) => {
+          if (post.id !== postId) return post;
+          const currentLikes = post._count?.likes ?? post.likesCount ?? 0;
+          return {
+            ...post,
+            isLiked: true,
+            likesCount: currentLikes + 1,
+            ...(post._count && {
+              _count: { ...post._count, likes: currentLikes + 1 },
+            }),
+          };
+        })
       );
     } catch (error) {
       console.error('Failed to like post:', error);
@@ -179,15 +212,139 @@ export default function MyProfilePage() {
       if (!res.ok) throw new Error('Failed to unlike post');
 
       setPosts((prev) =>
-        prev.map((post) =>
-          post.id === postId
-            ? { ...post, isLiked: false, likesCount: post.likesCount - 1 }
-            : post
-        )
+        prev.map((post) => {
+          if (post.id !== postId) return post;
+          const currentLikes = post._count?.likes ?? post.likesCount ?? 0;
+          return {
+            ...post,
+            isLiked: false,
+            likesCount: Math.max(0, currentLikes - 1),
+            ...(post._count && {
+              _count: { ...post._count, likes: Math.max(0, currentLikes - 1) },
+            }),
+          };
+        })
       );
     } catch (error) {
       console.error('Failed to unlike post:', error);
       toast.error('Failed to unlike post');
+    }
+  };
+
+  const handleRepostPost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/repost`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Failed to repost');
+
+      setPosts((prev) =>
+        prev.map((post) => {
+          if (post.id !== postId) return post;
+          const currentReposts = post._count?.reposts ?? post.repostsCount ?? 0;
+          return {
+            ...post,
+            isReposted: true,
+            repostsCount: currentReposts + 1,
+            ...(post._count && {
+              _count: { ...post._count, reposts: currentReposts + 1 },
+            }),
+          };
+        })
+      );
+    } catch (error) {
+      console.error('Failed to repost:', error);
+      toast.error('Failed to repost');
+    }
+  };
+
+  const handleUnrepostPost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/repost`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to remove repost');
+
+      setPosts((prev) =>
+        prev.map((post) => {
+          if (post.id !== postId) return post;
+          const currentReposts = post._count?.reposts ?? post.repostsCount ?? 0;
+          return {
+            ...post,
+            isReposted: false,
+            repostsCount: Math.max(0, currentReposts - 1),
+            ...(post._count && {
+              _count: {
+                ...post._count,
+                reposts: Math.max(0, currentReposts - 1),
+              },
+            }),
+          };
+        })
+      );
+    } catch (error) {
+      console.error('Failed to remove repost:', error);
+      toast.error('Failed to remove repost');
+    }
+  };
+
+  const handleEditPost = (postId: string) => {
+    setEditingPostId(postId);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPostId(null);
+  };
+
+  const handleSaveEdit = async (
+    postId: string,
+    content: string,
+    contentHtml: string
+  ) => {
+    setIsSavingEdit(true);
+
+    const originalPosts = [...posts];
+
+    // Optimistic update
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId ? { ...post, content, contentHtml } : post
+      )
+    );
+
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, contentHtml }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update post');
+
+      setEditingPostId(null);
+      toast.success('Post updated');
+    } catch (error) {
+      // Rollback on error
+      setPosts(originalPosts);
+      console.error('Failed to update post:', error);
+      toast.error('Failed to update post');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete post');
+
+      setPosts((prev) => prev.filter((post) => post.id !== postId));
+      toast.success('Post deleted');
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      toast.error('Failed to delete post');
     }
   };
 
@@ -205,23 +362,27 @@ export default function MyProfilePage() {
       if (!res.ok) throw new Error('Failed to create post');
 
       const newPost = await res.json();
-      // Add the new post to the beginning of the list
-      setPosts((prev) => [
-        {
-          ...newPost,
-          author: {
-            id: profile.id,
-            name: profile.name,
-            username: profile.username,
-            avatarUrl: profile.avatarUrl,
-            image: profile.image,
+      // Add the new post to the beginning of the list if we're viewing "Posts"
+      if (activeTab === 'posts') {
+        setPosts((prev) => [
+          {
+            ...newPost,
+            author: {
+              id: profile.id,
+              name: profile.name,
+              username: profile.username,
+              avatarUrl: profile.avatarUrl,
+              image: profile.image,
+            },
+            likesCount: 0,
+            commentsCount: 0,
+            repostsCount: 0,
+            isLiked: false,
+            isReposted: false,
           },
-          likesCount: 0,
-          commentsCount: 0,
-          isLiked: false,
-        },
-        ...prev,
-      ]);
+          ...prev,
+        ]);
+      }
       toast.success('Post created!');
     } catch (error) {
       console.error('Failed to create post:', error);
@@ -325,28 +486,57 @@ export default function MyProfilePage() {
         />
 
         <Card>
-          <CardHeader>
-            <CardTitle>Posts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Feed
-              posts={posts.map((post) => ({
-                ...post,
-                likesCount: post._count?.likes ?? post.likesCount ?? 0,
-                commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
-              }))}
-              currentUserId={profile.id}
-              isLoading={postsLoading}
-              hasMore={hasMore}
-              loadMoreRef={sentinelRef}
-              onLikePost={handleLikePost}
-              onUnlikePost={handleUnlikePost}
-              onPostClick={(postId) => router.push(`/post/${postId}`)}
-              onAuthorClick={(username) => router.push(`/profile/${username}`)}
-              onMentionClick={(username) => router.push(`/profile/${username}`)}
-              renderArtistMention={(props) => <ArtistMention {...props} />}
-            />
-          </CardContent>
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as ProfileTab)}
+          >
+            <CardHeader>
+              <TabsList className='grid w-full grid-cols-3'>
+                <TabsTrigger value='posts'>Posts</TabsTrigger>
+                <TabsTrigger value='liked'>Liked</TabsTrigger>
+                <TabsTrigger value='reposts'>Reposts</TabsTrigger>
+              </TabsList>
+            </CardHeader>
+            <CardContent>
+              <TabsContent value={activeTab} className='mt-0'>
+                <Feed
+                  posts={posts.map((post) => ({
+                    ...post,
+                    likesCount: post._count?.likes ?? post.likesCount ?? 0,
+                    commentsCount:
+                      post._count?.comments ?? post.commentsCount ?? 0,
+                    repostsCount:
+                      post._count?.reposts ?? post.repostsCount ?? 0,
+                  }))}
+                  currentUserId={profile.id}
+                  isLoading={postsLoading}
+                  hasMore={hasMore}
+                  loadMoreRef={sentinelRef}
+                  editingPostId={editingPostId}
+                  isSavingEdit={isSavingEdit}
+                  onLikePost={handleLikePost}
+                  onUnlikePost={handleUnlikePost}
+                  onRepostPost={handleRepostPost}
+                  onUnrepostPost={handleUnrepostPost}
+                  onPostClick={(postId) => router.push(`/post/${postId}`)}
+                  onCommentPost={(postId) => router.push(`/post/${postId}`)}
+                  onEditPost={handleEditPost}
+                  onSaveEdit={handleSaveEdit}
+                  onCancelEdit={handleCancelEdit}
+                  onDeletePost={handleDeletePost}
+                  onAuthorClick={(username) =>
+                    router.push(`/profile/${username}`)
+                  }
+                  onMentionClick={(username) =>
+                    router.push(`/profile/${username}`)
+                  }
+                  onMentionQuery={searchUsers}
+                  onArtistMentionQuery={searchArtists}
+                  renderArtistMention={(props) => <ArtistMention {...props} />}
+                />
+              </TabsContent>
+            </CardContent>
+          </Tabs>
         </Card>
       </div>
 

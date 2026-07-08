@@ -389,6 +389,7 @@ export const ModelName = {
   Session: 'Session',
   Verification: 'Verification',
   Post: 'Post',
+  Repost: 'Repost',
   Comment: 'Comment',
   Like: 'Like',
   Follow: 'Follow',
@@ -413,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verification" | "post" | "comment" | "like" | "follow" | "mention" | "activity" | "conversation" | "conversationParticipant" | "message" | "providerSetting"
+    modelProps: "user" | "account" | "session" | "verification" | "post" | "repost" | "comment" | "like" | "follow" | "mention" | "activity" | "conversation" | "conversationParticipant" | "message" | "providerSetting"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -784,6 +785,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PostCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PostCountAggregateOutputType> | number
+        }
+      }
+    }
+    Repost: {
+      payload: Prisma.$RepostPayload<ExtArgs>
+      fields: Prisma.RepostFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RepostFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RepostPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RepostFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RepostPayload>
+        }
+        findFirst: {
+          args: Prisma.RepostFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RepostPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RepostFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RepostPayload>
+        }
+        findMany: {
+          args: Prisma.RepostFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RepostPayload>[]
+        }
+        create: {
+          args: Prisma.RepostCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RepostPayload>
+        }
+        createMany: {
+          args: Prisma.RepostCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RepostCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RepostPayload>[]
+        }
+        delete: {
+          args: Prisma.RepostDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RepostPayload>
+        }
+        update: {
+          args: Prisma.RepostUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RepostPayload>
+        }
+        deleteMany: {
+          args: Prisma.RepostDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RepostUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RepostUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RepostPayload>[]
+        }
+        upsert: {
+          args: Prisma.RepostUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RepostPayload>
+        }
+        aggregate: {
+          args: Prisma.RepostAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRepost>
+        }
+        groupBy: {
+          args: Prisma.RepostGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RepostGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RepostCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RepostCountAggregateOutputType> | number
         }
       }
     }
@@ -1566,6 +1641,16 @@ export const PostScalarFieldEnum = {
 export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
 
 
+export const RepostScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  postId: 'postId',
+  createdAt: 'createdAt'
+} as const
+
+export type RepostScalarFieldEnum = (typeof RepostScalarFieldEnum)[keyof typeof RepostScalarFieldEnum]
+
+
 export const CommentScalarFieldEnum = {
   id: 'id',
   content: 'content',
@@ -1605,6 +1690,8 @@ export const MentionScalarFieldEnum = {
   id: 'id',
   type: 'type',
   userId: 'userId',
+  entityId: 'entityId',
+  entityLabel: 'entityLabel',
   postId: 'postId',
   commentId: 'commentId',
   createdAt: 'createdAt'
@@ -1907,6 +1994,7 @@ export type GlobalOmitConfig = {
   session?: Prisma.SessionOmit
   verification?: Prisma.VerificationOmit
   post?: Prisma.PostOmit
+  repost?: Prisma.RepostOmit
   comment?: Prisma.CommentOmit
   like?: Prisma.LikeOmit
   follow?: Prisma.FollowOmit

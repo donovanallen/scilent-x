@@ -56,6 +56,7 @@ export const ModelName = {
   Session: 'Session',
   Verification: 'Verification',
   Post: 'Post',
+  Repost: 'Repost',
   Comment: 'Comment',
   Like: 'Like',
   Follow: 'Follow',
@@ -157,6 +158,16 @@ export const PostScalarFieldEnum = {
 export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
 
 
+export const RepostScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  postId: 'postId',
+  createdAt: 'createdAt'
+} as const
+
+export type RepostScalarFieldEnum = (typeof RepostScalarFieldEnum)[keyof typeof RepostScalarFieldEnum]
+
+
 export const CommentScalarFieldEnum = {
   id: 'id',
   content: 'content',
@@ -196,6 +207,8 @@ export const MentionScalarFieldEnum = {
   id: 'id',
   type: 'type',
   userId: 'userId',
+  entityId: 'entityId',
+  entityLabel: 'entityLabel',
   postId: 'postId',
   commentId: 'commentId',
   createdAt: 'createdAt'

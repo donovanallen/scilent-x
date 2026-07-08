@@ -1,6 +1,14 @@
 import { db } from '@scilent-one/db';
-import type { PaginationParams, PostWithAuthor, PaginatedResult } from '../types';
-import { getPaginationParams, createPaginatedResult, DEFAULT_PAGE_SIZE } from '../utils/pagination';
+import type {
+  PaginationParams,
+  PostWithAuthor,
+  PaginatedResult,
+} from '../types';
+import {
+  getPaginationParams,
+  createPaginatedResult,
+  DEFAULT_PAGE_SIZE,
+} from '../utils/pagination';
 
 const authorSelect = {
   id: true,
@@ -44,9 +52,14 @@ export async function getHomeFeed(
         select: {
           likes: true,
           comments: true,
+          reposts: true,
         },
       },
       likes: {
+        where: { userId },
+        take: 1,
+      },
+      reposts: {
         where: { userId },
         take: 1,
       },
@@ -81,7 +94,9 @@ export async function getHomeFeed(
   const items = posts.map((post) => ({
     ...post,
     isLiked: post.likes.length > 0,
+    isReposted: post.reposts.length > 0,
     likes: undefined as unknown as never,
+    reposts: undefined as unknown as never,
     // Transform comments to include isLiked flag
     comments: post.comments.map((comment) => ({
       ...comment,

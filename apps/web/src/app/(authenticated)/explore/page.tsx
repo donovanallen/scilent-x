@@ -20,6 +20,7 @@ interface FeedPost extends PostCardProps {
   _count?: {
     likes: number;
     comments: number;
+    reposts: number;
   };
 }
 
@@ -224,6 +225,63 @@ export default function ExplorePage() {
     }
   };
 
+  const handleRepostPost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/repost`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Failed to repost');
+
+      setPosts((prev) =>
+        prev.map((post) => {
+          if (post.id !== postId) return post;
+          const currentReposts = post._count?.reposts ?? post.repostsCount ?? 0;
+          return {
+            ...post,
+            isReposted: true,
+            repostsCount: currentReposts + 1,
+            ...(post._count && {
+              _count: { ...post._count, reposts: currentReposts + 1 },
+            }),
+          };
+        })
+      );
+    } catch (error) {
+      console.error('Failed to repost:', error);
+      toast.error('Failed to repost');
+    }
+  };
+
+  const handleUnrepostPost = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/repost`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to remove repost');
+
+      setPosts((prev) =>
+        prev.map((post) => {
+          if (post.id !== postId) return post;
+          const currentReposts = post._count?.reposts ?? post.repostsCount ?? 0;
+          return {
+            ...post,
+            isReposted: false,
+            repostsCount: Math.max(0, currentReposts - 1),
+            ...(post._count && {
+              _count: {
+                ...post._count,
+                reposts: Math.max(0, currentReposts - 1),
+              },
+            }),
+          };
+        })
+      );
+    } catch (error) {
+      console.error('Failed to remove repost:', error);
+      toast.error('Failed to remove repost');
+    }
+  };
+
   return (
     <div className='flex flex-col h-full min-h-0 space-y-6'>
       <Tabs
@@ -241,6 +299,7 @@ export default function ExplorePage() {
               ...post,
               likesCount: post._count?.likes ?? post.likesCount ?? 0,
               commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
+              repostsCount: post._count?.reposts ?? post.repostsCount ?? 0,
             }))}
             currentUserId={currentUser?.id}
             isLoading={isLoading}
@@ -250,7 +309,10 @@ export default function ExplorePage() {
             isSavingEdit={isSavingEdit}
             onLikePost={handleLikePost}
             onUnlikePost={handleUnlikePost}
+            onRepostPost={handleRepostPost}
+            onUnrepostPost={handleUnrepostPost}
             onPostClick={(postId) => router.push(`/post/${postId}`)}
+            onCommentPost={(postId) => router.push(`/post/${postId}`)}
             onEditPost={handleEditPost}
             onSaveEdit={handleSaveEdit}
             onCancelEdit={handleCancelEdit}
@@ -269,6 +331,7 @@ export default function ExplorePage() {
               ...post,
               likesCount: post._count?.likes ?? post.likesCount ?? 0,
               commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
+              repostsCount: post._count?.reposts ?? post.repostsCount ?? 0,
             }))}
             currentUserId={currentUser?.id}
             isLoading={isLoading}
@@ -278,7 +341,10 @@ export default function ExplorePage() {
             isSavingEdit={isSavingEdit}
             onLikePost={handleLikePost}
             onUnlikePost={handleUnlikePost}
+            onRepostPost={handleRepostPost}
+            onUnrepostPost={handleUnrepostPost}
             onPostClick={(postId) => router.push(`/post/${postId}`)}
+            onCommentPost={(postId) => router.push(`/post/${postId}`)}
             onEditPost={handleEditPost}
             onSaveEdit={handleSaveEdit}
             onCancelEdit={handleCancelEdit}

@@ -4,6 +4,7 @@ import { ArtistMention } from '@scilent-one/scilent-ui';
 import {
   Button,
   PostCard,
+  PostCardCommentInput,
   CommentList,
   Skeleton,
   type PostCardProps,
@@ -20,6 +21,7 @@ interface PostWithComments extends PostCardProps {
   _count?: {
     likes: number;
     comments: number;
+    reposts: number;
   };
 }
 
@@ -70,6 +72,7 @@ export default function PostPage({
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
   // Fetch current user
   useEffect(() => {
@@ -185,6 +188,47 @@ export default function PostPage({
     }
   };
 
+  const handleRepostPost = async () => {
+    if (!post) return;
+    try {
+      const res = await fetch(`/api/v1/posts/${id}/repost`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Failed to repost');
+
+      setPost({
+        ...post,
+        isReposted: true,
+        repostsCount: (post._count?.reposts ?? post.repostsCount ?? 0) + 1,
+      });
+    } catch (error) {
+      console.error('Failed to repost:', error);
+      toast.error('Failed to repost');
+    }
+  };
+
+  const handleUnrepostPost = async () => {
+    if (!post) return;
+    try {
+      const res = await fetch(`/api/v1/posts/${id}/repost`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to remove repost');
+
+      setPost({
+        ...post,
+        isReposted: false,
+        repostsCount: Math.max(
+          0,
+          (post._count?.reposts ?? post.repostsCount ?? 0) - 1
+        ),
+      });
+    } catch (error) {
+      console.error('Failed to remove repost:', error);
+      toast.error('Failed to remove repost');
+    }
+  };
+
   const handleDeletePost = async () => {
     try {
       const res = await fetch(`/api/v1/posts/${id}`, {
@@ -240,6 +284,78 @@ export default function PostPage({
       toast.error('Failed to update post');
     } finally {
       setIsSavingEdit(false);
+    }
+  };
+
+  const handleCreateComment = async (content: string, contentHtml: string) => {
+    setIsSubmittingComment(true);
+    try {
+      const res = await fetch(`/api/v1/posts/${id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, contentHtml }),
+      });
+
+      if (!res.ok) throw new Error('Failed to add comment');
+
+      const newComment = await res.json();
+
+      setComments((prev) => [newComment, ...prev]);
+
+      if (post) {
+        setPost({
+          ...post,
+          commentsCount: (post._count?.comments ?? post.commentsCount ?? 0) + 1,
+        });
+      }
+
+      toast.success('Comment added!');
+    } catch (error) {
+      console.error('Failed to add comment:', error);
+      toast.error('Failed to add comment');
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
+  const handleSaveEditComment = async (
+    commentId: string,
+    content: string,
+    contentHtml: string
+  ) => {
+    try {
+      const res = await fetch(`/api/v1/comments/${commentId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, contentHtml }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update comment');
+
+      const updated = await res.json();
+
+      setComments((prev) =>
+        prev.map((comment) => {
+          if (comment.id === commentId) {
+            return { ...comment, ...updated };
+          }
+          if (comment.replies?.some((reply) => reply.id === commentId)) {
+            return {
+              ...comment,
+              replies: comment.replies.map((reply) =>
+                reply.id === commentId ? { ...reply, ...updated } : reply
+              ),
+            };
+          }
+          return comment;
+        })
+      );
+
+      toast.success('Comment updated');
+    } catch (error) {
+      console.error('Failed to update comment:', error);
+      toast.error('Failed to update comment');
+      throw error;
     }
   };
 
@@ -379,11 +495,14 @@ export default function PostPage({
         {...post}
         likesCount={post._count?.likes ?? post.likesCount ?? 0}
         commentsCount={post._count?.comments ?? post.commentsCount ?? 0}
+        repostsCount={post._count?.reposts ?? post.repostsCount ?? 0}
         isOwner={currentUser?.id === post.author.id}
         isEditing={isEditing}
         isSaving={isSavingEdit}
         onLike={handleLikePost}
         onUnlike={handleUnlikePost}
+        onRepost={handleRepostPost}
+        onUnrepost={handleUnrepostPost}
         onEdit={handleEditPost}
         onSaveEdit={handleSaveEdit}
         onCancelEdit={handleCancelEdit}
@@ -397,6 +516,17 @@ export default function PostPage({
 
       <div className='space-y-4'>
         <h3>Comments</h3>
+
+        {currentUser && (
+          <PostCardCommentInput
+            user={currentUser}
+            placeholder='Write a comment...'
+            isSubmitting={isSubmittingComment}
+            onSubmit={handleCreateComment}
+            onMentionQuery={searchUsers}
+            onArtistMentionQuery={searchArtists}
+          />
+        )}
 
         <CommentList
           comments={comments.map((comment) => ({
@@ -416,9 +546,12 @@ export default function PostPage({
           onLikeComment={handleLikeComment}
           onUnlikeComment={handleUnlikeComment}
           onReplyComment={handleReplyComment}
+          onSaveEditComment={handleSaveEditComment}
           onDeleteComment={handleDeleteComment}
           onMentionClick={(username) => router.push(`/profile/${username}`)}
           renderArtistMention={(props) => <ArtistMention {...props} />}
+          onMentionQuery={searchUsers}
+          onArtistMentionQuery={searchArtists}
         />
       </div>
     </div>

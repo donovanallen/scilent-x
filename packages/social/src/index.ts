@@ -46,6 +46,9 @@ export {
 // Likes
 export { likePost, unlikePost, likeComment, unlikeComment } from './likes';
 
+// Reposts
+export { repostPost, unrepostPost } from './reposts';
+
 // Follows
 export {
   getFollowers,
@@ -75,6 +78,7 @@ export {
   getTrendingPosts,
   getProfileFeed,
   getLikedPosts,
+  getUserReposts,
 } from './feeds';
 
 // Users
