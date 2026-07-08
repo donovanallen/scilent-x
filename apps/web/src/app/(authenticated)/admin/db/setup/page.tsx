@@ -1,6 +1,6 @@
 import Content from '@docs/DATABASE.mdx';
 import { Button } from '@scilent-one/ui';
-import Link from 'next/link';
+import { Link } from 'next-view-transitions';
 
 export default function SetupPage() {
   return (

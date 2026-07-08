@@ -12,7 +12,7 @@ import {
   CardContent,
   CardHeader,
 } from '@scilent-one/ui';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter } from 'next-view-transitions';
 import { useEffect, useMemo, useState, use } from 'react';
 import { toast } from 'sonner';
 import useSWR from 'swr';
@@ -71,7 +71,7 @@ export default function PublicProfilePage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = use(params);
-  const router = useRouter();
+  const router = useTransitionRouter();
   const { searchUsers, searchArtists } = useMentionSearch();
   const [isFollowLoading, setIsFollowLoading] = useState(false);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);

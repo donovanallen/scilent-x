@@ -9,7 +9,7 @@ import {
 } from '@scilent-one/ui';
 import { FileQuestion, Home } from 'lucide-react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Link } from 'next-view-transitions';
 
 export const metadata: Metadata = {
   title: 'Page Not Found',

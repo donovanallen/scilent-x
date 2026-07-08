@@ -26,7 +26,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter } from 'next-view-transitions';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import useSWR from 'swr';
@@ -70,7 +70,7 @@ const sortFieldLabels: Record<SortField, string> = {
 };
 
 export default function UsersPage() {
-  const router = useRouter();
+  const router = useTransitionRouter();
 
   // Search and filters
   const [searchQuery, setSearchQuery] = useState('');

@@ -9,8 +9,7 @@ import {
   UserAvatar,
 } from '@scilent-one/ui';
 import { LogOut, Settings } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useTransitionRouter } from 'next-view-transitions';
 
 import { signOut, useSession } from '@/lib/auth-client';
 import { ROUTES } from '@/lib/routes';
@@ -18,7 +17,7 @@ import { ROUTES } from '@/lib/routes';
 import { ThemeToggle } from './theme-toggle';
 
 export function SidebarFooterContent() {
-  const router = useRouter();
+  const router = useTransitionRouter();
   const { data: session } = useSession();
 
   const handleLogout = async () => {

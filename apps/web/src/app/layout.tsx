@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { ViewTransitions } from 'next-view-transitions';
 
 import { PaletteProvider } from '@/components/palette-provider';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -21,21 +22,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: paletteNoFlashScript }} />
-      </head>
-      <body
-        className={`${spaceGrotesk.variable} ${sourceSans.variable} ${doto.variable} ${spaceMono.variable} antialiased bg-background text-foreground`}
-      >
-        <ThemeProvider>
-          <PaletteProvider>
-            <div className='flex flex-col h-screen overflow-hidden'>
-              {children}
-            </div>
-          </PaletteProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+    <ViewTransitions>
+      <html lang='en' suppressHydrationWarning>
+        <head>
+          <script dangerouslySetInnerHTML={{ __html: paletteNoFlashScript }} />
+        </head>
+        <body
+          className={`${spaceGrotesk.variable} ${sourceSans.variable} ${doto.variable} ${spaceMono.variable} antialiased bg-background text-foreground`}
+        >
+          <ThemeProvider>
+            <PaletteProvider>
+              <div className='flex flex-col h-screen overflow-hidden'>
+                {children}
+              </div>
+            </PaletteProvider>
+          </ThemeProvider>
+        </body>
+      </html>
+    </ViewTransitions>
   );
 }

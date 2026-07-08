@@ -5,8 +5,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@scilent-one/ui';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Link } from 'next-view-transitions';
 
 import { ROUTES } from '../lib/routes';
 

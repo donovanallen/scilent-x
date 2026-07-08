@@ -2,7 +2,7 @@
 
 import { Button, UserCard, useInfiniteScroll, Skeleton } from '@scilent-one/ui';
 import { ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter } from 'next-view-transitions';
 import { useCallback, useEffect, useState, use } from 'react';
 import { toast } from 'sonner';
 
@@ -37,7 +37,7 @@ export default function FollowersPage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = use(params);
-  const router = useRouter();
+  const router = useTransitionRouter();
   const [followers, setFollowers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);

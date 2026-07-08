@@ -13,7 +13,7 @@ import {
   UserAvatar,
 } from '@scilent-one/ui';
 import { ArrowLeft, Check, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter } from 'next-view-transitions';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -28,7 +28,7 @@ interface UserProfile {
 }
 
 export default function EditProfilePage() {
-  const router = useRouter();
+  const router = useTransitionRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
