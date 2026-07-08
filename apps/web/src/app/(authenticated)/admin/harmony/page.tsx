@@ -21,13 +21,15 @@ import {
   Search,
   Lock,
   CircleX,
+  ListOrdered,
 } from 'lucide-react';
 import { Suspense } from 'react';
 
 import { getEngineStatus, type ProviderCapabilities } from '../actions';
 
-import { ProviderToggle } from './_components';
+import { ProviderToggle, ProviderPriorityControl } from './_components';
 import { getProviderSettings, getProviderCredentialsStatus } from './actions';
+import { PROVIDER_METADATA } from './provider-metadata';
 
 export const metadata = {
   title: 'Harmony Engine',
@@ -44,6 +46,44 @@ function StatusBadge({ enabled }: { enabled: boolean }) {
       <Circle className='h-3 w-3' />
       Disabled
     </Badge>
+  );
+}
+
+function ordinal(n: number): string {
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+  switch (n % 10) {
+    case 1:
+      return `${n}st`;
+    case 2:
+      return `${n}nd`;
+    case 3:
+      return `${n}rd`;
+    default:
+      return `${n}th`;
+  }
+}
+
+function LookupRankBadge({ rank }: { rank: number }) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Badge
+            variant='outline'
+            className='gap-1 border-primary/30 text-primary'
+          >
+            <ListOrdered className='h-3 w-3' />
+            {ordinal(rank)}
+          </Badge>
+        </TooltipTrigger>
+        <TooltipContent className='flex items-center gap-1'>
+          <span className='text-xs'>
+            Queried {ordinal(rank)} when resolving metadata
+          </span>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -138,33 +178,52 @@ async function EngineStatusCard() {
     getProviderCredentialsStatus(),
   ]);
 
-  const allProviders = [
-    {
-      name: 'musicbrainz',
-      displayName: 'MusicBrainz',
-      authType: 'None (rate limited)',
-    },
-    {
-      name: 'spotify',
-      displayName: 'Spotify',
-      authType: 'OAuth Client Credentials',
-    },
-    {
-      name: 'tidal',
-      displayName: 'Tidal',
-      authType: 'OAuth Client Credentials',
-    },
-    {
-      name: 'apple_music',
-      displayName: 'Apple Music',
-      authType: 'Developer Token (JWT)',
-    },
-  ];
-
-  // Create a map of provider settings for quick lookup
+  // Create maps for quick lookup
   const settingsMap = new Map(providerSettings.map((s) => [s.providerName, s]));
-
+  const enabledInfoMap = new Map(
+    status.enabledProviders.map((p) => [p.name, p])
+  );
   const enabledNames = new Set(status.enabledProviders.map((p) => p.name));
+
+  // Compute the per-provider view model, resolving the effective priority from
+  // the database setting, then the live engine, then the built-in default.
+  const providerRows = PROVIDER_METADATA.map((meta) => {
+    const isEnabled = enabledNames.has(meta.name);
+    const enabledInfo = enabledInfoMap.get(meta.name);
+    const hasCredentials = credentialsStatus.get(meta.name) ?? false;
+    const setting = settingsMap.get(meta.name);
+    // Provider is considered toggled ON if:
+    // - there is a DB setting: has credentials AND setting.enabled
+    // - or there is no DB setting: fall back to engine status (isEnabled)
+    const isToggledOn =
+      setting !== undefined ? hasCredentials && setting.enabled : isEnabled;
+    const effectivePriority =
+      setting?.priority ?? enabledInfo?.priority ?? meta.defaultPriority;
+
+    return {
+      meta,
+      isEnabled,
+      enabledInfo,
+      hasCredentials,
+      setting,
+      isToggledOn,
+      effectivePriority,
+    };
+  });
+
+  // Sort by effective priority (highest first) so the list visually mirrors
+  // the order the engine queries providers in.
+  const sortedRows = providerRows.toSorted(
+    (a, b) => b.effectivePriority - a.effectivePriority
+  );
+
+  // Only enabled providers are actually queried, so rank lookup order among
+  // those. Ties fall back to the sorted order above.
+  const rankByName = new Map(
+    sortedRows
+      .filter((row) => row.isEnabled)
+      .map((row, index) => [row.meta.name, index + 1])
+  );
 
   return (
     <div className='space-y-6 pb-6'>
@@ -178,7 +237,7 @@ async function EngineStatusCard() {
             <div>
               <CardTitle>Engine Status</CardTitle>
               <CardDescription>
-                {status.enabledProviders.length} of {allProviders.length}{' '}
+                {status.enabledProviders.length} of {PROVIDER_METADATA.length}{' '}
                 providers active
               </CardDescription>
             </div>
@@ -209,40 +268,38 @@ async function EngineStatusCard() {
         <CardHeader>
           <CardTitle>Metadata Providers</CardTitle>
           <CardDescription>
-            Configured data sources for music metadata lookups
+            Data sources for music metadata lookups, ordered by priority.
+            Enabled providers are queried highest-priority first, and the first
+            match wins — raise a provider&apos;s priority to prefer its results.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className='divide-y'>
-            {allProviders.map((provider) => {
-              const isEnabled = enabledNames.has(provider.name);
-              const enabledInfo = status.enabledProviders.find(
-                (p) => p.name === provider.name
-              );
-              const hasCredentials =
-                credentialsStatus.get(provider.name) ?? false;
-              const setting = settingsMap.get(provider.name);
-              // Provider is considered toggled ON if:
-              // - there is a DB setting: has credentials AND setting.enabled
-              // - or there is no DB setting: fall back to engine status (isEnabled)
-              const isToggledOn =
-                setting !== undefined
-                  ? hasCredentials && setting.enabled
-                  : isEnabled;
+            {sortedRows.map((row) => {
+              const {
+                meta,
+                isEnabled,
+                enabledInfo,
+                hasCredentials,
+                isToggledOn,
+                effectivePriority,
+              } = row;
+              const rank = rankByName.get(meta.name);
 
               return (
-                <div key={provider.name} className='py-4 first:pt-0 last:pb-0'>
+                <div key={meta.name} className='py-4 first:pt-0 last:pb-0'>
                   <div className='flex items-start justify-between gap-2'>
-                    <ProviderIcon provider={provider.name as IconProvider} />
+                    <ProviderIcon provider={meta.name as IconProvider} />
                     <div className='space-y-1 flex-1'>
-                      <div className='flex items-center gap-2'>
-                        <span className='font-medium'>
-                          {provider.displayName}
-                        </span>
+                      <div className='flex flex-wrap items-center gap-2'>
+                        <span className='font-medium'>{meta.displayName}</span>
                         <StatusBadge enabled={isEnabled} />
+                        {isEnabled && rank !== undefined && (
+                          <LookupRankBadge rank={rank} />
+                        )}
                       </div>
                       <p className='text-xs text-muted-foreground'>
-                        Auth: {provider.authType}
+                        Auth: {meta.authType}
                       </p>
                       {isEnabled && enabledInfo && (
                         <CapabilityBadges
@@ -251,15 +308,15 @@ async function EngineStatusCard() {
                       )}
                     </div>
                     <div className='flex items-center gap-4 shrink-0 ml-4'>
-                      {isEnabled && enabledInfo && (
-                        <div className='text-right'>
-                          <div className='text-sm font-medium'>
-                            Priority: {enabledInfo.priority}
-                          </div>
-                        </div>
-                      )}
+                      <ProviderPriorityControl
+                        providerName={meta.name}
+                        displayName={meta.displayName}
+                        priority={effectivePriority}
+                        disabled={!hasCredentials}
+                        disabledReason='Add the required credentials (environment variables) to configure this provider.'
+                      />
                       <ProviderToggle
-                        providerName={provider.name}
+                        providerName={meta.name}
                         enabled={isToggledOn}
                         hasCredentials={hasCredentials}
                       />
