@@ -16,7 +16,7 @@ import {
   ArtistListItem,
   ListSkeleton,
 } from '@scilent-one/scilent-ui';
-import { cn, ScrollArea } from '@scilent-one/ui';
+import { cn, Reveal, ScrollArea } from '@scilent-one/ui';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { AlertCircle, Music2, Search } from 'lucide-react';
 import { useRef, useMemo, useState, useEffect } from 'react';
@@ -377,14 +377,18 @@ export function SearchResults({
                 }}
               >
                 <div className='grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 py-2'>
-                  {row.map((artist) => (
-                    <ArtistCard
+                  {row.map((artist, i) => (
+                    <Reveal
                       key={artist.externalIds?.musicbrainz || artist.name}
-                      artist={artist}
-                      interactive
-                      previewSide='right'
-                      previewAlign='start'
-                    />
+                      index={i}
+                    >
+                      <ArtistCard
+                        artist={artist}
+                        interactive
+                        previewSide='right'
+                        previewAlign='start'
+                      />
+                    </Reveal>
                   ))}
                 </div>
               </div>
@@ -405,15 +409,16 @@ export function SearchResults({
                 }}
               >
                 <div className='grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 py-2'>
-                  {row.map((track) => (
-                    <TrackCard
-                      key={track.isrc || track.title}
-                      track={track}
-                      showArtwork
-                      interactive
-                      previewSide='bottom'
-                      previewAlign='center'
-                    />
+                  {row.map((track, i) => (
+                    <Reveal key={track.isrc || track.title} index={i}>
+                      <TrackCard
+                        track={track}
+                        showArtwork
+                        interactive
+                        previewSide='bottom'
+                        previewAlign='center'
+                      />
+                    </Reveal>
                   ))}
                 </div>
               </div>
@@ -433,16 +438,17 @@ export function SearchResults({
               }}
             >
               <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 py-2'>
-                {row.map((release) => (
-                  <AlbumCard
-                    key={release.gtin || release.title}
-                    release={release}
-                    showYear
-                    showType
-                    interactive
-                    previewSide='right'
-                    previewAlign='start'
-                  />
+                {row.map((release, i) => (
+                  <Reveal key={release.gtin || release.title} index={i}>
+                    <AlbumCard
+                      release={release}
+                      showYear
+                      showType
+                      interactive
+                      previewSide='right'
+                      previewAlign='start'
+                    />
+                  </Reveal>
                 ))}
               </div>
             </div>
