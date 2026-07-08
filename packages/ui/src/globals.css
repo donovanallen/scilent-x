@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Doto:wght,ROND@100..900,30&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import 'tailwindcss';
+/* Tailwind v4-native, CSS-first replacement for the deprecated tailwindcss-animate plugin */
+@import 'tw-animate-css';
 @source "./**/*.{ts,tsx}";
 @source "../sandbox/**/*.{ts,tsx}";
 
@@ -306,6 +308,27 @@
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
+
+  /*
+   * Motion scale - shared easing so every component animates with the same
+   * feel instead of ad hoc `ease-linear`/default-easing one-offs. `--ease-*`
+   * is a real Tailwind v4 theme namespace, so this overrides the built-in
+   * `ease-out`/`ease-in`/`ease-in-out` utilities everywhere they're used.
+   * (Durations don't have an equivalent theme namespace in v4 - see the
+   * `duration-*` utilities defined below via `@utility`.)
+   */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* entrances, hover feedback */
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0); /* exits */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* toggles/state swaps */
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -150% 0;
+  }
+  100% {
+    background-position: 150% 0;
+  }
 }
 
 /* Base app styles */
@@ -372,15 +395,20 @@ body {
   @apply bg-selection text-selection-foreground;
 }
 
-/* Subtle active states for interactive elements */
+/*
+ * Subtle active states for interactive elements.
+ * `[data-slot='button']` (the shared Button component) opts out here since it
+ * owns its own press feedback (`active:scale-[0.98]`) - applying both would
+ * look muddy.
+ */
 a:active,
-button:active {
+button:active:not([data-slot='button']) {
   @apply opacity-80;
 }
 
 @media (min-width: 768px) {
   a:active,
-  button:active {
+  button:active:not([data-slot='button']) {
     @apply opacity-100;
   }
 }
@@ -434,12 +462,56 @@ code {
   @apply font-mono text-sm bg-muted px-1.5 py-0.5 rounded;
 }
 
-/* Animated utilities */
-@plugin "tailwindcss-animate";
-
 /* Custom utilities */
 @utility border-grid {
   @apply border-border/50 dark:border-border;
+}
+
+/*
+ * Named transition durations - part of the shared motion scale (paired with
+ * the `--ease-*` theme variables above). Tailwind v4 doesn't expose a
+ * `--duration-*` theme namespace for named values (only the numeric
+ * `duration-<ms>` scale), so these are defined directly as static utilities.
+ * Each also sets `--tw-duration`, the same custom property Tailwind's core
+ * `duration-*` utility sets, so `tw-animate-css`'s `animate-in`/`animate-out`
+ * (which read `var(--tw-duration, .15s)`) pick up the same value as any
+ * `transition-*` utility on the element.
+ */
+@utility duration-instant {
+  --tw-duration: 100ms;
+  transition-duration: 100ms;
+}
+@utility duration-fast {
+  --tw-duration: 150ms;
+  transition-duration: 150ms;
+}
+@utility duration-base {
+  --tw-duration: 200ms;
+  transition-duration: 200ms;
+}
+@utility duration-slow {
+  --tw-duration: 300ms;
+  transition-duration: 300ms;
+}
+@utility duration-slower {
+  --tw-duration: 400ms;
+  transition-duration: 400ms;
+}
+
+/*
+ * Shimmer sweep used by Skeleton for a more premium loading state.
+ * Applied via `motion-safe:skeleton-shimmer` so reduced-motion users get the
+ * calmer `animate-pulse` fallback instead of a sweeping gradient.
+ */
+@utility skeleton-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklch, var(--foreground) 8%, transparent),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
 }
 
 @utility extend-touch-target {

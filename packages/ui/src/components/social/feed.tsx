@@ -6,6 +6,7 @@ import { type PostCardCommentInputUser } from './post-card-comment-input';
 import { type ArtistMentionRenderProps } from '../rich-text-content';
 import { type MentionSuggestion } from '../mention-list';
 import { Skeleton } from '../skeleton';
+import { Reveal } from '../reveal';
 import { cn } from '../../utils';
 
 export interface FeedProps {
@@ -38,20 +39,16 @@ export interface FeedProps {
   /** Callback when a user mention (@username) is clicked */
   onMentionClick?: ((username: string) => void) | undefined;
   onArtistMentionClick?:
-    | ((artistId: string, provider: string) => void)
-    | undefined;
+    ((artistId: string, provider: string) => void) | undefined;
   /** Custom renderer for artist mentions (for interactive behaviors) */
   renderArtistMention?:
-    | ((props: ArtistMentionRenderProps) => React.ReactNode)
-    | undefined;
+    ((props: ArtistMentionRenderProps) => React.ReactNode) | undefined;
   /** Callback to search for mention suggestions (for edit mode) */
   onMentionQuery?:
-    | ((query: string) => Promise<MentionSuggestion[]>)
-    | undefined;
+    ((query: string) => Promise<MentionSuggestion[]>) | undefined;
   /** Callback to search for artist mention suggestions (for edit mode) */
   onArtistMentionQuery?:
-    | ((query: string) => Promise<MentionSuggestion[]>)
-    | undefined;
+    ((query: string) => Promise<MentionSuggestion[]>) | undefined;
   className?: string;
 
   // ---- Inline comments props ----
@@ -60,7 +57,11 @@ export interface FeedProps {
   /** ID of the post currently having a comment submitted */
   submittingCommentPostId?: string | null;
   /** Called when user creates a new comment */
-  onCreateComment?: (postId: string, content: string, contentHtml: string) => Promise<void>;
+  onCreateComment?: (
+    postId: string,
+    content: string,
+    contentHtml: string
+  ) => Promise<void>;
   /** Called when "View all comments" is clicked */
   onViewAllComments?: (postId: string) => void;
   /** Called when a comment is liked */
@@ -70,7 +71,12 @@ export interface FeedProps {
   /** Called when user clicks reply button on a comment */
   onReplyComment?: (postId: string, commentId: string) => void;
   /** Called when user submits a reply */
-  onSubmitReply?: (postId: string, commentId: string, content: string, contentHtml: string) => Promise<void>;
+  onSubmitReply?: (
+    postId: string,
+    commentId: string,
+    content: string,
+    contentHtml: string
+  ) => Promise<void>;
   /** Called when user cancels replying */
   onCancelReply?: () => void;
   /** ID of the comment currently being replied to (format: postId:commentId or just commentId) */
@@ -139,79 +145,85 @@ export function Feed({
 }: FeedProps) {
   return (
     <div className={cn('space-y-4', className)}>
-      {posts.map((post) => (
-        <PostCard
-          key={post.id}
-          {...post}
-          isOwner={currentUserId === post.author.id}
-          isEditing={editingPostId === post.id}
-          isSaving={editingPostId === post.id && isSavingEdit}
-          onLike={() => onLikePost?.(post.id)}
-          onUnlike={() => onUnlikePost?.(post.id)}
-          onComment={() => onCommentPost?.(post.id)}
-          onEdit={() => onEditPost?.(post.id)}
-          onSaveEdit={
-            onSaveEdit
-              ? async (content, contentHtml) => {
-                  await onSaveEdit(post.id, content, contentHtml);
-                }
-              : undefined
-          }
-          onCancelEdit={() => onCancelEdit?.(post.id)}
-          onDelete={() => onDeletePost?.(post.id)}
-          onClick={() => onPostClick?.(post.id)}
-          onAuthorClick={onAuthorClick}
-          onMentionClick={onMentionClick}
-          onArtistMentionClick={onArtistMentionClick}
-          renderArtistMention={renderArtistMention}
-          onMentionQuery={onMentionQuery}
-          onArtistMentionQuery={onArtistMentionQuery}
-          // Inline comments props
-          currentUser={currentUser}
-          isSubmittingComment={submittingCommentPostId === post.id}
-          onCreateComment={
-            onCreateComment
-              ? async (content, contentHtml) => {
-                  await onCreateComment(post.id, content, contentHtml);
-                }
-              : undefined
-          }
-          onViewAllComments={
-            onViewAllComments ? () => onViewAllComments(post.id) : undefined
-          }
-          onLikeComment={
-            onLikeComment
-              ? (commentId) => onLikeComment(post.id, commentId)
-              : undefined
-          }
-          onUnlikeComment={
-            onUnlikeComment
-              ? (commentId) => onUnlikeComment(post.id, commentId)
-              : undefined
-          }
-          onReplyComment={
-            onReplyComment
-              ? (commentId) => onReplyComment(post.id, commentId)
-              : undefined
-          }
-          onSubmitReply={
-            onSubmitReply
-              ? async (commentId, content, contentHtml) => {
-                  await onSubmitReply(post.id, commentId, content, contentHtml);
-                }
-              : undefined
-          }
-          onCancelReply={onCancelReply}
-          replyingToCommentId={replyingToCommentId}
-          isSubmittingReply={isSubmittingReply}
-          onDeleteComment={
-            onDeleteComment
-              ? (commentId) => onDeleteComment(post.id, commentId)
-              : undefined
-          }
-          showComments
-          comments={post.comments}
-        />
+      {posts.map((post, i) => (
+        <Reveal key={post.id} index={i}>
+          <PostCard
+            {...post}
+            isOwner={currentUserId === post.author.id}
+            isEditing={editingPostId === post.id}
+            isSaving={editingPostId === post.id && isSavingEdit}
+            onLike={() => onLikePost?.(post.id)}
+            onUnlike={() => onUnlikePost?.(post.id)}
+            onComment={() => onCommentPost?.(post.id)}
+            onEdit={() => onEditPost?.(post.id)}
+            onSaveEdit={
+              onSaveEdit
+                ? async (content, contentHtml) => {
+                    await onSaveEdit(post.id, content, contentHtml);
+                  }
+                : undefined
+            }
+            onCancelEdit={() => onCancelEdit?.(post.id)}
+            onDelete={() => onDeletePost?.(post.id)}
+            onClick={() => onPostClick?.(post.id)}
+            onAuthorClick={onAuthorClick}
+            onMentionClick={onMentionClick}
+            onArtistMentionClick={onArtistMentionClick}
+            renderArtistMention={renderArtistMention}
+            onMentionQuery={onMentionQuery}
+            onArtistMentionQuery={onArtistMentionQuery}
+            // Inline comments props
+            currentUser={currentUser}
+            isSubmittingComment={submittingCommentPostId === post.id}
+            onCreateComment={
+              onCreateComment
+                ? async (content, contentHtml) => {
+                    await onCreateComment(post.id, content, contentHtml);
+                  }
+                : undefined
+            }
+            onViewAllComments={
+              onViewAllComments ? () => onViewAllComments(post.id) : undefined
+            }
+            onLikeComment={
+              onLikeComment
+                ? (commentId) => onLikeComment(post.id, commentId)
+                : undefined
+            }
+            onUnlikeComment={
+              onUnlikeComment
+                ? (commentId) => onUnlikeComment(post.id, commentId)
+                : undefined
+            }
+            onReplyComment={
+              onReplyComment
+                ? (commentId) => onReplyComment(post.id, commentId)
+                : undefined
+            }
+            onSubmitReply={
+              onSubmitReply
+                ? async (commentId, content, contentHtml) => {
+                    await onSubmitReply(
+                      post.id,
+                      commentId,
+                      content,
+                      contentHtml
+                    );
+                  }
+                : undefined
+            }
+            onCancelReply={onCancelReply}
+            replyingToCommentId={replyingToCommentId}
+            isSubmittingReply={isSubmittingReply}
+            onDeleteComment={
+              onDeleteComment
+                ? (commentId) => onDeleteComment(post.id, commentId)
+                : undefined
+            }
+            showComments
+            comments={post.comments}
+          />
+        </Reveal>
       ))}
 
       {isLoading && (

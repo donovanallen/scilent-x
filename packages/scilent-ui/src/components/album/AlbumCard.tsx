@@ -88,7 +88,7 @@ export function AlbumCard({
   const card = (
     <Card
       className={cn(
-        'overflow-hidden transition-colors cursor-pointer hover:bg-accent/50 group',
+        'group overflow-hidden cursor-pointer transition-[background-color,transform,box-shadow] duration-base ease-out hover:bg-accent/50 hover:-translate-y-0.5 hover:shadow-md',
         className
       )}
       onClick={handleClick}
