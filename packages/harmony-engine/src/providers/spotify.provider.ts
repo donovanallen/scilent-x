@@ -479,6 +479,15 @@ export class SpotifyProvider extends BaseProvider {
     return this.transformTrack(track, track.track_number, track.disc_number);
   }
 
+  protected override async _lookupTrackById(
+    id: string
+  ): Promise<HarmonizedTrack | null> {
+    const track = await this.fetchApi<SpotifyTrack>(`/tracks/${id}`);
+    if (!track) return null;
+
+    return this.transformTrack(track, track.track_number, track.disc_number);
+  }
+
   protected async _lookupArtistById(
     id: string
   ): Promise<HarmonizedArtist | null> {

@@ -151,11 +151,106 @@ describe('SpotifyProvider', () => {
     });
   });
 
-  describe('lookupTrackByUrl (base default)', () => {
-    it('returns null for providers that do not implement track-by-id lookup', async () => {
-      // Spotify does not override _lookupTrackById, so the base no-op applies.
+  describe('lookupTrackById', () => {
+    it('fetches a track by id from /tracks/{id}', async () => {
+      // First call obtains the client-credentials access token.
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          access_token: 'test-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+        })
+      );
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          id: '4iV5W9uYEdYUVa79Axb7Rh',
+          name: 'Bohemian Rhapsody',
+          duration_ms: 354320,
+          explicit: false,
+          track_number: 11,
+          disc_number: 1,
+          artists: [{ id: 'artist-1', name: 'Queen' }],
+          external_ids: { isrc: 'GBUM71029604' },
+          external_urls: {
+            spotify: 'https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh',
+          },
+        })
+      );
+
+      const track = await provider.lookupTrackById('4iV5W9uYEdYUVa79Axb7Rh');
+      expect(track).not.toBeNull();
+      expect(track?.title).toBe('Bohemian Rhapsody');
+      expect(track?.isrc).toBe('GBUM71029604');
+      expect(track?.position).toBe(11);
+      expect(track?.discNumber).toBe(1);
+      expect(track?.externalIds).toEqual({
+        spotify: '4iV5W9uYEdYUVa79Axb7Rh',
+      });
+      expect(track?.artists).toEqual([
+        { name: 'Queen', externalIds: { spotify: 'artist-1' } },
+      ]);
+
+      // Second fetch is the track lookup (first is the token request).
+      const [url] = mockFetch.mock.calls[1] as [string];
+      expect(url).toContain(
+        'https://api.spotify.com/v1/tracks/4iV5W9uYEdYUVa79Axb7Rh'
+      );
+    });
+
+    it('returns null when the track is not found (404)', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          access_token: 'test-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+        })
+      );
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        json: () => Promise.resolve({}),
+        text: () => Promise.resolve('Not Found'),
+      } as unknown as Response);
+
+      expect(await provider.lookupTrackById('missing')).toBeNull();
+    });
+  });
+
+  describe('lookupTrackByUrl', () => {
+    it('resolves a track from a Spotify track URL', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          access_token: 'test-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+        })
+      );
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          id: '4iV5W9uYEdYUVa79Axb7Rh',
+          name: 'Bohemian Rhapsody',
+          duration_ms: 354320,
+          explicit: false,
+          track_number: 11,
+          disc_number: 1,
+          artists: [{ id: 'artist-1', name: 'Queen' }],
+        })
+      );
+
       const track = await provider.lookupTrackByUrl(
         'https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh'
+      );
+      expect(track?.title).toBe('Bohemian Rhapsody');
+
+      const [url] = mockFetch.mock.calls[1] as [string];
+      expect(url).toContain(
+        'https://api.spotify.com/v1/tracks/4iV5W9uYEdYUVa79Axb7Rh'
+      );
+    });
+
+    it('returns null for a non-track URL without making a request', async () => {
+      const track = await provider.lookupTrackByUrl(
+        'https://open.spotify.com/artist/0OdUWJ0sBjDrqHygGUXeCF'
       );
       expect(track).toBeNull();
       expect(mockFetch).not.toHaveBeenCalled();
@@ -264,6 +359,136 @@ describe('TidalProvider', () => {
 
     it('has correct priority', () => {
       expect(provider.priority).toBe(75);
+    });
+  });
+
+  describe('lookupTrackById', () => {
+    it('fetches a track by id from /tracks/{id} with included artists', async () => {
+      // First call obtains the client-credentials access token.
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          access_token: 'test-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+        })
+      );
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            id: '987654321',
+            type: 'tracks',
+            attributes: {
+              title: 'Redbone',
+              isrc: 'USQX91601362',
+              duration: 327,
+              explicit: false,
+              trackNumber: 6,
+              volumeNumber: 1,
+            },
+            relationships: {
+              artists: {
+                data: [{ id: 'artist-1', type: 'artists' }],
+              },
+            },
+          },
+          included: [
+            {
+              id: 'artist-1',
+              type: 'artists',
+              attributes: { name: 'Childish Gambino' },
+            },
+          ],
+        })
+      );
+
+      const track = await provider.lookupTrackById('987654321');
+      expect(track).not.toBeNull();
+      expect(track?.title).toBe('Redbone');
+      expect(track?.isrc).toBe('USQX91601362');
+      expect(track?.position).toBe(6);
+      expect(track?.discNumber).toBe(1);
+      // Tidal durations are in seconds; harmonized to milliseconds.
+      expect(track?.duration).toBe(327000);
+      expect(track?.externalIds).toEqual({ tidal: '987654321' });
+      expect(track?.artists).toEqual([
+        { name: 'Childish Gambino', externalIds: { tidal: 'artist-1' } },
+      ]);
+
+      // Second fetch is the track lookup (first is the token request).
+      const [url] = mockFetch.mock.calls[1] as [string];
+      expect(url).toContain('https://openapi.tidal.com/v2/tracks/987654321');
+      expect(url).toContain('include=artists');
+    });
+
+    it('returns null when the track is not found (404)', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          access_token: 'test-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+        })
+      );
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        json: () => Promise.resolve({}),
+        text: () => Promise.resolve('Not Found'),
+      } as unknown as Response);
+
+      expect(await provider.lookupTrackById('missing')).toBeNull();
+    });
+  });
+
+  describe('lookupTrackByUrl', () => {
+    it('resolves a track from a Tidal track URL', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          access_token: 'test-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+        })
+      );
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            id: '987654321',
+            type: 'tracks',
+            attributes: {
+              title: 'Redbone',
+              duration: 327,
+              explicit: false,
+              trackNumber: 6,
+              volumeNumber: 1,
+            },
+            relationships: {
+              artists: { data: [{ id: 'artist-1', type: 'artists' }] },
+            },
+          },
+          included: [
+            {
+              id: 'artist-1',
+              type: 'artists',
+              attributes: { name: 'Childish Gambino' },
+            },
+          ],
+        })
+      );
+
+      const track = await provider.lookupTrackByUrl(
+        'https://tidal.com/browse/track/987654321'
+      );
+      expect(track?.title).toBe('Redbone');
+
+      const [url] = mockFetch.mock.calls[1] as [string];
+      expect(url).toContain('https://openapi.tidal.com/v2/tracks/987654321');
+    });
+
+    it('returns null for a non-track URL without making a request', async () => {
+      const track = await provider.lookupTrackByUrl(
+        'https://tidal.com/browse/artist/456789012'
+      );
+      expect(track).toBeNull();
+      expect(mockFetch).not.toHaveBeenCalled();
     });
   });
 });
