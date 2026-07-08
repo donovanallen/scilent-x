@@ -3,6 +3,8 @@ import {
   HarmonizedReleaseSchema,
   HarmonizedTrackSchema,
   HarmonizedArtistSchema,
+  HarmonizedPlaylistSchema,
+  HarmonizedListenHistoryItemSchema,
   ProviderSourceSchema,
 } from '../types/harmonized.types';
 
@@ -196,6 +198,100 @@ describe('Zod schemas', () => {
 
         const result = HarmonizedArtistSchema.safeParse(artist);
         expect(result.success).toBe(true);
+      }
+    });
+  });
+
+  describe('HarmonizedPlaylistSchema', () => {
+    it('validates a valid playlist', () => {
+      const playlist = {
+        name: 'Chill Vibes',
+        isPublic: true,
+        trackCount: 42,
+        externalIds: { apple_music: 'p.abc123' },
+        sources: [
+          { provider: 'apple_music', id: 'p.abc123', fetchedAt: new Date() },
+        ],
+        mergedAt: new Date(),
+        confidence: 0.8,
+      };
+
+      const result = HarmonizedPlaylistSchema.safeParse(playlist);
+      expect(result.success).toBe(true);
+    });
+
+    it('allows optional description, ownerName, and artwork', () => {
+      const playlist = {
+        name: 'Chill Vibes',
+        description: 'Relaxing tracks',
+        ownerName: 'Alex',
+        isPublic: false,
+        artwork: [
+          {
+            url: 'https://example.com/art.jpg',
+            type: 'front',
+            provider: 'apple_music',
+          },
+        ],
+        externalIds: {},
+        sources: [],
+        mergedAt: new Date(),
+        confidence: 0.5,
+      };
+
+      const result = HarmonizedPlaylistSchema.safeParse(playlist);
+      expect(result.success).toBe(true);
+    });
+
+    it('rejects an invalid trackCount', () => {
+      const playlist = {
+        name: 'Chill Vibes',
+        trackCount: -1,
+        externalIds: {},
+        sources: [],
+        mergedAt: new Date(),
+        confidence: 0.5,
+      };
+
+      const result = HarmonizedPlaylistSchema.safeParse(playlist);
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('HarmonizedListenHistoryItemSchema', () => {
+    it('validates an item without a playedAt timestamp (e.g. Apple Music)', () => {
+      const item = {
+        track: {
+          title: 'Test Track',
+          position: 1,
+          artists: [{ name: 'Artist' }],
+          externalIds: { apple_music: 'track-id' },
+          sources: [],
+        },
+        provider: 'apple_music',
+      };
+
+      const result = HarmonizedListenHistoryItemSchema.safeParse(item);
+      expect(result.success).toBe(true);
+    });
+
+    it('coerces a playedAt timestamp when present', () => {
+      const item = {
+        track: {
+          title: 'Test Track',
+          position: 1,
+          artists: [{ name: 'Artist' }],
+          externalIds: {},
+          sources: [],
+        },
+        playedAt: '2024-01-01T00:00:00Z',
+        provider: 'spotify',
+      };
+
+      const result = HarmonizedListenHistoryItemSchema.safeParse(item);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.playedAt).toBeInstanceOf(Date);
       }
     });
   });

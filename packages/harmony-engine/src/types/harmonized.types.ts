@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const ProviderSourceSchema = z.object({
   provider: z.string(),
@@ -47,33 +47,33 @@ export const HarmonizedTrackSchema = z.object({
 export type HarmonizedTrack = z.infer<typeof HarmonizedTrackSchema>;
 
 export const ReleaseTypeSchema = z.enum([
-  "album",
-  "single",
-  "ep",
-  "compilation",
-  "soundtrack",
-  "live",
-  "remix",
-  "other",
+  'album',
+  'single',
+  'ep',
+  'compilation',
+  'soundtrack',
+  'live',
+  'remix',
+  'other',
 ]);
 
 export type ReleaseType = z.infer<typeof ReleaseTypeSchema>;
 
 export const ReleaseStatusSchema = z.enum([
-  "official",
-  "promotional",
-  "bootleg",
-  "pseudo-release",
+  'official',
+  'promotional',
+  'bootleg',
+  'pseudo-release',
 ]);
 
 export type ReleaseStatus = z.infer<typeof ReleaseStatusSchema>;
 
 export const ArtworkTypeSchema = z.enum([
-  "front",
-  "back",
-  "medium",
-  "booklet",
-  "other",
+  'front',
+  'back',
+  'medium',
+  'booklet',
+  'other',
 ]);
 
 export type ArtworkType = z.infer<typeof ArtworkTypeSchema>;
@@ -151,12 +151,12 @@ export const HarmonizedReleaseSchema = z.object({
 export type HarmonizedRelease = z.infer<typeof HarmonizedReleaseSchema>;
 
 export const ArtistTypeSchema = z.enum([
-  "person",
-  "group",
-  "orchestra",
-  "choir",
-  "character",
-  "other",
+  'person',
+  'group',
+  'orchestra',
+  'choir',
+  'character',
+  'other',
 ]);
 
 export type ArtistType = z.infer<typeof ArtistTypeSchema>;
@@ -248,3 +248,75 @@ export interface CollectionParams {
   limit?: number;
   cursor?: string;
 }
+
+/**
+ * Harmonized playlist from a streaming provider (e.g. a user's library
+ * playlist). Unlike releases/artists/tracks, playlists are user-owned rather
+ * than catalog entities merged across providers, but the shared
+ * `externalIds`/`sources`/`mergedAt`/`confidence` fields are kept for
+ * consistency with the rest of the harmonized model.
+ */
+export const HarmonizedPlaylistSchema = z.object({
+  name: z.string(),
+  nameNormalized: z.string().optional(),
+  description: z.string().optional(),
+  /** Display name of the playlist owner/curator, when exposed by the provider. */
+  ownerName: z.string().optional(),
+  /** Whether the playlist is publicly shared/visible, when the provider exposes this. */
+  isPublic: z.boolean().optional(),
+  /** Number of tracks in the playlist, when known without fetching tracks. */
+  trackCount: z.number().int().nonnegative().optional(),
+
+  artwork: z
+    .array(
+      z.object({
+        url: z.string().url(),
+        type: ArtworkTypeSchema,
+        width: z.number().optional(),
+        height: z.number().optional(),
+        provider: z.string(),
+      })
+    )
+    .optional(),
+
+  externalIds: z.record(z.string(), z.string()),
+  sources: z.array(ProviderSourceSchema),
+
+  mergedAt: z.coerce.date(),
+  confidence: z.number().min(0).max(1),
+});
+
+export type HarmonizedPlaylist = z.infer<typeof HarmonizedPlaylistSchema>;
+
+/**
+ * Parameters for fetching a user's playlists. Extends {@link CollectionParams}
+ * with a `publicOnly` filter.
+ *
+ * Note: providers (e.g. Apple Music) may not support filtering publicly
+ * shared playlists server-side. In that case the filter is applied
+ * client-side, on the page of results returned by the provider - `hasMore`/
+ * `nextCursor` still describe the underlying (unfiltered) provider
+ * pagination, not the number of public playlists remaining.
+ */
+export interface PlaylistCollectionParams extends CollectionParams {
+  /** When true, only return playlists the user has marked public/shared. */
+  publicOnly?: boolean;
+}
+
+/**
+ * A single entry in a user's recent listen history: a track they listened
+ * to, plus (when the provider exposes it) the timestamp it was played at.
+ *
+ * Apple Music's recently-played endpoint does not expose play timestamps, so
+ * `playedAt` is optional; items are still returned in most-recent-first
+ * order by the provider.
+ */
+export const HarmonizedListenHistoryItemSchema = z.object({
+  track: HarmonizedTrackSchema,
+  playedAt: z.coerce.date().optional(),
+  provider: z.string(),
+});
+
+export type HarmonizedListenHistoryItem = z.infer<
+  typeof HarmonizedListenHistoryItemSchema
+>;
