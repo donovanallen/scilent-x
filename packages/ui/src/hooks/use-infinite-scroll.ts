@@ -21,8 +21,8 @@ export interface UseInfiniteScrollOptions {
    */
   threshold?: number;
   /**
-   * Root margin for the intersection observer
-   * @default '0px'
+   * Root margin for the intersection observer. When omitted, the threshold
+   * value is used to compute a pixel-based root margin.
    */
   rootMargin?: string;
 }
@@ -39,9 +39,10 @@ export function useInfiniteScroll({
   isLoading,
   onLoadMore,
   threshold = 200,
-  rootMargin = '0px',
+  rootMargin,
 }: UseInfiniteScrollOptions): UseInfiniteScrollReturn {
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
+  const resolvedRootMargin = rootMargin ?? `${threshold}px`;
 
   React.useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -55,7 +56,7 @@ export function useInfiniteScroll({
         }
       },
       {
-        rootMargin: `${threshold}px`,
+        rootMargin: resolvedRootMargin,
       }
     );
 
@@ -64,7 +65,7 @@ export function useInfiniteScroll({
     return () => {
       observer.disconnect();
     };
-  }, [hasMore, isLoading, onLoadMore, threshold, rootMargin]);
+  }, [hasMore, isLoading, onLoadMore, resolvedRootMargin]);
 
   return { sentinelRef };
 }
