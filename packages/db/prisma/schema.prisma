@@ -44,6 +44,7 @@ model User {
   posts         Post[]
   comments      Comment[]
   likes         Like[]
+  reposts       Repost[]
   followers     Follow[]    @relation("following")
   following     Follow[]    @relation("follower")
   mentions      Mention[]
@@ -125,11 +126,29 @@ model Post {
   author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments  Comment[]
   likes     Like[]
+  reposts   Repost[]
   mentions  Mention[]
 
   @@index([authorId])
   @@index([createdAt])
   @@map("posts")
+}
+
+/// Repost model - Reposts (reshares) of a post to a user's followers
+model Repost {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@index([createdAt])
+  @@map("reposts")
 }
 
 /// Comment model - Comments on posts
@@ -200,16 +219,25 @@ enum MentionType {
   TRACK // future
 }
 
-/// Mention model - @mentions in posts or comments
+/// Mention model - @mentions or #mentions in posts or comments
+///
+/// USER mentions reference a local `User` row via `userId`. Non-USER mentions
+/// (ARTIST/ALBUM/TRACK) reference an external, provider-backed entity that has
+/// no local table, so they're stored via `entityId` (format: "provider:id")
+/// and a denormalized `entityLabel` captured at mention time instead.
 model Mention {
-  id        String      @id @default(cuid())
-  type      MentionType @default(USER)
-  userId    String
-  postId    String?
-  commentId String?
-  createdAt DateTime    @default(now())
+  id          String      @id @default(cuid())
+  type        MentionType @default(USER)
+  userId      String?
+  /// External entity reference for non-USER mentions (format: "provider:id")
+  entityId    String?
+  /// Denormalized display label for non-USER mentions (e.g. artist name)
+  entityLabel String?
+  postId      String?
+  commentId   String?
+  createdAt   DateTime    @default(now())
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
   comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
@@ -217,6 +245,7 @@ model Mention {
   @@index([postId])
   @@index([commentId])
   @@index([type])
+  @@index([entityId])
   @@map("mentions")
 }
 
@@ -224,6 +253,7 @@ model Mention {
 enum ActivityType {
   POST_CREATED
   POST_LIKED
+  POST_REPOSTED
   COMMENT_CREATED
   COMMENT_LIKED
   USER_FOLLOWED
