@@ -1,5 +1,41 @@
 # @scilent-one/db
 
+## 0.5.0
+
+### Minor Changes
+
+- 3ba4d08: Add a basic direct-message inbox. `packages/db` gains `Conversation`,
+  `ConversationParticipant`, and `Message` models (1:1 conversations only, with
+  `lastReadAt`-based unread tracking). `packages/social` adds `conversations/`
+  and `messages/` domain modules — `getInboxConversations`, `getConversationById`,
+  `getConversationSummary`, `getOrCreateDirectConversation`, `markConversationRead`,
+  `getMessages`, and `sendMessage` — gated so a conversation can only be started
+  between mutual followers (`isMutualFollow`), and exposes `canMessage` on
+  `UserProfile`. `packages/ui` adds presentational messaging components
+  (`ConversationListItem`, `ConversationList`, `MessageBubble`, `MessageThread`,
+  `MessageComposer`) plus Storybook stories, and `ProfileHeader` gains an
+  optional `canMessage`/`onMessage` "Message" action. Notifications and
+  real-time delivery are explicitly out of scope for this pass.
+- 81d78d4: Add repost support and fix several posts-feature bugs:
+
+  - Add a `Repost` model plus `repostPost`/`unrepostPost` mutations and
+    `getUserReposts` query, with a `POST_REPOSTED` activity for the post author.
+  - Persist artist (and other non-`USER`) mentions by making `Mention.userId`
+    optional and adding `entityId`/`entityLabel` columns; posts now use the same
+    HTML-based mention parser as comments so `#artist` mentions are saved.
+  - Fix `POST_CREATED` activity fan-out to actually notify followers (it
+    previously only notified the author).
+  - Fix a pagination bug in `getLikedPosts` where the `Like` row's cursor id was
+    leaking into the returned `Post.id`.
+  - Fix the comment `PATCH` API route to persist `contentHtml`, and add inline
+    comment editing UI (`CommentCard`/`CommentList`).
+  - Add `PostCard`/`Feed` repost button, counts, and `isReposted` state.
+
+- a011feb: Persist the selected color palette per user. The `User` model gains a `palette`
+  field (defaults to `default`), exposed on the session via Better Auth
+  `additionalFields` and settable through `authClient.updateUser({ palette })`
+  (client typing via `inferAdditionalFields`).
+
 ## 0.4.0
 
 ### Minor Changes

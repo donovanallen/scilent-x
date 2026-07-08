@@ -1,5 +1,58 @@
 # @scilent-one/scilent-ui
 
+## 1.1.0
+
+### Minor Changes
+
+- add1a19: Add a shared motion foundation and apply it across core UI primitives (Phase 1 of the global motion system).
+
+  - Migrated from the deprecated `tailwindcss-animate` plugin to `tw-animate-css` (Tailwind v4-native, CSS-first).
+  - Added a shared motion scale: named `duration-instant/fast/base/slow/slower` utilities and polished `ease-out`/`ease-in`/`ease-in-out` easing curves, wired through to both CSS transitions and `animate-in`/`animate-out` entrance/exit animations.
+  - Added `useReducedMotion` and `useInViewport` hooks, plus a `Reveal` component for IntersectionObserver-based fade/slide-in-view reveals with a capped stagger delay (skipped entirely under `prefers-reduced-motion`).
+  - Applied the new tokens to `Button` (press/hover feedback), `Dialog`, `Sheet`, `DropdownMenu`, `ContextMenu`, `Popover`, `HoverCard`, `Select`, `Tooltip` (consistent enter/exit timing), `Tabs`, `Switch`, and `Sidebar` (collapse/expand easing).
+  - Replaced `Skeleton`'s flat pulse with a shimmer sweep, falling back to the pulse under reduced motion.
+  - Standardized hover-lift/scale transitions across `AlbumArtwork`, `AlbumCard`, `TrackCard`, and `ArtistCard` on the shared tokens.
+  - Applied the `Reveal` stagger pattern to the web app's search results grid and the social feed's post list (reference implementations).
+
+  This is a visual-only, backwards-compatible change - no public component APIs changed shape (aside from the new `useReducedMotion`, `useInViewport`, and `Reveal` exports from `@scilent-one/ui`).
+
+- 4c5c5e9: `PlatformProfileCard` now supports optional `playlists` and `recentTracks`
+  sections (alongside the existing `followedArtists` section), with matching
+  `showPlaylists`/`maxPlaylistBadges` and `showRecentTracks`/`maxRecentTracks`
+  props for the Apple Music profile card's new public-playlists and
+  recent-listen-history data.
+
+### Patch Changes
+
+- b393c13: Fix provider icon visibility across themes. The Apple Music icon rendered blank
+  because its source SVGs declared explicit `width`/`height` alongside a matching
+  `viewBox`, so SVGO stripped the `viewBox` during the build and the 361-unit
+  artwork was drawn 1:1 into a 24px box; the fixed dimensions have been removed so
+  the `viewBox` is retained and the mark scales correctly.
+
+  Add a theme-aware `auto` `IconColor` and make it the default for `TidalIcon`.
+  Because Tidal ships only monochrome PNGs and the app themes via CSS-variable
+  tokens (not `dark:` utilities), the theme-aware path paints the PNG's alpha as a
+  CSS mask filled with `currentColor` (pinned to `--foreground`), so the logo stays
+  legible in both light and dark mode. `SpotifyIcon` and `AppleMusicIcon` also
+  accept `color="auto"` for the same theme-adaptive, monochrome behavior. Explicit
+  `black`/`white` colors are unchanged.
+
+- Updated dependencies [f34093a]
+- Updated dependencies [db7cc4d]
+- Updated dependencies [a4c6686]
+- Updated dependencies [cd33b0c]
+- Updated dependencies [df96c8f]
+- Updated dependencies [f6796bb]
+- Updated dependencies [3ba4d08]
+- Updated dependencies [add1a19]
+- Updated dependencies [a011feb]
+- Updated dependencies [36b85f3]
+- Updated dependencies [81d78d4]
+- Updated dependencies [ee977a8]
+  - @scilent-one/harmony-engine@0.5.0
+  - @scilent-one/ui@0.6.0
+
 ## 1.0.0
 
 ### Major Changes
