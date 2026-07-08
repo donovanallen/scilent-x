@@ -95,7 +95,7 @@ interface MusicBrainzArtist {
 export class MusicBrainzProvider extends BaseProvider {
   readonly name = 'musicbrainz';
   readonly displayName = 'MusicBrainz';
-  readonly priority = 100;
+  protected readonly defaultPriority = 100;
 
   private userAgent: string;
 

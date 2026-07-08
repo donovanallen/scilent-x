@@ -150,7 +150,7 @@ interface SpotifyFollowedArtistsResponse {
 export class SpotifyProvider extends BaseProvider {
   readonly name = 'spotify';
   readonly displayName = 'Spotify';
-  readonly priority = 80;
+  protected readonly defaultPriority = 80;
 
   /**
    * Spotify supports user-authenticated API calls via OAuth2.

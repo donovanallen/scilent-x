@@ -10,8 +10,17 @@ export type Provider = 'spotify' | 'apple_music' | 'tidal';
 /** Icon display variants */
 export type IconVariant = 'icon' | 'wordmark' | 'wordmark-vertical';
 
-/** Icon color options */
-export type IconColor = 'brand' | 'black' | 'white' | 'current';
+/**
+ * Icon color options
+ *
+ * - `brand`: the provider's official brand color(s)
+ * - `black` / `white`: force a monochrome fill regardless of theme
+ * - `current`: inherit the surrounding text color (`currentColor`)
+ * - `auto`: theme-aware monochrome — resolves to a legible foreground color in
+ *   both light and dark mode, so the mark never disappears against a
+ *   low-contrast background
+ */
+export type IconColor = 'brand' | 'black' | 'white' | 'current' | 'auto';
 
 /** Preset size options */
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -99,6 +108,9 @@ export function resolveFillColor(
     case 'white':
       return '#FFFFFF';
     case 'current':
+    case 'auto':
+      // `auto` resolves to the inherited text color; callers pair it with a
+      // theme-aware foreground (e.g. `text-foreground`) for legibility.
       return 'currentColor';
     default:
       return PROVIDER_BRAND_COLORS[provider];

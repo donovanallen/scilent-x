@@ -176,7 +176,7 @@ interface AppleMusicLibraryArtistsResponse {
 export class AppleMusicProvider extends BaseProvider {
   readonly name = 'apple_music';
   readonly displayName = 'Apple Music';
-  readonly priority = 70;
+  protected readonly defaultPriority = 70;
 
   /**
    * Apple Music supports user-scoped API calls via a Music User Token, which is
