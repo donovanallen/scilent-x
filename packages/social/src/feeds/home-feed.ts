@@ -9,14 +9,7 @@ import {
   createPaginatedResult,
   DEFAULT_PAGE_SIZE,
 } from '../utils/pagination';
-
-const authorSelect = {
-  id: true,
-  name: true,
-  username: true,
-  avatarUrl: true,
-  image: true,
-} as const;
+import { authorSelect, mapPostWithAuthor } from '../posts/includes';
 
 /** Number of recent comments to include per post in the feed */
 const COMMENTS_PER_POST = 3;
@@ -48,6 +41,7 @@ export async function getHomeFeed(
     },
     include: {
       author: { select: authorSelect },
+      reviewSubject: true,
       _count: {
         select: {
           likes: true,
@@ -92,11 +86,7 @@ export async function getHomeFeed(
   });
 
   const items = posts.map((post) => ({
-    ...post,
-    isLiked: post.likes.length > 0,
-    isReposted: post.reposts.length > 0,
-    likes: undefined as unknown as never,
-    reposts: undefined as unknown as never,
+    ...mapPostWithAuthor(post, userId),
     // Transform comments to include isLiked flag
     comments: post.comments.map((comment) => ({
       ...comment,

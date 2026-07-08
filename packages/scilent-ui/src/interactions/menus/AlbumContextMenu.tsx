@@ -23,6 +23,7 @@ import {
   Link,
   ScrollText,
   Type,
+  PenLine,
 } from 'lucide-react';
 import { useHarmonyInteraction } from '../provider';
 import type { HarmonizedEntity, MenuAction, ProviderAction } from '../types';
@@ -96,13 +97,18 @@ export function AlbumContextMenu({
   const primaryArtist = release.artists?.[0];
 
   // Get provider actions for albums
-  const providerActions = (interaction.providerActions?.album ?? []) as ProviderAction<HarmonizedRelease>[];
+  const providerActions = (interaction.providerActions?.album ??
+    []) as ProviderAction<HarmonizedRelease>[];
 
   // Get custom menu items for albums
   const customItems = interaction.customMenuItems?.album ?? [];
 
   // Determine if we have copy actions
-  const hasCopyActions = release.gtin || interaction.onCopyLink || release.title || release.artists?.length;
+  const hasCopyActions =
+    release.gtin ||
+    interaction.onCopyLink ||
+    release.title ||
+    release.artists?.length;
 
   const handleViewAlbum = React.useCallback(() => {
     interaction.onNavigate?.('album', release);
@@ -157,6 +163,11 @@ export function AlbumContextMenu({
     onClose?.();
   }, [interaction, release, onClose]);
 
+  const handleWriteReview = React.useCallback(() => {
+    interaction.onWriteReview?.('album', release);
+    onClose?.();
+  }, [interaction, release, onClose]);
+
   const handleOpenExternal = React.useCallback(
     (url: string, platform: string) => {
       interaction.onOpenExternal?.(url, platform);
@@ -202,6 +213,13 @@ export function AlbumContextMenu({
         <MenuItem className="gap-2" onSelect={handleViewCredits}>
           <ScrollText className="size-4" />
           View Credits & Metadata
+        </MenuItem>
+      )}
+
+      {interaction.onWriteReview && (
+        <MenuItem className="gap-2" onSelect={handleWriteReview}>
+          <PenLine className="size-4" />
+          Write review
         </MenuItem>
       )}
 

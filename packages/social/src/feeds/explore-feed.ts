@@ -9,14 +9,7 @@ import {
   createPaginatedResult,
   DEFAULT_PAGE_SIZE,
 } from '../utils/pagination';
-
-const authorSelect = {
-  id: true,
-  name: true,
-  username: true,
-  avatarUrl: true,
-  image: true,
-} as const;
+import { getPostInclude, mapPostWithAuthor } from '../posts/includes';
 
 /**
  * Get the explore feed - all public posts, sorted by recency
@@ -30,28 +23,7 @@ export async function getExploreFeed(
   const limit = params.limit ?? DEFAULT_PAGE_SIZE;
 
   const posts = await db.post.findMany({
-    include: {
-      author: { select: authorSelect },
-      _count: {
-        select: {
-          likes: true,
-          comments: true,
-          reposts: true,
-        },
-      },
-      likes: currentUserId
-        ? {
-            where: { userId: currentUserId },
-            take: 1,
-          }
-        : false,
-      reposts: currentUserId
-        ? {
-            where: { userId: currentUserId },
-            take: 1,
-          }
-        : false,
-    },
+    include: getPostInclude(currentUserId),
     orderBy: { createdAt: 'desc' },
     take,
     ...(cursor && {
@@ -60,13 +32,9 @@ export async function getExploreFeed(
     }),
   });
 
-  const items = posts.map((post) => ({
-    ...post,
-    isLiked: currentUserId ? post.likes.length > 0 : false,
-    isReposted: currentUserId ? post.reposts.length > 0 : false,
-    likes: undefined as unknown as never,
-    reposts: undefined as unknown as never,
-  })) as PostWithAuthor[];
+  const items = posts.map((post) =>
+    mapPostWithAuthor(post, currentUserId)
+  ) as PostWithAuthor[];
 
   return createPaginatedResult(items, limit);
 }
@@ -89,28 +57,7 @@ export async function getTrendingPosts(
     where: {
       createdAt: { gte: sevenDaysAgo },
     },
-    include: {
-      author: { select: authorSelect },
-      _count: {
-        select: {
-          likes: true,
-          comments: true,
-          reposts: true,
-        },
-      },
-      likes: currentUserId
-        ? {
-            where: { userId: currentUserId },
-            take: 1,
-          }
-        : false,
-      reposts: currentUserId
-        ? {
-            where: { userId: currentUserId },
-            take: 1,
-          }
-        : false,
-    },
+    include: getPostInclude(currentUserId),
     orderBy: [
       {
         likes: {
@@ -131,13 +78,9 @@ export async function getTrendingPosts(
     }),
   });
 
-  const items = posts.map((post) => ({
-    ...post,
-    isLiked: currentUserId ? post.likes.length > 0 : false,
-    isReposted: currentUserId ? post.reposts.length > 0 : false,
-    likes: undefined as unknown as never,
-    reposts: undefined as unknown as never,
-  })) as PostWithAuthor[];
+  const items = posts.map((post) =>
+    mapPostWithAuthor(post, currentUserId)
+  ) as PostWithAuthor[];
 
   return createPaginatedResult(items, limit);
 }

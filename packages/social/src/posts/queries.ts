@@ -11,13 +11,11 @@ import {
 } from '../utils/pagination';
 import { NotFoundError } from '../utils/errors';
 
-const authorSelect = {
-  id: true,
-  name: true,
-  username: true,
-  avatarUrl: true,
-  image: true,
-} as const;
+import {
+  authorSelect,
+  reviewSubjectSelect,
+  mapPostWithAuthor,
+} from './includes';
 
 export async function getPostById(
   postId: string,
@@ -27,6 +25,7 @@ export async function getPostById(
     where: { id: postId },
     include: {
       author: { select: authorSelect },
+      reviewSubject: { select: reviewSubjectSelect },
       _count: {
         select: {
           likes: true,
@@ -53,13 +52,7 @@ export async function getPostById(
     throw new NotFoundError('Post');
   }
 
-  return {
-    ...post,
-    isLiked: currentUserId ? post.likes.length > 0 : false,
-    isReposted: currentUserId ? post.reposts.length > 0 : false,
-    likes: undefined as unknown as never, // Remove likes array from response
-    reposts: undefined as unknown as never,
-  } as PostWithAuthor;
+  return mapPostWithAuthor(post, currentUserId) as PostWithAuthor;
 }
 
 export async function getPostsByAuthor(
@@ -74,6 +67,7 @@ export async function getPostsByAuthor(
     where: { authorId },
     include: {
       author: { select: authorSelect },
+      reviewSubject: { select: reviewSubjectSelect },
       _count: {
         select: {
           likes: true,
@@ -102,13 +96,9 @@ export async function getPostsByAuthor(
     }),
   });
 
-  const items = posts.map((post) => ({
-    ...post,
-    isLiked: currentUserId ? post.likes.length > 0 : false,
-    isReposted: currentUserId ? post.reposts.length > 0 : false,
-    likes: undefined as unknown as never,
-    reposts: undefined as unknown as never,
-  })) as PostWithAuthor[];
+  const items = posts.map((post) =>
+    mapPostWithAuthor(post, currentUserId)
+  ) as PostWithAuthor[];
 
   return createPaginatedResult(items, limit);
 }

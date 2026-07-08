@@ -9,6 +9,22 @@
 * 🟢 You can import this file directly.
 */
 
+export const PostType = {
+  POST: 'POST',
+  REVIEW: 'REVIEW'
+} as const
+
+export type PostType = (typeof PostType)[keyof typeof PostType]
+
+
+export const ReviewSubjectType = {
+  RELEASE: 'RELEASE',
+  TRACK: 'TRACK'
+} as const
+
+export type ReviewSubjectType = (typeof ReviewSubjectType)[keyof typeof ReviewSubjectType]
+
+
 export const MentionType = {
   USER: 'USER',
   ARTIST: 'ARTIST',
@@ -21,6 +37,7 @@ export type MentionType = (typeof MentionType)[keyof typeof MentionType]
 
 export const ActivityType = {
   POST_CREATED: 'POST_CREATED',
+  REVIEW_CREATED: 'REVIEW_CREATED',
   POST_LIKED: 'POST_LIKED',
   POST_REPOSTED: 'POST_REPOSTED',
   COMMENT_CREATED: 'COMMENT_CREATED',

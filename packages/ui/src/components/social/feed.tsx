@@ -87,6 +87,11 @@ export interface FeedProps {
   isSubmittingReply?: boolean;
   /** Called when a comment is deleted */
   onDeleteComment?: (postId: string, commentId: string) => void;
+  /** Optional custom post card renderer (e.g. ReviewCard) */
+  renderPostCard?: (
+    post: PostCardProps,
+    defaultCard: React.ReactElement
+  ) => React.ReactNode;
 }
 
 function PostSkeleton() {
@@ -146,11 +151,12 @@ export function Feed({
   replyingToCommentId,
   isSubmittingReply = false,
   onDeleteComment,
+  renderPostCard,
 }: FeedProps) {
   return (
     <div className={cn('space-y-4', className)}>
-      {posts.map((post, i) => (
-        <Reveal key={post.id} index={i}>
+      {posts.map((post, i) => {
+        const card = (
           <PostCard
             {...post}
             isOwner={currentUserId === post.author.id}
@@ -180,7 +186,6 @@ export function Feed({
             renderArtistMention={renderArtistMention}
             onMentionQuery={onMentionQuery}
             onArtistMentionQuery={onArtistMentionQuery}
-            // Inline comments props
             currentUser={currentUser}
             isSubmittingComment={submittingCommentPostId === post.id}
             onCreateComment={
@@ -231,8 +236,14 @@ export function Feed({
             showComments
             comments={post.comments}
           />
-        </Reveal>
-      ))}
+        );
+
+        return (
+          <Reveal key={post.id} index={i}>
+            {renderPostCard ? renderPostCard(post, card) : card}
+          </Reveal>
+        );
+      })}
 
       {isLoading && (
         <>

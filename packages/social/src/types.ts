@@ -52,6 +52,21 @@ export interface UpdateProfileInput {
 }
 
 // Post types
+export interface ReviewSubjectSummary {
+  id: string;
+  postId: string;
+  type: 'RELEASE' | 'TRACK';
+  gtin: string | null;
+  isrc: string | null;
+  mbid: string | null;
+  title: string;
+  artistLabel: string | null;
+  artworkUrl: string | null;
+  releaseDate: string | null;
+  snapshot: unknown;
+  createdAt: Date;
+}
+
 export interface PostWithAuthor extends Post {
   author: Pick<User, 'id' | 'name' | 'username' | 'avatarUrl' | 'image'>;
   _count: {
@@ -63,6 +78,7 @@ export interface PostWithAuthor extends Post {
   isReposted?: boolean;
   /** Recent comments for inline display (optional, not always included) */
   comments?: CommentWithAuthor[];
+  reviewSubject?: ReviewSubjectSummary | null;
 }
 
 export interface CreatePostInput {
@@ -73,6 +89,27 @@ export interface CreatePostInput {
 export interface UpdatePostInput {
   content: string;
   contentHtml?: string;
+}
+
+export interface CreateReviewSubjectInput {
+  type: 'RELEASE' | 'TRACK';
+  gtin?: string;
+  isrc?: string;
+  mbid?: string;
+  snapshot: unknown;
+  artworkUrl?: string;
+}
+
+export interface CreateReviewInput {
+  content: string;
+  contentHtml?: string;
+  subject: CreateReviewSubjectInput;
+}
+
+export interface UpdateReviewInput {
+  content: string;
+  contentHtml?: string;
+  subject?: CreateReviewSubjectInput;
 }
 
 // Comment types
@@ -182,4 +219,6 @@ export type {
   ConversationParticipant,
   Message,
   User,
-};
+  PostType,
+  ReviewSubjectType,
+} from '@scilent-one/db';

@@ -235,11 +235,10 @@ export function getProvidersWithCredentials(): Set<string> {
  */
 export async function getHarmonizationEngine(): Promise<HarmonizationEngine> {
   if (!engine) {
-    // Always fetch DB settings when creating a new engine
     const dbSettings = await fetchProviderSettingsFromDb();
     engine = new HarmonizationEngine({
       providers: buildProviderConfig(dbSettings),
-      // redis: null, // Add Redis connection for production caching
+      redis: null,
     });
   }
   return engine;

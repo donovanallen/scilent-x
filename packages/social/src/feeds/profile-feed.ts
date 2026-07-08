@@ -10,13 +10,11 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '../utils/pagination';
 
-const authorSelect = {
-  id: true,
-  name: true,
-  username: true,
-  avatarUrl: true,
-  image: true,
-} as const;
+import {
+  getPostInclude,
+  mapPostWithAuthor,
+  authorSelect,
+} from '../posts/includes';
 
 /**
  * Get posts for a user's profile page
@@ -31,28 +29,7 @@ export async function getProfileFeed(
 
   const posts = await db.post.findMany({
     where: { authorId: userId },
-    include: {
-      author: { select: authorSelect },
-      _count: {
-        select: {
-          likes: true,
-          comments: true,
-          reposts: true,
-        },
-      },
-      likes: currentUserId
-        ? {
-            where: { userId: currentUserId },
-            take: 1,
-          }
-        : false,
-      reposts: currentUserId
-        ? {
-            where: { userId: currentUserId },
-            take: 1,
-          }
-        : false,
-    },
+    include: getPostInclude(currentUserId),
     orderBy: { createdAt: 'desc' },
     take,
     ...(cursor && {
@@ -61,13 +38,9 @@ export async function getProfileFeed(
     }),
   });
 
-  const items = posts.map((post) => ({
-    ...post,
-    isLiked: currentUserId ? post.likes.length > 0 : false,
-    isReposted: currentUserId ? post.reposts.length > 0 : false,
-    likes: undefined as unknown as never,
-    reposts: undefined as unknown as never,
-  })) as PostWithAuthor[];
+  const items = posts.map((post) =>
+    mapPostWithAuthor(post, currentUserId)
+  ) as PostWithAuthor[];
 
   return createPaginatedResult(items, limit);
 }

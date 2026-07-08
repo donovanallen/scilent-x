@@ -1,13 +1,15 @@
 'use client';
 
-import { ArtistMention } from '@scilent-one/scilent-ui';
+import { ArtistMention, ReviewCard } from '@scilent-one/scilent-ui';
 import {
   Feed,
   PostForm,
+  Button,
   useInfiniteScroll,
   type PostCardProps,
 } from '@scilent-one/ui';
 import { useTransitionRouter } from 'next-view-transitions';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import useSWR from 'swr';
@@ -34,6 +36,16 @@ interface FeedComment {
 }
 
 interface FeedPost extends PostCardProps {
+  type?: 'POST' | 'REVIEW';
+  reviewSubject?: {
+    type: 'RELEASE' | 'TRACK';
+    title: string;
+    artistLabel: string | null;
+    artworkUrl: string | null;
+    releaseDate: string | null;
+    gtin: string | null;
+    isrc: string | null;
+  } | null;
   _count?: {
     likes: number;
     comments: number;
@@ -591,18 +603,24 @@ export default function FeedPage() {
 
   return (
     <div className='flex flex-col h-full min-h-0 space-y-6'>
-      {currentUser && (
-        <PostForm
-          user={{
-            name: currentUser.name,
-            image: currentUser.image,
-          }}
-          onSubmit={handleCreatePost}
-          isSubmitting={isSubmitting}
-          onMentionQuery={searchUsers}
-          onArtistMentionQuery={searchArtists}
-        />
-      )}
+      <div className='flex items-center justify-between gap-3'>
+        {currentUser ? (
+          <PostForm
+            user={{
+              name: currentUser.name,
+              image: currentUser.image,
+            }}
+            onSubmit={handleCreatePost}
+            isSubmitting={isSubmitting}
+            onMentionQuery={searchUsers}
+            onArtistMentionQuery={searchArtists}
+            className='flex-1'
+          />
+        ) : null}
+        <Button asChild variant='outline' size='sm' className='shrink-0'>
+          <Link href='/reviews/new'>Write review</Link>
+        </Button>
+      </div>
 
       <Feed
         posts={posts.map((post) => ({
@@ -611,6 +629,29 @@ export default function FeedPage() {
           commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
           repostsCount: post._count?.reposts ?? post.repostsCount ?? 0,
         }))}
+        renderPostCard={(post, card) => {
+          const feedPost = posts.find((item) => item.id === post.id);
+          if (feedPost?.type === 'REVIEW' && feedPost.reviewSubject) {
+            return (
+              <ReviewCard
+                {...post}
+                reviewSubject={feedPost.reviewSubject}
+                onSubjectClick={() => {
+                  if (feedPost.reviewSubject?.gtin) {
+                    router.push(
+                      `/releases/${feedPost.reviewSubject.gtin}/reviews`
+                    );
+                  } else if (feedPost.reviewSubject?.isrc) {
+                    router.push(
+                      `/tracks/${feedPost.reviewSubject.isrc}/reviews`
+                    );
+                  }
+                }}
+              />
+            );
+          }
+          return card;
+        }}
         currentUserId={currentUser?.id}
         isLoading={isFeedLoading}
         hasMore={hasMore}

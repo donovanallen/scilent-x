@@ -145,6 +145,21 @@ export {
   type AlbumDetailsProps,
 } from './components/album';
 
+// Review components
+export {
+  MusicSubjectPicker,
+  ReviewSubjectPreview,
+  ReviewComposer,
+  ReviewCard,
+  type MusicSubjectPickerProps,
+  type SelectedMusicSubject,
+  type MusicPickerType,
+  type ReviewSubjectPreviewProps,
+  type ReviewComposerProps,
+  type ReviewCardProps,
+  type ReviewSubjectDisplay,
+} from './components/review';
+
 // Interactions
 export {
   // Provider

@@ -56,6 +56,7 @@ export const ModelName = {
   Session: 'Session',
   Verification: 'Verification',
   Post: 'Post',
+  ReviewSubject: 'ReviewSubject',
   Repost: 'Repost',
   Comment: 'Comment',
   Like: 'Like',
@@ -150,12 +151,31 @@ export const PostScalarFieldEnum = {
   id: 'id',
   content: 'content',
   contentHtml: 'contentHtml',
+  type: 'type',
   authorId: 'authorId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
+
+
+export const ReviewSubjectScalarFieldEnum = {
+  id: 'id',
+  postId: 'postId',
+  type: 'type',
+  gtin: 'gtin',
+  isrc: 'isrc',
+  mbid: 'mbid',
+  title: 'title',
+  artistLabel: 'artistLabel',
+  artworkUrl: 'artworkUrl',
+  releaseDate: 'releaseDate',
+  snapshot: 'snapshot',
+  createdAt: 'createdAt'
+} as const
+
+export type ReviewSubjectScalarFieldEnum = (typeof ReviewSubjectScalarFieldEnum)[keyof typeof ReviewSubjectScalarFieldEnum]
 
 
 export const RepostScalarFieldEnum = {
@@ -284,6 +304,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -298,4 +325,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

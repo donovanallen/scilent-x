@@ -118,24 +118,66 @@ model Verification {
 // Social Models
 // ============================================================================
 
+/// Post type — regular post or music review
+enum PostType {
+  POST
+  REVIEW
+}
+
+/// Subject type for a review attachment
+enum ReviewSubjectType {
+  RELEASE
+  TRACK
+}
+
 /// Post model - User-created content
 model Post {
   id          String   @id @default(cuid())
   content     String   @db.Text
   contentHtml String?  @db.Text
+  type        PostType @default(POST)
   authorId    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  comments  Comment[]
-  likes     Like[]
-  reposts   Repost[]
-  mentions  Mention[]
+  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments      Comment[]
+  likes         Like[]
+  reposts       Repost[]
+  mentions      Mention[]
+  reviewSubject ReviewSubject?
 
   @@index([authorId])
   @@index([createdAt])
+  @@index([type])
   @@map("posts")
+}
+
+/// Music entity attached to a review post
+model ReviewSubject {
+  id          String            @id @default(cuid())
+  postId      String            @unique
+  type        ReviewSubjectType
+  /// Canonical identity for dedup and entity pages
+  gtin        String?
+  isrc        String?
+  mbid        String?
+  /// Denormalized display fallback
+  title       String
+  artistLabel String?
+  artworkUrl  String?
+  releaseDate String?
+  /// Full harmonized snapshot (HarmonizedRelease | HarmonizedTrack)
+  snapshot    Json
+  createdAt   DateTime          @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([gtin])
+  @@index([isrc])
+  @@index([mbid])
+  @@index([type])
+  @@map("review_subjects")
 }
 
 /// Repost model - Reposts (reshares) of a post to a user's followers
@@ -256,6 +298,7 @@ model Mention {
 /// Activity type enum for the activity feed
 enum ActivityType {
   POST_CREATED
+  REVIEW_CREATED
   POST_LIKED
   POST_REPOSTED
   COMMENT_CREATED
