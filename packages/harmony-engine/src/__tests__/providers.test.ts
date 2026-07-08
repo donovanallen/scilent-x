@@ -1156,6 +1156,54 @@ describe('ProviderRegistry', () => {
     });
   });
 
+  describe('priority resolution', () => {
+    it('uses the configured priority over the built-in default', () => {
+      const registry = new ProviderRegistry({
+        providers: {
+          spotify: {
+            enabled: true,
+            // Configured priority intentionally differs from Spotify's
+            // built-in default (80) to simulate an admin override.
+            priority: 200,
+            rateLimit: { requests: 10, windowMs: 1000 },
+            cache: { ttlSeconds: 3600 },
+            retry: {
+              retries: 3,
+              minTimeout: 500,
+              maxTimeout: 5000,
+              factor: 2,
+            },
+            clientId: 'test-client-id',
+            clientSecret: 'test-client-secret',
+          },
+          musicbrainz: {
+            enabled: true,
+            priority: 10,
+            rateLimit: { requests: 1, windowMs: 1000 },
+            cache: { ttlSeconds: 86400 },
+            retry: {
+              retries: 3,
+              minTimeout: 1000,
+              maxTimeout: 10000,
+              factor: 2,
+            },
+            appName: 'TestApp',
+            appVersion: '1.0.0',
+            contact: 'test@example.com',
+          },
+        },
+      });
+
+      expect(registry.get('spotify')?.priority).toBe(200);
+      expect(registry.get('musicbrainz')?.priority).toBe(10);
+
+      // Ordering reflects the configured priorities, not the class defaults
+      // (which would otherwise rank MusicBrainz above Spotify).
+      const ordered = registry.getByPriority();
+      expect(ordered.map((p) => p.name)).toEqual(['spotify', 'musicbrainz']);
+    });
+  });
+
   describe('with Apple Music enabled', () => {
     const registryConfig: ProviderRegistryConfig = {
       providers: {

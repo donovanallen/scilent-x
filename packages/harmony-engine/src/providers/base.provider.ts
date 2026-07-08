@@ -21,7 +21,26 @@ import { UserAuthNotSupportedError } from '../errors/index';
 export abstract class BaseProvider {
   abstract readonly name: string;
   abstract readonly displayName: string;
-  abstract readonly priority: number;
+
+  /**
+   * The provider's built-in default priority, used when no explicit priority is
+   * supplied via configuration (e.g. from the database). Higher values are
+   * queried first (see {@link ProviderRegistry.getByPriority}).
+   */
+  protected abstract readonly defaultPriority: number;
+
+  /**
+   * Effective priority for this provider instance.
+   *
+   * Resolves to the configured priority (which the web app derives from the
+   * `provider_settings` table, falling back to per-provider defaults) so that
+   * admin changes are actually reflected in lookup ordering and status
+   * reporting. Falls back to {@link defaultPriority} when config omits it.
+   */
+  get priority(): number {
+    const configured = this.config?.priority;
+    return typeof configured === 'number' ? configured : this.defaultPriority;
+  }
 
   /**
    * Whether this provider supports user-authenticated API calls.

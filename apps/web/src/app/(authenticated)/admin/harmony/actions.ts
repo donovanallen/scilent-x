@@ -9,6 +9,13 @@ import {
   type ProviderDbSetting,
 } from '@/lib/harmonization';
 
+import {
+  getDefaultPriority,
+  clampPriority,
+  MIN_PROVIDER_PRIORITY,
+  MAX_PROVIDER_PRIORITY,
+} from './provider-metadata';
+
 /**
  * List of known/supported provider names.
  * Used for validation to prevent arbitrary provider names in the database.
@@ -166,14 +173,27 @@ export async function updateProviderPriority(
       };
     }
 
+    // Validate the priority is a finite number within the allowed range.
+    if (!Number.isFinite(priority)) {
+      return { success: false, error: 'Priority must be a number' };
+    }
+
+    const normalized = clampPriority(priority);
+    if (normalized !== priority) {
+      return {
+        success: false,
+        error: `Priority must be a whole number between ${MIN_PROVIDER_PRIORITY} and ${MAX_PROVIDER_PRIORITY}`,
+      };
+    }
+
     // Upsert the setting in database
     await db.providerSetting.upsert({
       where: { providerName },
-      update: { priority },
+      update: { priority: normalized },
       create: {
         providerName,
         enabled: true,
-        priority,
+        priority: normalized,
       },
     });
 
@@ -192,22 +212,4 @@ export async function updateProviderPriority(
         error instanceof Error ? error.message : 'Failed to update priority',
     };
   }
-}
-
-/**
- * Get the default priority for a provider.
- */
-const DEFAULT_PROVIDER_PRIORITIES: Record<string, number> = {
-  musicbrainz: 100,
-  spotify: 80,
-  tidal: 75,
-  apple_music: 70,
-};
-
-const FALLBACK_PROVIDER_PRIORITY = 50;
-
-function getDefaultPriority(providerName: string): number {
-  return (
-    DEFAULT_PROVIDER_PRIORITIES[providerName] ?? FALLBACK_PROVIDER_PRIORITY
-  );
 }
