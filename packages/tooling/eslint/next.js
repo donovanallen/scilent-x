@@ -70,13 +70,13 @@ module.exports = [
       '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
       react: require('eslint-plugin-react'),
       'react-hooks': require('eslint-plugin-react-hooks'),
-      import: require('eslint-plugin-import'),
+      'import-x': require('eslint-plugin-import-x'),
     },
     settings: {
       react: {
         version: 'detect',
       },
-      'import/resolver': {
+      'import-x/resolver': {
         typescript: true,
         node: {
           extensions: ['.js', '.jsx', '.ts', '.tsx'],
@@ -89,7 +89,7 @@ module.exports = [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
-      'import/order': [
+      'import-x/order': [
         'error',
         {
           groups: [
@@ -104,8 +104,8 @@ module.exports = [
           alphabetize: { order: 'asc', caseInsensitive: true },
         },
       ],
-      'import/no-duplicates': 'error',
-      // 'import/no-unresolved': 'off',
+      'import-x/no-duplicates': 'error',
+      // 'import-x/no-unresolved': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
 
       // Disable conflicting rules
