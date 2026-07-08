@@ -1039,6 +1039,158 @@ describe('AppleMusicProvider', () => {
       expect(result.hasMore).toBe(false);
       expect(result.nextCursor).toBeNull();
     });
+
+    it('getPlaylists returns library playlists with pagination', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          data: [
+            {
+              id: 'p.abc123',
+              type: 'library-playlists',
+              attributes: {
+                name: 'Chill Vibes',
+                description: { standard: 'Relaxing tracks' },
+                isPublic: true,
+                canEdit: true,
+                hasCatalog: true,
+                artwork: {
+                  url: 'https://example.com/{w}x{h}bb.jpg',
+                  width: 1000,
+                  height: 1000,
+                },
+                playParams: {
+                  id: 'p.abc123',
+                  kind: 'playlist',
+                  isLibrary: true,
+                  globalId: 'pl.global123',
+                },
+              },
+            },
+            {
+              id: 'p.def456',
+              type: 'library-playlists',
+              attributes: { name: 'Private Mix', isPublic: false },
+            },
+          ],
+          meta: { total: 2 },
+          next: '/v1/me/library/playlists?offset=25',
+        })
+      );
+
+      const result = await provider.getPlaylists('music-user-token-123', {
+        limit: 25,
+      });
+
+      expect(result.items).toHaveLength(2);
+      expect(result.items[0]).toMatchObject({
+        name: 'Chill Vibes',
+        description: 'Relaxing tracks',
+        isPublic: true,
+        externalIds: {
+          apple_music: 'p.abc123',
+          apple_music_catalog: 'pl.global123',
+        },
+      });
+      expect(result.items[0]?.artwork?.[0]?.url).toBe(
+        'https://example.com/1000x1000bb.jpg'
+      );
+      expect(result.items[1]).toMatchObject({
+        name: 'Private Mix',
+        isPublic: false,
+      });
+      expect(result.total).toBe(2);
+      expect(result.hasMore).toBe(true);
+      expect(result.nextCursor).toBe('25');
+
+      const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(url).toContain('/v1/me/library/playlists');
+      const headers = init.headers as Record<string, string>;
+      expect(headers['Music-User-Token']).toBe('music-user-token-123');
+    });
+
+    it('getPlaylists filters to public playlists when publicOnly is set', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          data: [
+            {
+              id: 'p.abc123',
+              type: 'library-playlists',
+              attributes: { name: 'Chill Vibes', isPublic: true },
+            },
+            {
+              id: 'p.def456',
+              type: 'library-playlists',
+              attributes: { name: 'Private Mix', isPublic: false },
+            },
+          ],
+        })
+      );
+
+      const result = await provider.getPlaylists('music-user-token-123', {
+        publicOnly: true,
+      });
+
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0]?.name).toBe('Chill Vibes');
+    });
+
+    it('getPlaylists returns an empty collection when the library has no playlists', async () => {
+      mockFetch.mockResolvedValueOnce(jsonResponse({ data: [] }));
+
+      const result = await provider.getPlaylists('music-user-token-123');
+      expect(result.items).toEqual([]);
+      expect(result.hasMore).toBe(false);
+      expect(result.nextCursor).toBeNull();
+    });
+
+    it('getRecentlyPlayed returns recently played tracks, capped at a limit of 10', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          data: [
+            {
+              id: '1440783625',
+              type: 'songs',
+              attributes: {
+                name: 'Delicate',
+                artistName: 'Taylor Swift',
+                isrc: 'USUM71703861',
+                trackNumber: 5,
+                discNumber: 1,
+              },
+            },
+          ],
+          next: '/v1/me/recent/played/tracks?offset=10',
+        })
+      );
+
+      const result = await provider.getRecentlyPlayed('music-user-token-123', {
+        limit: 50,
+      });
+
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0]?.provider).toBe('apple_music');
+      expect(result.items[0]?.track.title).toBe('Delicate');
+      expect(result.items[0]?.playedAt).toBeUndefined();
+      expect(result.hasMore).toBe(true);
+      expect(result.nextCursor).toBe('10');
+
+      const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(url).toContain('/v1/me/recent/played/tracks');
+      // Apple caps this endpoint at 10 items per request regardless of the
+      // requested limit.
+      expect(url).toContain('limit=10');
+      const headers = init.headers as Record<string, string>;
+      expect(headers['Music-User-Token']).toBe('music-user-token-123');
+    });
+
+    it('getRecentlyPlayed returns an empty collection when there is no history', async () => {
+      mockFetch.mockResolvedValueOnce(jsonResponse({ data: [] }));
+
+      const result = await provider.getRecentlyPlayed('music-user-token-123');
+      expect(result.items).toEqual([]);
+      expect(result.hasMore).toBe(false);
+      expect(result.nextCursor).toBeNull();
+    });
   });
 });
 

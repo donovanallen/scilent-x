@@ -4,6 +4,8 @@ import {
   PlatformProfileCard,
   type PlatformProfile,
   type FollowedArtistsData,
+  type PlaylistsData,
+  type RecentTracksData,
   type ProfileError,
 } from '@scilent-one/scilent-ui';
 import { useEffect, useState } from 'react';
@@ -13,8 +15,12 @@ import { connectAppleMusic } from '@/lib/musickit';
 import {
   getProviderProfile,
   getFollowedArtists,
+  getPlaylists,
+  getRecentlyPlayed,
   type ProviderProfileResult,
   type FollowedArtistsResult,
+  type PlaylistsResult,
+  type RecentlyPlayedResult,
 } from '../actions';
 
 interface AppleMusicProfileCardProps {
@@ -29,6 +35,10 @@ export function AppleMusicProfileCard({
   const [result, setResult] = useState<ProviderProfileResult | null>(null);
   const [artistsResult, setArtistsResult] =
     useState<FollowedArtistsResult | null>(null);
+  const [playlistsResult, setPlaylistsResult] =
+    useState<PlaylistsResult | null>(null);
+  const [recentlyPlayedResult, setRecentlyPlayedResult] =
+    useState<RecentlyPlayedResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isReconnecting, setIsReconnecting] = useState(false);
 
@@ -45,15 +55,21 @@ export function AppleMusicProfileCard({
       }
 
       try {
-        // Fetch profile and library artists in parallel
-        const [profileData, artistsData] = await Promise.all([
-          getProviderProfile(userId, 'apple_music'),
-          getFollowedArtists(userId, 'apple_music', 5), // First 5 for preview
-        ]);
+        // Fetch profile, library artists, playlists, and recent listen
+        // history in parallel.
+        const [profileData, artistsData, playlistsData, recentlyPlayedData] =
+          await Promise.all([
+            getProviderProfile(userId, 'apple_music'),
+            getFollowedArtists(userId, 'apple_music', 5), // First 5 for preview
+            getPlaylists(userId, 'apple_music', 5), // First 5 for preview
+            getRecentlyPlayed(userId, 'apple_music', 5), // Last 5 tracks
+          ]);
 
         if (!isCancelled) {
           setResult(profileData);
           setArtistsResult(artistsData);
+          setPlaylistsResult(playlistsData);
+          setRecentlyPlayedResult(recentlyPlayedData);
         }
       } catch (error) {
         console.error('Failed to fetch Apple Music profile:', error);
@@ -124,6 +140,41 @@ export function AppleMusicProfileCard({
         }
       : null;
 
+  const playlists: PlaylistsData | null =
+    playlistsResult?.success && playlistsResult.playlists
+      ? {
+          playlists: playlistsResult.playlists.map((playlist) => {
+            const id = playlist.externalIds.apple_music as string | undefined;
+            return {
+              name: playlist.name,
+              isPublic: playlist.isPublic ?? false,
+              ...(id ? { id } : {}),
+              ...(playlist.trackCount !== undefined
+                ? { trackCount: playlist.trackCount }
+                : {}),
+            };
+          }),
+          total: playlistsResult.total ?? 0,
+          hasMore: playlistsResult.hasMore ?? false,
+        }
+      : null;
+
+  const recentTracks: RecentTracksData | null =
+    recentlyPlayedResult?.success && recentlyPlayedResult.items
+      ? {
+          tracks: recentlyPlayedResult.items.map((item) => {
+            const artistName = item.track.artists[0]?.name;
+            const id = item.track.externalIds.apple_music;
+            return {
+              title: item.track.title,
+              ...(artistName ? { artistName } : {}),
+              ...(id ? { id } : {}),
+            };
+          }),
+          hasMore: recentlyPlayedResult.hasMore ?? false,
+        }
+      : null;
+
   const error: ProfileError | null =
     !result?.success && result
       ? {
@@ -137,6 +188,8 @@ export function AppleMusicProfileCard({
       platform='apple_music'
       profile={profile}
       followedArtists={followedArtists}
+      playlists={playlists}
+      recentTracks={recentTracks}
       error={error}
       isLoading={isLoading}
       isReconnecting={isReconnecting}

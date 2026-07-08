@@ -50,6 +50,10 @@ export {
   type SubscriptionInfo,
   type FollowedArtist,
   type FollowedArtistsData,
+  type PlaylistSummary,
+  type PlaylistsData,
+  type RecentTrack,
+  type RecentTracksData,
   type ProfileError,
 } from './PlatformProfileCard';
 

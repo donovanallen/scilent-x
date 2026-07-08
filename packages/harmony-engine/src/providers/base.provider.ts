@@ -3,9 +3,12 @@ import type {
   HarmonizedTrack,
   HarmonizedArtist,
   HarmonizedUserProfile,
+  HarmonizedPlaylist,
+  HarmonizedListenHistoryItem,
   ProviderSource,
   PaginatedCollection,
   CollectionParams,
+  PlaylistCollectionParams,
 } from '../types/index';
 import type {
   ProviderConfig,
@@ -255,6 +258,67 @@ export abstract class BaseProvider {
   ): Promise<PaginatedCollection<HarmonizedArtist>> {
     return this.withRateLimitAndRetry(() =>
       this._getFollowedArtists(accessToken, params)
+    );
+  }
+
+  /**
+   * Get the user's playlists from the provider.
+   * Override this method in providers that support user playlists.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @param params - Pagination parameters (limit, cursor), plus `publicOnly`
+   *   to filter to publicly shared playlists (see {@link PlaylistCollectionParams}).
+   * @throws UserAuthNotSupportedError if the provider doesn't support user auth
+   */
+  protected async _getPlaylists(
+    _accessToken: string,
+    _params?: PlaylistCollectionParams
+  ): Promise<PaginatedCollection<HarmonizedPlaylist>> {
+    throw new UserAuthNotSupportedError(this.name);
+  }
+
+  /**
+   * Get the user's playlists from the provider.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @param params - Pagination parameters (limit, cursor, publicOnly)
+   * @returns Paginated list of harmonized playlists
+   * @throws UserAuthNotSupportedError if the provider doesn't support user auth
+   */
+  async getPlaylists(
+    accessToken: string,
+    params?: PlaylistCollectionParams
+  ): Promise<PaginatedCollection<HarmonizedPlaylist>> {
+    return this.withRateLimitAndRetry(() =>
+      this._getPlaylists(accessToken, params)
+    );
+  }
+
+  /**
+   * Get the user's recent listen history from the provider.
+   * Override this method in providers that support recently-played history.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @param params - Pagination parameters (limit, cursor)
+   * @throws UserAuthNotSupportedError if the provider doesn't support user auth
+   */
+  protected async _getRecentlyPlayed(
+    _accessToken: string,
+    _params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedListenHistoryItem>> {
+    throw new UserAuthNotSupportedError(this.name);
+  }
+
+  /**
+   * Get the user's recent listen history from the provider.
+   * @param accessToken - The user's OAuth access token from the connected account
+   * @param params - Pagination parameters (limit, cursor)
+   * @returns Paginated list of recently played tracks, most recent first
+   * @throws UserAuthNotSupportedError if the provider doesn't support user auth
+   */
+  async getRecentlyPlayed(
+    accessToken: string,
+    params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedListenHistoryItem>> {
+    return this.withRateLimitAndRetry(() =>
+      this._getRecentlyPlayed(accessToken, params)
     );
   }
 

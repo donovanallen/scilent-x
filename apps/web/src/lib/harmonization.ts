@@ -6,9 +6,12 @@ import {
   SpotifyProvider,
   AppleMusicProvider,
   type HarmonizedArtist,
+  type HarmonizedPlaylist,
+  type HarmonizedListenHistoryItem,
   type ProviderRegistryConfig,
   type PaginatedCollection,
   type CollectionParams,
+  type PlaylistCollectionParams,
 } from '@scilent-one/harmony-engine';
 
 // Singleton instance
@@ -340,4 +343,63 @@ export async function getFollowedArtistsFromProvider(
   }
 
   throw new Error(`Provider '${providerId}' does not support followed artists`);
+}
+
+/**
+ * Get a user's playlists from their connected provider's library.
+ * Currently supports Apple Music (library playlists), with more providers to
+ * be added.
+ *
+ * @param accessToken - The user's OAuth access token (or Music User Token) for the provider
+ * @param providerId - The provider identifier (e.g., 'apple_music')
+ * @param params - Pagination parameters (limit, cursor), plus `publicOnly` to
+ *   filter to publicly shared playlists
+ * @returns Paginated list of harmonized playlists
+ */
+export async function getPlaylistsFromProvider(
+  accessToken: string,
+  providerId: string,
+  params?: PlaylistCollectionParams
+): Promise<PaginatedCollection<HarmonizedPlaylist>> {
+  const engine = await getHarmonizationEngine();
+  const normalizedProvider = providerId.toLowerCase();
+
+  if (normalizedProvider === 'apple_music') {
+    const provider = engine.getProvider('apple_music');
+    if (provider instanceof AppleMusicProvider) {
+      return provider.getPlaylists(accessToken, params);
+    }
+  }
+
+  throw new Error(`Provider '${providerId}' does not support playlists`);
+}
+
+/**
+ * Get a user's recent listen history from their connected provider.
+ * Currently supports Apple Music (recently played tracks), with more
+ * providers to be added.
+ *
+ * @param accessToken - The user's OAuth access token (or Music User Token) for the provider
+ * @param providerId - The provider identifier (e.g., 'apple_music')
+ * @param params - Pagination parameters (limit, cursor)
+ * @returns Paginated list of recently played tracks, most recent first
+ */
+export async function getRecentlyPlayedFromProvider(
+  accessToken: string,
+  providerId: string,
+  params?: CollectionParams
+): Promise<PaginatedCollection<HarmonizedListenHistoryItem>> {
+  const engine = await getHarmonizationEngine();
+  const normalizedProvider = providerId.toLowerCase();
+
+  if (normalizedProvider === 'apple_music') {
+    const provider = engine.getProvider('apple_music');
+    if (provider instanceof AppleMusicProvider) {
+      return provider.getRecentlyPlayed(accessToken, params);
+    }
+  }
+
+  throw new Error(
+    `Provider '${providerId}' does not support recent listen history`
+  );
 }

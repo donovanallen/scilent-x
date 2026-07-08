@@ -5,6 +5,8 @@ import {
   PlatformProfileCardSkeleton,
   type PlatformProfile,
   type FollowedArtistsData,
+  type PlaylistsData,
+  type RecentTracksData,
 } from './PlatformProfileCard';
 
 const sampleProfile: PlatformProfile = {
@@ -28,6 +30,25 @@ const sampleFollowedArtists: FollowedArtistsData = {
     { id: '5', name: 'Massive Attack' },
   ],
   total: 127,
+  hasMore: true,
+};
+
+const samplePlaylists: PlaylistsData = {
+  playlists: [
+    { id: 'p1', name: 'Chill Vibes', isPublic: true, trackCount: 42 },
+    { id: 'p2', name: 'Workout Mix', isPublic: true, trackCount: 30 },
+    { id: 'p3', name: 'Private Mix', isPublic: false, trackCount: 12 },
+  ],
+  total: 8,
+  hasMore: true,
+};
+
+const sampleRecentTracks: RecentTracksData = {
+  tracks: [
+    { id: 't1', title: 'Idioteque', artistName: 'Radiohead' },
+    { id: 't2', title: 'Windowlicker', artistName: 'Aphex Twin' },
+    { id: 't3', title: 'Roads', artistName: 'Portishead' },
+  ],
   hasMore: true,
 };
 
@@ -88,6 +109,29 @@ export const WithFollowedArtists: Story = {
   args: {
     profile: sampleProfile,
     followedArtists: sampleFollowedArtists,
+  },
+};
+
+export const WithPlaylists: Story = {
+  args: {
+    profile: sampleProfile,
+    playlists: samplePlaylists,
+  },
+};
+
+export const WithRecentlyPlayed: Story = {
+  args: {
+    profile: sampleProfile,
+    recentTracks: sampleRecentTracks,
+  },
+};
+
+export const WithAllSections: Story = {
+  args: {
+    profile: sampleProfile,
+    followedArtists: sampleFollowedArtists,
+    playlists: samplePlaylists,
+    recentTracks: sampleRecentTracks,
   },
 };
 
@@ -169,6 +213,19 @@ export const AppleMusic: Story = {
       ...sampleProfile,
       subscription: { type: 'Individual' },
     },
+  },
+};
+
+export const AppleMusicWithLibrary: Story = {
+  args: {
+    platform: 'apple_music',
+    profile: {
+      ...sampleProfile,
+      subscription: { type: 'Individual' },
+    },
+    followedArtists: sampleFollowedArtists,
+    playlists: samplePlaylists,
+    recentTracks: sampleRecentTracks,
   },
 };
 

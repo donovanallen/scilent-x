@@ -11,10 +11,13 @@ import type {
   HarmonizedArtist,
   HarmonizedArtistCredit,
   HarmonizedUserProfile,
+  HarmonizedPlaylist,
+  HarmonizedListenHistoryItem,
   ReleaseType,
   PartialDate,
   PaginatedCollection,
   CollectionParams,
+  PlaylistCollectionParams,
 } from '../types/index';
 import { HttpError, ProviderError } from '../errors/index';
 
@@ -157,6 +160,43 @@ interface AppleMusicLibraryArtist {
 interface AppleMusicLibraryArtistsResponse {
   data: AppleMusicLibraryArtist[];
   meta?: { total?: number };
+  next?: string;
+}
+
+interface AppleMusicPlaylistAttributes {
+  name: string;
+  description?: { standard?: string; short?: string };
+  /** Whether the user has marked this library playlist public/shared. */
+  isPublic?: boolean;
+  canEdit?: boolean;
+  hasCatalog?: boolean;
+  artwork?: AppleMusicArtwork;
+  playParams?: {
+    id: string;
+    kind: string;
+    isLibrary?: boolean;
+    globalId?: string;
+  };
+}
+
+type AppleMusicLibraryPlaylist = AppleMusicResource<
+  'library-playlists',
+  AppleMusicPlaylistAttributes
+>;
+
+interface AppleMusicLibraryPlaylistsResponse {
+  data: AppleMusicLibraryPlaylist[];
+  meta?: { total?: number };
+  next?: string;
+}
+
+/**
+ * A single item from the "recently played tracks" endpoint. Apple documents
+ * this as returning `songs` resources, shaped like catalog songs.
+ * @see https://developer.apple.com/documentation/applemusicapi/get-v1-me-recent-played-tracks
+ */
+interface AppleMusicRecentlyPlayedTracksResponse {
+  data: AppleMusicSong[];
   next?: string;
 }
 
@@ -622,13 +662,7 @@ export class AppleMusicProvider extends BaseProvider {
       this.transformLibraryArtist(artist)
     );
 
-    // Apple returns a `next` path carrying the next offset when more exist.
-    let nextCursor: string | null = null;
-    if (data.next) {
-      const nextUrl = new URL(data.next, APPLE_MUSIC_API);
-      nextCursor = nextUrl.searchParams.get('offset');
-    }
-
+    const nextCursor = extractNextOffset(data.next);
     const result: PaginatedCollection<HarmonizedArtist> = {
       items,
       nextCursor,
@@ -638,6 +672,107 @@ export class AppleMusicProvider extends BaseProvider {
       result.total = data.meta.total;
     }
     return result;
+  }
+
+  /**
+   * Get the user's library playlists.
+   *
+   * Apple Music has no separate "public playlists" endpoint; a library
+   * playlist's `isPublic` attribute indicates whether the user has shared it.
+   * When `params.publicOnly` is set, playlists are filtered to `isPublic`
+   * ones client-side after fetching a page (see {@link PlaylistCollectionParams}
+   * for the pagination caveat this implies).
+   * @param accessToken - The user's Music User Token
+   * @param params - Pagination parameters (limit, cursor=offset), plus `publicOnly`
+   */
+  protected override async _getPlaylists(
+    accessToken: string,
+    params?: PlaylistCollectionParams
+  ): Promise<PaginatedCollection<HarmonizedPlaylist>> {
+    const limit = params?.limit ?? 25;
+    const queryParams: Record<string, string> = {
+      limit: String(Math.min(limit, 100)),
+    };
+    if (params?.cursor) {
+      queryParams['offset'] = params.cursor;
+    }
+
+    const data = await this.fetchUserApi<AppleMusicLibraryPlaylistsResponse>(
+      '/library/playlists',
+      accessToken,
+      queryParams
+    );
+
+    if (!data?.data?.length) {
+      return { items: [], total: 0, nextCursor: null, hasMore: false };
+    }
+
+    let items = data.data.map((playlist) =>
+      this.transformLibraryPlaylist(playlist)
+    );
+    if (params?.publicOnly) {
+      items = items.filter((playlist) => playlist.isPublic);
+    }
+
+    const nextCursor = extractNextOffset(data.next);
+    const result: PaginatedCollection<HarmonizedPlaylist> = {
+      items,
+      nextCursor,
+      hasMore: nextCursor !== null,
+    };
+    if (data.meta?.total !== undefined) {
+      result.total = data.meta.total;
+    }
+    return result;
+  }
+
+  /**
+   * Get the user's recently played tracks.
+   *
+   * Uses `/v1/me/recent/played/tracks`, which Apple caps at 10 items per
+   * request (unlike most other endpoints, which allow up to 100); use
+   * `params.cursor` (offset) to page through up to the last ~50 tracks Apple
+   * retains. No play timestamp is exposed, only recency order.
+   * @param accessToken - The user's Music User Token
+   * @param params - Pagination parameters (limit capped at 10, cursor=offset)
+   * @see https://developer.apple.com/documentation/applemusicapi/get-v1-me-recent-played-tracks
+   */
+  protected override async _getRecentlyPlayed(
+    accessToken: string,
+    params?: CollectionParams
+  ): Promise<PaginatedCollection<HarmonizedListenHistoryItem>> {
+    const limit = params?.limit ?? 10;
+    const queryParams: Record<string, string> = {
+      limit: String(Math.min(limit, 10)),
+    };
+    if (params?.cursor) {
+      queryParams['offset'] = params.cursor;
+    }
+
+    const data =
+      await this.fetchUserApi<AppleMusicRecentlyPlayedTracksResponse>(
+        '/recent/played/tracks',
+        accessToken,
+        queryParams
+      );
+
+    if (!data?.data?.length) {
+      return { items: [], nextCursor: null, hasMore: false };
+    }
+
+    const items: HarmonizedListenHistoryItem[] = data.data
+      .filter((song): song is AppleMusicSong => song.attributes !== undefined)
+      .map((song) => ({
+        track: this.transformTrack(
+          song,
+          song.attributes?.trackNumber ?? 1,
+          song.attributes?.discNumber
+        ),
+        provider: this.name,
+      }));
+
+    const nextCursor = extractNextOffset(data.next);
+    return { items, nextCursor, hasMore: nextCursor !== null };
   }
 
   // Transformation methods
@@ -775,6 +910,45 @@ export class AppleMusicProvider extends BaseProvider {
     };
   }
 
+  private transformLibraryPlaylist(
+    raw: AppleMusicLibraryPlaylist
+  ): HarmonizedPlaylist {
+    const attrs = raw.attributes;
+    const name = attrs?.name ?? '';
+
+    const artwork = attrs?.artwork
+      ? [
+          {
+            url: resolveArtworkUrl(attrs.artwork),
+            type: 'front' as const,
+            width: attrs.artwork.width,
+            height: attrs.artwork.height,
+            provider: this.name,
+          },
+        ]
+      : undefined;
+
+    const externalIds: Record<string, string> = { [this.name]: raw.id };
+    const globalId = attrs?.playParams?.globalId;
+    if (globalId) {
+      // The catalog-equivalent id, useful for looking up the public playlist
+      // via `/v1/catalog/{storefront}/playlists/{id}` when `hasCatalog` is true.
+      externalIds[`${this.name}_catalog`] = globalId;
+    }
+
+    return {
+      name,
+      nameNormalized: this.normalizeString(name),
+      description: attrs?.description?.standard,
+      isPublic: attrs?.isPublic ?? false,
+      artwork,
+      externalIds,
+      sources: [this.createSource(raw.id)],
+      mergedAt: new Date(),
+      confidence: 0.8,
+    };
+  }
+
   /**
    * Build artist credits, preferring the detailed `artists` relationship (which
    * carries stable IDs) and falling back to the `artistName` string that every
@@ -806,6 +980,17 @@ export class AppleMusicProvider extends BaseProvider {
 /** Base64url-encode a JSON object (JWT header/payload). */
 function base64UrlJson(value: Record<string, unknown>): string {
   return Buffer.from(JSON.stringify(value)).toString('base64url');
+}
+
+/**
+ * Extract the next page's `offset` from Apple's `next` path (e.g.
+ * `/v1/me/library/artists?offset=25`), as returned on paginated list
+ * endpoints. Returns `null` when there is no further page.
+ */
+function extractNextOffset(next: string | undefined): string | null {
+  if (!next) return null;
+  const nextUrl = new URL(next, APPLE_MUSIC_API);
+  return nextUrl.searchParams.get('offset');
 }
 
 /**
