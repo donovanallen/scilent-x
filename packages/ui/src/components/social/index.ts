@@ -2,7 +2,11 @@ export { UserAvatar, type UserAvatarProps } from './user-avatar';
 export { PostCard, type PostCardProps, type PostCardAuthor } from './post-card';
 export { PostForm, type PostFormProps } from './post-form';
 export { MentionText, type MentionTextProps } from './mention-text';
-export { CommentCard, type CommentCardProps, type CommentCardAuthor } from './comment-card';
+export {
+  CommentCard,
+  type CommentCardProps,
+  type CommentCardAuthor,
+} from './comment-card';
 export { CommentForm, type CommentFormProps } from './comment-form';
 export { CommentList, type CommentListProps } from './comment-list';
 export { FollowButton, type FollowButtonProps } from './follow-button';
@@ -18,3 +22,24 @@ export {
   PostCardComments,
   type PostCardCommentsProps,
 } from './post-card-comments';
+export {
+  ConversationListItem,
+  type ConversationListItemProps,
+  type ConversationListItemParticipant,
+  type ConversationListItemLastMessage,
+} from './conversation-list-item';
+export {
+  ConversationList,
+  type ConversationListProps,
+} from './conversation-list';
+export {
+  MessageBubble,
+  type MessageBubbleProps,
+  type MessageBubbleSender,
+} from './message-bubble';
+export {
+  MessageThread,
+  type MessageThreadProps,
+  type MessageThreadMessage,
+} from './message-thread';
+export { MessageComposer, type MessageComposerProps } from './message-composer';

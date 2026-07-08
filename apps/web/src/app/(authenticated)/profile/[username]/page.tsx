@@ -34,6 +34,7 @@ interface UserProfile {
   email: string;
   createdAt: string;
   isFollowing?: boolean | undefined;
+  canMessage?: boolean | undefined;
   _count?:
     | {
         posts: number;
@@ -225,6 +226,24 @@ export default function PublicProfilePage({
       toast.error('Failed to unfollow user');
     } finally {
       setIsFollowLoading(false);
+    }
+  };
+
+  const handleMessage = async () => {
+    if (!profile) return;
+    try {
+      const res = await fetch('/api/v1/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipientId: profile.id }),
+      });
+      if (!res.ok) throw new Error('Failed to start conversation');
+
+      const conversation = await res.json();
+      router.push(`/messages/${conversation.id}`);
+    } catch (error) {
+      console.error('Failed to start conversation:', error);
+      toast.error('Failed to start conversation');
     }
   };
 
@@ -524,8 +543,10 @@ export default function PublicProfilePage({
           isFollowing={profile.isFollowing}
           isCurrentUser={false}
           isLoading={isFollowLoading}
+          canMessage={profile.canMessage}
           onFollow={handleFollow}
           onUnfollow={handleUnfollow}
+          onMessage={() => void handleMessage()}
           onFollowersClick={() => router.push(`/profile/${username}/followers`)}
           onFollowingClick={() => router.push(`/profile/${username}/following`)}
         />

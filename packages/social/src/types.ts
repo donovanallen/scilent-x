@@ -6,6 +6,9 @@ import type {
   Follow,
   Mention,
   Activity,
+  Conversation,
+  ConversationParticipant,
+  Message,
   User,
 } from '@scilent-one/db';
 
@@ -37,6 +40,8 @@ export interface UserProfile {
     following: number;
   };
   isFollowing?: boolean;
+  /** Whether the viewer and this user mutually follow each other (required to start a DM) */
+  canMessage?: boolean | undefined;
 }
 
 export interface UpdateProfileInput {
@@ -133,5 +138,48 @@ export interface LegacyParsedMention {
   endIndex: number;
 }
 
+// Messaging types
+type ConversationParticipantUser = Pick<
+  User,
+  'id' | 'name' | 'username' | 'avatarUrl' | 'image'
+>;
+
+export interface MessageWithSender extends Message {
+  sender: ConversationParticipantUser;
+}
+
+/** A conversation as shown in the inbox list, from the perspective of the current user */
+export interface ConversationSummary extends Conversation {
+  /** The other participant in this 1:1 conversation */
+  otherParticipant: ConversationParticipantUser;
+  lastMessage: MessageWithSender | null;
+  /** Number of messages sent after the current user's `lastReadAt` */
+  unreadCount: number;
+}
+
+/** A conversation with full participant + membership details, for authorization checks */
+export interface ConversationWithParticipants extends Conversation {
+  participants: (ConversationParticipant & {
+    user: ConversationParticipantUser;
+  })[];
+}
+
+export interface CreateMessageInput {
+  content: string;
+  contentHtml?: string;
+}
+
 // Re-export Prisma types
-export type { Post, Comment, Like, Repost, Follow, Mention, Activity, User };
+export type {
+  Post,
+  Comment,
+  Like,
+  Repost,
+  Follow,
+  Mention,
+  Activity,
+  Conversation,
+  ConversationParticipant,
+  Message,
+  User,
+};

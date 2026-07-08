@@ -50,6 +50,10 @@ model User {
   mentions      Mention[]
   activities    Activity[]
 
+  // Messaging relations
+  conversationParticipants ConversationParticipant[]
+  messages                 Message[]
+
   @@index([username])
   @@map("users")
 }
@@ -275,6 +279,61 @@ model Activity {
   @@index([userId])
   @@index([createdAt])
   @@map("activities")
+}
+
+// ============================================================================
+// Messaging Models
+// ============================================================================
+
+/// Conversation model - A direct message thread between users.
+/// v1 supports 1:1 conversations only; ConversationParticipant generalizes
+/// to group conversations later without a schema rewrite.
+model Conversation {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastMessageAt DateTime?
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([lastMessageAt])
+  @@map("conversations")
+}
+
+/// ConversationParticipant model - Membership + per-user read state for a conversation
+model ConversationParticipant {
+  id             String    @id @default(cuid())
+  conversationId String
+  userId         String
+  joinedAt       DateTime  @default(now())
+  lastReadAt     DateTime?
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([conversationId])
+  @@index([userId])
+  @@map("conversation_participants")
+}
+
+/// Message model - A single message within a conversation
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String   @db.Text
+  contentHtml    String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@map("messages")
 }
 
 // ============================================================================

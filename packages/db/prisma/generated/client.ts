@@ -102,6 +102,23 @@ export type Mention = Prisma.MentionModel
  */
 export type Activity = Prisma.ActivityModel
 /**
+ * Model Conversation
+ * Conversation model - A direct message thread between users.
+ * v1 supports 1:1 conversations only; ConversationParticipant generalizes
+ * to group conversations later without a schema rewrite.
+ */
+export type Conversation = Prisma.ConversationModel
+/**
+ * Model ConversationParticipant
+ * ConversationParticipant model - Membership + per-user read state for a conversation
+ */
+export type ConversationParticipant = Prisma.ConversationParticipantModel
+/**
+ * Model Message
+ * Message model - A single message within a conversation
+ */
+export type Message = Prisma.MessageModel
+/**
  * Model ProviderSetting
  * Stores runtime configuration for harmony engine providers
  */
