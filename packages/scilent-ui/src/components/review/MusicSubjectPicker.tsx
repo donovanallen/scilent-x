@@ -8,7 +8,6 @@ import {
   DialogTitle,
   Input,
   Button,
-  ScrollArea,
   cn,
 } from '@scilent-one/ui';
 import type {
@@ -135,12 +134,12 @@ export function MusicSubjectPicker({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
+      <DialogContent className="max-w-lg flex max-h-[80vh] flex-col overflow-hidden">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Attach music</DialogTitle>
         </DialogHeader>
 
-        <div className="flex gap-2">
+        <div className="flex shrink-0 gap-2">
           <Button
             type="button"
             size="sm"
@@ -160,6 +159,7 @@ export function MusicSubjectPicker({
         </div>
 
         <Input
+          className="shrink-0"
           placeholder={
             pickerType === 'release' ? 'Search albums…' : 'Search tracks…'
           }
@@ -168,7 +168,7 @@ export function MusicSubjectPicker({
           autoFocus
         />
 
-        <ScrollArea className="h-80 pr-3">
+        <div className="min-h-0 max-h-[300px] overflow-y-auto overscroll-contain pr-3">
           {isSearching ? (
             <p className="text-sm text-muted-foreground py-4 text-center">
               Searching…
@@ -218,7 +218,7 @@ export function MusicSubjectPicker({
               ) : null}
             </div>
           )}
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
