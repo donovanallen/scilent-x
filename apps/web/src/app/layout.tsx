@@ -28,7 +28,7 @@ export default function RootLayout({
           <script dangerouslySetInnerHTML={{ __html: paletteNoFlashScript }} />
         </head>
         <body
-          className={`${spaceGrotesk.variable} ${sourceSans.variable} ${doto.variable} ${spaceMono.variable} antialiased bg-background text-foreground`}
+          className={`${spaceGrotesk.variable} ${sourceSans.variable} ${doto.variable} ${spaceMono.variable} antialiased bg-background text-foreground custom-scrollbars`}
         >
           <ThemeProvider>
             <PaletteProvider>
