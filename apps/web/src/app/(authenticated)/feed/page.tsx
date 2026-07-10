@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import useSWR from 'swr';
 import useSWRInfinite from 'swr/infinite';
 
+import { getPostDetailPath } from '@/lib/post-routes';
 import { fetcher } from '@/lib/swr';
 import { useMentionSearch } from '@/lib/use-mention-search';
 
@@ -621,12 +622,12 @@ export default function FeedPage() {
           commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
           repostsCount: post._count?.reposts ?? post.repostsCount ?? 0,
         }))}
-        renderPostCard={(post, card) => {
+        renderPostCard={(post, defaultCard) => {
           const feedPost = posts.find((item) => item.id === post.id);
           if (feedPost?.type === 'REVIEW' && feedPost.reviewSubject) {
             return (
               <ReviewCard
-                {...post}
+                {...(defaultCard.props as PostCardProps)}
                 reviewSubject={feedPost.reviewSubject}
                 onSubjectClick={() => {
                   if (feedPost.reviewSubject?.gtin) {
@@ -642,7 +643,7 @@ export default function FeedPage() {
               />
             );
           }
-          return card;
+          return defaultCard;
         }}
         currentUserId={currentUser?.id}
         isLoading={isFeedLoading}
@@ -654,7 +655,10 @@ export default function FeedPage() {
         onUnlikePost={handleUnlikePost}
         onRepostPost={handleRepostPost}
         onUnrepostPost={handleUnrepostPost}
-        onPostClick={(postId) => router.push(`/post/${postId}`)}
+        onPostClick={(postId) => {
+          const feedPost = posts.find((item) => item.id === postId);
+          router.push(getPostDetailPath(postId, feedPost?.type));
+        }}
         onEditPost={handleEditPost}
         onSaveEdit={handleSaveEdit}
         onCancelEdit={handleCancelEdit}
@@ -678,7 +682,10 @@ export default function FeedPage() {
         }
         submittingCommentPostId={submittingCommentPostId}
         onCreateComment={handleCreateComment}
-        onViewAllComments={(postId) => router.push(`/post/${postId}`)}
+        onViewAllComments={(postId) => {
+          const feedPost = posts.find((item) => item.id === postId);
+          router.push(getPostDetailPath(postId, feedPost?.type));
+        }}
         onLikeComment={handleLikeComment}
         onUnlikeComment={handleUnlikeComment}
         onReplyComment={handleReplyComment}

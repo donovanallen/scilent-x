@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import useSWR from 'swr';
 import useSWRInfinite from 'swr/infinite';
 
+import { getPostDetailPath } from '@/lib/post-routes';
 import { ApiError, fetcher } from '@/lib/swr';
 import { useMentionSearch } from '@/lib/use-mention-search';
 
@@ -45,6 +46,7 @@ interface UserProfile {
 }
 
 interface FeedPost extends PostCardProps {
+  type?: 'POST' | 'REVIEW';
   _count?: {
     likes: number;
     comments: number;
@@ -584,8 +586,18 @@ export default function PublicProfilePage({
                   onUnlikePost={handleUnlikePost}
                   onRepostPost={handleRepostPost}
                   onUnrepostPost={handleUnrepostPost}
-                  onPostClick={(postId) => router.push(`/post/${postId}`)}
-                  onCommentPost={(postId) => router.push(`/post/${postId}`)}
+                  onPostClick={(postId) => {
+                    const selectedPost = posts.find(
+                      (item) => item.id === postId
+                    );
+                    router.push(getPostDetailPath(postId, selectedPost?.type));
+                  }}
+                  onCommentPost={(postId) => {
+                    const selectedPost = posts.find(
+                      (item) => item.id === postId
+                    );
+                    router.push(getPostDetailPath(postId, selectedPost?.type));
+                  }}
                   onEditPost={handleEditPost}
                   onSaveEdit={handleSaveEdit}
                   onCancelEdit={handleCancelEdit}

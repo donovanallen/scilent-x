@@ -80,12 +80,34 @@ export function EntityReviewsPageClient({
     onLoadMore: () => setSize((size) => size + 1),
   });
 
+  const isEntityFiltered =
+    queryKey.includes('gtin=') || queryKey.includes('isrc=');
+
+  const getSubjectClickHandler = (review: ReviewsPageItem) => {
+    if (isEntityFiltered || !review.reviewSubject) return undefined;
+
+    if (review.reviewSubject.gtin) {
+      return () =>
+        router.push(`/releases/${review.reviewSubject!.gtin}/reviews`);
+    }
+
+    if (review.reviewSubject.isrc) {
+      return () => router.push(`/tracks/${review.reviewSubject!.isrc}/reviews`);
+    }
+
+    return undefined;
+  };
+
   return (
-    <div className={className ?? 'mx-auto w-full max-w-2xl p-4'}>
+    <div className={className ?? 'mx-auto w-full max-w-2xl p-4 md:max-w-4xl'}>
       {title ? <h1 className='mb-4 text-2xl font-semibold'>{title}</h1> : null}
       <div className='space-y-4'>
-        {reviews.map((review) =>
-          review.reviewSubject ? (
+        {reviews.map((review) => {
+          if (!review.reviewSubject) return null;
+
+          const onSubjectClick = getSubjectClickHandler(review);
+
+          return (
             <ReviewCard
               key={review.id}
               id={review.id}
@@ -103,10 +125,11 @@ export function EntityReviewsPageClient({
                 ? { isReposted: review.isReposted }
                 : {})}
               reviewSubject={review.reviewSubject}
-              onClick={() => router.push(`/post/${review.id}`)}
+              {...(onSubjectClick ? { onSubjectClick } : {})}
+              onClick={() => router.push(`/review/${review.id}`)}
             />
-          ) : null
-        )}
+          );
+        })}
         {!isLoading && reviews.length === 0 ? (
           <p className='text-muted-foreground text-center py-8'>
             {emptyMessage}

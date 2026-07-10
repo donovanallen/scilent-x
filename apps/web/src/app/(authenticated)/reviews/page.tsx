@@ -34,7 +34,7 @@ export default function ReviewsPage() {
         <TabsContent value='recent' className='mt-6'>
           <EntityReviewsPageClient
             queryKey='/api/v1/reviews'
-            className='mx-auto w-full max-w-2xl'
+            className='mx-auto w-full max-w-2xl md:max-w-4xl'
             emptyMessage='No reviews yet'
           />
         </TabsContent>
@@ -42,7 +42,7 @@ export default function ReviewsPage() {
         <TabsContent value='trending' className='mt-6'>
           <EntityReviewsPageClient
             queryKey='/api/v1/reviews?trending=true'
-            className='mx-auto w-full max-w-2xl'
+            className='mx-auto w-full max-w-2xl md:max-w-4xl'
             emptyMessage='No trending reviews yet'
           />
         </TabsContent>

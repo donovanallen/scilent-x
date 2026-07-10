@@ -66,7 +66,7 @@ export function NewReviewPageClient({
 
       const review = (await response.json()) as { id: string };
       toast.success('Review published');
-      router.push(`/post/${review.id}`);
+      router.push(`/review/${review.id}`);
     } catch (error) {
       console.error(error);
       toast.error(

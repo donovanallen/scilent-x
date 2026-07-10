@@ -34,6 +34,7 @@ const pathLabels: Record<string, string> = Object.values(ROUTES).reduce(
 const additionalLabels: Record<string, string> = {
   '/admin': 'Admin',
   '/post': 'Post',
+  '/review': 'Review',
 };
 
 function getBreadcrumbs(pathname: string) {
