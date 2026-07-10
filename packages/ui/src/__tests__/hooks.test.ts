@@ -5,6 +5,7 @@ import { act, render, renderHook, waitFor } from '@testing-library/react';
 
 import { useEditPost } from '../hooks/use-edit-post';
 import { useInfiniteScroll } from '../hooks/use-infinite-scroll';
+import { useScrollActivity } from '../hooks/use-scroll-activity';
 import {
   useFollow,
   useLike,
@@ -17,7 +18,7 @@ type Post = {
   contentHtml?: string | null;
 };
 
-const createDeferred = <T,>() => {
+const createDeferred = <T>() => {
   let resolve!: (value: T | PromiseLike<T>) => void;
   let reject!: (reason?: unknown) => void;
   const promise = new Promise<T>((res, rej) => {
@@ -78,11 +79,7 @@ describe('useEditPost', () => {
       );
     });
 
-    expect(onSave).toHaveBeenCalledWith(
-      'post-1',
-      'Updated',
-      '<p>Updated</p>'
-    );
+    expect(onSave).toHaveBeenCalledWith('post-1', 'Updated', '<p>Updated</p>');
     expect(result.current.isSavingEdit).toBe(true);
     expect(result.current.posts[0]?.content).toBe('Updated');
     expect(result.current.posts[0]?.contentHtml).toBe('<p>Updated</p>');
@@ -115,11 +112,7 @@ describe('useEditPost', () => {
     });
 
     await act(async () => {
-      await result.current.saveEdit(
-        'post-1',
-        'Updated',
-        '<p>Updated</p>'
-      );
+      await result.current.saveEdit('post-1', 'Updated', '<p>Updated</p>');
     });
 
     expect(result.current.posts).toEqual(basePosts);
@@ -587,5 +580,54 @@ describe('useInfiniteScroll', () => {
 
     unmount();
     expect(disconnect).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('useScrollActivity', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('flips to active on scroll and back to idle after the debounce', () => {
+    const element = document.createElement('div');
+    const ref = { current: element } as React.RefObject<HTMLElement>;
+
+    const { result } = renderHook(() =>
+      useScrollActivity(ref, { idleDelay: 500 })
+    );
+
+    expect(result.current).toBe(false);
+
+    act(() => {
+      element.dispatchEvent(new Event('scroll'));
+    });
+    expect(result.current).toBe(true);
+
+    // Still active before the delay elapses; a second scroll resets the timer
+    act(() => {
+      vi.advanceTimersByTime(300);
+      element.dispatchEvent(new Event('scroll'));
+    });
+    expect(result.current).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    expect(result.current).toBe(false);
+  });
+
+  it('removes the scroll listener on unmount', () => {
+    const element = document.createElement('div');
+    const removeSpy = vi.spyOn(element, 'removeEventListener');
+    const ref = { current: element } as React.RefObject<HTMLElement>;
+
+    const { unmount } = renderHook(() => useScrollActivity(ref));
+    unmount();
+
+    expect(removeSpy).toHaveBeenCalledWith('scroll', expect.any(Function));
   });
 });
