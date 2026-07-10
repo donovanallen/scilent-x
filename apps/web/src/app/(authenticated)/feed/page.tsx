@@ -4,12 +4,10 @@ import { ArtistMention, ReviewCard } from '@scilent-one/scilent-ui';
 import {
   Feed,
   PostForm,
-  Button,
   useInfiniteScroll,
   type PostCardProps,
 } from '@scilent-one/ui';
 import { useTransitionRouter } from 'next-view-transitions';
-import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import useSWR from 'swr';
@@ -603,24 +601,18 @@ export default function FeedPage() {
 
   return (
     <div className='flex flex-col h-full min-h-0 space-y-6'>
-      <div className='flex items-center justify-between gap-3'>
-        {currentUser ? (
-          <PostForm
-            user={{
-              name: currentUser.name,
-              image: currentUser.image,
-            }}
-            onSubmit={handleCreatePost}
-            isSubmitting={isSubmitting}
-            onMentionQuery={searchUsers}
-            onArtistMentionQuery={searchArtists}
-            className='flex-1'
-          />
-        ) : null}
-        <Button asChild variant='outline' size='sm' className='shrink-0'>
-          <Link href='/reviews/new'>Write review</Link>
-        </Button>
-      </div>
+      {currentUser ? (
+        <PostForm
+          user={{
+            name: currentUser.name,
+            image: currentUser.image,
+          }}
+          onSubmit={handleCreatePost}
+          isSubmitting={isSubmitting}
+          onMentionQuery={searchUsers}
+          onArtistMentionQuery={searchArtists}
+        />
+      ) : null}
 
       <Feed
         posts={posts.map((post) => ({

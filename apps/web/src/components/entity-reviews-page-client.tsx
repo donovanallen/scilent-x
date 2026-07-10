@@ -42,12 +42,16 @@ interface ReviewsPageResponse {
 
 interface EntityReviewsPageClientProps {
   queryKey: string;
-  title: string;
+  title?: string;
+  className?: string;
+  emptyMessage?: string;
 }
 
 export function EntityReviewsPageClient({
   queryKey,
   title,
+  className,
+  emptyMessage = 'No reviews yet',
 }: EntityReviewsPageClientProps) {
   const router = useTransitionRouter();
 
@@ -57,7 +61,8 @@ export function EntityReviewsPageClient({
   ) => {
     if (pageIndex === 0) return queryKey;
     if (!previousPageData?.hasMore || !previousPageData.nextCursor) return null;
-    return `${queryKey}&cursor=${encodeURIComponent(previousPageData.nextCursor)}`;
+    const separator = queryKey.includes('?') ? '&' : '?';
+    return `${queryKey}${separator}cursor=${encodeURIComponent(previousPageData.nextCursor)}`;
   };
 
   const { data, isLoading, isValidating, setSize } =
@@ -76,8 +81,8 @@ export function EntityReviewsPageClient({
   });
 
   return (
-    <div className='mx-auto w-full max-w-2xl p-4'>
-      <h1 className='mb-4 text-2xl font-semibold'>{title}</h1>
+    <div className={className ?? 'mx-auto w-full max-w-2xl p-4'}>
+      {title ? <h1 className='mb-4 text-2xl font-semibold'>{title}</h1> : null}
       <div className='space-y-4'>
         {reviews.map((review) =>
           review.reviewSubject ? (
@@ -104,7 +109,7 @@ export function EntityReviewsPageClient({
         )}
         {!isLoading && reviews.length === 0 ? (
           <p className='text-muted-foreground text-center py-8'>
-            No reviews yet
+            {emptyMessage}
           </p>
         ) : null}
       </div>

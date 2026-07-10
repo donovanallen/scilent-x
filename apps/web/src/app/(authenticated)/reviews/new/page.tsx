@@ -1,8 +1,8 @@
-import { Suspense } from 'react';
 import type {
   HarmonizedRelease,
   HarmonizedTrack,
 } from '@scilent-one/harmony-engine';
+import { Suspense } from 'react';
 
 import { resolveReviewSubject } from '@/lib/review-subject';
 
@@ -57,7 +57,7 @@ async function NewReviewContent({
     );
   } catch {
     return (
-      <div className='mx-auto max-w-2xl p-4'>
+      <div className='mx-auto max-w-2xl p-4 md:max-w-4xl'>
         <p className='text-destructive mb-4'>
           Could not load the music for this review. Try searching manually.
         </p>

@@ -107,7 +107,7 @@ export default function AuthenticatedLayout({
           )}
           {/* Mobile: Show only current page title */}
           {breadcrumbs.length > 0 && (
-            <span className='text-sm font-medium truncate sm:hidden'>
+            <span className='text-sm font-medium truncate text-brand-dark dark:text-brand sm:hidden'>
               {breadcrumbs[breadcrumbs.length - 1]?.label}
             </span>
           )}

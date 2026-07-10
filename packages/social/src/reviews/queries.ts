@@ -20,6 +20,7 @@ export interface GetReviewsParams extends PaginationParams {
   isrc?: string;
   userId?: string;
   authorId?: string;
+  trending?: boolean;
 }
 
 export async function getReviews(
@@ -39,12 +40,29 @@ export async function getReviews(
         }
       : {};
 
+  const trendingFilter = params.trending
+    ? (() => {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        return { createdAt: { gte: sevenDaysAgo } };
+      })()
+    : {};
+
+  const orderBy = params.trending
+    ? [
+        { likes: { _count: 'desc' as const } },
+        { comments: { _count: 'desc' as const } },
+        { createdAt: 'desc' as const },
+      ]
+    : { createdAt: 'desc' as const };
+
   const posts = await db.post.findMany({
     where: {
       type: 'REVIEW',
       ...(params.authorId ? { authorId: params.authorId } : {}),
       ...(params.userId ? { authorId: params.userId } : {}),
       ...reviewSubjectFilter,
+      ...trendingFilter,
     },
     include: {
       author: { select: authorSelect },
@@ -69,7 +87,7 @@ export async function getReviews(
           }
         : false,
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy,
     take,
     ...(cursor && {
       cursor: { id: cursor },

@@ -23,6 +23,7 @@ export async function GET(request: Request) {
     const isrc = searchParams.get('isrc') ?? undefined;
     const authorId =
       searchParams.get('userId') ?? searchParams.get('authorId') ?? undefined;
+    const trending = searchParams.get('trending') === 'true';
 
     const result = await getReviews(
       {
@@ -30,6 +31,7 @@ export async function GET(request: Request) {
         ...(gtin ? { gtin } : {}),
         ...(isrc ? { isrc } : {}),
         ...(authorId ? { authorId } : {}),
+        ...(trending ? { trending } : {}),
       },
       user?.id
     );

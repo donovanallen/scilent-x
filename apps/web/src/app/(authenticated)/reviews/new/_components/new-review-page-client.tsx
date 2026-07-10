@@ -78,7 +78,7 @@ export function NewReviewPageClient({
   };
 
   return (
-    <div className='mx-auto w-full max-w-2xl p-4'>
+    <div className='mx-auto w-full max-w-2xl p-4 md:max-w-4xl'>
       <h1 className='mb-4 text-2xl font-semibold'>Write a review</h1>
       <ReviewComposer
         {...(currentUser ? { user: currentUser } : {})}

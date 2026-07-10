@@ -1,6 +1,5 @@
 import {
   ArrowRight,
-  Compass,
   Database,
   Home,
   LogIn,
@@ -9,6 +8,7 @@ import {
   Search,
   Rss,
   Settings,
+  Star,
   User,
   CloudSync,
   Users,
@@ -36,10 +36,10 @@ export const ROUTES = {
     protected: true,
     isAdmin: false,
   },
-  explore: {
-    href: '/explore',
-    label: 'Explore',
-    icon: Compass,
+  reviews: {
+    href: '/reviews',
+    label: 'Reviews',
+    icon: Star,
     protected: true,
     isAdmin: false,
   },
