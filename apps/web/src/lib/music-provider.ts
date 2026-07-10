@@ -35,6 +35,16 @@ const logger = createApiLogger('music-provider');
  */
 export const SUPPORTED_MUSIC_PROVIDER_IDS = ['tidal', 'spotify'] as const;
 
+/** Providers that expose followed/library artists for the current user. */
+export const LIBRARY_ARTIST_PROVIDER_IDS = [
+  'spotify',
+  'tidal',
+  'apple_music',
+] as const;
+
+export type LibraryArtistProviderId =
+  (typeof LIBRARY_ARTIST_PROVIDER_IDS)[number];
+
 export type MusicProviderId = (typeof SUPPORTED_MUSIC_PROVIDER_IDS)[number];
 
 /**
@@ -308,4 +318,26 @@ export async function getFreshAccessToken(
   }
 
   return { ok: false, providerId, code: 'TOKEN_EXPIRED', reconnectVia };
+}
+
+/**
+ * Return provider IDs for which the user has a connected account that supports
+ * followed/library artists (Spotify, Tidal, Apple Music).
+ */
+export async function getConnectedLibraryProviderIds(
+  userId: string
+): Promise<LibraryArtistProviderId[]> {
+  const accounts = await db.account.findMany({
+    where: {
+      userId,
+      providerId: { in: [...LIBRARY_ARTIST_PROVIDER_IDS] },
+      accessToken: { not: null },
+    },
+    select: { providerId: true },
+    orderBy: { providerId: 'asc' },
+  });
+
+  return accounts.map(
+    (account) => account.providerId as LibraryArtistProviderId
+  );
 }

@@ -163,6 +163,8 @@ export interface PlatformProfileCardProps extends Omit<
   showFollowedArtists?: boolean;
   /** Maximum number of artist badges to show */
   maxArtistBadges?: number;
+  /** Link to the full followed-artists list (e.g. /artists?provider=tidal) */
+  followedArtistsViewAllHref?: string;
   /** Whether to show the playlists section */
   showPlaylists?: boolean;
   /** Maximum number of playlist badges to show */
@@ -250,6 +252,7 @@ export function PlatformProfileCard({
   externalLinkLabel,
   showFollowedArtists = true,
   maxArtistBadges = 5,
+  followedArtistsViewAllHref,
   showPlaylists = true,
   maxPlaylistBadges = 5,
   showRecentTracks = true,
@@ -488,11 +491,32 @@ export function PlatformProfileCard({
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Users className="size-4" />
                   <span>Followed Artists</span>
-                  {followedArtists.total !== undefined && (
-                    <Badge variant="secondary" className="text-xs">
-                      {followedArtists.total.toLocaleString()}
-                    </Badge>
-                  )}
+                  {followedArtists.total !== undefined &&
+                    (followedArtistsViewAllHref ? (
+                      <a href={followedArtistsViewAllHref}>
+                        <Badge
+                          variant="secondary"
+                          className="text-xs hover:bg-secondary/80"
+                        >
+                          {followedArtists.total.toLocaleString()}
+                        </Badge>
+                      </a>
+                    ) : (
+                      <Badge variant="secondary" className="text-xs">
+                        {followedArtists.total.toLocaleString()}
+                      </Badge>
+                    ))}
+                  {followedArtistsViewAllHref &&
+                    (followedArtists.hasMore ||
+                      (followedArtists.total ?? 0) >
+                        followedArtists.artists.length) && (
+                      <a
+                        href={followedArtistsViewAllHref}
+                        className="text-xs text-primary hover:underline ml-auto"
+                      >
+                        View all
+                      </a>
+                    )}
                 </div>
 
                 {/* Preview of followed artists */}
@@ -508,14 +532,24 @@ export function PlatformProfileCard({
                         {artist.name}
                       </Badge>
                     ))}
-                  {followedArtists.hasMore && (
-                    <Badge
-                      variant="outline"
-                      className="text-xs text-muted-foreground"
-                    >
-                      +more
-                    </Badge>
-                  )}
+                  {followedArtists.hasMore &&
+                    (followedArtistsViewAllHref ? (
+                      <a href={followedArtistsViewAllHref}>
+                        <Badge
+                          variant="outline"
+                          className="text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          +more
+                        </Badge>
+                      </a>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className="text-xs text-muted-foreground"
+                      >
+                        +more
+                      </Badge>
+                    ))}
                 </div>
               </div>
             </>

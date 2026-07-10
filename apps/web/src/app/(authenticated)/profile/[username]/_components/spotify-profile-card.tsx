@@ -145,6 +145,7 @@ export function SpotifyProfileCard({
       isReconnecting={isReconnecting}
       onReconnect={handleReconnect}
       hideWhenNotConnected
+      followedArtistsViewAllHref='/artists?provider=spotify'
     />
   );
 }
