@@ -48,13 +48,15 @@ const roundedClasses = {
   lg: 'rounded-lg',
 } as const;
 
+const EMPTY_FALLBACKS: string[] = [];
+
 /**
  * Album artwork component that displays release cover art from various platforms.
  * Handles loading states, fallback placeholders, and optional visual effects.
  */
 export function AlbumArtwork({
   src,
-  fallbackSrc = [],
+  fallbackSrc = EMPTY_FALLBACKS,
   alt = 'Album artwork',
   size = 'lg',
   isLoading = false,
@@ -87,13 +89,28 @@ export function AlbumArtwork({
   }, []);
 
   const handleImageError = React.useCallback(() => {
-    if (sourceIndex < sources.length - 1) {
-      setSourceIndex((index) => index + 1);
-      setIsImageLoading(true);
-      return;
+    setSourceIndex((index) => {
+      if (index < sources.length - 1) {
+        setIsImageLoading(true);
+        return index + 1;
+      }
+      setIsImageLoading(false);
+      return index;
+    });
+  }, [sources.length]);
+
+  // Data-URI / cached images often complete before React binds onLoad.
+  const imageRef = React.useCallback((node: HTMLImageElement | null) => {
+    if (!node) return;
+    if (node.complete) {
+      if (node.naturalWidth > 0) {
+        setIsImageLoading(false);
+      } else if (node.currentSrc || node.src) {
+        // Broken image that finished without dimensions
+        setIsImageLoading(false);
+      }
     }
-    setIsImageLoading(false);
-  }, [sourceIndex, sources.length]);
+  }, []);
 
   // Loading state - skeleton
   if (isLoading) {
@@ -132,6 +149,7 @@ export function AlbumArtwork({
       {/* Show skeleton while image is loading */}
       {isImageLoading && <Skeleton className="absolute inset-0" />}
       <img
+        ref={imageRef}
         src={currentSrc}
         alt={alt}
         className={cn(
@@ -140,7 +158,7 @@ export function AlbumArtwork({
             'transition-transform duration-base ease-out group-hover:scale-105',
           isImageLoading && 'opacity-0'
         )}
-        loading="lazy"
+        loading="eager"
         onLoad={handleImageLoad}
         onError={handleImageError}
       />
