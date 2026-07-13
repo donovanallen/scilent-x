@@ -28,7 +28,7 @@
     "@scilent-one/scilent-ui": "workspace:*",
     "@scilent-one/social": "workspace:*",
     "@scilent-one/ui": "workspace:*",
-    "@tanstack/react-virtual": "^3.14.5",
+    "@tanstack/react-virtual": "^3.14.6",
     "better-auth": "catalog:better-auth",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
