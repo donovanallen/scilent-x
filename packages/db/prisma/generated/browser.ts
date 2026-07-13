@@ -43,6 +43,11 @@ export type Verification = Prisma.VerificationModel
  */
 export type Post = Prisma.PostModel
 /**
+ * Model ReviewSubject
+ * Music entity attached to a review post
+ */
+export type ReviewSubject = Prisma.ReviewSubjectModel
+/**
  * Model Repost
  * Repost model - Reposts (reshares) of a post to a user's followers
  */

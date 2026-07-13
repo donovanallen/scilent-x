@@ -10,7 +10,10 @@ import type {
 /**
  * Default configuration values
  */
-const defaultConfig: Omit<HarmonyInteractionContextValue, 'enabled' | 'platform'> = {
+const defaultConfig: Omit<
+  HarmonyInteractionContextValue,
+  'enabled' | 'platform'
+> = {
   enableContextMenu: true,
   enableHoverPreview: true,
   hoverDelay: 300,
@@ -33,10 +36,10 @@ export interface HarmonyInteractionProviderProps {
 
 /**
  * Provider component that enables interaction behaviors for scilent-ui components.
- * 
+ *
  * Wraps your app or a section of it to enable context menus, hover previews,
  * and other interactive features on entity cards and components.
- * 
+ *
  * @example
  * ```tsx
  * <HarmonyInteractionProvider
@@ -66,35 +69,42 @@ export function HarmonyInteractionProvider({
   }, [config.platform, isMobile]);
 
   // Merge config with defaults
-  const contextValue = React.useMemo<HarmonyInteractionContextValue>(() => ({
-    ...defaultConfig,
-    enabled: true,
-    platform: resolvedPlatform,
-    enableContextMenu: config.enableContextMenu ?? defaultConfig.enableContextMenu,
-    enableHoverPreview: config.enableHoverPreview ?? defaultConfig.enableHoverPreview,
-    hoverDelay: config.hoverDelay ?? defaultConfig.hoverDelay,
-    onNavigate: config.onNavigate,
-    onOpenExternal: config.onOpenExternal,
-    onCopyLink: config.onCopyLink,
-    onViewCredits: config.onViewCredits,
-    customMenuItems: config.customMenuItems,
-    providerActions: config.providerActions,
-    enabledProviders: config.enabledProviders,
-    previewContent: config.previewContent,
-  }), [
-    resolvedPlatform,
-    config.enableContextMenu,
-    config.enableHoverPreview,
-    config.hoverDelay,
-    config.onNavigate,
-    config.onOpenExternal,
-    config.onCopyLink,
-    config.onViewCredits,
-    config.customMenuItems,
-    config.providerActions,
-    config.enabledProviders,
-    config.previewContent,
-  ]);
+  const contextValue = React.useMemo<HarmonyInteractionContextValue>(
+    () => ({
+      ...defaultConfig,
+      enabled: true,
+      platform: resolvedPlatform,
+      enableContextMenu:
+        config.enableContextMenu ?? defaultConfig.enableContextMenu,
+      enableHoverPreview:
+        config.enableHoverPreview ?? defaultConfig.enableHoverPreview,
+      hoverDelay: config.hoverDelay ?? defaultConfig.hoverDelay,
+      onNavigate: config.onNavigate,
+      onOpenExternal: config.onOpenExternal,
+      onCopyLink: config.onCopyLink,
+      onViewCredits: config.onViewCredits,
+      onWriteReview: config.onWriteReview,
+      customMenuItems: config.customMenuItems,
+      providerActions: config.providerActions,
+      enabledProviders: config.enabledProviders,
+      previewContent: config.previewContent,
+    }),
+    [
+      resolvedPlatform,
+      config.enableContextMenu,
+      config.enableHoverPreview,
+      config.hoverDelay,
+      config.onNavigate,
+      config.onOpenExternal,
+      config.onCopyLink,
+      config.onViewCredits,
+      config.onWriteReview,
+      config.customMenuItems,
+      config.providerActions,
+      config.enabledProviders,
+      config.previewContent,
+    ]
+  );
 
   return (
     <HarmonyInteractionContext.Provider value={contextValue}>
@@ -116,31 +126,31 @@ const disabledContextValue: HarmonyInteractionContextValue = {
 
 /**
  * Hook to access Harmony interaction configuration.
- * 
+ *
  * Returns a context value with `enabled: false` if used outside of a provider,
  * allowing components to gracefully degrade when interactions aren't configured.
- * 
+ *
  * @example
  * ```tsx
  * function MyComponent() {
  *   const interaction = useHarmonyInteraction();
- *   
+ *
  *   if (!interaction.enabled) {
  *     return <BasicComponent />;
  *   }
- *   
+ *
  *   return <InteractiveComponent {...interaction} />;
  * }
  * ```
  */
 export function useHarmonyInteraction(): HarmonyInteractionContextValue {
   const context = React.useContext(HarmonyInteractionContext);
-  
+
   if (!context) {
     // Return safe defaults - interactions disabled
     return disabledContextValue;
   }
-  
+
   return context;
 }
 

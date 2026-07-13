@@ -389,6 +389,7 @@ export const ModelName = {
   Session: 'Session',
   Verification: 'Verification',
   Post: 'Post',
+  ReviewSubject: 'ReviewSubject',
   Repost: 'Repost',
   Comment: 'Comment',
   Like: 'Like',
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verification" | "post" | "repost" | "comment" | "like" | "follow" | "mention" | "activity" | "conversation" | "conversationParticipant" | "message" | "providerSetting"
+    modelProps: "user" | "account" | "session" | "verification" | "post" | "reviewSubject" | "repost" | "comment" | "like" | "follow" | "mention" | "activity" | "conversation" | "conversationParticipant" | "message" | "providerSetting"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -785,6 +786,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PostCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PostCountAggregateOutputType> | number
+        }
+      }
+    }
+    ReviewSubject: {
+      payload: Prisma.$ReviewSubjectPayload<ExtArgs>
+      fields: Prisma.ReviewSubjectFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReviewSubjectFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewSubjectPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReviewSubjectFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewSubjectPayload>
+        }
+        findFirst: {
+          args: Prisma.ReviewSubjectFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewSubjectPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReviewSubjectFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewSubjectPayload>
+        }
+        findMany: {
+          args: Prisma.ReviewSubjectFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewSubjectPayload>[]
+        }
+        create: {
+          args: Prisma.ReviewSubjectCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewSubjectPayload>
+        }
+        createMany: {
+          args: Prisma.ReviewSubjectCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ReviewSubjectCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewSubjectPayload>[]
+        }
+        delete: {
+          args: Prisma.ReviewSubjectDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewSubjectPayload>
+        }
+        update: {
+          args: Prisma.ReviewSubjectUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewSubjectPayload>
+        }
+        deleteMany: {
+          args: Prisma.ReviewSubjectDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReviewSubjectUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ReviewSubjectUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewSubjectPayload>[]
+        }
+        upsert: {
+          args: Prisma.ReviewSubjectUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewSubjectPayload>
+        }
+        aggregate: {
+          args: Prisma.ReviewSubjectAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReviewSubject>
+        }
+        groupBy: {
+          args: Prisma.ReviewSubjectGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReviewSubjectGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReviewSubjectCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReviewSubjectCountAggregateOutputType> | number
         }
       }
     }
@@ -1633,12 +1708,31 @@ export const PostScalarFieldEnum = {
   id: 'id',
   content: 'content',
   contentHtml: 'contentHtml',
+  type: 'type',
   authorId: 'authorId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
+
+
+export const ReviewSubjectScalarFieldEnum = {
+  id: 'id',
+  postId: 'postId',
+  type: 'type',
+  gtin: 'gtin',
+  isrc: 'isrc',
+  mbid: 'mbid',
+  title: 'title',
+  artistLabel: 'artistLabel',
+  artworkUrl: 'artworkUrl',
+  releaseDate: 'releaseDate',
+  snapshot: 'snapshot',
+  createdAt: 'createdAt'
+} as const
+
+export type ReviewSubjectScalarFieldEnum = (typeof ReviewSubjectScalarFieldEnum)[keyof typeof ReviewSubjectScalarFieldEnum]
 
 
 export const RepostScalarFieldEnum = {
@@ -1767,6 +1861,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -1781,6 +1882,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1821,6 +1931,48 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PostType'
+ */
+export type EnumPostTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PostType'>
+    
+
+
+/**
+ * Reference to a field of type 'PostType[]'
+ */
+export type ListEnumPostTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PostType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ReviewSubjectType'
+ */
+export type EnumReviewSubjectTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReviewSubjectType'>
+    
+
+
+/**
+ * Reference to a field of type 'ReviewSubjectType[]'
+ */
+export type ListEnumReviewSubjectTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReviewSubjectType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1994,6 +2146,7 @@ export type GlobalOmitConfig = {
   session?: Prisma.SessionOmit
   verification?: Prisma.VerificationOmit
   post?: Prisma.PostOmit
+  reviewSubject?: Prisma.ReviewSubjectOmit
   repost?: Prisma.RepostOmit
   comment?: Prisma.CommentOmit
   like?: Prisma.LikeOmit

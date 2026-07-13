@@ -25,6 +25,9 @@ export type {
   Verification,
   // Social types
   Post,
+  PostType,
+  ReviewSubject,
+  ReviewSubjectType,
   Comment,
   Like,
   Repost,

@@ -28,6 +28,7 @@ export type PostMinAggregateOutputType = {
   id: string | null
   content: string | null
   contentHtml: string | null
+  type: $Enums.PostType | null
   authorId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -37,6 +38,7 @@ export type PostMaxAggregateOutputType = {
   id: string | null
   content: string | null
   contentHtml: string | null
+  type: $Enums.PostType | null
   authorId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -46,6 +48,7 @@ export type PostCountAggregateOutputType = {
   id: number
   content: number
   contentHtml: number
+  type: number
   authorId: number
   createdAt: number
   updatedAt: number
@@ -57,6 +60,7 @@ export type PostMinAggregateInputType = {
   id?: true
   content?: true
   contentHtml?: true
+  type?: true
   authorId?: true
   createdAt?: true
   updatedAt?: true
@@ -66,6 +70,7 @@ export type PostMaxAggregateInputType = {
   id?: true
   content?: true
   contentHtml?: true
+  type?: true
   authorId?: true
   createdAt?: true
   updatedAt?: true
@@ -75,6 +80,7 @@ export type PostCountAggregateInputType = {
   id?: true
   content?: true
   contentHtml?: true
+  type?: true
   authorId?: true
   createdAt?: true
   updatedAt?: true
@@ -157,6 +163,7 @@ export type PostGroupByOutputType = {
   id: string
   content: string
   contentHtml: string | null
+  type: $Enums.PostType
   authorId: string
   createdAt: Date
   updatedAt: Date
@@ -187,6 +194,7 @@ export type PostWhereInput = {
   id?: Prisma.StringFilter<"Post"> | string
   content?: Prisma.StringFilter<"Post"> | string
   contentHtml?: Prisma.StringNullableFilter<"Post"> | string | null
+  type?: Prisma.EnumPostTypeFilter<"Post"> | $Enums.PostType
   authorId?: Prisma.StringFilter<"Post"> | string
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
@@ -195,12 +203,14 @@ export type PostWhereInput = {
   likes?: Prisma.LikeListRelationFilter
   reposts?: Prisma.RepostListRelationFilter
   mentions?: Prisma.MentionListRelationFilter
+  reviewSubject?: Prisma.XOR<Prisma.ReviewSubjectNullableScalarRelationFilter, Prisma.ReviewSubjectWhereInput> | null
 }
 
 export type PostOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   content?: Prisma.SortOrder
   contentHtml?: Prisma.SortOrderInput | Prisma.SortOrder
+  type?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -209,6 +219,7 @@ export type PostOrderByWithRelationInput = {
   likes?: Prisma.LikeOrderByRelationAggregateInput
   reposts?: Prisma.RepostOrderByRelationAggregateInput
   mentions?: Prisma.MentionOrderByRelationAggregateInput
+  reviewSubject?: Prisma.ReviewSubjectOrderByWithRelationInput
 }
 
 export type PostWhereUniqueInput = Prisma.AtLeast<{
@@ -218,6 +229,7 @@ export type PostWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.PostWhereInput | Prisma.PostWhereInput[]
   content?: Prisma.StringFilter<"Post"> | string
   contentHtml?: Prisma.StringNullableFilter<"Post"> | string | null
+  type?: Prisma.EnumPostTypeFilter<"Post"> | $Enums.PostType
   authorId?: Prisma.StringFilter<"Post"> | string
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
@@ -226,12 +238,14 @@ export type PostWhereUniqueInput = Prisma.AtLeast<{
   likes?: Prisma.LikeListRelationFilter
   reposts?: Prisma.RepostListRelationFilter
   mentions?: Prisma.MentionListRelationFilter
+  reviewSubject?: Prisma.XOR<Prisma.ReviewSubjectNullableScalarRelationFilter, Prisma.ReviewSubjectWhereInput> | null
 }, "id">
 
 export type PostOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   content?: Prisma.SortOrder
   contentHtml?: Prisma.SortOrderInput | Prisma.SortOrder
+  type?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -247,6 +261,7 @@ export type PostScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Post"> | string
   content?: Prisma.StringWithAggregatesFilter<"Post"> | string
   contentHtml?: Prisma.StringNullableWithAggregatesFilter<"Post"> | string | null
+  type?: Prisma.EnumPostTypeWithAggregatesFilter<"Post"> | $Enums.PostType
   authorId?: Prisma.StringWithAggregatesFilter<"Post"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Post"> | Date | string
@@ -256,6 +271,7 @@ export type PostCreateInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   createdAt?: Date | string
   updatedAt?: Date | string
   author: Prisma.UserCreateNestedOneWithoutPostsInput
@@ -263,12 +279,14 @@ export type PostCreateInput = {
   likes?: Prisma.LikeCreateNestedManyWithoutPostInput
   reposts?: Prisma.RepostCreateNestedManyWithoutPostInput
   mentions?: Prisma.MentionCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectCreateNestedOneWithoutPostInput
 }
 
 export type PostUncheckedCreateInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -276,12 +294,14 @@ export type PostUncheckedCreateInput = {
   likes?: Prisma.LikeUncheckedCreateNestedManyWithoutPostInput
   reposts?: Prisma.RepostUncheckedCreateNestedManyWithoutPostInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedCreateNestedOneWithoutPostInput
 }
 
 export type PostUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
@@ -289,12 +309,14 @@ export type PostUpdateInput = {
   likes?: Prisma.LikeUpdateManyWithoutPostNestedInput
   reposts?: Prisma.RepostUpdateManyWithoutPostNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -302,12 +324,14 @@ export type PostUncheckedUpdateInput = {
   likes?: Prisma.LikeUncheckedUpdateManyWithoutPostNestedInput
   reposts?: Prisma.RepostUncheckedUpdateManyWithoutPostNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedUpdateOneWithoutPostNestedInput
 }
 
 export type PostCreateManyInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -317,6 +341,7 @@ export type PostUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -325,6 +350,7 @@ export type PostUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -344,6 +370,7 @@ export type PostCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   content?: Prisma.SortOrder
   contentHtml?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -353,6 +380,7 @@ export type PostMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   content?: Prisma.SortOrder
   contentHtml?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -362,6 +390,7 @@ export type PostMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   content?: Prisma.SortOrder
   contentHtml?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -417,6 +446,24 @@ export type PostUncheckedUpdateManyWithoutAuthorNestedInput = {
   update?: Prisma.PostUpdateWithWhereUniqueWithoutAuthorInput | Prisma.PostUpdateWithWhereUniqueWithoutAuthorInput[]
   updateMany?: Prisma.PostUpdateManyWithWhereWithoutAuthorInput | Prisma.PostUpdateManyWithWhereWithoutAuthorInput[]
   deleteMany?: Prisma.PostScalarWhereInput | Prisma.PostScalarWhereInput[]
+}
+
+export type EnumPostTypeFieldUpdateOperationsInput = {
+  set?: $Enums.PostType
+}
+
+export type PostCreateNestedOneWithoutReviewSubjectInput = {
+  create?: Prisma.XOR<Prisma.PostCreateWithoutReviewSubjectInput, Prisma.PostUncheckedCreateWithoutReviewSubjectInput>
+  connectOrCreate?: Prisma.PostCreateOrConnectWithoutReviewSubjectInput
+  connect?: Prisma.PostWhereUniqueInput
+}
+
+export type PostUpdateOneRequiredWithoutReviewSubjectNestedInput = {
+  create?: Prisma.XOR<Prisma.PostCreateWithoutReviewSubjectInput, Prisma.PostUncheckedCreateWithoutReviewSubjectInput>
+  connectOrCreate?: Prisma.PostCreateOrConnectWithoutReviewSubjectInput
+  upsert?: Prisma.PostUpsertWithoutReviewSubjectInput
+  connect?: Prisma.PostWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PostUpdateToOneWithWhereWithoutReviewSubjectInput, Prisma.PostUpdateWithoutReviewSubjectInput>, Prisma.PostUncheckedUpdateWithoutReviewSubjectInput>
 }
 
 export type PostCreateNestedOneWithoutRepostsInput = {
@@ -483,24 +530,28 @@ export type PostCreateWithoutAuthorInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   createdAt?: Date | string
   updatedAt?: Date | string
   comments?: Prisma.CommentCreateNestedManyWithoutPostInput
   likes?: Prisma.LikeCreateNestedManyWithoutPostInput
   reposts?: Prisma.RepostCreateNestedManyWithoutPostInput
   mentions?: Prisma.MentionCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectCreateNestedOneWithoutPostInput
 }
 
 export type PostUncheckedCreateWithoutAuthorInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   createdAt?: Date | string
   updatedAt?: Date | string
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPostInput
   likes?: Prisma.LikeUncheckedCreateNestedManyWithoutPostInput
   reposts?: Prisma.RepostUncheckedCreateNestedManyWithoutPostInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedCreateNestedOneWithoutPostInput
 }
 
 export type PostCreateOrConnectWithoutAuthorInput = {
@@ -536,33 +587,110 @@ export type PostScalarWhereInput = {
   id?: Prisma.StringFilter<"Post"> | string
   content?: Prisma.StringFilter<"Post"> | string
   contentHtml?: Prisma.StringNullableFilter<"Post"> | string | null
+  type?: Prisma.EnumPostTypeFilter<"Post"> | $Enums.PostType
   authorId?: Prisma.StringFilter<"Post"> | string
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
+}
+
+export type PostCreateWithoutReviewSubjectInput = {
+  id?: string
+  content: string
+  contentHtml?: string | null
+  type?: $Enums.PostType
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  author: Prisma.UserCreateNestedOneWithoutPostsInput
+  comments?: Prisma.CommentCreateNestedManyWithoutPostInput
+  likes?: Prisma.LikeCreateNestedManyWithoutPostInput
+  reposts?: Prisma.RepostCreateNestedManyWithoutPostInput
+  mentions?: Prisma.MentionCreateNestedManyWithoutPostInput
+}
+
+export type PostUncheckedCreateWithoutReviewSubjectInput = {
+  id?: string
+  content: string
+  contentHtml?: string | null
+  type?: $Enums.PostType
+  authorId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPostInput
+  likes?: Prisma.LikeUncheckedCreateNestedManyWithoutPostInput
+  reposts?: Prisma.RepostUncheckedCreateNestedManyWithoutPostInput
+  mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutPostInput
+}
+
+export type PostCreateOrConnectWithoutReviewSubjectInput = {
+  where: Prisma.PostWhereUniqueInput
+  create: Prisma.XOR<Prisma.PostCreateWithoutReviewSubjectInput, Prisma.PostUncheckedCreateWithoutReviewSubjectInput>
+}
+
+export type PostUpsertWithoutReviewSubjectInput = {
+  update: Prisma.XOR<Prisma.PostUpdateWithoutReviewSubjectInput, Prisma.PostUncheckedUpdateWithoutReviewSubjectInput>
+  create: Prisma.XOR<Prisma.PostCreateWithoutReviewSubjectInput, Prisma.PostUncheckedCreateWithoutReviewSubjectInput>
+  where?: Prisma.PostWhereInput
+}
+
+export type PostUpdateToOneWithWhereWithoutReviewSubjectInput = {
+  where?: Prisma.PostWhereInput
+  data: Prisma.XOR<Prisma.PostUpdateWithoutReviewSubjectInput, Prisma.PostUncheckedUpdateWithoutReviewSubjectInput>
+}
+
+export type PostUpdateWithoutReviewSubjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutPostNestedInput
+  likes?: Prisma.LikeUpdateManyWithoutPostNestedInput
+  reposts?: Prisma.RepostUpdateManyWithoutPostNestedInput
+  mentions?: Prisma.MentionUpdateManyWithoutPostNestedInput
+}
+
+export type PostUncheckedUpdateWithoutReviewSubjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutPostNestedInput
+  likes?: Prisma.LikeUncheckedUpdateManyWithoutPostNestedInput
+  reposts?: Prisma.RepostUncheckedUpdateManyWithoutPostNestedInput
+  mentions?: Prisma.MentionUncheckedUpdateManyWithoutPostNestedInput
 }
 
 export type PostCreateWithoutRepostsInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   createdAt?: Date | string
   updatedAt?: Date | string
   author: Prisma.UserCreateNestedOneWithoutPostsInput
   comments?: Prisma.CommentCreateNestedManyWithoutPostInput
   likes?: Prisma.LikeCreateNestedManyWithoutPostInput
   mentions?: Prisma.MentionCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectCreateNestedOneWithoutPostInput
 }
 
 export type PostUncheckedCreateWithoutRepostsInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPostInput
   likes?: Prisma.LikeUncheckedCreateNestedManyWithoutPostInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedCreateNestedOneWithoutPostInput
 }
 
 export type PostCreateOrConnectWithoutRepostsInput = {
@@ -585,48 +713,56 @@ export type PostUpdateWithoutRepostsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
   comments?: Prisma.CommentUpdateManyWithoutPostNestedInput
   likes?: Prisma.LikeUpdateManyWithoutPostNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateWithoutRepostsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   comments?: Prisma.CommentUncheckedUpdateManyWithoutPostNestedInput
   likes?: Prisma.LikeUncheckedUpdateManyWithoutPostNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedUpdateOneWithoutPostNestedInput
 }
 
 export type PostCreateWithoutCommentsInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   createdAt?: Date | string
   updatedAt?: Date | string
   author: Prisma.UserCreateNestedOneWithoutPostsInput
   likes?: Prisma.LikeCreateNestedManyWithoutPostInput
   reposts?: Prisma.RepostCreateNestedManyWithoutPostInput
   mentions?: Prisma.MentionCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectCreateNestedOneWithoutPostInput
 }
 
 export type PostUncheckedCreateWithoutCommentsInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   likes?: Prisma.LikeUncheckedCreateNestedManyWithoutPostInput
   reposts?: Prisma.RepostUncheckedCreateNestedManyWithoutPostInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedCreateNestedOneWithoutPostInput
 }
 
 export type PostCreateOrConnectWithoutCommentsInput = {
@@ -649,48 +785,56 @@ export type PostUpdateWithoutCommentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
   likes?: Prisma.LikeUpdateManyWithoutPostNestedInput
   reposts?: Prisma.RepostUpdateManyWithoutPostNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateWithoutCommentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   likes?: Prisma.LikeUncheckedUpdateManyWithoutPostNestedInput
   reposts?: Prisma.RepostUncheckedUpdateManyWithoutPostNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedUpdateOneWithoutPostNestedInput
 }
 
 export type PostCreateWithoutLikesInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   createdAt?: Date | string
   updatedAt?: Date | string
   author: Prisma.UserCreateNestedOneWithoutPostsInput
   comments?: Prisma.CommentCreateNestedManyWithoutPostInput
   reposts?: Prisma.RepostCreateNestedManyWithoutPostInput
   mentions?: Prisma.MentionCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectCreateNestedOneWithoutPostInput
 }
 
 export type PostUncheckedCreateWithoutLikesInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPostInput
   reposts?: Prisma.RepostUncheckedCreateNestedManyWithoutPostInput
   mentions?: Prisma.MentionUncheckedCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedCreateNestedOneWithoutPostInput
 }
 
 export type PostCreateOrConnectWithoutLikesInput = {
@@ -713,48 +857,56 @@ export type PostUpdateWithoutLikesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
   comments?: Prisma.CommentUpdateManyWithoutPostNestedInput
   reposts?: Prisma.RepostUpdateManyWithoutPostNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateWithoutLikesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   comments?: Prisma.CommentUncheckedUpdateManyWithoutPostNestedInput
   reposts?: Prisma.RepostUncheckedUpdateManyWithoutPostNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedUpdateOneWithoutPostNestedInput
 }
 
 export type PostCreateWithoutMentionsInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   createdAt?: Date | string
   updatedAt?: Date | string
   author: Prisma.UserCreateNestedOneWithoutPostsInput
   comments?: Prisma.CommentCreateNestedManyWithoutPostInput
   likes?: Prisma.LikeCreateNestedManyWithoutPostInput
   reposts?: Prisma.RepostCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectCreateNestedOneWithoutPostInput
 }
 
 export type PostUncheckedCreateWithoutMentionsInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPostInput
   likes?: Prisma.LikeUncheckedCreateNestedManyWithoutPostInput
   reposts?: Prisma.RepostUncheckedCreateNestedManyWithoutPostInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedCreateNestedOneWithoutPostInput
 }
 
 export type PostCreateOrConnectWithoutMentionsInput = {
@@ -777,30 +929,35 @@ export type PostUpdateWithoutMentionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
   comments?: Prisma.CommentUpdateManyWithoutPostNestedInput
   likes?: Prisma.LikeUpdateManyWithoutPostNestedInput
   reposts?: Prisma.RepostUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateWithoutMentionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   comments?: Prisma.CommentUncheckedUpdateManyWithoutPostNestedInput
   likes?: Prisma.LikeUncheckedUpdateManyWithoutPostNestedInput
   reposts?: Prisma.RepostUncheckedUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedUpdateOneWithoutPostNestedInput
 }
 
 export type PostCreateManyAuthorInput = {
   id?: string
   content: string
   contentHtml?: string | null
+  type?: $Enums.PostType
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -809,30 +966,35 @@ export type PostUpdateWithoutAuthorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   comments?: Prisma.CommentUpdateManyWithoutPostNestedInput
   likes?: Prisma.LikeUpdateManyWithoutPostNestedInput
   reposts?: Prisma.RepostUpdateManyWithoutPostNestedInput
   mentions?: Prisma.MentionUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateWithoutAuthorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   comments?: Prisma.CommentUncheckedUpdateManyWithoutPostNestedInput
   likes?: Prisma.LikeUncheckedUpdateManyWithoutPostNestedInput
   reposts?: Prisma.RepostUncheckedUpdateManyWithoutPostNestedInput
   mentions?: Prisma.MentionUncheckedUpdateManyWithoutPostNestedInput
+  reviewSubject?: Prisma.ReviewSubjectUncheckedUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateManyWithoutAuthorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -899,6 +1061,7 @@ export type PostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   content?: boolean
   contentHtml?: boolean
+  type?: boolean
   authorId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -907,6 +1070,7 @@ export type PostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   likes?: boolean | Prisma.Post$likesArgs<ExtArgs>
   reposts?: boolean | Prisma.Post$repostsArgs<ExtArgs>
   mentions?: boolean | Prisma.Post$mentionsArgs<ExtArgs>
+  reviewSubject?: boolean | Prisma.Post$reviewSubjectArgs<ExtArgs>
   _count?: boolean | Prisma.PostCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["post"]>
 
@@ -914,6 +1078,7 @@ export type PostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   content?: boolean
   contentHtml?: boolean
+  type?: boolean
   authorId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -924,6 +1089,7 @@ export type PostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   content?: boolean
   contentHtml?: boolean
+  type?: boolean
   authorId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -934,18 +1100,20 @@ export type PostSelectScalar = {
   id?: boolean
   content?: boolean
   contentHtml?: boolean
+  type?: boolean
   authorId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "content" | "contentHtml" | "authorId" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
+export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "content" | "contentHtml" | "type" | "authorId" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
 export type PostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   comments?: boolean | Prisma.Post$commentsArgs<ExtArgs>
   likes?: boolean | Prisma.Post$likesArgs<ExtArgs>
   reposts?: boolean | Prisma.Post$repostsArgs<ExtArgs>
   mentions?: boolean | Prisma.Post$mentionsArgs<ExtArgs>
+  reviewSubject?: boolean | Prisma.Post$reviewSubjectArgs<ExtArgs>
   _count?: boolean | Prisma.PostCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PostIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -963,11 +1131,13 @@ export type $PostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     likes: Prisma.$LikePayload<ExtArgs>[]
     reposts: Prisma.$RepostPayload<ExtArgs>[]
     mentions: Prisma.$MentionPayload<ExtArgs>[]
+    reviewSubject: Prisma.$ReviewSubjectPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     content: string
     contentHtml: string | null
+    type: $Enums.PostType
     authorId: string
     createdAt: Date
     updatedAt: Date
@@ -1370,6 +1540,7 @@ export interface Prisma__PostClient<T, Null = never, ExtArgs extends runtime.Typ
   likes<T extends Prisma.Post$likesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Post$likesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reposts<T extends Prisma.Post$repostsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Post$repostsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RepostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   mentions<T extends Prisma.Post$mentionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Post$mentionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MentionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reviewSubject<T extends Prisma.Post$reviewSubjectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Post$reviewSubjectArgs<ExtArgs>>): Prisma.Prisma__ReviewSubjectClient<runtime.Types.Result.GetResult<Prisma.$ReviewSubjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1402,6 +1573,7 @@ export interface PostFieldRefs {
   readonly id: Prisma.FieldRef<"Post", 'String'>
   readonly content: Prisma.FieldRef<"Post", 'String'>
   readonly contentHtml: Prisma.FieldRef<"Post", 'String'>
+  readonly type: Prisma.FieldRef<"Post", 'PostType'>
   readonly authorId: Prisma.FieldRef<"Post", 'String'>
   readonly createdAt: Prisma.FieldRef<"Post", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Post", 'DateTime'>
@@ -1899,6 +2071,25 @@ export type Post$mentionsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.MentionScalarFieldEnum | Prisma.MentionScalarFieldEnum[]
+}
+
+/**
+ * Post.reviewSubject
+ */
+export type Post$reviewSubjectArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReviewSubject
+   */
+  select?: Prisma.ReviewSubjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReviewSubject
+   */
+  omit?: Prisma.ReviewSubjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReviewSubjectInclude<ExtArgs> | null
+  where?: Prisma.ReviewSubjectWhereInput
 }
 
 /**

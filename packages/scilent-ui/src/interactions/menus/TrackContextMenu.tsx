@@ -15,7 +15,15 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@scilent-one/ui';
-import { Music, ExternalLink, Copy, Link, ScrollText, Type } from 'lucide-react';
+import {
+  Music,
+  ExternalLink,
+  Copy,
+  Link,
+  ScrollText,
+  Type,
+  PenLine,
+} from 'lucide-react';
 import { useHarmonyInteraction } from '../provider';
 import type { HarmonizedEntity, MenuAction, ProviderAction } from '../types';
 import type { HarmonizedTrack } from '../../types';
@@ -85,13 +93,18 @@ export function TrackContextMenu({
   }, [track.sources]);
 
   // Get provider actions for tracks
-  const providerActions = (interaction.providerActions?.track ?? []) as ProviderAction<HarmonizedTrack>[];
+  const providerActions = (interaction.providerActions?.track ??
+    []) as ProviderAction<HarmonizedTrack>[];
 
   // Get custom menu items for tracks
   const customItems = interaction.customMenuItems?.track ?? [];
 
   // Determine if we have copy actions
-  const hasCopyActions = track.isrc || interaction.onCopyLink || track.title || track.artists?.length;
+  const hasCopyActions =
+    track.isrc ||
+    interaction.onCopyLink ||
+    track.title ||
+    track.artists?.length;
 
   const handleViewTrack = React.useCallback(() => {
     interaction.onNavigate?.('track', track);
@@ -127,6 +140,11 @@ export function TrackContextMenu({
 
   const handleViewCredits = React.useCallback(() => {
     interaction.onViewCredits?.(track, 'track');
+    onClose?.();
+  }, [interaction, track, onClose]);
+
+  const handleWriteReview = React.useCallback(() => {
+    interaction.onWriteReview?.('track', track);
     onClose?.();
   }, [interaction, track, onClose]);
 
@@ -171,6 +189,13 @@ export function TrackContextMenu({
             View Credits
           </MenuItem>
         )}
+
+      {interaction.onWriteReview && (
+        <MenuItem className="gap-2" onSelect={handleWriteReview}>
+          <PenLine className="size-4" />
+          Write review
+        </MenuItem>
+      )}
 
       {/* Section 2: Copy Submenu */}
       {hasCopyActions && (

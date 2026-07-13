@@ -81,6 +81,19 @@ export {
   getUserReposts,
 } from './feeds';
 
+// Reviews
+export {
+  createReview,
+  updateReview,
+  getReviews,
+  buildReviewSubjectFromSnapshot,
+  getCanonicalKey,
+  getPrimaryArtistFromCredits,
+  type GetReviewsParams,
+  type ReviewSubjectInput,
+  type ResolvedReviewSubject,
+} from './reviews';
+
 // Users
 export {
   getUserById,

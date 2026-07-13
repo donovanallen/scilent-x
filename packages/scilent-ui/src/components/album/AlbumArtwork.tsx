@@ -8,6 +8,8 @@ export interface AlbumArtworkProps extends Omit<
 > {
   /** URL of the artwork image */
   src?: string | undefined;
+  /** Fallback URLs tried in order when the primary src fails */
+  fallbackSrc?: string[] | undefined;
   /** Alt text for the image */
   alt?: string | undefined;
   /**
@@ -46,12 +48,15 @@ const roundedClasses = {
   lg: 'rounded-lg',
 } as const;
 
+const EMPTY_FALLBACKS: string[] = [];
+
 /**
  * Album artwork component that displays release cover art from various platforms.
  * Handles loading states, fallback placeholders, and optional visual effects.
  */
 export function AlbumArtwork({
   src,
+  fallbackSrc = EMPTY_FALLBACKS,
   alt = 'Album artwork',
   size = 'lg',
   isLoading = false,
@@ -61,25 +66,50 @@ export function AlbumArtwork({
   className,
   ...props
 }: AlbumArtworkProps) {
-  const [hasError, setHasError] = React.useState(false);
-  const [isImageLoading, setIsImageLoading] = React.useState(!!src);
+  const sources = React.useMemo(
+    () => [src, ...fallbackSrc].filter((url): url is string => Boolean(url)),
+    [src, fallbackSrc]
+  );
+  const [sourceIndex, setSourceIndex] = React.useState(0);
+  const [isImageLoading, setIsImageLoading] = React.useState(
+    sources.length > 0
+  );
+  const currentSrc = sources[sourceIndex];
 
   const sizeClass = sizeClasses[size];
   const roundedClass = roundedClasses[rounded];
 
-  // Reset error state when src changes
   React.useEffect(() => {
-    setHasError(false);
-    setIsImageLoading(!!src);
-  }, [src]);
+    setSourceIndex(0);
+    setIsImageLoading(sources.length > 0);
+  }, [sources]);
 
   const handleImageLoad = React.useCallback(() => {
     setIsImageLoading(false);
   }, []);
 
   const handleImageError = React.useCallback(() => {
-    setHasError(true);
-    setIsImageLoading(false);
+    setSourceIndex((index) => {
+      if (index < sources.length - 1) {
+        setIsImageLoading(true);
+        return index + 1;
+      }
+      setIsImageLoading(false);
+      return index;
+    });
+  }, [sources.length]);
+
+  // Data-URI / cached images often complete before React binds onLoad.
+  const imageRef = React.useCallback((node: HTMLImageElement | null) => {
+    if (!node) return;
+    if (node.complete) {
+      if (node.naturalWidth > 0) {
+        setIsImageLoading(false);
+      } else if (node.currentSrc || node.src) {
+        // Broken image that finished without dimensions
+        setIsImageLoading(false);
+      }
+    }
   }, []);
 
   // Loading state - skeleton
@@ -100,8 +130,8 @@ export function AlbumArtwork({
     className
   );
 
-  // No source or error - show placeholder
-  if (!src || hasError) {
+  // No source or all sources failed - show placeholder
+  if (!currentSrc) {
     return (
       <div
         className={cn(containerClasses, 'flex items-center justify-center')}
@@ -119,7 +149,8 @@ export function AlbumArtwork({
       {/* Show skeleton while image is loading */}
       {isImageLoading && <Skeleton className="absolute inset-0" />}
       <img
-        src={src}
+        ref={imageRef}
+        src={currentSrc}
         alt={alt}
         className={cn(
           'h-full w-full object-cover',
@@ -127,7 +158,7 @@ export function AlbumArtwork({
             'transition-transform duration-base ease-out group-hover:scale-105',
           isImageLoading && 'opacity-0'
         )}
-        loading="lazy"
+        loading="eager"
         onLoad={handleImageLoad}
         onError={handleImageError}
       />

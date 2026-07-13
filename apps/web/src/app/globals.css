@@ -2,6 +2,7 @@
 
 /* App-specific source scanning for web app components */
 @source "../**/*.{ts,tsx}";
+@source "../../../../packages/scilent-ui/src/**/*.{ts,tsx}";
 
 /* Any app-specific overrides below */
 .search-result-item {

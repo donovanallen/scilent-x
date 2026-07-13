@@ -58,6 +58,14 @@ export {
 } from './utils/validation';
 export * from './types/index';
 export * from './errors/index';
+export {
+  getHarmonizedArtworkUrl,
+  getCoverArtArchiveUrl,
+  fetchCoverArtArchiveUrl,
+  resolveArtworkUrl,
+  getMusicBrainzReleaseMbid,
+  type ArtworkResolveInput,
+} from './utils/artwork';
 
 // Main engine configuration
 export interface HarmonizationConfig {

@@ -1,6 +1,6 @@
 'use client';
 
-import { ArtistMention } from '@scilent-one/scilent-ui';
+import { ArtistMention, ReviewCard } from '@scilent-one/scilent-ui';
 import {
   Feed,
   PostForm,
@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import useSWR from 'swr';
 import useSWRInfinite from 'swr/infinite';
 
+import { getPostDetailPath } from '@/lib/post-routes';
 import { fetcher } from '@/lib/swr';
 import { useMentionSearch } from '@/lib/use-mention-search';
 
@@ -34,6 +35,16 @@ interface FeedComment {
 }
 
 interface FeedPost extends PostCardProps {
+  type?: 'POST' | 'REVIEW';
+  reviewSubject?: {
+    type: 'RELEASE' | 'TRACK';
+    title: string;
+    artistLabel: string | null;
+    artworkUrl: string | null;
+    releaseDate: string | null;
+    gtin: string | null;
+    isrc: string | null;
+  } | null;
   _count?: {
     likes: number;
     comments: number;
@@ -591,7 +602,7 @@ export default function FeedPage() {
 
   return (
     <div className='flex flex-col h-full min-h-0 space-y-6'>
-      {currentUser && (
+      {currentUser ? (
         <PostForm
           user={{
             name: currentUser.name,
@@ -602,7 +613,7 @@ export default function FeedPage() {
           onMentionQuery={searchUsers}
           onArtistMentionQuery={searchArtists}
         />
-      )}
+      ) : null}
 
       <Feed
         posts={posts.map((post) => ({
@@ -611,6 +622,29 @@ export default function FeedPage() {
           commentsCount: post._count?.comments ?? post.commentsCount ?? 0,
           repostsCount: post._count?.reposts ?? post.repostsCount ?? 0,
         }))}
+        renderPostCard={(post, defaultCard) => {
+          const feedPost = posts.find((item) => item.id === post.id);
+          if (feedPost?.type === 'REVIEW' && feedPost.reviewSubject) {
+            return (
+              <ReviewCard
+                {...(defaultCard.props as PostCardProps)}
+                reviewSubject={feedPost.reviewSubject}
+                onSubjectClick={() => {
+                  if (feedPost.reviewSubject?.gtin) {
+                    router.push(
+                      `/releases/${feedPost.reviewSubject.gtin}/reviews`
+                    );
+                  } else if (feedPost.reviewSubject?.isrc) {
+                    router.push(
+                      `/tracks/${feedPost.reviewSubject.isrc}/reviews`
+                    );
+                  }
+                }}
+              />
+            );
+          }
+          return defaultCard;
+        }}
         currentUserId={currentUser?.id}
         isLoading={isFeedLoading}
         hasMore={hasMore}
@@ -621,7 +655,10 @@ export default function FeedPage() {
         onUnlikePost={handleUnlikePost}
         onRepostPost={handleRepostPost}
         onUnrepostPost={handleUnrepostPost}
-        onPostClick={(postId) => router.push(`/post/${postId}`)}
+        onPostClick={(postId) => {
+          const feedPost = posts.find((item) => item.id === postId);
+          router.push(getPostDetailPath(postId, feedPost?.type));
+        }}
         onEditPost={handleEditPost}
         onSaveEdit={handleSaveEdit}
         onCancelEdit={handleCancelEdit}
@@ -645,7 +682,10 @@ export default function FeedPage() {
         }
         submittingCommentPostId={submittingCommentPostId}
         onCreateComment={handleCreateComment}
-        onViewAllComments={(postId) => router.push(`/post/${postId}`)}
+        onViewAllComments={(postId) => {
+          const feedPost = posts.find((item) => item.id === postId);
+          router.push(getPostDetailPath(postId, feedPost?.type));
+        }}
         onLikeComment={handleLikeComment}
         onUnlikeComment={handleUnlikeComment}
         onReplyComment={handleReplyComment}

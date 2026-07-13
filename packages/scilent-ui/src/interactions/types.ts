@@ -14,11 +14,7 @@ export type EntityType = 'track' | 'album' | 'artist';
  * Types of provider actions available in context menus
  */
 export type ProviderActionType =
-  | 'like'
-  | 'save'
-  | 'follow'
-  | 'add_to_playlist'
-  | 'open_external';
+  'like' | 'save' | 'follow' | 'add_to_playlist' | 'open_external';
 
 /**
  * Known streaming/music providers
@@ -97,9 +93,7 @@ export type Platform = 'web' | 'mobile' | 'auto';
  * Union type for all harmonized entities
  */
 export type HarmonizedEntity =
-  | HarmonizedTrack
-  | HarmonizedRelease
-  | HarmonizedArtist;
+  HarmonizedTrack | HarmonizedRelease | HarmonizedArtist;
 
 /**
  * Menu action definition for context/dropdown menus
@@ -129,7 +123,8 @@ export type PreviewMode = 'mini' | 'full' | 'links';
 /**
  * Preview content configuration - can be a preset mode or a custom component
  */
-export type PreviewContent = PreviewMode | ComponentType<EntityPreviewContentProps>;
+export type PreviewContent =
+  PreviewMode | ComponentType<EntityPreviewContentProps>;
 
 /**
  * Props passed to custom preview content components
@@ -191,6 +186,14 @@ export interface HarmonyInteractionConfig {
   onViewCredits?: (entity: HarmonizedEntity, entityType: EntityType) => void;
 
   /**
+   * Callback for starting a review of an album or track
+   */
+  onWriteReview?: (
+    entityType: 'album' | 'track',
+    entity: HarmonizedEntity
+  ) => void;
+
+  /**
    * Custom menu items per entity type
    * These are appended to the default menu items
    */
@@ -222,17 +225,31 @@ export interface HarmonyInteractionConfig {
 /**
  * Internal context value with resolved configuration
  */
-export interface HarmonyInteractionContextValue extends Required<Omit<HarmonyInteractionConfig, 'onNavigate' | 'onOpenExternal' | 'onCopyLink' | 'onViewCredits' | 'customMenuItems' | 'providerActions' | 'enabledProviders' | 'previewContent'>> {
+export interface HarmonyInteractionContextValue extends Required<
+  Omit<
+    HarmonyInteractionConfig,
+    | 'onNavigate'
+    | 'onOpenExternal'
+    | 'onCopyLink'
+    | 'onViewCredits'
+    | 'onWriteReview'
+    | 'customMenuItems'
+    | 'providerActions'
+    | 'enabledProviders'
+    | 'previewContent'
+  >
+> {
   /** Whether interactions are enabled (provider is present) */
   enabled: boolean;
   /** Resolved platform (auto is replaced with actual value) */
   platform: 'web' | 'mobile';
-  
+
   // Optional callbacks
   onNavigate?: HarmonyInteractionConfig['onNavigate'];
   onOpenExternal?: HarmonyInteractionConfig['onOpenExternal'];
   onCopyLink?: HarmonyInteractionConfig['onCopyLink'];
   onViewCredits?: HarmonyInteractionConfig['onViewCredits'];
+  onWriteReview?: HarmonyInteractionConfig['onWriteReview'];
   customMenuItems?: HarmonyInteractionConfig['customMenuItems'];
   providerActions?: HarmonyInteractionConfig['providerActions'];
   enabledProviders?: HarmonyInteractionConfig['enabledProviders'];
@@ -253,8 +270,8 @@ export interface InteractiveWrapperProps {
   className?: string;
   /** Whether to disable interactions for this wrapper */
   disabled?: boolean;
-  /** 
-   * Side to position the hover preview 
+  /**
+   * Side to position the hover preview
    * @default 'right'
    */
   previewSide?: 'top' | 'right' | 'bottom' | 'left';
