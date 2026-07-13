@@ -5,7 +5,6 @@ import { ReviewComposer } from './ReviewComposer';
 import { mockRelease, mockTrack } from '../../__stories__/mock-data';
 import { getPrimaryArtistName } from '../../utils';
 import { STORY_ALBUM_ART, STORY_ALBUM_ART_ALT } from './__storybook-art';
-import { MusicSubjectPicker } from './MusicSubjectPicker';
 import { AlbumListItem } from '../album/AlbumListItem';
 import {
   Dialog,
