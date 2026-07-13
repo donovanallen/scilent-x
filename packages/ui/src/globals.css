@@ -78,6 +78,34 @@
   --sidebar-accent-foreground: oklch(0.15 0 0);
   --sidebar-border: oklch(0.92 0 0);
   --sidebar-ring: oklch(0.65 0 0);
+
+  /*
+   * Scrollbar design tokens.
+   *
+   * Defined once here and derived from the semantic palette tokens
+   * (`--muted-foreground`, `--ring`) via `color-mix`. Because custom
+   * properties are substituted per element at computed-value time, these
+   * automatically pick up the right values under `.dark` and every
+   * `[data-theme]` palette without needing to be redeclared in each block.
+   *
+   *  --scrollbar-size          thickness of the scrollbar track (thumb sits
+   *                            inside it, inset by the thumb border)
+   *  --scrollbar-thumb         idle thumb color (subtle, monochrome)
+   *  --scrollbar-thumb-active  hover/scrolling thumb color (theme accent)
+   *  --scrollbar-track         track color (transparent by default)
+   *  --scrollbar-thumb-opacity idle opacity for the animated DOM thumb used
+   *                            by <ScrollArea>; the native baseline bakes
+   *                            opacity into the color-mix instead
+   */
+  --scrollbar-size: 0.5rem;
+  --scrollbar-thumb: color-mix(
+    in oklch,
+    var(--muted-foreground) 35%,
+    transparent
+  );
+  --scrollbar-thumb-active: color-mix(in oklch, var(--ring) 70%, transparent);
+  --scrollbar-track: transparent;
+  --scrollbar-thumb-opacity: 0.35;
 }
 
 .dark {
@@ -293,6 +321,10 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Scrollbar mappings (enable bg-scrollbar-thumb / bg-scrollbar-thumb-active) */
+  --color-scrollbar-thumb: var(--scrollbar-thumb);
+  --color-scrollbar-thumb-active: var(--scrollbar-thumb-active);
 
   /* Radius scale */
   --radius-sm: calc(var(--radius) - 2px);
@@ -598,6 +630,17 @@ code {
   overscroll-behavior: contain;
 }
 
+/*
+ * Hide the scrollbar entirely while keeping the element scrollable.
+ * Standard (`scrollbar-width: none`) + WebKit/Blink pseudo-element fallback.
+ */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility step {
   counter-increment: step;
   @apply relative;
@@ -614,6 +657,99 @@ code {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* ---------------------------------------------------------------------
+ * Custom scrollbars (native baseline)
+ *
+ * A subtle, theme-aware scrollbar for opt-in containers. Add the
+ * `.custom-scrollbars` class to a scroll container (or an ancestor - the
+ * standard properties inherit) to get a thin line thumb that shifts to the
+ * theme accent color on hover/active.
+ *
+ *  - Standard properties (`scrollbar-width` / `scrollbar-color`) cover
+ *    Firefox and modern Chromium/Safari and inherit to descendants.
+ *  - `::-webkit-scrollbar` pseudo-elements give the thin-line look and the
+ *    hover/active accent in Blink/WebKit (which ignore `scrollbar-color`
+ *    once the pseudo-elements are defined). They don't inherit, so both the
+ *    element itself and its descendants are targeted.
+ *
+ * Escape hatches / fallbacks:
+ *  - `[data-custom-scrollbars='off']` on any ancestor (e.g. <html>) reverts
+ *    to the browser's native scrollbar.
+ *  - `.scrollbar-none` hides the scrollbar entirely.
+ *  - On coarse pointers we defer to the browser's native (auto-hiding
+ *    overlay) scrollbars for the most device-appropriate behavior.
+ * ------------------------------------------------------------------- */
+.custom-scrollbars {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+.custom-scrollbars::-webkit-scrollbar,
+.custom-scrollbars ::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+.custom-scrollbars::-webkit-scrollbar-track,
+.custom-scrollbars ::-webkit-scrollbar-track,
+.custom-scrollbars::-webkit-scrollbar-corner,
+.custom-scrollbars ::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.custom-scrollbars::-webkit-scrollbar-thumb,
+.custom-scrollbars ::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 9999px;
+  /* Transparent border + content-box clip insets the thumb into a thin line */
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color var(--tw-duration, 200ms) var(--ease-out);
+}
+
+.custom-scrollbars::-webkit-scrollbar-thumb:hover,
+.custom-scrollbars ::-webkit-scrollbar-thumb:hover,
+.custom-scrollbars::-webkit-scrollbar-thumb:active,
+.custom-scrollbars ::-webkit-scrollbar-thumb:active {
+  background-color: var(--scrollbar-thumb-active);
+}
+
+/* Escape hatch: revert to native scrollbars */
+[data-custom-scrollbars='off'] .custom-scrollbars,
+[data-custom-scrollbars='off'].custom-scrollbars {
+  scrollbar-width: auto;
+  scrollbar-color: auto;
+}
+
+[data-custom-scrollbars='off'] .custom-scrollbars::-webkit-scrollbar,
+[data-custom-scrollbars='off'] .custom-scrollbars ::-webkit-scrollbar,
+[data-custom-scrollbars='off'].custom-scrollbars::-webkit-scrollbar {
+  width: auto;
+  height: auto;
+}
+
+[data-custom-scrollbars='off'] .custom-scrollbars::-webkit-scrollbar-thumb,
+[data-custom-scrollbars='off'] .custom-scrollbars ::-webkit-scrollbar-thumb,
+[data-custom-scrollbars='off'].custom-scrollbars::-webkit-scrollbar-thumb {
+  background-color: initial;
+  border: 0;
+  background-clip: border-box;
+}
+
+/* Device fallback: defer to native overlay scrollbars on touch */
+@media (pointer: coarse) {
+  .custom-scrollbars {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+  }
+
+  .custom-scrollbars::-webkit-scrollbar,
+  .custom-scrollbars ::-webkit-scrollbar {
+    width: auto;
+    height: auto;
   }
 }
 

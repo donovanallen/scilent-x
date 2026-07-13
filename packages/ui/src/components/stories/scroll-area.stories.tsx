@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import * as React from 'react';
 import { ScrollArea, ScrollBar } from '../scroll-area';
 import { Separator } from '../separator';
 
@@ -120,7 +121,10 @@ export const ArticleContent: Story = {
 
 export const ChatMessages: Story = {
   render: () => (
-    <ScrollArea className="h-[300px] w-[300px] rounded-md border p-4" showShadow>
+    <ScrollArea
+      className="h-[300px] w-[300px] rounded-md border p-4"
+      showShadow
+    >
       <div className="space-y-4">
         {Array.from({ length: 20 }).map((_, i) => (
           <div
@@ -144,5 +148,136 @@ export const ChatMessages: Story = {
         ))}
       </div>
     </ScrollArea>
+  ),
+};
+
+/**
+ * The scrollbar width is configurable via the `scrollbarWidth` prop
+ * ("line" | "thin" | "default"). Scroll each column to compare.
+ */
+export const WidthVariants: Story = {
+  render: () => (
+    <div className="flex gap-4">
+      {(['line', 'thin', 'default'] as const).map((width) => (
+        <div key={width} className="flex flex-col items-center gap-2">
+          <span className="text-xs text-muted-foreground">{width}</span>
+          <ScrollArea
+            scrollbarWidth={width}
+            className="h-72 w-40 rounded-md border"
+          >
+            <div className="p-4">
+              {tags.map((tag) => (
+                <div key={tag}>
+                  <div className="text-sm">{tag}</div>
+                  <Separator className="my-2" />
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+/**
+ * The `accent` prop controls the thumb color while scrolling/hovering:
+ * "theme" (default) shifts to the palette accent, "muted" stays monochrome.
+ */
+export const AccentVariants: Story = {
+  render: () => (
+    <div className="flex gap-4">
+      {(['theme', 'muted'] as const).map((accent) => (
+        <div key={accent} className="flex flex-col items-center gap-2">
+          <span className="text-xs text-muted-foreground">
+            accent: {accent}
+          </span>
+          <ScrollArea accent={accent} className="h-72 w-40 rounded-md border">
+            <div className="p-4">
+              {tags.map((tag) => (
+                <div key={tag}>
+                  <div className="text-sm">{tag}</div>
+                  <Separator className="my-2" />
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+/**
+ * Per-instance customization via CSS variables. Override `--scrollbar-thumb`,
+ * `--scrollbar-thumb-active`, `--scrollbar-size`, and `--scrollbar-thumb-opacity`
+ * inline for full control over color, width, and opacity.
+ */
+export const CustomStyle: Story = {
+  render: () => (
+    <ScrollArea
+      className="h-72 w-48 rounded-md border"
+      style={
+        {
+          '--scrollbar-size': '0.75rem',
+          '--scrollbar-thumb': 'var(--color-chart-1)',
+          '--scrollbar-thumb-active': 'var(--color-primary)',
+          '--scrollbar-thumb-opacity': '0.6',
+        } as React.CSSProperties
+      }
+    >
+      <div className="p-4">
+        {tags.map((tag) => (
+          <div key={tag}>
+            <div className="text-sm">{tag}</div>
+            <Separator className="my-2" />
+          </div>
+        ))}
+      </div>
+    </ScrollArea>
+  ),
+};
+
+/**
+ * The native baseline: any element (or ancestor) with the `custom-scrollbars`
+ * class gets the themed native scrollbar - no JS, works on plain `overflow`
+ * containers app-wide. Compare against the browser default on the right.
+ */
+export const NativeBaseline: Story = {
+  render: () => (
+    <div className="flex gap-4">
+      <div className="flex flex-col items-center gap-2">
+        <span className="text-xs text-muted-foreground">custom-scrollbars</span>
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label="Custom scrollbar example"
+          className="custom-scrollbars h-72 w-40 overflow-y-auto rounded-md border p-4"
+        >
+          {tags.map((tag) => (
+            <div key={tag}>
+              <div className="text-sm">{tag}</div>
+              <Separator className="my-2" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <span className="text-xs text-muted-foreground">native default</span>
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label="Native scrollbar example"
+          className="h-72 w-40 overflow-y-auto rounded-md border p-4"
+        >
+          {tags.map((tag) => (
+            <div key={tag}>
+              <div className="text-sm">{tag}</div>
+              <Separator className="my-2" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   ),
 };

@@ -51,7 +51,7 @@ const getContentWidth = (mode: PreviewMode, entityType: EntityType): string => {
 /**
  * Platform-adaptive preview wrapper that switches between HoverCard (web)
  * and Popover with tap trigger (mobile) based on the provider configuration.
- * 
+ *
  * Renders the appropriate entity-specific preview content based on entityType.
  * Features responsive widths and smooth animations.
  */
@@ -93,7 +93,7 @@ export function EntityPreview({
 
     // Use built-in preview components
     const mode = previewMode as PreviewMode;
-    
+
     switch (entityType) {
       case 'track':
         return <TrackHoverPreview entity={entity} mode={mode} />;
@@ -110,7 +110,7 @@ export function EntityPreview({
   const contentStyles = cn(
     contentWidth,
     'max-h-[min(85vh,500px)] overflow-y-auto',
-    'scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent',
+    'custom-scrollbars',
     contentClassName
   );
 
@@ -118,9 +118,7 @@ export function EntityPreview({
   if (interaction.platform === 'web') {
     return (
       <HoverCard openDelay={interaction.hoverDelay} closeDelay={200}>
-        <HoverCardTrigger asChild>
-          {children}
-        </HoverCardTrigger>
+        <HoverCardTrigger asChild>{children}</HoverCardTrigger>
         <HoverCardContent
           className={cn(
             contentStyles,
@@ -160,10 +158,7 @@ export function EntityPreview({
         </div>
       </PopoverTrigger>
       <PopoverContent
-        className={cn(
-          contentStyles,
-          'animate-in fade-in-0 zoom-in-95'
-        )}
+        className={cn(contentStyles, 'animate-in fade-in-0 zoom-in-95')}
         sideOffset={8}
         collisionPadding={16}
       >

@@ -3,9 +3,23 @@
 import * as React from 'react';
 import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
 
+import { useIsTouchDevice } from '../hooks/use-mobile';
+import { useScrollActivity } from '../hooks/use-scroll-activity';
 import { cn } from '../utils';
 
 type ScrollShadowOrientation = 'vertical' | 'horizontal' | 'both';
+
+/** Thickness preset for the scrollbar. */
+type ScrollbarWidth = 'line' | 'thin' | 'default';
+
+/** Color used for the thumb while scrolling / hovering. */
+type ScrollbarAccent = 'theme' | 'muted';
+
+const SCROLLBAR_WIDTHS: Record<ScrollbarWidth, string> = {
+  line: '0.3125rem', // 5px - subtle hairline
+  thin: '0.5rem', // 8px - matches the --scrollbar-size token default
+  default: '0.625rem', // 10px - roomier target
+};
 
 interface ScrollAreaProps extends React.ComponentProps<
   typeof ScrollAreaPrimitive.Root
@@ -18,6 +32,14 @@ interface ScrollAreaProps extends React.ComponentProps<
   shadowSize?: number;
   /** Ref to access the scrollable viewport element (useful for virtualization) */
   viewportRef?: React.RefObject<HTMLDivElement | null>;
+  /** Scrollbar thickness preset - defaults to "thin" */
+  scrollbarWidth?: ScrollbarWidth;
+  /**
+   * Thumb color while scrolling/hovering.
+   * - "theme": shift to the palette accent (default)
+   * - "muted": stay monochrome, just increase opacity
+   */
+  accent?: ScrollbarAccent;
 }
 
 function ScrollArea({
@@ -27,16 +49,39 @@ function ScrollArea({
   shadowOrientation = 'vertical',
   shadowSize = 40,
   viewportRef: externalViewportRef,
+  scrollbarWidth = 'thin',
+  accent = 'theme',
+  type,
+  style,
   ...props
 }: ScrollAreaProps) {
   const internalViewportRef = React.useRef<HTMLDivElement>(null);
   const viewportRef = externalViewportRef || internalViewportRef;
+  const isTouch = useIsTouchDevice();
+  const isScrolling = useScrollActivity(viewportRef);
   const [scrollState, setScrollState] = React.useState({
     atTop: true,
     atBottom: true,
     atLeft: true,
     atRight: true,
   });
+
+  // Auto-hiding overlay behavior on touch, hover-reveal on pointer devices -
+  // unless the consumer explicitly sets `type`.
+  const resolvedType = type ?? (isTouch ? 'scroll' : 'hover');
+
+  // Per-instance scrollbar styling via CSS custom properties. These override
+  // the global tokens for this ScrollArea only and inherit down to <ScrollBar>.
+  const scrollbarVars = {
+    '--scrollbar-size': SCROLLBAR_WIDTHS[scrollbarWidth],
+    ...(accent === 'muted'
+      ? {
+          '--scrollbar-thumb-active':
+            'color-mix(in oklch, var(--muted-foreground) 60%, transparent)',
+        }
+      : {}),
+    ...style,
+  } as React.CSSProperties;
 
   const handleScroll = React.useCallback(() => {
     const viewport = viewportRef.current;
@@ -84,7 +129,10 @@ function ScrollArea({
   return (
     <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
-      className={cn('relative overflow-hidden', className)}
+      data-scrolling={isScrolling ? 'true' : undefined}
+      type={resolvedType}
+      style={scrollbarVars}
+      className={cn('group/scroll-area relative overflow-hidden', className)}
       {...props}
     >
       <ScrollAreaPrimitive.Viewport
@@ -161,16 +209,24 @@ function ScrollBar({
       className={cn(
         'flex touch-none p-px transition-colors select-none',
         orientation === 'vertical' &&
-          'h-full w-2.5 border-l border-l-transparent',
+          'h-full w-[var(--scrollbar-size,0.5rem)] border-l border-l-transparent',
         orientation === 'horizontal' &&
-          'h-2.5 flex-col border-t border-t-transparent',
+          'h-[var(--scrollbar-size,0.5rem)] flex-col border-t border-t-transparent',
         className
       )}
       {...props}
     >
       <ScrollAreaPrimitive.ScrollAreaThumb
         data-slot="scroll-area-thumb"
-        className="bg-border relative flex-1 rounded-full"
+        className={cn(
+          'relative flex-1 rounded-full',
+          'bg-[var(--scrollbar-thumb)] opacity-[var(--scrollbar-thumb-opacity,0.35)]',
+          'transition-[background-color,opacity] duration-base ease-out',
+          // Reveal on hover and shift to the theme accent while scrolling
+          'group-hover/scroll-area:opacity-100',
+          'group-data-[scrolling=true]/scroll-area:bg-[var(--scrollbar-thumb-active)]',
+          'group-data-[scrolling=true]/scroll-area:opacity-100'
+        )}
       />
     </ScrollAreaPrimitive.ScrollAreaScrollbar>
   );

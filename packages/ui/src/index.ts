@@ -34,6 +34,10 @@ export {
 } from './hooks/use-mobile';
 export { useReducedMotion } from './hooks/use-reduced-motion';
 export {
+  useScrollActivity,
+  type UseScrollActivityOptions,
+} from './hooks/use-scroll-activity';
+export {
   useInViewport,
   type UseInViewportOptions,
 } from './hooks/use-in-viewport';
@@ -146,7 +150,7 @@ export {
   NavigationMenuIndicator,
   NavigationMenuViewport,
 } from './components/navigation-menu';
-export { ScrollArea } from './components/scroll-area';
+export { ScrollArea, ScrollBar } from './components/scroll-area';
 export {
   Select,
   SelectContent,
