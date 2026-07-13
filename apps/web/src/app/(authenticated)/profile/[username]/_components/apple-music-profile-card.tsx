@@ -195,6 +195,7 @@ export function AppleMusicProfileCard({
       isReconnecting={isReconnecting}
       onReconnect={handleReconnect}
       hideWhenNotConnected
+      followedArtistsViewAllHref='/artists?provider=apple_music'
     />
   );
 }

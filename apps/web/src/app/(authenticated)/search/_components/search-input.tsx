@@ -4,10 +4,11 @@ import { Button, Input } from '@scilent-one/ui';
 import { Loader2, Search, X } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 
+import { ProviderFilterToggle } from '@/components/provider-filter-toggle';
+
 import type { SearchFilters, SearchType } from '../actions';
 
 import { SearchFiltersReleaseType } from './search-filters-release-type';
-import { SearchProviderToggle } from './search-provider-toggle';
 import { SearchTypeToggle } from './search-type-toggle';
 
 interface SearchInputProps {
@@ -122,7 +123,7 @@ export function SearchInput({
               </Button>
             </div>
           </div>
-          <SearchProviderToggle
+          <ProviderFilterToggle
             selectedProvider={selectedProvider}
             onProviderChange={onProviderChange}
             enabledProviders={providers.map((p) => p.name)}

@@ -145,6 +145,7 @@ export function TidalProfileCard({
       isReconnecting={isReconnecting}
       onReconnect={handleReconnect}
       hideWhenNotConnected
+      followedArtistsViewAllHref='/artists?provider=tidal'
     />
   );
 }
