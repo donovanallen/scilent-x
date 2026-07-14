@@ -37,6 +37,10 @@ export type UserMinAggregateOutputType = {
   avatarUrl: string | null
   palette: string | null
   profileType: $Enums.ProfileType | null
+  role: string | null
+  banned: boolean | null
+  banReason: string | null
+  banExpires: Date | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -52,6 +56,10 @@ export type UserMaxAggregateOutputType = {
   avatarUrl: string | null
   palette: string | null
   profileType: $Enums.ProfileType | null
+  role: string | null
+  banned: boolean | null
+  banReason: string | null
+  banExpires: Date | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -67,6 +75,10 @@ export type UserCountAggregateOutputType = {
   avatarUrl: number
   palette: number
   profileType: number
+  role: number
+  banned: number
+  banReason: number
+  banExpires: number
   _all: number
 }
 
@@ -84,6 +96,10 @@ export type UserMinAggregateInputType = {
   avatarUrl?: true
   palette?: true
   profileType?: true
+  role?: true
+  banned?: true
+  banReason?: true
+  banExpires?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -99,6 +115,10 @@ export type UserMaxAggregateInputType = {
   avatarUrl?: true
   palette?: true
   profileType?: true
+  role?: true
+  banned?: true
+  banReason?: true
+  banExpires?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -114,6 +134,10 @@ export type UserCountAggregateInputType = {
   avatarUrl?: true
   palette?: true
   profileType?: true
+  role?: true
+  banned?: true
+  banReason?: true
+  banExpires?: true
   _all?: true
 }
 
@@ -202,6 +226,10 @@ export type UserGroupByOutputType = {
   avatarUrl: string | null
   palette: string
   profileType: $Enums.ProfileType
+  role: string | null
+  banned: boolean | null
+  banReason: string | null
+  banExpires: Date | null
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
@@ -238,6 +266,10 @@ export type UserWhereInput = {
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   palette?: Prisma.StringFilter<"User"> | string
   profileType?: Prisma.EnumProfileTypeFilter<"User"> | $Enums.ProfileType
+  role?: Prisma.StringNullableFilter<"User"> | string | null
+  banned?: Prisma.BoolNullableFilter<"User"> | boolean | null
+  banReason?: Prisma.StringNullableFilter<"User"> | string | null
+  banExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
   posts?: Prisma.PostListRelationFilter
@@ -265,6 +297,10 @@ export type UserOrderByWithRelationInput = {
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   palette?: Prisma.SortOrder
   profileType?: Prisma.SortOrder
+  role?: Prisma.SortOrderInput | Prisma.SortOrder
+  banned?: Prisma.SortOrderInput | Prisma.SortOrder
+  banReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  banExpires?: Prisma.SortOrderInput | Prisma.SortOrder
   accounts?: Prisma.AccountOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   posts?: Prisma.PostOrderByRelationAggregateInput
@@ -295,6 +331,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   palette?: Prisma.StringFilter<"User"> | string
   profileType?: Prisma.EnumProfileTypeFilter<"User"> | $Enums.ProfileType
+  role?: Prisma.StringNullableFilter<"User"> | string | null
+  banned?: Prisma.BoolNullableFilter<"User"> | boolean | null
+  banReason?: Prisma.StringNullableFilter<"User"> | string | null
+  banExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
   posts?: Prisma.PostListRelationFilter
@@ -322,6 +362,10 @@ export type UserOrderByWithAggregationInput = {
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   palette?: Prisma.SortOrder
   profileType?: Prisma.SortOrder
+  role?: Prisma.SortOrderInput | Prisma.SortOrder
+  banned?: Prisma.SortOrderInput | Prisma.SortOrder
+  banReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  banExpires?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
@@ -343,6 +387,10 @@ export type UserScalarWhereWithAggregatesInput = {
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   palette?: Prisma.StringWithAggregatesFilter<"User"> | string
   profileType?: Prisma.EnumProfileTypeWithAggregatesFilter<"User"> | $Enums.ProfileType
+  role?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  banned?: Prisma.BoolNullableWithAggregatesFilter<"User"> | boolean | null
+  banReason?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  banExpires?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
 }
 
 export type UserCreateInput = {
@@ -358,6 +406,10 @@ export type UserCreateInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -385,6 +437,10 @@ export type UserUncheckedCreateInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -412,6 +468,10 @@ export type UserUpdateInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -439,6 +499,10 @@ export type UserUncheckedUpdateInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -466,6 +530,10 @@ export type UserCreateManyInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
 }
 
 export type UserUpdateManyMutationInput = {
@@ -481,6 +549,10 @@ export type UserUpdateManyMutationInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -496,6 +568,10 @@ export type UserUncheckedUpdateManyInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -511,6 +587,10 @@ export type UserCountOrderByAggregateInput = {
   avatarUrl?: Prisma.SortOrder
   palette?: Prisma.SortOrder
   profileType?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  banned?: Prisma.SortOrder
+  banReason?: Prisma.SortOrder
+  banExpires?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -526,6 +606,10 @@ export type UserMaxOrderByAggregateInput = {
   avatarUrl?: Prisma.SortOrder
   palette?: Prisma.SortOrder
   profileType?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  banned?: Prisma.SortOrder
+  banReason?: Prisma.SortOrder
+  banExpires?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -541,6 +625,10 @@ export type UserMinOrderByAggregateInput = {
   avatarUrl?: Prisma.SortOrder
   palette?: Prisma.SortOrder
   profileType?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  banned?: Prisma.SortOrder
+  banReason?: Prisma.SortOrder
+  banExpires?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -571,6 +659,14 @@ export type DateTimeFieldUpdateOperationsInput = {
 
 export type EnumProfileTypeFieldUpdateOperationsInput = {
   set?: $Enums.ProfileType
+}
+
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type UserCreateNestedOneWithoutAccountsInput = {
@@ -756,6 +852,10 @@ export type UserCreateWithoutAccountsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
   comments?: Prisma.CommentCreateNestedManyWithoutAuthorInput
@@ -782,6 +882,10 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutAuthorInput
@@ -824,6 +928,10 @@ export type UserUpdateWithoutAccountsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
   comments?: Prisma.CommentUpdateManyWithoutAuthorNestedInput
@@ -850,6 +958,10 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutAuthorNestedInput
@@ -876,6 +988,10 @@ export type UserCreateWithoutSessionsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
   comments?: Prisma.CommentCreateNestedManyWithoutAuthorInput
@@ -902,6 +1018,10 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutAuthorInput
@@ -944,6 +1064,10 @@ export type UserUpdateWithoutSessionsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
   comments?: Prisma.CommentUpdateManyWithoutAuthorNestedInput
@@ -970,6 +1094,10 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutAuthorNestedInput
@@ -996,6 +1124,10 @@ export type UserCreateWithoutPostsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutAuthorInput
@@ -1022,6 +1154,10 @@ export type UserUncheckedCreateWithoutPostsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutAuthorInput
@@ -1064,6 +1200,10 @@ export type UserUpdateWithoutPostsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutAuthorNestedInput
@@ -1090,6 +1230,10 @@ export type UserUncheckedUpdateWithoutPostsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1116,6 +1260,10 @@ export type UserCreateWithoutRepostsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1142,6 +1290,10 @@ export type UserUncheckedCreateWithoutRepostsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1184,6 +1336,10 @@ export type UserUpdateWithoutRepostsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1210,6 +1366,10 @@ export type UserUncheckedUpdateWithoutRepostsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1236,6 +1396,10 @@ export type UserCreateWithoutCommentsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1262,6 +1426,10 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1304,6 +1472,10 @@ export type UserUpdateWithoutCommentsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1330,6 +1502,10 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1356,6 +1532,10 @@ export type UserCreateWithoutLikesInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1382,6 +1562,10 @@ export type UserUncheckedCreateWithoutLikesInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1424,6 +1608,10 @@ export type UserUpdateWithoutLikesInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1450,6 +1638,10 @@ export type UserUncheckedUpdateWithoutLikesInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1476,6 +1668,10 @@ export type UserCreateWithoutFollowingInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1502,6 +1698,10 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1533,6 +1733,10 @@ export type UserCreateWithoutFollowersInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1559,6 +1763,10 @@ export type UserUncheckedCreateWithoutFollowersInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1601,6 +1809,10 @@ export type UserUpdateWithoutFollowingInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1627,6 +1839,10 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1664,6 +1880,10 @@ export type UserUpdateWithoutFollowersInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1690,6 +1910,10 @@ export type UserUncheckedUpdateWithoutFollowersInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1716,6 +1940,10 @@ export type UserCreateWithoutMentionsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1742,6 +1970,10 @@ export type UserUncheckedCreateWithoutMentionsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1784,6 +2016,10 @@ export type UserUpdateWithoutMentionsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1810,6 +2046,10 @@ export type UserUncheckedUpdateWithoutMentionsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1836,6 +2076,10 @@ export type UserCreateWithoutActivitiesInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1862,6 +2106,10 @@ export type UserUncheckedCreateWithoutActivitiesInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -1904,6 +2152,10 @@ export type UserUpdateWithoutActivitiesInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -1930,6 +2182,10 @@ export type UserUncheckedUpdateWithoutActivitiesInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -1956,6 +2212,10 @@ export type UserCreateWithoutConversationParticipantsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -1982,6 +2242,10 @@ export type UserUncheckedCreateWithoutConversationParticipantsInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -2024,6 +2288,10 @@ export type UserUpdateWithoutConversationParticipantsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -2050,6 +2318,10 @@ export type UserUncheckedUpdateWithoutConversationParticipantsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -2076,6 +2348,10 @@ export type UserCreateWithoutMessagesInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
@@ -2102,6 +2378,10 @@ export type UserUncheckedCreateWithoutMessagesInput = {
   avatarUrl?: string | null
   palette?: string
   profileType?: $Enums.ProfileType
+  role?: string | null
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
@@ -2144,6 +2424,10 @@ export type UserUpdateWithoutMessagesInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
@@ -2170,6 +2454,10 @@ export type UserUncheckedUpdateWithoutMessagesInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
   profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
@@ -2326,6 +2614,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   avatarUrl?: boolean
   palette?: boolean
   profileType?: boolean
+  role?: boolean
+  banned?: boolean
+  banReason?: boolean
+  banExpires?: boolean
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   posts?: boolean | Prisma.User$postsArgs<ExtArgs>
@@ -2354,6 +2646,10 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   avatarUrl?: boolean
   palette?: boolean
   profileType?: boolean
+  role?: boolean
+  banned?: boolean
+  banReason?: boolean
+  banExpires?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2369,6 +2665,10 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   avatarUrl?: boolean
   palette?: boolean
   profileType?: boolean
+  role?: boolean
+  banned?: boolean
+  banReason?: boolean
+  banExpires?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -2384,9 +2684,13 @@ export type UserSelectScalar = {
   avatarUrl?: boolean
   palette?: boolean
   profileType?: boolean
+  role?: boolean
+  banned?: boolean
+  banReason?: boolean
+  banExpires?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "emailVerified" | "name" | "image" | "createdAt" | "updatedAt" | "username" | "bio" | "avatarUrl" | "palette" | "profileType", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "emailVerified" | "name" | "image" | "createdAt" | "updatedAt" | "username" | "bio" | "avatarUrl" | "palette" | "profileType" | "role" | "banned" | "banReason" | "banExpires", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
@@ -2434,6 +2738,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     avatarUrl: string | null
     palette: string
     profileType: $Enums.ProfileType
+    role: string | null
+    banned: boolean | null
+    banReason: string | null
+    banExpires: Date | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -2881,6 +3189,10 @@ export interface UserFieldRefs {
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
   readonly palette: Prisma.FieldRef<"User", 'String'>
   readonly profileType: Prisma.FieldRef<"User", 'ProfileType'>
+  readonly role: Prisma.FieldRef<"User", 'String'>
+  readonly banned: Prisma.FieldRef<"User", 'Boolean'>
+  readonly banReason: Prisma.FieldRef<"User", 'String'>
+  readonly banExpires: Prisma.FieldRef<"User", 'DateTime'>
 }
     
 

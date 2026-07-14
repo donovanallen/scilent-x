@@ -16,6 +16,7 @@ export type UserListItem = {
   profileType: ProfileType;
   emailVerified: boolean;
   image: string | null;
+  role: string | null;
   createdAt: Date;
   updatedAt: Date;
   connectedAccounts: ConnectedAccount[];
@@ -34,6 +35,7 @@ export async function getUsers(): Promise<UserListItem[]> {
         profileType: true,
         emailVerified: true,
         image: true,
+        role: true,
         createdAt: true,
         updatedAt: true,
         accounts: {

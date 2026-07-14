@@ -45,3 +45,5 @@ export {
   getSession,
 } from './client';
 export type { AuthClient, Session } from './client';
+
+export { hasAdminRole } from './roles';

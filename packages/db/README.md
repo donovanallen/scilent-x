@@ -56,14 +56,33 @@ const user = await db.user.create({
 
 ## Available Scripts
 
-| Script                   | Description                             |
-| ------------------------ | --------------------------------------- |
-| `pnpm db:generate`       | Generate Prisma Client                  |
-| `pnpm db:migrate`        | Create and run migrations (development) |
-| `pnpm db:migrate:deploy` | Run migrations (production)             |
-| `pnpm db:push`           | Push schema changes without migrations  |
-| `pnpm db:studio`         | Open Prisma Studio GUI                  |
-| `pnpm db:seed`           | Run database seed script                |
+| Script                   | Description                               |
+| ------------------------ | ----------------------------------------- |
+| `pnpm db:generate`       | Generate Prisma Client                    |
+| `pnpm db:migrate`        | Create and run migrations (development)   |
+| `pnpm db:migrate:deploy` | Run migrations (production)               |
+| `pnpm db:push`           | Push schema changes without migrations    |
+| `pnpm db:studio`         | Open Prisma Studio GUI                    |
+| `pnpm db:seed`           | Seed mock users (admin + sample profiles) |
+
+### Seeding mock users
+
+```bash
+pnpm db:seed
+# or from the monorepo root:
+pnpm --filter @scilent-one/db db:seed
+```
+
+Creates/updates credential-only accounts (no OAuth/streaming links):
+
+| Email                 | Role  | Default password                                   |
+| --------------------- | ----- | -------------------------------------------------- |
+| `admin@scilent.local` | admin | `password123` (override with `SEED_USER_PASSWORD`) |
+| `alice@scilent.local` | user  | same                                               |
+| `bob@scilent.local`   | user  | same                                               |
+| `carol@scilent.local` | user  | same                                               |
+
+Sign in as the admin, then use **Admin → Users → Impersonate** to browse as a mock user.
 
 ## Schema
 

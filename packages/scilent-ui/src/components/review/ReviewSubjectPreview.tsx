@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Button, cn } from '@scilent-one/ui';
 import { X } from 'lucide-react';
 import { AlbumArtwork } from '../album/AlbumArtwork';
+import { TrackArtwork } from '../track/TrackArtwork';
 import type { SelectedMusicSubject } from './MusicSubjectPicker';
 
 export interface ReviewSubjectPreviewProps {
@@ -20,6 +21,7 @@ export function ReviewSubjectPreview({
   className,
 }: ReviewSubjectPreviewProps) {
   const subtitle = subject.type === 'TRACK' ? 'Track' : 'Release';
+  const isTrack = subject.type === 'TRACK';
 
   return (
     <div
@@ -28,12 +30,21 @@ export function ReviewSubjectPreview({
         className
       )}
     >
-      <AlbumArtwork
-        src={subject.artworkUrl}
-        alt={subject.title}
-        size="md"
-        rounded="md"
-      />
+      {isTrack ? (
+        <TrackArtwork
+          src={subject.artworkUrl}
+          alt={subject.title}
+          size="lg"
+          rounded="md"
+        />
+      ) : (
+        <AlbumArtwork
+          src={subject.artworkUrl}
+          alt={subject.title}
+          size="md"
+          rounded="md"
+        />
+      )}
       <div className="min-w-0 flex-1">
         <p className="font-medium truncate">{subject.title}</p>
         <p className="text-sm text-muted-foreground truncate">

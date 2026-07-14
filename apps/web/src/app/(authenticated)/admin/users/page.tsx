@@ -10,6 +10,7 @@ import {
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
+import { ImpersonateUserButton } from './_components/impersonate-user-button';
 import { ProfileTypeSelect } from './_components/profile-type-select';
 import { getUsers, getUserCount } from './actions';
 
@@ -50,7 +51,13 @@ async function UsersTable() {
       <Card>
         <CardHeader>
           <CardTitle>No Users Found</CardTitle>
-          <CardDescription>No users have been registered yet.</CardDescription>
+          <CardDescription>
+            No users have been registered yet. Seed mock users with{' '}
+            <code className='text-xs'>
+              pnpm --filter @scilent-one/db db:seed
+            </code>
+            .
+          </CardDescription>
         </CardHeader>
       </Card>
     );
@@ -61,7 +68,8 @@ async function UsersTable() {
       <CardHeader>
         <CardTitle>All Users</CardTitle>
         <CardDescription>
-          A list of all registered users in your application.
+          Impersonate a non-admin user to browse the app as them. Stop from the
+          amber banner in the shell when finished.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -73,6 +81,7 @@ async function UsersTable() {
                 <th className='pb-3 font-medium text-muted-foreground'>
                   Email
                 </th>
+                <th className='pb-3 font-medium text-muted-foreground'>Role</th>
                 <th className='pb-3 font-medium text-muted-foreground'>
                   Status
                 </th>
@@ -84,6 +93,9 @@ async function UsersTable() {
                 </th>
                 <th className='pb-3 font-medium text-muted-foreground'>
                   Created
+                </th>
+                <th className='pb-3 font-medium text-muted-foreground text-right'>
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -109,6 +121,11 @@ async function UsersTable() {
                   </td>
                   <td className='py-3'>
                     <span className='font-mono text-sm'>{user.email}</span>
+                  </td>
+                  <td className='py-3'>
+                    <Badge variant='outline' className='capitalize'>
+                      {user.role ?? 'user'}
+                    </Badge>
                   </td>
                   <td className='py-3'>
                     <Badge
@@ -144,6 +161,13 @@ async function UsersTable() {
                   </td>
                   <td className='py-3 text-muted-foreground'>
                     {formatDate(user.createdAt)}
+                  </td>
+                  <td className='py-3 text-right'>
+                    <ImpersonateUserButton
+                      userId={user.id}
+                      userName={user.name}
+                      userRole={user.role}
+                    />
                   </td>
                 </tr>
               ))}
