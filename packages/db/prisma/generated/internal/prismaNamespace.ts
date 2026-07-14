@@ -1709,6 +1709,7 @@ export const PostScalarFieldEnum = {
   content: 'content',
   contentHtml: 'contentHtml',
   type: 'type',
+  visibility: 'visibility',
   authorId: 'authorId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1945,6 +1946,20 @@ export type EnumPostTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'PostType[]'
  */
 export type ListEnumPostTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PostType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PostVisibility'
+ */
+export type EnumPostVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PostVisibility'>
+    
+
+
+/**
+ * Reference to a field of type 'PostVisibility[]'
+ */
+export type ListEnumPostVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PostVisibility[]'>
     
 
 

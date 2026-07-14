@@ -155,6 +155,13 @@ export type EnumPostTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumPostTypeFilter<$PrismaModel> | $Enums.PostType
 }
 
+export type EnumPostVisibilityFilter<$PrismaModel = never> = {
+  equals?: $Enums.PostVisibility | Prisma.EnumPostVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.PostVisibility[] | Prisma.ListEnumPostVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PostVisibility[] | Prisma.ListEnumPostVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPostVisibilityFilter<$PrismaModel> | $Enums.PostVisibility
+}
+
 export type EnumPostTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.PostType | Prisma.EnumPostTypeFieldRefInput<$PrismaModel>
   in?: $Enums.PostType[] | Prisma.ListEnumPostTypeFieldRefInput<$PrismaModel>
@@ -163,6 +170,16 @@ export type EnumPostTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPostTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPostTypeFilter<$PrismaModel>
+}
+
+export type EnumPostVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PostVisibility | Prisma.EnumPostVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.PostVisibility[] | Prisma.ListEnumPostVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PostVisibility[] | Prisma.ListEnumPostVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPostVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.PostVisibility
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPostVisibilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPostVisibilityFilter<$PrismaModel>
 }
 
 export type EnumReviewSubjectTypeFilter<$PrismaModel = never> = {
@@ -448,6 +465,13 @@ export type NestedEnumPostTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumPostTypeFilter<$PrismaModel> | $Enums.PostType
 }
 
+export type NestedEnumPostVisibilityFilter<$PrismaModel = never> = {
+  equals?: $Enums.PostVisibility | Prisma.EnumPostVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.PostVisibility[] | Prisma.ListEnumPostVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PostVisibility[] | Prisma.ListEnumPostVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPostVisibilityFilter<$PrismaModel> | $Enums.PostVisibility
+}
+
 export type NestedEnumPostTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.PostType | Prisma.EnumPostTypeFieldRefInput<$PrismaModel>
   in?: $Enums.PostType[] | Prisma.ListEnumPostTypeFieldRefInput<$PrismaModel>
@@ -456,6 +480,16 @@ export type NestedEnumPostTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPostTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPostTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumPostVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PostVisibility | Prisma.EnumPostVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.PostVisibility[] | Prisma.ListEnumPostVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PostVisibility[] | Prisma.ListEnumPostVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPostVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.PostVisibility
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPostVisibilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPostVisibilityFilter<$PrismaModel>
 }
 
 export type NestedEnumReviewSubjectTypeFilter<$PrismaModel = never> = {

@@ -152,6 +152,7 @@ export const PostScalarFieldEnum = {
   content: 'content',
   contentHtml: 'contentHtml',
   type: 'type',
+  visibility: 'visibility',
   authorId: 'authorId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
