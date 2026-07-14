@@ -2,15 +2,16 @@
 
 import * as React from 'react';
 import { PostForm, cn } from '@scilent-one/ui';
-import type { MentionSuggestion } from '@scilent-one/ui';
+import type { EditorMention, MentionSuggestion } from '@scilent-one/ui';
 import { Button } from '@scilent-one/ui';
-import { Music2, Eye, EyeOff } from 'lucide-react';
+import { Music2, Tags, Eye, EyeOff } from 'lucide-react';
 
 import {
   MusicSubjectPicker,
   type SelectedMusicSubject,
 } from './MusicSubjectPicker';
 import { ReviewSubjectPreview } from './ReviewSubjectPreview';
+import { ReviewTagsToolbar } from './ReviewTagsToolbar';
 
 export interface ReviewComposerProps {
   user?: {
@@ -48,10 +49,16 @@ export function ReviewComposer({
     'PUBLIC'
   );
   const [pickerOpen, setPickerOpen] = React.useState(false);
+  const [mentions, setMentions] = React.useState<EditorMention[]>([]);
   const [pendingContent, setPendingContent] = React.useState<{
     content: string;
     contentHtml: string;
   } | null>(null);
+
+  const handleMentionsChange = React.useCallback(
+    (next: EditorMention[]) => setMentions(next),
+    []
+  );
 
   React.useEffect(() => {
     if (initialSubject) {
@@ -69,6 +76,9 @@ export function ReviewComposer({
     }
 
     await onSubmit(content, contentHtml, subject, visibility);
+    // The editor is remounted (cleared) after submit and won't re-fire
+    // onMentionsChange, so reset the tracked mentions here.
+    setMentions([]);
   };
 
   const handleSubjectSelect = (selected: SelectedMusicSubject) => {
@@ -82,8 +92,24 @@ export function ReviewComposer({
         visibility
       );
       setPendingContent(null);
+      setMentions([]);
     }
   };
+
+  const artistMentions = mentions.filter((m) => m.type === 'artist');
+  const tagsToolbar = subject
+    ? {
+        label: 'Tags',
+        ariaLabel: 'Toggle review tags',
+        icon: <Tags className="h-3.5 w-3.5" aria-hidden="true" />,
+        content: (
+          <ReviewTagsToolbar
+            subject={subject}
+            artistMentions={artistMentions}
+          />
+        ),
+      }
+    : null;
 
   const visibilityToggle = (
     <Button
@@ -152,6 +178,8 @@ export function ReviewComposer({
         placeholder="Share your thoughts on this music…"
         isSubmitting={isSubmitting}
         onSubmit={handlePostSubmit}
+        onMentionsChange={handleMentionsChange}
+        secondaryToolbar={tagsToolbar}
         {...(onMentionQuery ? { onMentionQuery } : {})}
         {...(onArtistMentionQuery ? { onArtistMentionQuery } : {})}
         footerLeading={visibilityHelpText}

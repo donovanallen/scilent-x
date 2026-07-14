@@ -10,3 +10,5 @@ export { ReviewComposer } from './ReviewComposer';
 export type { ReviewComposerProps } from './ReviewComposer';
 export { ReviewCard } from './ReviewCard';
 export type { ReviewCardProps, ReviewSubjectDisplay } from './ReviewCard';
+export { ReviewTagsToolbar } from './ReviewTagsToolbar';
+export type { ReviewTagsToolbarProps } from './ReviewTagsToolbar';
