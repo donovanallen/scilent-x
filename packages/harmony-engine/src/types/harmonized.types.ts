@@ -22,6 +22,26 @@ export type HarmonizedArtistCredit = z.infer<
   typeof HarmonizedArtistCreditSchema
 >;
 
+export const ArtworkTypeSchema = z.enum([
+  'front',
+  'back',
+  'medium',
+  'booklet',
+  'other',
+]);
+
+export type ArtworkType = z.infer<typeof ArtworkTypeSchema>;
+
+export const ArtworkSchema = z.object({
+  url: z.string().url(),
+  type: ArtworkTypeSchema,
+  width: z.number().optional(),
+  height: z.number().optional(),
+  provider: z.string(),
+});
+
+export type Artwork = z.infer<typeof ArtworkSchema>;
+
 export const HarmonizedTrackSchema = z.object({
   isrc: z.string().optional(),
   title: z.string(),
@@ -40,6 +60,8 @@ export const HarmonizedTrackSchema = z.object({
     )
     .optional(),
   explicit: z.boolean().optional(),
+  // Artwork is typically inherited from the track's parent release.
+  artwork: z.array(ArtworkSchema).optional(),
   externalIds: z.record(z.string(), z.string()),
   sources: z.array(ProviderSourceSchema),
 });
@@ -67,16 +89,6 @@ export const ReleaseStatusSchema = z.enum([
 ]);
 
 export type ReleaseStatus = z.infer<typeof ReleaseStatusSchema>;
-
-export const ArtworkTypeSchema = z.enum([
-  'front',
-  'back',
-  'medium',
-  'booklet',
-  'other',
-]);
-
-export type ArtworkType = z.infer<typeof ArtworkTypeSchema>;
 
 export const PartialDateSchema = z.object({
   year: z.number().optional(),
@@ -118,17 +130,7 @@ export const HarmonizedReleaseSchema = z.object({
     })
   ),
 
-  artwork: z
-    .array(
-      z.object({
-        url: z.string().url(),
-        type: ArtworkTypeSchema,
-        width: z.number().optional(),
-        height: z.number().optional(),
-        provider: z.string(),
-      })
-    )
-    .optional(),
+  artwork: z.array(ArtworkSchema).optional(),
 
   genres: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),

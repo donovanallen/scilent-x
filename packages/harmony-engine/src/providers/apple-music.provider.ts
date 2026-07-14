@@ -18,6 +18,7 @@ import type {
   PaginatedCollection,
   CollectionParams,
   PlaylistCollectionParams,
+  Artwork,
 } from '../types/index';
 import { HttpError, ProviderError } from '../errors/index';
 
@@ -780,6 +781,7 @@ export class AppleMusicProvider extends BaseProvider {
   private transformAlbum(raw: AppleMusicAlbum): HarmonizedRelease {
     const attrs = raw.attributes;
     const songs = raw.relationships?.tracks?.data ?? [];
+    const albumArtwork = this.mapArtwork(attrs?.artwork);
 
     const tracks = songs
       .filter((song): song is AppleMusicSong => song.attributes !== undefined)
@@ -787,7 +789,8 @@ export class AppleMusicProvider extends BaseProvider {
         this.transformTrack(
           song,
           song.attributes?.trackNumber ?? 1,
-          song.attributes?.discNumber
+          song.attributes?.discNumber,
+          albumArtwork
         )
       );
 
@@ -812,18 +815,6 @@ export class AppleMusicProvider extends BaseProvider {
       media.push({ position: 1, tracks: [] });
     }
 
-    const artwork = attrs?.artwork
-      ? [
-          {
-            url: resolveArtworkUrl(attrs.artwork),
-            type: 'front' as const,
-            width: attrs.artwork.width,
-            height: attrs.artwork.height,
-            provider: this.name,
-          },
-        ]
-      : undefined;
-
     return {
       gtin: attrs?.upc,
       title: attrs?.name ?? '',
@@ -838,7 +829,7 @@ export class AppleMusicProvider extends BaseProvider {
 
       media,
 
-      artwork,
+      artwork: albumArtwork,
 
       genres: attrs?.genreNames?.length ? attrs.genreNames : undefined,
 
@@ -850,12 +841,30 @@ export class AppleMusicProvider extends BaseProvider {
     };
   }
 
+  private mapArtwork(artwork?: AppleMusicArtwork): Artwork[] | undefined {
+    if (!artwork) return undefined;
+    return [
+      {
+        url: resolveArtworkUrl(artwork),
+        type: 'front' as const,
+        width: artwork.width,
+        height: artwork.height,
+        provider: this.name,
+      },
+    ];
+  }
+
   private transformTrack(
     raw: AppleMusicSong,
     position: number,
-    discNumber?: number
+    discNumber?: number,
+    parentArtwork?: Artwork[]
   ): HarmonizedTrack {
     const attrs = raw.attributes;
+
+    // Apple songs usually carry their own artwork; fall back to the parent
+    // release's artwork when they don't (e.g. nested album track relationships).
+    const artwork = this.mapArtwork(attrs?.artwork) ?? parentArtwork;
 
     return {
       isrc: attrs?.isrc,
@@ -868,6 +877,7 @@ export class AppleMusicProvider extends BaseProvider {
         ? attrs.contentRating === 'explicit'
         : undefined,
       artists: this.buildArtistCredits(attrs?.artistName, raw.relationships),
+      ...(artwork ? { artwork } : {}),
       externalIds: { [this.name]: raw.id },
       sources: [this.createSource(raw.id, attrs?.url)],
     };
