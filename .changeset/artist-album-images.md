@@ -16,3 +16,8 @@ Surface artist images and album/release artwork across the app.
 - Add a Cover Art Archive fallback (via `getReleaseArtworkFallbacks`) for
   MusicBrainz-only releases in the album card, list item, details, and hover
   preview, and give the shared `Artwork` component a fallback-source chain.
+- Add an `artwork` field to `HarmonizedTrack`, derived from the track's parent
+  release: Spotify and Apple Music populate it from the track/song payload,
+  Tidal and the release-lookup path inherit it from the parent album. Render it
+  in `TrackCard`, `TrackDetails`, and `TrackHoverPreview`, and resolve it for
+  track review subjects.
