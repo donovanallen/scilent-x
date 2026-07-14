@@ -769,6 +769,17 @@ code {
   word-break: break-word;
 }
 
+.simple-tiptap-editor .ProseMirror {
+  @apply font-body text-foreground outline-none focus:outline-none;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.simple-tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  @apply text-muted-foreground italic pointer-events-none float-left h-0;
+  content: attr(data-placeholder);
+}
+
 /* Headings in editor */
 .tiptap-editor .ProseMirror h1 {
   @apply text-xl font-bold my-2 first:mt-0 last:mb-0;
