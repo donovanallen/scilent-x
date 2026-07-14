@@ -11,6 +11,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
 import { getUsers, getUserCount } from './actions';
+import { ProfileTypeSelect } from './_components/profile-type-select';
 
 export const metadata: Metadata = {
   title: 'Users',
@@ -76,6 +77,9 @@ async function UsersTable() {
                   Status
                 </th>
                 <th className='pb-3 font-medium text-muted-foreground'>
+                  Profile Type
+                </th>
+                <th className='pb-3 font-medium text-muted-foreground'>
                   Connected
                 </th>
                 <th className='pb-3 font-medium text-muted-foreground'>
@@ -117,6 +121,12 @@ async function UsersTable() {
                     >
                       {user.emailVerified ? 'Verified' : 'Unverified'}
                     </Badge>
+                  </td>
+                  <td className='py-3'>
+                    <ProfileTypeSelect
+                      userId={user.id}
+                      currentProfileType={user.profileType}
+                    />
                   </td>
                   <td className='py-3'>
                     {user.connectedAccounts.length > 0 ? (
