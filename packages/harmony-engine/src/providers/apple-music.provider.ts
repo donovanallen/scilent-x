@@ -880,6 +880,16 @@ export class AppleMusicProvider extends BaseProvider {
       name: attrs?.name ?? '',
       nameNormalized: this.normalizeString(attrs?.name ?? ''),
       genres: attrs?.genreNames?.length ? attrs.genreNames : undefined,
+      images: attrs?.artwork
+        ? [
+            {
+              url: resolveArtworkUrl(attrs.artwork),
+              width: attrs.artwork.width,
+              height: attrs.artwork.height,
+              provider: this.name,
+            },
+          ]
+        : undefined,
       externalIds: { [this.name]: raw.id },
       sources: [this.createSource(raw.id, attrs?.url)],
       mergedAt: new Date(),

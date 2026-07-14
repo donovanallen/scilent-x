@@ -49,6 +49,37 @@ export function getHarmonizedArtworkUrl(
   return front?.url ?? artwork[0]?.url;
 }
 
+/**
+ * Get the best (largest available) image URL from a harmonized artist's
+ * images array. Prefers the image with the greatest pixel area, falling back
+ * to the first entry when dimensions are unknown.
+ */
+export function getArtistImageUrl(
+  images:
+    | Array<{
+        url: string;
+        width?: number | undefined;
+        height?: number | undefined;
+      }>
+    | undefined
+): string | undefined {
+  if (!images?.length) return undefined;
+
+  let best = images[0];
+  let bestArea = (best?.width ?? 0) * (best?.height ?? 0);
+
+  for (let i = 1; i < images.length; i++) {
+    const image = images[i]!;
+    const area = (image.width ?? 0) * (image.height ?? 0);
+    if (area > bestArea) {
+      best = image;
+      bestArea = area;
+    }
+  }
+
+  return best?.url;
+}
+
 export interface ArtworkResolveInput {
   artwork?: Array<{ url: string; type: string }>;
   musicbrainzReleaseMbid?: string;

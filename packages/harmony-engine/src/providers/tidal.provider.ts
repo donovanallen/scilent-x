@@ -840,6 +840,14 @@ export class TidalProvider extends BaseProvider {
     return {
       name: raw.attributes.name,
       nameNormalized: this.normalizeString(raw.attributes.name),
+      images: raw.attributes.picture?.length
+        ? raw.attributes.picture.map((img) => ({
+            url: img.url,
+            width: img.width,
+            height: img.height,
+            provider: 'tidal',
+          }))
+        : undefined,
       externalIds: { tidal: raw.id },
       sources: [
         this.createSource(raw.id, `https://tidal.com/browse/artist/${raw.id}`),

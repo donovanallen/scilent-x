@@ -635,6 +635,14 @@ export class SpotifyProvider extends BaseProvider {
       name: raw.name,
       nameNormalized: this.normalizeString(raw.name),
       genres: raw.genres?.length ? raw.genres : undefined,
+      images: raw.images?.length
+        ? raw.images.map((img) => ({
+            url: img.url,
+            width: img.width,
+            height: img.height,
+            provider: 'spotify',
+          }))
+        : undefined,
       externalIds: { spotify: raw.id },
       sources: [this.createSource(raw.id, raw.external_urls?.spotify)],
       mergedAt: new Date(),

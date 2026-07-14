@@ -60,6 +60,7 @@ export * from './types/index';
 export * from './errors/index';
 export {
   getHarmonizedArtworkUrl,
+  getArtistImageUrl,
   getCoverArtArchiveUrl,
   fetchCoverArtArchiveUrl,
   resolveArtworkUrl,

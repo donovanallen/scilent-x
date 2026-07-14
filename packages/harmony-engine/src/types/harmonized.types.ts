@@ -175,6 +175,17 @@ export const HarmonizedArtistSchema = z.object({
   aliases: z.array(z.string()).optional(),
   genres: z.array(z.string()).optional(),
 
+  images: z
+    .array(
+      z.object({
+        url: z.string().url(),
+        width: z.number().optional(),
+        height: z.number().optional(),
+        provider: z.string(),
+      })
+    )
+    .optional(),
+
   externalIds: z.record(z.string(), z.string()),
   sources: z.array(ProviderSourceSchema),
 
@@ -183,6 +194,9 @@ export const HarmonizedArtistSchema = z.object({
 });
 
 export type HarmonizedArtist = z.infer<typeof HarmonizedArtistSchema>;
+export type HarmonizedArtistImage = NonNullable<
+  HarmonizedArtist['images']
+>[number];
 
 /**
  * Harmonized user profile from a streaming provider.

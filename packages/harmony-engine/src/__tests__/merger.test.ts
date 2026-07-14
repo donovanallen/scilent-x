@@ -93,6 +93,49 @@ describe('ReleaseMerger', () => {
     expect(result.title).toBe('High Confidence');
   });
 
+  it('preserves artwork from a lower-confidence provider when the primary has none', () => {
+    // Mirrors the real bug: MusicBrainz wins on confidence but ships no covers,
+    // while Spotify (lower confidence) has the artwork.
+    const musicbrainz = createRelease({
+      confidence: 1.0,
+      externalIds: { musicbrainz: 'mb-id' },
+      sources: [
+        { provider: 'musicbrainz', id: 'mb-id', fetchedAt: new Date() },
+      ],
+    });
+    const spotify = createRelease({
+      confidence: 0.9,
+      externalIds: { spotify: 'sp-id' },
+      sources: [{ provider: 'spotify', id: 'sp-id', fetchedAt: new Date() }],
+      artwork: [
+        {
+          url: 'https://i.scdn.co/image/front.jpg',
+          type: 'front',
+          provider: 'spotify',
+        },
+      ],
+    });
+
+    const result = merger.merge([musicbrainz, spotify]);
+
+    expect(result.artwork).toBeDefined();
+    expect(result.artwork?.[0]?.url).toBe('https://i.scdn.co/image/front.jpg');
+  });
+
+  it('deduplicates artwork across providers', () => {
+    const shared = {
+      url: 'https://example.com/front.jpg',
+      type: 'front' as const,
+      provider: 'spotify',
+    };
+    const release1 = createRelease({ artwork: [shared], confidence: 0.9 });
+    const release2 = createRelease({ artwork: [shared], confidence: 0.8 });
+
+    const result = merger.merge([release1, release2]);
+
+    expect(result.artwork).toHaveLength(1);
+  });
+
   it('throws error for empty array', () => {
     expect(() => merger.merge([])).toThrow('Cannot merge empty release array');
   });
@@ -137,6 +180,30 @@ describe('ArtistMerger', () => {
 
     expect(result.genres).toContain('rock');
     expect(result.genres).toContain('indie');
+  });
+
+  it('preserves images from a provider that has them', () => {
+    const musicbrainz = createArtist({
+      confidence: 1.0,
+      sources: [{ provider: 'musicbrainz', id: 'mb', fetchedAt: new Date() }],
+    });
+    const spotify = createArtist({
+      confidence: 0.9,
+      sources: [{ provider: 'spotify', id: 'sp', fetchedAt: new Date() }],
+      images: [
+        {
+          url: 'https://i.scdn.co/image/artist.jpg',
+          width: 640,
+          height: 640,
+          provider: 'spotify',
+        },
+      ],
+    });
+
+    const result = merger.merge([musicbrainz, spotify]);
+
+    expect(result.images).toBeDefined();
+    expect(result.images?.[0]?.url).toBe('https://i.scdn.co/image/artist.jpg');
   });
 
   it('throws error for empty array', () => {

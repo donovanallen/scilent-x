@@ -256,6 +256,59 @@ describe('SpotifyProvider', () => {
       expect(mockFetch).not.toHaveBeenCalled();
     });
   });
+
+  describe('searchArtistsWithUserToken', () => {
+    it('maps artist images into the harmonized artist', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          artists: {
+            items: [
+              {
+                id: 'artist-1',
+                name: 'Queen',
+                genres: ['rock'],
+                images: [
+                  {
+                    url: 'https://i.scdn.co/image/large.jpg',
+                    width: 640,
+                    height: 640,
+                  },
+                  {
+                    url: 'https://i.scdn.co/image/small.jpg',
+                    width: 160,
+                    height: 160,
+                  },
+                ],
+                external_urls: {
+                  spotify: 'https://open.spotify.com/artist/artist-1',
+                },
+              },
+            ],
+          },
+        })
+      );
+
+      const [artist] = await provider.searchArtistsWithUserToken(
+        'Queen',
+        'user-token'
+      );
+
+      expect(artist?.images).toEqual([
+        {
+          url: 'https://i.scdn.co/image/large.jpg',
+          width: 640,
+          height: 640,
+          provider: 'spotify',
+        },
+        {
+          url: 'https://i.scdn.co/image/small.jpg',
+          width: 160,
+          height: 160,
+          provider: 'spotify',
+        },
+      ]);
+    });
+  });
 });
 
 describe('TidalProvider', () => {
