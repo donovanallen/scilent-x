@@ -100,7 +100,7 @@ export function EntityReviewsPageClient({
   };
 
   return (
-    <div className={className ?? 'mx-auto w-full max-w-2xl p-4 md:max-w-4xl'}>
+    <div className={className ?? 'w-full'}>
       {title ? <h1 className='mb-4 text-2xl font-semibold'>{title}</h1> : null}
       <div className='space-y-4'>
         {reviews.map((review) => {

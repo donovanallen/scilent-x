@@ -53,6 +53,14 @@ const meta: Meta = {
             console.log(`View ${type} credits:`, entity);
             alert(`View credits for ${type}`);
           },
+          onWriteReview: (type, entity) => {
+            console.log(`Write review for ${type}:`, entity);
+            alert(`Write a review for ${type}`);
+          },
+          onViewReviews: (type, entity) => {
+            console.log(`See reviews for ${type}:`, entity);
+            alert(`See reviews for ${type}`);
+          },
         }}
       >
         <Story />
@@ -162,6 +170,8 @@ export const MobileDropdownMenu: StoryObj = {
           onNavigate: (type) => alert(`Navigate to ${type} details`),
           onOpenExternal: (url, platform) => alert(`Open in ${platform}`),
           onCopyLink: () => alert('Link copied!'),
+          onWriteReview: (type) => alert(`Write a review for ${type}`),
+          onViewReviews: (type) => alert(`See reviews for ${type}`),
         }}
       >
         <Story />
@@ -175,9 +185,7 @@ export const MobileDropdownMenu: StoryObj = {
       </p>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">
-            Open Track Menu
-          </Button>
+          <Button variant="outline">Open Track Menu</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <TrackContextMenu entity={mockTrack} />

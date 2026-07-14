@@ -24,6 +24,7 @@ import {
   ScrollText,
   Type,
   PenLine,
+  MessagesSquare,
 } from 'lucide-react';
 import { useHarmonyInteraction } from '../provider';
 import type { HarmonizedEntity, MenuAction, ProviderAction } from '../types';
@@ -48,7 +49,7 @@ export interface AlbumContextMenuProps {
  * Context menu content for album/release entities.
  *
  * Organized into sections:
- * - Section 1: Core Actions (view album, view artist, view credits)
+ * - Section 1: Core Actions (view album, view artist, view credits, write review, see reviews)
  * - Section 2: Copy Submenu (link, UPC/GTIN, title, artists)
  * - Section 3: Open In Submenu (external platform links)
  * - Section 4: Provider Actions (save, add to library - dynamic based on connected providers)
@@ -168,6 +169,11 @@ export function AlbumContextMenu({
     onClose?.();
   }, [interaction, release, onClose]);
 
+  const handleViewReviews = React.useCallback(() => {
+    interaction.onViewReviews?.('album', release);
+    onClose?.();
+  }, [interaction, release, onClose]);
+
   const handleOpenExternal = React.useCallback(
     (url: string, platform: string) => {
       interaction.onOpenExternal?.(url, platform);
@@ -220,6 +226,13 @@ export function AlbumContextMenu({
         <MenuItem className="gap-2" onSelect={handleWriteReview}>
           <PenLine className="size-4" />
           Write review
+        </MenuItem>
+      )}
+
+      {interaction.onViewReviews && (
+        <MenuItem className="gap-2" onSelect={handleViewReviews}>
+          <MessagesSquare className="size-4" />
+          See reviews
         </MenuItem>
       )}
 

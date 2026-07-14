@@ -678,7 +678,7 @@ export function SimpleTiptapEditor({
     <div
       className={cn(
         'simple-tiptap-editor rounded-md border bg-background transition-colors duration-200',
-        isFocused ? 'border-brand ring-1 ring-brand' : 'border-input',
+        isFocused ? 'border-brand' : 'border-input',
         readOnly && 'opacity-50 pointer-events-none',
         className
       )}

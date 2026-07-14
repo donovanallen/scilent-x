@@ -5,6 +5,9 @@ import {
   ContextMenu,
   ContextMenuTrigger,
   ContextMenuContent,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
   HoverCard,
   HoverCardTrigger,
   HoverCardContent,
@@ -22,6 +25,11 @@ import {
   AlbumHoverPreview,
   ArtistHoverPreview,
 } from './previews';
+
+/** Duration in ms for a touch to be considered a long-press */
+const LONG_PRESS_DURATION = 500;
+/** Movement threshold in px - if the touch moves beyond this, cancel the long-press */
+const MOVE_THRESHOLD = 10;
 
 /**
  * Get the appropriate menu content component for the entity type
@@ -89,6 +97,12 @@ function getPreviewContent(
  * - Context menus (right-click on web, long-press on mobile)
  * - Hover previews (web only)
  *
+ * The active platform is resolved by `HarmonyInteractionProvider` (respecting the
+ * `platform: 'web' | 'mobile' | 'auto'` config). On mobile, the menu opens via a
+ * long-press (500ms, cancelled if the finger moves past a small threshold to allow
+ * scrolling) and renders as a `DropdownMenu`; on web it uses a right-click
+ * `ContextMenu` plus an optional `HoverCard` preview.
+ *
  * When used outside of a HarmonyInteractionProvider, simply renders children unchanged.
  *
  * @example
@@ -111,11 +125,68 @@ export function InteractiveWrapper({
   const interaction = useHarmonyInteraction();
   const [menuOpen, setMenuOpen] = React.useState(false);
 
+  // Long-press state for mobile menus
+  const longPressTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const touchStartPosRef = React.useRef<{ x: number; y: number } | null>(null);
+
+  // Cleanup any pending long-press timer on unmount
+  React.useEffect(() => {
+    return () => {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleMenuClose = React.useCallback(() => {
+    setMenuOpen(false);
+  }, []);
+
+  const handleTouchStart = React.useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+
+    touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
+
+    longPressTimerRef.current = setTimeout(() => {
+      setMenuOpen(true);
+      longPressTimerRef.current = null;
+    }, LONG_PRESS_DURATION);
+  }, []);
+
+  const handleTouchMove = React.useCallback((e: React.TouchEvent) => {
+    if (!longPressTimerRef.current || !touchStartPosRef.current) return;
+
+    const touch = e.touches[0];
+    if (!touch) return;
+
+    const deltaX = Math.abs(touch.clientX - touchStartPosRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartPosRef.current.y);
+
+    // Cancel long-press if the touch moved too far (user is scrolling)
+    if (deltaX > MOVE_THRESHOLD || deltaY > MOVE_THRESHOLD) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+      touchStartPosRef.current = null;
+    }
+  }, []);
+
+  const handleTouchEnd = React.useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    touchStartPosRef.current = null;
+  }, []);
+
   // If interactions are completely disabled, just render children
   if (!interaction.enabled || disabled) {
     return <>{children}</>;
   }
 
+  const isMobile = interaction.platform === 'mobile';
   const hasContextMenu = interaction.enableContextMenu;
   const hasHoverPreview =
     interaction.enableHoverPreview && interaction.platform === 'web';
@@ -129,10 +200,6 @@ export function InteractiveWrapper({
   const previewMode = interaction.previewContent?.[entityType] ?? 'mini';
   const isCustomPreview = typeof previewMode === 'function';
 
-  const handleMenuClose = React.useCallback(() => {
-    setMenuOpen(false);
-  }, []);
-
   // Build the preview content
   const previewContent = hasHoverPreview
     ? isCustomPreview
@@ -144,9 +211,11 @@ export function InteractiveWrapper({
         )
     : null;
 
-  // Build the menu content - always use 'context' since InteractiveWrapper uses ContextMenu
+  // Menu content type mirrors the presentation: DropdownMenu on mobile,
+  // ContextMenu on web.
+  const menuType: 'context' | 'dropdown' = isMobile ? 'dropdown' : 'context';
   const menuContent = hasContextMenu
-    ? getMenuContent(entityType, entity, handleMenuClose, 'context')
+    ? getMenuContent(entityType, entity, handleMenuClose, menuType)
     : null;
 
   // Wrap children in a span if className or preventTextSelection is needed
@@ -159,6 +228,34 @@ export function InteractiveWrapper({
     children
   );
 
+  // Mobile: long-press opens a DropdownMenu. Hover previews are web-only, so
+  // the menu is the only interactive affordance here.
+  if (isMobile && hasContextMenu) {
+    return (
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+        <DropdownMenuTrigger asChild>
+          <span
+            className={cn(preventTextSelection && 'select-none', className)}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
+            onContextMenu={(e) => {
+              // Support right-click on hybrid devices (tablets with a mouse/stylus)
+              e.preventDefault();
+              setMenuOpen(true);
+            }}
+          >
+            {children}
+          </span>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
+          {menuContent}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
   // Case 1: Both context menu and hover preview (web)
   // Use a single shared trigger element to avoid Radix asChild nesting issues
   if (hasContextMenu && hasHoverPreview) {
@@ -168,7 +265,11 @@ export function InteractiveWrapper({
           <ContextMenuTrigger asChild>
             <HoverCardTrigger asChild>{wrappedChildren}</HoverCardTrigger>
           </ContextMenuTrigger>
-          <HoverCardContent className="w-80" side={previewSide} align={previewAlign}>
+          <HoverCardContent
+            className="w-80"
+            side={previewSide}
+            align={previewAlign}
+          >
             {previewContent}
           </HoverCardContent>
         </HoverCard>
@@ -177,7 +278,7 @@ export function InteractiveWrapper({
     );
   }
 
-  // Case 2: Only context menu
+  // Case 2: Only context menu (web right-click)
   if (hasContextMenu) {
     return (
       <ContextMenu onOpenChange={setMenuOpen}>
@@ -192,7 +293,11 @@ export function InteractiveWrapper({
     return (
       <HoverCard openDelay={interaction.hoverDelay} closeDelay={150}>
         <HoverCardTrigger asChild>{wrappedChildren}</HoverCardTrigger>
-        <HoverCardContent className="w-80" side={previewSide} align={previewAlign}>
+        <HoverCardContent
+          className="w-80"
+          side={previewSide}
+          align={previewAlign}
+        >
           {previewContent}
         </HoverCardContent>
       </HoverCard>
