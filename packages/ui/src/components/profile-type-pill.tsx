@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn, Badge } from '@scilent-one/ui';
+import { cn, Badge } from './index';
 import type { ProfileType } from '@scilent-one/db';
 
 /**

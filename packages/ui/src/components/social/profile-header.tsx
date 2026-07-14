@@ -4,12 +4,11 @@ import * as React from 'react';
 import { Settings, MessageCircle } from 'lucide-react';
 import { Card, CardContent } from '../card';
 import { Button } from '../button';
-import { Badge } from '../badge';
+import { Badge, ProfileTypePill } from '../index';
 import { UserAvatar } from './user-avatar';
 import { FollowButton } from './follow-button';
 import { cn } from '../../utils';
 import type { ProfileType } from '@scilent-one/db';
-import { ProfileTypePill } from '@scilent-one/scilent-ui';
 
 /** Connected streaming platform information */
 export interface ConnectedPlatform {

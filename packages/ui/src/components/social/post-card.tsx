@@ -38,7 +38,7 @@ import { PostCardComments } from './post-card-comments';
 import { cn } from '../../utils';
 import { Separator } from '../separator';
 import type { ProfileType } from '@scilent-one/db';
-import { ProfileTypePill } from '@scilent-one/scilent-ui';
+import { ProfileTypePill } from '../profile-type-pill';
 
 export interface PostCardAuthor {
   id: string;

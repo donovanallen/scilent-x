@@ -4,9 +4,9 @@ import * as React from 'react';
 import { Card, CardContent } from '../card';
 import { UserAvatar } from './user-avatar';
 import { FollowButton } from './follow-button';
+import { ProfileTypePill } from '../profile-type-pill';
 import { cn } from '../../utils';
 import type { ProfileType } from '@scilent-one/db';
-import { ProfileTypePill } from '@scilent-one/scilent-ui';
 
 export interface UserCardProps {
   id: string;

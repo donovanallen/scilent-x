@@ -10,8 +10,8 @@ import {
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
-import { getUsers, getUserCount } from './actions';
 import { ProfileTypeSelect } from './_components/profile-type-select';
+import { getUsers, getUserCount } from './actions';
 
 export const metadata: Metadata = {
   title: 'Users',

@@ -1,16 +1,17 @@
 'use client';
 
-import { useTransition } from 'react';
-import { toast } from 'sonner';
+import type { ProfileType } from '@scilent-one/db';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  ProfileTypePill,
 } from '@scilent-one/ui';
-import { ProfileTypePill } from '@scilent-one/scilent-ui';
-import type { ProfileType } from '@scilent-one/db';
+import { useTransition } from 'react';
+import { toast } from 'sonner';
+
 import { updateUserProfileType } from '../actions';
 
 const PROFILE_TYPES: { value: ProfileType; label: string }[] = [

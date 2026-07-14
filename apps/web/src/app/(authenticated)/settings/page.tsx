@@ -3,7 +3,6 @@
 import {
   ProviderIcon,
   ProviderSyncStatus,
-  ProfileTypePill,
   type IconProvider,
 } from '@scilent-one/scilent-ui';
 import {
@@ -17,6 +16,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
   Separator,
+  ProfileTypePill,
 } from '@scilent-one/ui';
 import {
   ChevronDown,

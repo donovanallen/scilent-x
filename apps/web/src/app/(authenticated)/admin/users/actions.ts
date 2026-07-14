@@ -1,9 +1,9 @@
 'use server';
 
 import { db } from '@scilent-one/db';
+import type { ProfileType } from '@scilent-one/db';
 import { setProfileType } from '@scilent-one/social/users/mutations';
 import { revalidatePath } from 'next/cache';
-import type { ProfileType } from '@scilent-one/db';
 
 export type ConnectedAccount = {
   providerId: string;

@@ -16,14 +16,6 @@ export {
 } from './ReleaseTypePill';
 
 export {
-  ProfileTypePill,
-  getProfileTypeLabel,
-  profileTypeLabels,
-  profileTypeColors,
-  type ProfileTypePillProps,
-} from './ProfileTypePill';
-
-export {
   MetadataTable,
   MetadataGrid,
   MetadataTableSkeleton,
