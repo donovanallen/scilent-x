@@ -67,7 +67,12 @@ describe('getPostsByAuthor', () => {
     const result = await getPostsByAuthor('author-1', { limit: 20 }, 'user-1');
 
     expect(postFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { authorId: 'author-1' } })
+      expect.objectContaining({
+        where: {
+          authorId: 'author-1',
+          OR: [{ visibility: 'PUBLIC' }, { authorId: 'user-1' }],
+        },
+      })
     );
     expect(result.items[0]?.isLiked).toBe(false);
     expect(result.items[0]?.isReposted).toBe(true);
