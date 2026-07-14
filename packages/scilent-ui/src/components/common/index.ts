@@ -38,7 +38,7 @@ export {
   type InlineSkeletonProps,
 } from './LoadingSkeletons';
 
-export { Artwork, type ArtworkProps } from './Artwork';
+export { Artwork, type ArtworkFallback, type ArtworkProps } from './Artwork';
 
 export {
   PlatformProfileCard,

@@ -18,6 +18,10 @@
     "./client": {
       "types": "./src/client.ts",
       "default": "./src/client.ts"
+    },
+    "./roles": {
+      "types": "./src/roles.ts",
+      "default": "./src/roles.ts"
     }
   },
   "scripts": {

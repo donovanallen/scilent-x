@@ -36,6 +36,13 @@ model User {
   // Selected color palette (theme preset); mode (light/dark) is client-only.
   palette       String    @default("default")
 
+  // Better Auth admin plugin fields
+  // https://www.better-auth.com/docs/plugins/admin#schema
+  role          String?   @default("user")
+  banned        Boolean?  @default(false)
+  banReason     String?
+  banExpires    DateTime?
+
   // Auth relations
   accounts Account[]
   sessions Session[]
@@ -84,12 +91,14 @@ model Account {
 
 /// Session model - Active user sessions
 model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  expiresAt DateTime
-  ipAddress String?
-  userAgent String?
+  id             String   @id @default(cuid())
+  userId         String
+  token          String   @unique
+  expiresAt      DateTime
+  ipAddress      String?
+  userAgent      String?
+  /// Set when an admin is impersonating this session (Better Auth admin plugin)
+  impersonatedBy String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
