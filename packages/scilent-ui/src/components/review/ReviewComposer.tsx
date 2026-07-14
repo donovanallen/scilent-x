@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { PostForm } from '@scilent-one/ui';
+import { PostForm, cn } from '@scilent-one/ui';
 import type { MentionSuggestion } from '@scilent-one/ui';
 import { Button } from '@scilent-one/ui';
 import { Music2, Eye, EyeOff } from 'lucide-react';
@@ -85,8 +85,49 @@ export function ReviewComposer({
     }
   };
 
+  const visibilityToggle = (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      className="gap-2 active:scale-95 transition-transform"
+      aria-pressed={isPrivate}
+      onClick={() =>
+        setVisibility((current) =>
+          current === 'PRIVATE' ? 'PUBLIC' : 'PRIVATE'
+        )
+      }
+    >
+      <span
+        key={visibility}
+        className="inline-flex animate-in fade-in-0 zoom-in-95 duration-200"
+      >
+        {isPrivate ? (
+          <EyeOff className="h-4 w-4" />
+        ) : (
+          <Eye className="h-4 w-4" />
+        )}
+      </span>
+      {isPrivate ? 'Private' : 'Public'}
+    </Button>
+  );
+
+  const visibilityHelpText = (
+    <p className="text-xs text-muted-foreground">
+      {isPrivate
+        ? 'Only you can see this review.'
+        : 'This review is visible to everyone.'}
+    </p>
+  );
+
   return (
-    <div className={className}>
+    <div
+      className={cn(
+        'rounded-lg border p-3 transition-all duration-300',
+        isPrivate ? 'border-dashed bg-muted/30' : 'border-transparent',
+        className
+      )}
+    >
       {subject ? (
         <ReviewSubjectPreview
           subject={subject}
@@ -106,38 +147,6 @@ export function ReviewComposer({
         </Button>
       )}
 
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">
-          {isPrivate
-            ? 'Only you can see this review.'
-            : 'This review is visible to everyone.'}
-        </p>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="gap-2 active:scale-95 transition-transform"
-          aria-pressed={isPrivate}
-          onClick={() =>
-            setVisibility((current) =>
-              current === 'PRIVATE' ? 'PUBLIC' : 'PRIVATE'
-            )
-          }
-        >
-          <span
-            key={visibility}
-            className="inline-flex animate-in fade-in-0 zoom-in-95 duration-200"
-          >
-            {isPrivate ? (
-              <EyeOff className="h-4 w-4" />
-            ) : (
-              <Eye className="h-4 w-4" />
-            )}
-          </span>
-          {isPrivate ? 'Private' : 'Public'}
-        </Button>
-      </div>
-
       <PostForm
         {...(user ? { user } : {})}
         placeholder="Share your thoughts on this music…"
@@ -145,6 +154,8 @@ export function ReviewComposer({
         onSubmit={handlePostSubmit}
         {...(onMentionQuery ? { onMentionQuery } : {})}
         {...(onArtistMentionQuery ? { onArtistMentionQuery } : {})}
+        footerLeading={visibilityHelpText}
+        footerActions={visibilityToggle}
       />
 
       <MusicSubjectPicker

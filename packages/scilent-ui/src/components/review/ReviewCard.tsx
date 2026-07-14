@@ -44,15 +44,6 @@ export function ReviewCard({
           <Badge variant="secondary" className="text-[10px] uppercase">
             {subjectLabel}
           </Badge>
-          {isPrivate ? (
-            <Badge
-              variant="outline"
-              className="gap-1 text-[10px] uppercase text-muted-foreground"
-            >
-              <Lock className="h-3 w-3" />
-              Private
-            </Badge>
-          ) : null}
         </div>
         <p className="font-medium truncate">{reviewSubject.title}</p>
         <p className="text-sm text-muted-foreground truncate">
@@ -68,11 +59,21 @@ export function ReviewCard({
   return (
     <div
       className={cn(
-        'rounded-lg border bg-card overflow-hidden',
+        'relative rounded-lg border bg-card overflow-hidden',
         isPrivate && 'border-dashed bg-muted/30',
         className
       )}
     >
+      {isPrivate ? (
+        <Badge
+          variant="outline"
+          className="pointer-events-none absolute right-2 top-2 z-10 gap-1 bg-background/80 text-[10px] uppercase text-muted-foreground backdrop-blur-sm"
+        >
+          <Lock className="h-3 w-3" />
+          Private
+        </Badge>
+      ) : null}
+
       {isSubjectInteractive ? (
         <button
           type="button"
