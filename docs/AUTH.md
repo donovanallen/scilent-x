@@ -33,6 +33,8 @@ DATABASE_URL="postgresql://user:password@localhost:5432/scilent_one"
 # Better Auth (required)
 BETTER_AUTH_SECRET="your-secret-key-min-32-chars"
 BETTER_AUTH_URL="http://localhost:3000"
+# Optional bootstrap admin IDs (comma-separated) before a seeded admin exists
+# BETTER_AUTH_ADMIN_USER_IDS=
 
 # OAuth Providers (configure as needed)
 GOOGLE_CLIENT_ID=""
@@ -316,6 +318,26 @@ cd ../db
 pnpm db:generate
 pnpm db:migrate
 ```
+
+## Admin plugin & impersonation
+
+Better Auth's [admin plugin](https://www.better-auth.com/docs/plugins/admin) is enabled in
+`@scilent-one/auth`. It adds `role` / ban fields on `users` and `impersonatedBy` on `sessions`.
+
+- **Seeded admin:** run `pnpm --filter @scilent-one/db db:seed`, then sign in as
+  `admin@scilent.local` (default password `password123`, or `SEED_USER_PASSWORD`).
+- **Impersonate:** Admin → Users → Impersonate. An amber banner lets you stop and restore the
+  admin session (`authClient.admin.stopImpersonating()`).
+- **Bootstrap without seed:** set `BETTER_AUTH_ADMIN_USER_IDS` to a comma-separated list of user IDs.
+
+### Auth & middleware considerations
+
+| Layer                                     | What it does                                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Middleware (`apps/web/src/middleware.ts`) | Optimistic: redirects `/admin/*` to login when no session cookie. Does **not** check role (Edge + Prisma).   |
+| Admin layout                              | Full `auth.api.getSession` + `hasAdminRole` — non-admins (including impersonated users) are redirected home. |
+| Better Auth admin API                     | Server-side permission checks on impersonate / ban / etc. Admins cannot impersonate other admins by default. |
+| Impersonation banner                      | Shown while `session.session.impersonatedBy` is set; stop restores the admin cookie session.                 |
 
 ## Protected Routes
 
