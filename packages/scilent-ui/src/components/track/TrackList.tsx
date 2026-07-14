@@ -20,7 +20,8 @@ export interface TrackListProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Currently playing track ISRC or external ID */
   playingTrackId?: string | undefined;
   /** Callback when a track is selected/clicked */
-  onTrackSelect?: ((index: number, track?: HarmonizedTrack) => void) | undefined;
+  onTrackSelect?:
+    ((index: number, track?: HarmonizedTrack) => void) | undefined;
   /** Callback when a track is removed */
   onTrackRemove?: ((trackId: string) => void) | undefined;
   /** Layout variant @default 'default' */
@@ -37,6 +38,11 @@ export interface TrackListProps extends React.HTMLAttributes<HTMLDivElement> {
   scrollable?: boolean | undefined;
   /** Maximum height when scrollable */
   maxHeight?: string | number | undefined;
+  /**
+   * Enable Harmony interactions (context menu, hover preview) on each track card.
+   * Requires a surrounding `HarmonyInteractionProvider`. @default false
+   */
+  interactive?: boolean | undefined;
 }
 
 /**
@@ -79,6 +85,7 @@ export function TrackList({
   emptyDescription = 'Try adding some tracks',
   scrollable = false,
   maxHeight,
+  interactive = false,
   className,
   ...props
 }: TrackListProps) {
@@ -195,6 +202,7 @@ export function TrackList({
                     }
                     onRemove={onTrackRemove}
                     showRemove={!!onTrackRemove}
+                    interactive={interactive}
                     previewSide="bottom"
                     previewAlign="center"
                   />
@@ -233,6 +241,7 @@ export function TrackList({
                   }
                   onRemove={onTrackRemove}
                   showRemove={!!onTrackRemove}
+                  interactive={interactive}
                   previewSide="bottom"
                   previewAlign="start"
                 />
@@ -258,8 +267,7 @@ export function TrackList({
   return renderContent();
 }
 
-export interface TrackListSkeletonProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface TrackListSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Number of skeleton tracks to show @default 5 */
   count?: number | undefined;
   /** Whether to show position numbers @default false */

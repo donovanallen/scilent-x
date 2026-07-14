@@ -57,10 +57,10 @@ These will be resolved as upstream packages update their dependencies.
 
 The following vulnerabilities were found in transitive dependencies (not directly controllable):
 
-| Severity | Package   | Issue                                        | Affected Path              |
-| -------- | --------- | -------------------------------------------- | -------------------------- |
-| Moderate | js-yaml   | Prototype pollution in merge (needs >=4.1.1) | @turbo/gen → @turbo/workspaces |
-| Low      | tmp       | Arbitrary temp file write via symlink        | @turbo/gen → inquirer → external-editor |
+| Severity | Package | Issue                                        | Affected Path                           |
+| -------- | ------- | -------------------------------------------- | --------------------------------------- |
+| Moderate | js-yaml | Prototype pollution in merge (needs >=4.1.1) | @turbo/gen → @turbo/workspaces          |
+| Low      | tmp     | Arbitrary temp file write via symlink        | @turbo/gen → inquirer → external-editor |
 
 These are dependencies of `@turbo/gen` and will be resolved when Turborepo updates their dependencies.
 
@@ -70,21 +70,21 @@ These are dependencies of `@turbo/gen` and will be resolved when Turborepo updat
 
 The following major version updates were applied during the audit:
 
-| Package                    | From     | To       | Notes                           |
-| -------------------------- | -------- | -------- | ------------------------------- |
-| next                       | 15.5.2   | 16.1.1   | Major Next.js update            |
-| react                      | 19.1.0   | 19.2.3   | React 19 minor update           |
-| react-dom                  | 19.1.0   | 19.2.3   | React DOM 19 minor update       |
-| eslint-config-next         | 15.5.2   | 16.1.1   | Follows Next.js version         |
-| eslint-config-prettier     | 9.1.2    | 10.1.8   | Major version update            |
-| eslint-plugin-react-hooks  | 5.2.0    | 7.0.1    | Major update (v6 was skipped)   |
-| @types/node                | 20.x     | 25.x     | Node.js types major update      |
-| @typescript-eslint/\*      | 8.41.0   | 8.50.1   | TypeScript ESLint minor updates |
-| turbo                      | 2.5.6    | 2.7.2    | Turborepo minor update          |
-| typescript                 | 5.9.2    | 5.9.3    | TypeScript patch update         |
-| tailwindcss                | 4.1.12   | 4.1.18   | Tailwind CSS patch update       |
-| prettier                   | 3.6.2    | 3.7.4    | Prettier minor update           |
-| eslint                     | 9.34.0   | 9.39.2   | ESLint minor update             |
+| Package                   | From   | To     | Notes                           |
+| ------------------------- | ------ | ------ | ------------------------------- |
+| next                      | 15.5.2 | 16.1.1 | Major Next.js update            |
+| react                     | 19.1.0 | 19.2.3 | React 19 minor update           |
+| react-dom                 | 19.1.0 | 19.2.3 | React DOM 19 minor update       |
+| eslint-config-next        | 15.5.2 | 16.1.1 | Follows Next.js version         |
+| eslint-config-prettier    | 9.1.2  | 10.1.8 | Major version update            |
+| eslint-plugin-react-hooks | 5.2.0  | 7.0.1  | Major update (v6 was skipped)   |
+| @types/node               | 20.x   | 25.x   | Node.js types major update      |
+| @typescript-eslint/\*     | 8.41.0 | 8.50.1 | TypeScript ESLint minor updates |
+| turbo                     | 2.5.6  | 2.7.2  | Turborepo minor update          |
+| typescript                | 5.9.2  | 5.9.3  | TypeScript patch update         |
+| tailwindcss               | 4.1.12 | 4.1.18 | Tailwind CSS patch update       |
+| prettier                  | 3.6.2  | 3.7.4  | Prettier minor update           |
+| eslint                    | 9.34.0 | 9.39.2 | ESLint minor update             |
 
 ---
 
@@ -94,26 +94,26 @@ The following major/tricky version updates were applied during the July 2026 dep
 in addition to a broad batch of in-range minor/patch bumps across the monorepo (Radix UI, Tiptap,
 Storybook, Vitest, Prisma, `@typescript-eslint/*`, Turbo, `@types/node`, etc.):
 
-| Package                          | From    | To      | Notes                                                                                             |
-| --------------------------------- | ------- | ------- | --------------------------------------------------------------------------------------------------- |
-| `zod`                              | 3.x     | 4.4.3   | `z.record()` now requires 2 args (`z.record(z.string(), valueType)`); updated `packages/harmony-engine/src/types/harmonized.types.ts` accordingly. |
-| `eslint`                           | 9.x     | 10.6.0  | Flat config still compatible; some plugins (`eslint-plugin-import`, `eslint-plugin-jsx-a11y`, `eslint-plugin-react`) emit peer-dependency warnings for ESLint 9 but lint still passes clean. Monitor for plugin updates. |
-| `lucide-react`                     | 0.562.0 | 1.23.0  | v1 removed brand icons (e.g. `Github`). Fixed by swapping to `Code2` in `packages/ui/src/components/stories/dropdown-menu.stories.tsx`. Bumped peer dependency ranges in `packages/ui` and `packages/scilent-ui` to `>=1.0.0`. |
-| `pino`                             | 9.x     | 10.3.1  | No breaking changes hit in `packages/logger` or `packages/harmony-engine` usage. |
-| `date-fns`                         | 3.x     | 4.4.0   | No breaking changes hit in `apps/web` usage. |
-| `better-auth`                      | 1.4.x   | 1.6.23  | No breaking changes hit in `packages/auth` or `apps/web/src/app/api/auth`. |
-| `prisma` / `@prisma/client`        | 7.2.x   | 7.8.0   | Ran `pnpm --filter @scilent-one/db db:generate` after bumping; generated client checked into `packages/db/prisma/generated/internal/class.ts` as expected. |
-| `storybook` / `@storybook/*`       | 10.1.x  | 10.4.6  | Storybook/test configs in `packages/ui` and `packages/scilent-ui` unaffected. |
-| `vite`                             | 7.x     | 8.1.3   | Paired with `@vitejs/plugin-react` 5→6 and `vite-plugin-svgr` 4→5. |
-| `vitest`                           | 4.0.x   | 4.1.10  | No config changes required. |
-| `chromatic`                        | 13.x    | 18.0.1  | Config in `packages/ui` unaffected. |
-| `@typescript-eslint/*`             | 8.50.x  | 8.63.x  | Minor updates, no rule breakage. |
-| `p-retry`                          | 6.x     | 8.0.0   | `onFailedAttempt` callback now receives a `RetryContext` object; updated `packages/harmony-engine/src/utils/retry.ts` to read `context.error.message` instead of `error.message`. |
-| `isomorphic-dompurify`             | 2.x     | 3.x     | No breaking changes hit. |
-| `html-react-parser`                | 5.x     | 6.x     | No breaking changes hit. |
-| `eslint-import-resolver-typescript`| 3.x     | 4.x     | No breaking changes hit. |
-| `@types/node`                      | 25.x    | 26.x    | No breaking changes hit. |
-| `dotenv`                            | 16.x    | 17.x    | No breaking changes hit. |
+| Package                             | From    | To     | Notes                                                                                                                                                                                                                          |
+| ----------------------------------- | ------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `zod`                               | 3.x     | 4.4.3  | `z.record()` now requires 2 args (`z.record(z.string(), valueType)`); updated `packages/harmony-engine/src/types/harmonized.types.ts` accordingly.                                                                             |
+| `eslint`                            | 9.x     | 10.6.0 | Flat config still compatible; some plugins (`eslint-plugin-import`, `eslint-plugin-jsx-a11y`, `eslint-plugin-react`) emit peer-dependency warnings for ESLint 9 but lint still passes clean. Monitor for plugin updates.       |
+| `lucide-react`                      | 0.562.0 | 1.23.0 | v1 removed brand icons (e.g. `Github`). Fixed by swapping to `Code2` in `packages/ui/src/components/stories/dropdown-menu.stories.tsx`. Bumped peer dependency ranges in `packages/ui` and `packages/scilent-ui` to `>=1.0.0`. |
+| `pino`                              | 9.x     | 10.3.1 | No breaking changes hit in `packages/logger` or `packages/harmony-engine` usage.                                                                                                                                               |
+| `date-fns`                          | 3.x     | 4.4.0  | No breaking changes hit in `apps/web` usage.                                                                                                                                                                                   |
+| `better-auth`                       | 1.4.x   | 1.6.23 | No breaking changes hit in `packages/auth` or `apps/web/src/app/api/auth`.                                                                                                                                                     |
+| `prisma` / `@prisma/client`         | 7.2.x   | 7.8.0  | Ran `pnpm --filter @scilent-one/db db:generate` after bumping; generated client checked into `packages/db/prisma/generated/internal/class.ts` as expected.                                                                     |
+| `storybook` / `@storybook/*`        | 10.1.x  | 10.4.6 | Storybook/test configs in `packages/ui` and `packages/scilent-ui` unaffected.                                                                                                                                                  |
+| `vite`                              | 7.x     | 8.1.3  | Paired with `@vitejs/plugin-react` 5→6 and `vite-plugin-svgr` 4→5.                                                                                                                                                             |
+| `vitest`                            | 4.0.x   | 4.1.10 | No config changes required.                                                                                                                                                                                                    |
+| `chromatic`                         | 13.x    | 18.0.1 | Config in `packages/ui` unaffected.                                                                                                                                                                                            |
+| `@typescript-eslint/*`              | 8.50.x  | 8.63.x | Minor updates, no rule breakage.                                                                                                                                                                                               |
+| `p-retry`                           | 6.x     | 8.0.0  | `onFailedAttempt` callback now receives a `RetryContext` object; updated `packages/harmony-engine/src/utils/retry.ts` to read `context.error.message` instead of `error.message`.                                              |
+| `isomorphic-dompurify`              | 2.x     | 3.x    | No breaking changes hit.                                                                                                                                                                                                       |
+| `html-react-parser`                 | 5.x     | 6.x    | No breaking changes hit.                                                                                                                                                                                                       |
+| `eslint-import-resolver-typescript` | 3.x     | 4.x    | No breaking changes hit.                                                                                                                                                                                                       |
+| `@types/node`                       | 25.x    | 26.x   | No breaking changes hit.                                                                                                                                                                                                       |
+| `dotenv`                            | 16.x    | 17.x   | No breaking changes hit.                                                                                                                                                                                                       |
 
 ### Deferred: TypeScript 5.9 → 6.0
 
@@ -153,6 +153,14 @@ Version 7 of eslint-plugin-react-hooks may have stricter rules. Watch for new wa
 
 - Hook dependency arrays (`exhaustive-deps`)
 - Conditional hook usage
+
+### Review ingress: context menus on review-card subjects
+
+Deferred from the review-ingress expansion work. `ReviewCard` / `ReviewSubjectPreview` render the
+plain `ReviewSubjectDisplay` shape rather than a `HarmonizedEntity`, so they can't be wrapped with
+`InteractiveWrapper` yet. See `docs/REVIEW_INGRESS.md` ("Deferred: context menus on review-card
+subjects") for the two adaptation options — hydrating from the stored `ReviewSubject.snapshot` JSON
+is preferred.
 
 ---
 

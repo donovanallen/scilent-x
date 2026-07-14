@@ -36,6 +36,12 @@ const MOVE_THRESHOLD = 10;
  * and DropdownMenu (mobile) based on the provider configuration.
  *
  * Renders the appropriate entity-specific menu content based on entityType.
+ *
+ * @deprecated Use {@link InteractiveWrapper} instead. As of the review-ingress
+ * work, `InteractiveWrapper` is platform-adaptive (right-click context menu on
+ * web, long-press dropdown on mobile) and also handles hover previews, so it
+ * fully supersedes this standalone menu wrapper. This component is retained only
+ * for backwards compatibility and is not used anywhere in the app.
  */
 export function EntityMenu({
   entityType,
