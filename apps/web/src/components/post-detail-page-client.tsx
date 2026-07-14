@@ -486,6 +486,35 @@ export function PostDetailPageClient({ id, mode }: PostDetailPageClientProps) {
     }
   };
 
+  const handleToggleVisibility = async () => {
+    if (!post) return;
+
+    const nextVisibility = post.visibility === 'PRIVATE' ? 'PUBLIC' : 'PRIVATE';
+    const originalPost = { ...post };
+
+    setPost({ ...post, visibility: nextVisibility });
+
+    try {
+      const res = await fetch(`/api/v1/reviews/${id}/visibility`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visibility: nextVisibility }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update visibility');
+
+      toast.success(
+        nextVisibility === 'PRIVATE'
+          ? 'Review is now private'
+          : 'Review is now public'
+      );
+    } catch (error) {
+      setPost(originalPost);
+      console.error('Failed to update visibility:', error);
+      toast.error('Failed to update visibility');
+    }
+  };
+
   const handleReviewSubjectClick = () => {
     if (post?.reviewSubject?.gtin) {
       router.push(`/releases/${post.reviewSubject.gtin}/reviews`);
@@ -529,6 +558,7 @@ export function PostDetailPageClient({ id, mode }: PostDetailPageClientProps) {
     onSaveEdit: handleSaveEdit,
     onCancelEdit: handleCancelEdit,
     onDelete: handleDeletePost,
+    ...(isReview ? { onToggleVisibility: handleToggleVisibility } : {}),
     onAuthorClick: (username: string) => router.push(`/profile/${username}`),
     onMentionClick: (username: string) => router.push(`/profile/${username}`),
     onMentionQuery: searchUsers,

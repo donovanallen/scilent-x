@@ -20,6 +20,7 @@ interface ReviewsPageItem {
     image: string | null;
   };
   createdAt: string;
+  visibility?: 'PUBLIC' | 'PRIVATE';
   _count?: { likes: number; comments: number; reposts: number };
   isLiked?: boolean;
   isReposted?: boolean;
@@ -117,6 +118,7 @@ export function EntityReviewsPageClient({
                 : {})}
               author={review.author}
               createdAt={review.createdAt}
+              {...(review.visibility ? { visibility: review.visibility } : {})}
               likesCount={review._count?.likes ?? 0}
               commentsCount={review._count?.comments ?? 0}
               repostsCount={review._count?.reposts ?? 0}

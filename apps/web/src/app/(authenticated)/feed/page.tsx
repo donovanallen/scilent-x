@@ -325,6 +325,46 @@ export default function FeedPage() {
     }
   };
 
+  const handleToggleVisibility = async (
+    postId: string,
+    currentVisibility: 'PUBLIC' | 'PRIVATE' | undefined
+  ) => {
+    const nextVisibility =
+      currentVisibility === 'PRIVATE' ? 'PUBLIC' : 'PRIVATE';
+    const originalPages = feedPages;
+
+    mutate(
+      (pages) =>
+        pages?.map((page) => ({
+          ...page,
+          items: page.items.map((post) =>
+            post.id === postId ? { ...post, visibility: nextVisibility } : post
+          ),
+        })),
+      { revalidate: false }
+    );
+
+    try {
+      const res = await fetch(`/api/v1/reviews/${postId}/visibility`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visibility: nextVisibility }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update visibility');
+
+      toast.success(
+        nextVisibility === 'PRIVATE'
+          ? 'Review is now private'
+          : 'Review is now public'
+      );
+    } catch (error) {
+      mutate(originalPages, { revalidate: false });
+      console.error('Failed to update visibility:', error);
+      toast.error('Failed to update visibility');
+    }
+  };
+
   const handleEditPost = (postId: string) => {
     setEditingPostId(postId);
   };
@@ -629,6 +669,9 @@ export default function FeedPage() {
               <ReviewCard
                 {...(defaultCard.props as PostCardProps)}
                 reviewSubject={feedPost.reviewSubject}
+                onToggleVisibility={() =>
+                  handleToggleVisibility(feedPost.id, feedPost.visibility)
+                }
                 onSubjectClick={() => {
                   if (feedPost.reviewSubject?.gtin) {
                     router.push(
