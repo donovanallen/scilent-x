@@ -5,6 +5,8 @@ import { Card, CardContent } from '../card';
 import { UserAvatar } from './user-avatar';
 import { FollowButton } from './follow-button';
 import { cn } from '../../utils';
+import type { ProfileType } from '@scilent-one/db';
+import { ProfileTypePill } from '@scilent-one/scilent-ui';
 
 export interface UserCardProps {
   id: string;
@@ -13,6 +15,7 @@ export interface UserCardProps {
   bio: string | null;
   avatarUrl: string | null;
   image: string | null;
+  profileType?: ProfileType | null | undefined;
   showFollowButton?: boolean | undefined;
   followersCount?: number | undefined;
   followingCount?: number | undefined;
@@ -36,6 +39,7 @@ export function UserCard({
   bio,
   avatarUrl,
   image,
+  profileType,
   showFollowButton = false,
   followersCount,
   followingCount,
@@ -74,15 +78,21 @@ export function UserCard({
             username={username}
             avatarUrl={avatarUrl}
             image={image}
+            profileType={profileType}
             size="lg"
             onClick={onClick}
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1" onClick={onClick}>
-                <p className="font-semibold truncate leading-tight">
-                  {name || username || 'Anonymous'}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold truncate leading-tight">
+                    {name || username || 'Anonymous'}
+                  </p>
+                  {profileType && profileType !== 'USER' && (
+                    <ProfileTypePill profileType={profileType} />
+                  )}
+                </div>
                 {username && (
                   <p className="text-muted-foreground text-sm truncate mt-0.5">
                     @{username}

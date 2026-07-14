@@ -8,6 +8,8 @@ import { Badge } from '../badge';
 import { UserAvatar } from './user-avatar';
 import { FollowButton } from './follow-button';
 import { cn } from '../../utils';
+import type { ProfileType } from '@scilent-one/db';
+import { ProfileTypePill } from '@scilent-one/scilent-ui';
 
 /** Connected streaming platform information */
 export interface ConnectedPlatform {
@@ -22,6 +24,7 @@ export interface ProfileHeaderProps {
   bio: string | null;
   avatarUrl: string | null;
   image: string | null;
+  profileType?: ProfileType | null | undefined;
   followersCount: number;
   followingCount: number;
   postsCount: number;
@@ -64,6 +67,7 @@ export function ProfileHeader({
   bio,
   avatarUrl,
   image,
+  profileType,
   followersCount,
   followingCount,
   postsCount,
@@ -89,15 +93,19 @@ export function ProfileHeader({
             username={username}
             avatarUrl={avatarUrl}
             image={image}
+            profileType={profileType}
             size="xl"
             className="shrink-0"
           />
           <div className="flex-1 min-w-0 w-full">
             <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-3 sm:gap-4">
               <div className="text-center sm:text-left">
-                <h1 className="text-xl sm:text-2xl font-bold truncate">
-                  {name || username || 'Anonymous'}
-                </h1>
+                <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-bold truncate">
+                    {name || username || 'Anonymous'}
+                  </h1>
+                  {profileType && <ProfileTypePill profileType={profileType} />}
+                </div>
                 {username && (
                   <p className="text-muted-foreground text-sm sm:text-base">
                     @{username}
