@@ -114,7 +114,13 @@ export function ProviderFilterToggle({
       type='single'
       value={selectedProvider}
       onValueChange={(value) => {
-        if (value) onProviderChange(value);
+        // Re-clicking the active provider deselects it; treat that as "All"
+        // when the All option is available so filters stay clearable.
+        if (value) {
+          onProviderChange(value);
+        } else if (showAllOption) {
+          onProviderChange(ALL_PROVIDERS_VALUE);
+        }
       }}
       className='border rounded-lg p-2'
     >

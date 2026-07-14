@@ -78,7 +78,6 @@ export function ArtistsContainer({ providers }: ArtistsContainerProps) {
     providerParam && providerParam !== ALL_PROVIDERS_VALUE
       ? providerParam
       : null;
-  const isSingleProviderMode = lockedProvider !== null;
 
   const selectedProvider = lockedProvider ?? ALL_PROVIDERS_VALUE;
 
@@ -135,23 +134,34 @@ export function ArtistsContainer({ providers }: ArtistsContainerProps) {
     toast.error('Failed to load artists');
   }, [artistsError]);
 
+  // Always merge/dedupe across pages — single-provider APIs can return
+  // overlapping IDs, and React list keys (plus counts) need a unique set.
   const allArtists = useMemo(() => {
     if (!artistPages) return [];
-
-    if (isSingleProviderMode) {
-      return artistPages.flatMap((page) => page.items);
-    }
 
     return artistPages.reduce(
       (acc, page) => mergeFollowedArtistPages(acc, page.items),
       [] as HarmonizedArtist[]
     );
-  }, [artistPages, isSingleProviderMode]);
+  }, [artistPages]);
+
+  const lastPage = artistPages?.[artistPages.length - 1];
+  const hasMore = lastPage?.hasMore ?? false;
+  const isPageLoading = isLoading || isValidating;
+  const hasLoaded = !!artistPages;
+  const isFiltering = debouncedFilter.trim().length > 0;
+
+  // Provider followed-artist APIs don't support text search — exhaust pages
+  // while filtering so the client filter covers the full set.
+  useEffect(() => {
+    if (!isFiltering || !hasMore || isPageLoading) return;
+    setSize((size) => size + 1);
+  }, [isFiltering, hasMore, isPageLoading, setSize]);
 
   const displayedArtists = useMemo(() => {
     let result = allArtists;
 
-    if (debouncedFilter.trim()) {
+    if (isFiltering) {
       const query = debouncedFilter.trim().toLowerCase();
       result = result.filter((artist) =>
         (artist.nameNormalized ?? artist.name).toLowerCase().includes(query)
@@ -166,12 +176,7 @@ export function ArtistsContainer({ providers }: ArtistsContainerProps) {
       });
       return sort.direction === 'asc' ? cmp : -cmp;
     });
-  }, [allArtists, debouncedFilter, sort]);
-
-  const lastPage = artistPages?.[artistPages.length - 1];
-  const hasMore = lastPage?.hasMore ?? false;
-  const isPageLoading = isLoading || isValidating;
-  const hasLoaded = !!artistPages;
+  }, [allArtists, debouncedFilter, isFiltering, sort]);
 
   const noProvidersConnected =
     artistsError instanceof ApiError &&
@@ -181,15 +186,15 @@ export function ArtistsContainer({ providers }: ArtistsContainerProps) {
     (artistsError.info as { code: string }).code === 'NO_PROVIDER';
 
   const { sentinelRef } = useInfiniteScroll({
-    hasMore,
+    // While searching we drive pagination via the exhaust effect above;
+    // keep scroll-to-load for the unfiltered browse path.
+    hasMore: hasMore && !isFiltering,
     isLoading: isPageLoading,
     onLoadMore: () => setSize((size) => size + 1),
   });
 
   const handleProviderChange = useCallback(
     (value: string) => {
-      if (isSingleProviderMode) return;
-
       const params = new URLSearchParams(searchParams.toString());
       if (value === ALL_PROVIDERS_VALUE) {
         params.delete('provider');
@@ -200,7 +205,7 @@ export function ArtistsContainer({ providers }: ArtistsContainerProps) {
       const query = params.toString();
       router.replace(query ? `/artists?${query}` : '/artists');
     },
-    [isSingleProviderMode, router, searchParams]
+    [router, searchParams]
   );
 
   const errorMessage = useMemo(() => {
@@ -209,7 +214,13 @@ export function ArtistsContainer({ providers }: ArtistsContainerProps) {
     return 'Failed to load artists';
   }, [artistsError, noProvidersConnected]);
 
-  const apiTotal = lastPage?.total;
+  // Prefer the first page's total — later aggregate pages only re-fetch
+  // providers that still have cursors, so their summed totals shrink.
+  const apiTotal = artistPages?.[0]?.total;
+  const isExhaustingForSearch = isFiltering && hasMore;
+  const displayTotal = isFiltering
+    ? displayedArtists.length
+    : (apiTotal ?? displayedArtists.length);
 
   return (
     <div className='flex flex-col flex-1 min-h-0 gap-2'>
@@ -219,30 +230,28 @@ export function ArtistsContainer({ providers }: ArtistsContainerProps) {
         selectedProvider={selectedProvider}
         onProviderChange={handleProviderChange}
         enabledProviders={enabledProviderNames}
-        showProviderFilter={!isSingleProviderMode}
       />
 
       {hasLoaded && (
         <ArtistsToolbar
-          total={
-            debouncedFilter
-              ? displayedArtists.length
-              : (apiTotal ?? displayedArtists.length)
-          }
+          total={displayTotal}
           view={view}
           onViewChange={setView}
           sort={sort}
           onSortChange={setSort}
-          isLoading={isPageLoading && !artistPages}
+          isLoading={(isPageLoading && !artistPages) || isExhaustingForSearch}
         />
       )}
 
       <ArtistsResults
         artists={displayedArtists}
         view={view}
-        isLoading={isPageLoading}
+        isLoading={isPageLoading && !hasLoaded}
+        isLoadingMore={isPageLoading && hasLoaded && hasMore}
         error={errorMessage}
         hasLoaded={hasLoaded}
+        hasMore={hasMore}
+        isFiltering={isFiltering}
         noProvidersConnected={noProvidersConnected}
         sentinelRef={sentinelRef}
       />

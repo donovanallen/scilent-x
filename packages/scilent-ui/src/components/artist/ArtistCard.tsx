@@ -47,10 +47,14 @@ export function ArtistCard({
     onClick?.(artist);
   }, [onClick, artist]);
 
+  const genres = showGenres ? (artist.genres?.slice(0, 3) ?? []) : [];
+  const hasExtraGenres =
+    showGenres && !!artist.genres && artist.genres.length > 3;
+
   const card = (
     <Card
       className={cn(
-        'overflow-hidden cursor-pointer transition-[background-color,transform,box-shadow] duration-base ease-out hover:bg-accent/50 hover:-translate-y-0.5 hover:shadow-md',
+        'h-full flex flex-col overflow-hidden cursor-pointer transition-[background-color,transform,box-shadow] duration-base ease-out hover:bg-accent/50 hover:-translate-y-0.5 hover:shadow-md',
         className
       )}
       onClick={handleClick}
@@ -65,7 +69,7 @@ export function ArtistCard({
       aria-label={`View ${artist.name}`}
       {...props}
     >
-      <div className="aspect-square relative overflow-hidden bg-muted">
+      <div className="aspect-square relative overflow-hidden bg-muted shrink-0">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -80,7 +84,7 @@ export function ArtistCard({
         )}
       </div>
 
-      <CardHeader className="p-4">
+      <CardHeader className="p-4 flex-1">
         <CardTitle className="truncate">{artist.name}</CardTitle>
         {artist.disambiguation && (
           <p className="text-muted-foreground truncate">
@@ -89,20 +93,23 @@ export function ArtistCard({
         )}
       </CardHeader>
 
-      {showGenres && artist.genres && artist.genres.length > 0 && (
-        <CardContent className="p-4 pt-0">
-          <div className="flex flex-wrap gap-1">
-            {artist.genres.slice(0, 3).map((genre: string) => (
-              <Badge key={genre} variant="secondary" className="text-xs">
-                {genre}
-              </Badge>
-            ))}
-            {artist.genres.length > 3 && (
-              <Badge variant="outline" className="text-xs">
-                +{artist.genres.length - 3}
-              </Badge>
-            )}
-          </div>
+      {/* Always reserve the genre row so grid cards share a consistent height */}
+      {showGenres && (
+        <CardContent className="p-4 pt-0 mt-auto min-h-9">
+          {(genres.length > 0 || hasExtraGenres) && (
+            <div className="flex flex-wrap gap-1">
+              {genres.map((genre: string) => (
+                <Badge key={genre} variant="secondary" className="text-xs">
+                  {genre}
+                </Badge>
+              ))}
+              {hasExtraGenres && (
+                <Badge variant="outline" className="text-xs">
+                  +{artist.genres!.length - 3}
+                </Badge>
+              )}
+            </div>
+          )}
         </CardContent>
       )}
     </Card>
@@ -115,6 +122,7 @@ export function ArtistCard({
         entity={artist}
         previewSide={previewSide}
         previewAlign={previewAlign}
+        className="block h-full"
       >
         {card}
       </InteractiveWrapper>
@@ -129,12 +137,15 @@ export function ArtistCardSkeleton({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <Card className={cn('overflow-hidden', className)} {...props}>
-      <Skeleton className="aspect-square w-full" />
-      <CardHeader className="p-4 pb-2">
+    <Card
+      className={cn('h-full flex flex-col overflow-hidden', className)}
+      {...props}
+    >
+      <Skeleton className="aspect-square w-full shrink-0" />
+      <CardHeader className="p-4 pb-2 flex-1">
         <Skeleton className="h-5 w-3/4" />
       </CardHeader>
-      <CardContent className="p-4 pt-0">
+      <CardContent className="p-4 pt-0 mt-auto min-h-9">
         <div className="flex gap-1">
           <Skeleton className="h-5 w-16" />
           <Skeleton className="h-5 w-12" />

@@ -15,8 +15,34 @@ export function normalizeArtistKey(artist: HarmonizedArtist): string {
 }
 
 /**
+ * Stable identity string for a followed artist (sorted provider:id pairs).
+ * Useful for React keys and shared-ID grouping.
+ */
+export function artistIdentityKey(artist: HarmonizedArtist): string {
+  const fromExternalIds = Object.entries(artist.externalIds)
+    .filter(([, id]) => Boolean(id))
+    .map(([provider, id]) => `${provider}:${id}`)
+    .sort();
+
+  if (fromExternalIds.length > 0) {
+    return fromExternalIds.join('|');
+  }
+
+  const fromSources = (artist.sources ?? [])
+    .filter((s) => Boolean(s.id))
+    .map((s) => `${s.provider}:${s.id}`)
+    .sort();
+
+  if (fromSources.length > 0) {
+    return fromSources.join('|');
+  }
+
+  return `name:${normalizeArtistKey(artist)}`;
+}
+
+/**
  * Merge a list of HarmonizedArtist records, de-duplicating by normalized name
- * and combining provider-specific IDs/sources via ArtistMerger.
+ * or any shared provider external ID, combining IDs/sources via ArtistMerger.
  */
 export function aggregateFollowedArtists(
   artists: HarmonizedArtist[]
@@ -25,15 +51,64 @@ export function aggregateFollowedArtists(
     return [];
   }
 
-  const groups = new Map<string, HarmonizedArtist[]>();
+  // Union-Find so same name OR shared provider:id collapses to one artist.
+  const parent = artists.map((_, i) => i);
 
-  for (const artist of artists) {
-    const key = normalizeArtistKey(artist);
-    const existing = groups.get(key);
-    if (existing) {
-      existing.push(artist);
+  const find = (i: number): number => {
+    let root = i;
+    while (parent[root] !== root) {
+      root = parent[root]!;
+    }
+    let curr = i;
+    while (parent[curr] !== curr) {
+      const next = parent[curr]!;
+      parent[curr] = root;
+      curr = next;
+    }
+    return root;
+  };
+
+  const union = (a: number, b: number) => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) {
+      parent[rb] = ra;
+    }
+  };
+
+  const nameToIndex = new Map<string, number>();
+  const externalIdToIndex = new Map<string, number>();
+
+  for (let i = 0; i < artists.length; i++) {
+    const artist = artists[i]!;
+    const nameKey = normalizeArtistKey(artist);
+    const existingByName = nameToIndex.get(nameKey);
+    if (existingByName !== undefined) {
+      union(existingByName, i);
     } else {
-      groups.set(key, [artist]);
+      nameToIndex.set(nameKey, i);
+    }
+
+    for (const [provider, id] of Object.entries(artist.externalIds)) {
+      if (!id) continue;
+      const extKey = `${provider}:${id}`;
+      const existingById = externalIdToIndex.get(extKey);
+      if (existingById !== undefined) {
+        union(existingById, i);
+      } else {
+        externalIdToIndex.set(extKey, i);
+      }
+    }
+  }
+
+  const groups = new Map<number, HarmonizedArtist[]>();
+  for (let i = 0; i < artists.length; i++) {
+    const root = find(i);
+    const group = groups.get(root);
+    if (group) {
+      group.push(artists[i]!);
+    } else {
+      groups.set(root, [artists[i]!]);
     }
   }
 

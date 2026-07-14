@@ -31,12 +31,10 @@ export interface TiptapEditorProps {
   editorKey?: string | number | undefined;
   /** Callback to search for mention suggestions */
   onMentionQuery?:
-    | ((query: string) => Promise<MentionSuggestion[]>)
-    | undefined;
+    ((query: string) => Promise<MentionSuggestion[]>) | undefined;
   /** Callback to search for artist mention suggestions */
   onArtistMentionQuery?:
-    | ((query: string) => Promise<MentionSuggestion[]>)
-    | undefined;
+    ((query: string) => Promise<MentionSuggestion[]>) | undefined;
   /** Placeholder text for user mention suggestions */
   mentionPlaceholder?: string | undefined;
   /** Placeholder text for artist mention suggestions */
@@ -82,6 +80,12 @@ export function TiptapEditor({
   const artistMentionErrorRef = React.useRef<string | null>(null);
   const mentionListRef = React.useRef<MentionListRef>(null);
   const artistMentionListRef = React.useRef<MentionListRef>(null);
+  // Lets the async fetch effects force the (imperatively-rendered) suggestion
+  // popup to re-render once loading/results/error settle, since tiptap's
+  // suggestion plugin only re-renders the popup on keystroke-driven
+  // onStart/onUpdate/onKeyDown events, not on unrelated React state changes.
+  const mentionForceRenderRef = React.useRef<(() => void) | null>(null);
+  const artistMentionForceRenderRef = React.useRef<(() => void) | null>(null);
 
   // Keep refs in sync with state
   React.useEffect(() => {
@@ -153,6 +157,13 @@ export function TiptapEditor({
     return () => clearTimeout(timeoutId);
   }, [mentionQuery, onMentionQuery]);
 
+  // Once loading/results/error settle, force the (imperative) suggestion
+  // popup to re-render so it doesn't stay stuck on "Searching..." when no
+  // further keystroke triggers tiptap's onUpdate.
+  React.useEffect(() => {
+    mentionForceRenderRef.current?.();
+  }, [mentionSuggestions, isLoadingSuggestions, mentionError]);
+
   // Debounce the artist mention query
   React.useEffect(() => {
     if (!artistQuery || !onArtistMentionQuery) {
@@ -181,6 +192,10 @@ export function TiptapEditor({
 
     return () => clearTimeout(timeoutId);
   }, [artistQuery, onArtistMentionQuery]);
+
+  React.useEffect(() => {
+    artistMentionForceRenderRef.current?.();
+  }, [artistSuggestions, isLoadingArtistSuggestions, artistMentionError]);
 
   const mentionExtension = React.useMemo(() => {
     return Mention.extend({
@@ -231,8 +246,7 @@ export function TiptapEditor({
             typeof import('react-dom/client').createRoot
           > | null = null;
           let currentCommand:
-            | ((attrs: { id: string; label: string }) => void)
-            | null = null;
+            ((attrs: { id: string; label: string }) => void) | null = null;
           let currentItems: MentionSuggestion[] = [];
           let currentSelectedIndex = 0;
           let currentQuery = '';
@@ -316,12 +330,21 @@ export function TiptapEditor({
             );
           };
 
+          // Called when the debounced fetch settles (loading/results/error)
+          // without an accompanying keystroke, so the popup reflects the
+          // latest data instead of staying frozen on "Searching...".
+          const forceRender = () => {
+            currentItems = mentionSuggestionsRef.current;
+            renderMentionList();
+          };
+
           return {
             onStart: (props) => {
               popup = document.createElement('div');
               popup.className = 'tiptap-mention-popup';
               document.body.appendChild(popup);
               updatePopupPosition(resolveClientRect(props));
+              mentionForceRenderRef.current = forceRender;
 
               // Create React root once
               import('react-dom/client').then(({ createRoot }) => {
@@ -343,6 +366,7 @@ export function TiptapEditor({
               currentItems = props.items as MentionSuggestion[];
               currentCommand = props.command;
               currentQuery = props.query ?? '';
+              mentionForceRenderRef.current = forceRender;
               renderMentionList();
             },
             onKeyDown: ({ event }) => {
@@ -392,6 +416,9 @@ export function TiptapEditor({
               }
               popup?.remove();
               popup = null;
+              if (mentionForceRenderRef.current === forceRender) {
+                mentionForceRenderRef.current = null;
+              }
               setMentionQuery('');
               setIsLoadingSuggestions(false);
             },
@@ -451,8 +478,7 @@ export function TiptapEditor({
             typeof import('react-dom/client').createRoot
           > | null = null;
           let currentCommand:
-            | ((attrs: { id: string; label: string }) => void)
-            | null = null;
+            ((attrs: { id: string; label: string }) => void) | null = null;
           let currentItems: MentionSuggestion[] = [];
           let currentSelectedIndex = 0;
           let currentQuery = '';
@@ -530,12 +556,18 @@ export function TiptapEditor({
             );
           };
 
+          const forceRender = () => {
+            currentItems = artistSuggestionsRef.current;
+            renderMentionList();
+          };
+
           return {
             onStart: (props) => {
               popup = document.createElement('div');
               popup.className = 'tiptap-mention-popup';
               document.body.appendChild(popup);
               updatePopupPosition(resolveClientRect(props));
+              artistMentionForceRenderRef.current = forceRender;
 
               import('react-dom/client').then(({ createRoot }) => {
                 if (popup) {
@@ -556,6 +588,7 @@ export function TiptapEditor({
               currentItems = props.items as MentionSuggestion[];
               currentCommand = props.command;
               currentQuery = props.query ?? '';
+              artistMentionForceRenderRef.current = forceRender;
               renderMentionList();
             },
             onKeyDown: ({ event }) => {
@@ -602,6 +635,9 @@ export function TiptapEditor({
               }
               popup?.remove();
               popup = null;
+              if (artistMentionForceRenderRef.current === forceRender) {
+                artistMentionForceRenderRef.current = null;
+              }
               setArtistQuery('');
               setIsLoadingArtistSuggestions(false);
             },

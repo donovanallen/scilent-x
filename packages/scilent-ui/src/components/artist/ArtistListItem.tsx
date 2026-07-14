@@ -137,17 +137,22 @@ export function ArtistListItem({
         <PlatformBadgeList platforms={providers} />
       )}
 
-      {/* External link */}
-      {showExternalLink && primarySource?.url && (
-        <a
-          href={primarySource.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-accent rounded shrink-0"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ExternalLink className="size-4 text-muted-foreground" />
-        </a>
+      {/* External link — always reserve the slot so provider pills stay aligned */}
+      {showExternalLink && (
+        <div className="size-6 shrink-0 flex items-center justify-center">
+          {primarySource?.url ? (
+            <a
+              href={primarySource.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-accent rounded"
+              onClick={(e) => e.stopPropagation()}
+              aria-label={`Open ${artist.name} externally`}
+            >
+              <ExternalLink className="size-4 text-muted-foreground" />
+            </a>
+          ) : null}
+        </div>
       )}
     </div>
   );

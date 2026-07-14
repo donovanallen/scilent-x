@@ -15,7 +15,6 @@ interface ArtistsInputBarProps {
   selectedProvider: string;
   onProviderChange: (value: string) => void;
   enabledProviders: string[];
-  showProviderFilter: boolean;
 }
 
 export function ArtistsInputBar({
@@ -24,7 +23,6 @@ export function ArtistsInputBar({
   selectedProvider,
   onProviderChange,
   enabledProviders,
-  showProviderFilter,
 }: ArtistsInputBarProps) {
   const handleClear = useCallback(() => {
     onFilterQueryChange('');
@@ -55,14 +53,12 @@ export function ArtistsInputBar({
         )}
       </div>
 
-      {showProviderFilter && (
-        <ProviderFilterToggle
-          selectedProvider={selectedProvider}
-          onProviderChange={onProviderChange}
-          enabledProviders={enabledProviders}
-          showAllOption
-        />
-      )}
+      <ProviderFilterToggle
+        selectedProvider={selectedProvider}
+        onProviderChange={onProviderChange}
+        enabledProviders={enabledProviders}
+        showAllOption
+      />
     </div>
   );
 }

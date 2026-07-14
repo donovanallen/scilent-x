@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   aggregateFollowedArtists,
+  artistIdentityKey,
   mergeFollowedArtistPages,
   normalizeArtistKey,
 } from '../aggregate-followed-artists';
@@ -90,6 +91,46 @@ describe('aggregateFollowedArtists', () => {
 
     expect(result).toHaveLength(2);
     expect(result.map((r) => r.name)).toEqual(['Artist A', 'Artist B']);
+  });
+
+  it('merges artists that share a provider external id', () => {
+    const first = createArtist({
+      name: 'CASCINE',
+      nameNormalized: 'cascine',
+      externalIds: { apple_music: '280747686' },
+      sources: [
+        {
+          provider: 'apple_music',
+          id: '280747686',
+          fetchedAt: new Date(),
+        },
+      ],
+    });
+    const duplicate = createArtist({
+      name: 'Cascine',
+      nameNormalized: 'cascine (artist)',
+      externalIds: { apple_music: '280747686' },
+      sources: [
+        {
+          provider: 'apple_music',
+          id: '280747686',
+          fetchedAt: new Date(),
+        },
+      ],
+    });
+
+    const result = aggregateFollowedArtists([first, duplicate]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.externalIds).toEqual({ apple_music: '280747686' });
+  });
+
+  it('builds a stable identity key from sorted provider ids', () => {
+    const artist = createArtist({
+      name: 'Test',
+      externalIds: { tidal: 'td-1', spotify: 'sp-1' },
+    });
+    expect(artistIdentityKey(artist)).toBe('spotify:sp-1|tidal:td-1');
   });
 
   it('sorts results alphabetically by name', () => {

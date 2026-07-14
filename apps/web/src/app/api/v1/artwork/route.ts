@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
-
-import { handleApiError } from '@/lib/api-utils';
-import { getHarmonizationEngine } from '@/lib/harmonization';
 import {
   fetchCoverArtArchiveUrl,
   getCoverArtArchiveUrl,
 } from '@scilent-one/harmony-engine';
+import { NextResponse } from 'next/server';
+
+import { handleApiError } from '@/lib/api-utils';
+import { getHarmonizationEngine } from '@/lib/harmonization';
 
 // GET /api/v1/artwork - Proxy/resolve artwork URL
 export async function GET(request: Request) {
