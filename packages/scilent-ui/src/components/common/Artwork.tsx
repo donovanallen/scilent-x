@@ -6,10 +6,14 @@ import * as React from 'react';
 
 export interface ArtworkProps extends React.HTMLAttributes<HTMLDivElement> {
   src?: string | null | undefined;
+  /** Fallback URLs tried in order when the primary src fails */
+  fallbackSrc?: string[] | undefined;
   alt: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
 }
+
+const EMPTY_FALLBACKS: string[] = [];
 
 const sizeClasses = {
   sm: 'size-10',
@@ -28,21 +32,41 @@ const roundedClasses = {
 
 export function Artwork({
   src,
+  fallbackSrc = EMPTY_FALLBACKS,
   alt,
   size = 'md',
   rounded = 'md',
   className,
   ...props
 }: ArtworkProps) {
+  const sources = React.useMemo(
+    () => [src, ...fallbackSrc].filter((url): url is string => Boolean(url)),
+    [src, fallbackSrc]
+  );
+  const [sourceIndex, setSourceIndex] = React.useState(0);
   const [hasError, setHasError] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
+    setSourceIndex(0);
     setHasError(false);
-    setIsLoading(true);
-  }, [src]);
+    setIsLoading(sources.length > 0);
+  }, [sources]);
 
-  const showFallback = !src || hasError;
+  const currentSrc = sources[sourceIndex];
+  const showFallback = !currentSrc || hasError;
+
+  const handleError = React.useCallback(() => {
+    setSourceIndex((index) => {
+      if (index < sources.length - 1) {
+        setIsLoading(true);
+        return index + 1;
+      }
+      setHasError(true);
+      setIsLoading(false);
+      return index;
+    });
+  }, [sources.length]);
 
   return (
     <div
@@ -64,14 +88,11 @@ export function Artwork({
             <div className="absolute inset-0 animate-pulse bg-muted" />
           )}
           <img
-            src={src}
+            src={currentSrc}
             alt={alt}
             loading="lazy"
             onLoad={() => setIsLoading(false)}
-            onError={() => {
-              setHasError(true);
-              setIsLoading(false);
-            }}
+            onError={handleError}
             className={cn(
               'absolute inset-0 size-full object-cover transition-opacity duration-200',
               isLoading ? 'opacity-0' : 'opacity-100'

@@ -1,6 +1,7 @@
 'use client';
 
 import type { HarmonizedArtist } from '@scilent-one/harmony-engine';
+import { getArtistImageUrl } from '@scilent-one/harmony-engine';
 import { Badge, cn, Skeleton } from '@scilent-one/ui';
 import { ExternalLink, User } from 'lucide-react';
 import { PlatformBadgeList } from '../common';
@@ -62,6 +63,7 @@ export function ArtistListItem({
 }: ArtistListItemProps) {
   const primarySource = artist.sources[0];
   const providers = artist.sources.map((s) => s.provider);
+  const imageUrl = getArtistImageUrl(artist.images);
 
   const handleClick = () => {
     onClick?.(artist);
@@ -84,9 +86,18 @@ export function ArtistListItem({
       }}
       aria-label={`Artist: ${artist.name}`}
     >
-      {/* Artist avatar placeholder */}
-      <div className="size-14 rounded-full bg-linear-to-br from-muted to-muted/50 flex items-center justify-center shrink-0">
-        <User className="size-6 text-muted-foreground/50" />
+      {/* Artist avatar */}
+      <div className="size-14 rounded-full overflow-hidden bg-linear-to-br from-muted to-muted/50 flex items-center justify-center shrink-0">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={artist.name}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <User className="size-6 text-muted-foreground/50" />
+        )}
       </div>
 
       {/* Artist info */}
