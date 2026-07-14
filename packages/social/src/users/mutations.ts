@@ -81,6 +81,7 @@ export async function updateProfile(
       bio: true,
       avatarUrl: true,
       image: true,
+      profileType: true,
       createdAt: true,
       _count: {
         select: {

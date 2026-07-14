@@ -23,6 +23,7 @@ const authorSelect = {
   username: true,
   avatarUrl: true,
   image: true,
+  profileType: true,
 } as const;
 
 /**

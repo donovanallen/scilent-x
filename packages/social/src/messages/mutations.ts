@@ -9,6 +9,7 @@ const senderSelect = {
   username: true,
   avatarUrl: true,
   image: true,
+  profileType: true,
 } as const;
 
 const MAX_MESSAGE_LENGTH = 5000;

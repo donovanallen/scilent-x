@@ -17,6 +17,7 @@ const senderSelect = {
   username: true,
   avatarUrl: true,
   image: true,
+  profileType: true,
 } as const;
 
 async function assertParticipant(
