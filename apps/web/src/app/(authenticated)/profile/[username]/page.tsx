@@ -539,6 +539,7 @@ export default function PublicProfilePage({
           bio={profile.bio}
           avatarUrl={profile.avatarUrl}
           image={profile.image}
+          profileType={profile.profileType}
           postsCount={profile._count?.posts ?? 0}
           followersCount={profile._count?.followers ?? 0}
           followingCount={profile._count?.following ?? 0}
