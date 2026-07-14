@@ -13,11 +13,12 @@ import {
   cn,
 } from '@scilent-one/ui';
 import { Loader2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { Link, useTransitionRouter } from 'next-view-transitions';
 import * as React from 'react';
 
 import { signIn, signUp } from '@/lib/auth-client';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES, sanitizeInternalRedirect } from '@/lib/routes';
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -46,6 +47,10 @@ export function SignupForm({
   ...props
 }: React.ComponentProps<'div'>) {
   const router = useTransitionRouter();
+  const searchParams = useSearchParams();
+  const redirectTo =
+    sanitizeInternalRedirect(searchParams.get('redirect')) ??
+    ROUTES.profile.href;
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -75,11 +80,11 @@ export function SignupForm({
         name,
         email,
         password,
-        callbackURL: ROUTES.profile.href,
+        callbackURL: redirectTo,
       },
       {
         onSuccess: () => {
-          router.push(ROUTES.profile.href);
+          router.push(redirectTo);
         },
         onError: (ctx) => {
           setError(ctx.error.message || 'An error occurred during sign up');
@@ -101,7 +106,7 @@ export function SignupForm({
     try {
       await signIn.social({
         provider,
-        callbackURL: ROUTES.profile.href,
+        callbackURL: redirectTo,
       });
     } catch {
       setError(`Failed to sign up with ${provider}`);

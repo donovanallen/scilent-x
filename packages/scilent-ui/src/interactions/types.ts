@@ -194,6 +194,15 @@ export interface HarmonyInteractionConfig {
   ) => void;
 
   /**
+   * Callback for viewing existing reviews of an album or track.
+   * Reviews only support release/track subjects, so this is not offered for artists.
+   */
+  onViewReviews?: (
+    entityType: 'album' | 'track',
+    entity: HarmonizedEntity
+  ) => void;
+
+  /**
    * Custom menu items per entity type
    * These are appended to the default menu items
    */
@@ -233,6 +242,7 @@ export interface HarmonyInteractionContextValue extends Required<
     | 'onCopyLink'
     | 'onViewCredits'
     | 'onWriteReview'
+    | 'onViewReviews'
     | 'customMenuItems'
     | 'providerActions'
     | 'enabledProviders'
@@ -250,6 +260,7 @@ export interface HarmonyInteractionContextValue extends Required<
   onCopyLink?: HarmonyInteractionConfig['onCopyLink'];
   onViewCredits?: HarmonyInteractionConfig['onViewCredits'];
   onWriteReview?: HarmonyInteractionConfig['onWriteReview'];
+  onViewReviews?: HarmonyInteractionConfig['onViewReviews'];
   customMenuItems?: HarmonyInteractionConfig['customMenuItems'];
   providerActions?: HarmonyInteractionConfig['providerActions'];
   enabledProviders?: HarmonyInteractionConfig['enabledProviders'];

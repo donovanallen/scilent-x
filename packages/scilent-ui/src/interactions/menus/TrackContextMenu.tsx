@@ -23,6 +23,7 @@ import {
   ScrollText,
   Type,
   PenLine,
+  MessagesSquare,
 } from 'lucide-react';
 import { useHarmonyInteraction } from '../provider';
 import type { HarmonizedEntity, MenuAction, ProviderAction } from '../types';
@@ -47,7 +48,7 @@ export interface TrackContextMenuProps {
  * Context menu content for track entities.
  *
  * Organized into sections:
- * - Section 1: Core Actions (view track, view credits)
+ * - Section 1: Core Actions (view track, view credits, write review, see reviews)
  * - Section 2: Copy Submenu (link, ISRC, title, artists)
  * - Section 3: Open In Submenu (external platform links)
  * - Section 4: Provider Actions (like, save, add to playlist - dynamic based on connected providers)
@@ -148,6 +149,11 @@ export function TrackContextMenu({
     onClose?.();
   }, [interaction, track, onClose]);
 
+  const handleViewReviews = React.useCallback(() => {
+    interaction.onViewReviews?.('track', track);
+    onClose?.();
+  }, [interaction, track, onClose]);
+
   const handleOpenExternal = React.useCallback(
     (url: string, platform: string) => {
       interaction.onOpenExternal?.(url, platform);
@@ -194,6 +200,13 @@ export function TrackContextMenu({
         <MenuItem className="gap-2" onSelect={handleWriteReview}>
           <PenLine className="size-4" />
           Write review
+        </MenuItem>
+      )}
+
+      {interaction.onViewReviews && (
+        <MenuItem className="gap-2" onSelect={handleViewReviews}>
+          <MessagesSquare className="size-4" />
+          See reviews
         </MenuItem>
       )}
 

@@ -244,6 +244,47 @@ export const HoverPreviewOnly: Story = {
   ),
 };
 
+export const MobileLongPress: Story = {
+  name: 'Mobile (Long-press for menu)',
+  decorators: [
+    (Story) => (
+      <HarmonyInteractionProvider
+        config={{
+          platform: 'mobile',
+          enableContextMenu: true,
+          enableHoverPreview: true,
+          onNavigate: (type) => alert(`Navigate to ${type}`),
+          onOpenExternal: (_url, platform) => alert(`Open in ${platform}`),
+          onCopyLink: () => alert('Link copied!'),
+          onWriteReview: (type) => alert(`Write a review for ${type}`),
+          onViewReviews: (type) => alert(`See reviews for ${type}`),
+        }}
+      >
+        <div className="p-4">
+          <Story />
+        </div>
+      </HarmonyInteractionProvider>
+    ),
+  ],
+  render: () => (
+    <div className="max-w-md">
+      <p className="text-sm text-muted-foreground mb-4">
+        On mobile the wrapper opens a dropdown menu on long-press (~500ms).
+        Hover previews are disabled on mobile. On a touch device, press and hold
+        the card; on desktop you can also right-click.
+      </p>
+      <InteractiveWrapper entityType="track" entity={mockTrack}>
+        <TrackCard
+          track={mockTrack}
+          artworkUrl={PLACEHOLDER_ALBUM_ART_SM}
+          previewSide="bottom"
+          previewAlign="start"
+        />
+      </InteractiveWrapper>
+    </div>
+  ),
+};
+
 export const Disabled: Story = {
   name: 'Interactions Disabled',
   render: () => (
