@@ -14,6 +14,7 @@ import {
   getPostInclude,
   mapPostWithAuthor,
   authorSelect,
+  visibilityWhere,
 } from '../posts/includes';
 
 /**
@@ -28,7 +29,7 @@ export async function getProfileFeed(
   const limit = params.limit ?? DEFAULT_PAGE_SIZE;
 
   const posts = await db.post.findMany({
-    where: { authorId: userId },
+    where: { authorId: userId, ...visibilityWhere(currentUserId) },
     include: getPostInclude(currentUserId),
     orderBy: { createdAt: 'desc' },
     take,
@@ -67,6 +68,7 @@ export async function getLikedPosts(
     where: {
       userId,
       postId: { not: null },
+      post: visibilityWhere(currentUserId),
     },
     include: {
       post: {
@@ -136,7 +138,7 @@ export async function getUserReposts(
   const limit = params.limit ?? DEFAULT_PAGE_SIZE;
 
   const reposts = await db.repost.findMany({
-    where: { userId },
+    where: { userId, post: visibilityWhere(currentUserId) },
     include: {
       post: {
         include: {

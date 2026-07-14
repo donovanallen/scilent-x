@@ -11,6 +11,8 @@ import {
   Loader2,
   X,
   Check,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '../card';
 import { Button } from '../button';
@@ -56,6 +58,10 @@ export interface PostCardProps {
   isLiked?: boolean;
   isReposted?: boolean;
   isOwner?: boolean;
+  /** Visibility of the post/review. Defaults to PUBLIC. */
+  visibility?: 'PUBLIC' | 'PRIVATE';
+  /** Called when the owner toggles the post's visibility (public <-> private) */
+  onToggleVisibility?: (() => void) | undefined;
   /** Whether the post is currently in edit mode */
   isEditing?: boolean;
   /** Whether the post edit is being saved */
@@ -159,6 +165,8 @@ export function PostCard({
   isLiked = false,
   isReposted = false,
   isOwner = false,
+  visibility = 'PUBLIC',
+  onToggleVisibility,
   isEditing = false,
   isSaving = false,
   onLike,
@@ -386,6 +394,21 @@ export function PostCard({
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
+              {onToggleVisibility && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleVisibility?.();
+                  }}
+                >
+                  {visibility === 'PRIVATE' ? (
+                    <Eye className="mr-2 h-4 w-4 transition-transform duration-200 active:scale-95" />
+                  ) : (
+                    <EyeOff className="mr-2 h-4 w-4 transition-transform duration-200 active:scale-95" />
+                  )}
+                  {visibility === 'PRIVATE' ? 'Make public' : 'Make private'}
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 className="text-destructive"
                 onClick={(e) => {

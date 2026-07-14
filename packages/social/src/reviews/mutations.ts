@@ -133,12 +133,14 @@ export async function createReview(
   }
 
   const sanitizedHtml = sanitizeHtml(input.contentHtml);
+  const visibility = input.visibility ?? 'PUBLIC';
 
   const post = await db.post.create({
     data: {
       content: input.content,
       contentHtml: sanitizedHtml,
       type: 'REVIEW',
+      visibility,
       authorId: userId,
       reviewSubject: {
         create: subjectData,
@@ -159,10 +161,14 @@ export async function createReview(
 
   await createPostMentions(input.content, sanitizedHtml, { postId: post.id });
 
-  const followers = await db.follow.findMany({
-    where: { followingId: userId },
-    select: { followerId: true },
-  });
+  // A private review shouldn't notify followers.
+  const followers =
+    visibility === 'PRIVATE'
+      ? []
+      : await db.follow.findMany({
+          where: { followingId: userId },
+          select: { followerId: true },
+        });
 
   if (followers.length > 0) {
     await db.activity.createMany({
@@ -233,6 +239,7 @@ export async function updateReview(
     data: {
       content: input.content,
       contentHtml: sanitizedHtml,
+      ...(input.visibility ? { visibility: input.visibility } : {}),
       ...(subjectUpdate ? { reviewSubject: subjectUpdate } : {}),
     },
     include: {
@@ -257,6 +264,66 @@ export async function updateReview(
   });
 
   await createPostMentions(input.content, sanitizedHtml, { postId: post.id });
+
+  return {
+    ...post,
+    isLiked: post.likes.length > 0,
+    isReposted: post.reposts.length > 0,
+    likes: undefined as unknown as never,
+    reposts: undefined as unknown as never,
+  } as PostWithAuthor;
+}
+
+/**
+ * Toggle a review's visibility (PUBLIC/PRIVATE) without touching any other
+ * fields. Backs a fast, optimistic toggle endpoint rather than requiring a
+ * full review edit.
+ */
+export async function setReviewVisibility(
+  userId: string,
+  postId: string,
+  visibility: 'PUBLIC' | 'PRIVATE'
+): Promise<PostWithAuthor> {
+  const existingPost = await db.post.findUnique({
+    where: { id: postId },
+    select: { authorId: true, type: true },
+  });
+
+  if (!existingPost) {
+    throw new NotFoundError('Review');
+  }
+
+  if (existingPost.type !== 'REVIEW') {
+    throw new ValidationError('Post is not a review');
+  }
+
+  if (existingPost.authorId !== userId) {
+    throw new ForbiddenError('You can only change your own reviews');
+  }
+
+  const post = await db.post.update({
+    where: { id: postId },
+    data: { visibility },
+    include: {
+      author: { select: authorSelect },
+      reviewSubject: { select: reviewSubjectSelect },
+      _count: {
+        select: {
+          likes: true,
+          comments: true,
+          reposts: true,
+        },
+      },
+      likes: {
+        where: { userId },
+        take: 1,
+      },
+      reposts: {
+        where: { userId },
+        take: 1,
+      },
+    },
+  });
 
   return {
     ...post,

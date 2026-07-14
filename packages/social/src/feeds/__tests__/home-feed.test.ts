@@ -33,7 +33,10 @@ describe('getHomeFeed', () => {
 
     expect(postFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { authorId: { in: ['author-1', 'author-2', 'user-1'] } },
+        where: {
+          authorId: { in: ['author-1', 'author-2', 'user-1'] },
+          OR: [{ visibility: 'PUBLIC' }, { authorId: 'user-1' }],
+        },
       })
     );
   });

@@ -39,7 +39,8 @@ export function NewReviewPageClient({
   const handleSubmit = async (
     content: string,
     contentHtml: string,
-    subject: SelectedMusicSubject
+    subject: SelectedMusicSubject,
+    visibility: 'PUBLIC' | 'PRIVATE'
   ) => {
     setIsSubmitting(true);
     try {
@@ -49,6 +50,7 @@ export function NewReviewPageClient({
         body: JSON.stringify({
           content,
           contentHtml,
+          visibility,
           subject: {
             type: subject.type,
             gtin: subject.gtin,

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { PostCard, type PostCardProps, Badge, cn } from '@scilent-one/ui';
+import { Lock } from 'lucide-react';
 import { AlbumArtwork } from '../album/AlbumArtwork';
 
 export interface ReviewSubjectDisplay {
@@ -28,6 +29,7 @@ export function ReviewCard({
   const subjectLabel =
     reviewSubject.type === 'TRACK' ? 'Track review' : 'Album review';
   const isSubjectInteractive = Boolean(onSubjectClick);
+  const isPrivate = postCardProps.visibility === 'PRIVATE';
 
   const subjectContent = (
     <>
@@ -55,7 +57,23 @@ export function ReviewCard({
   );
 
   return (
-    <div className={cn('rounded-lg border bg-card overflow-hidden', className)}>
+    <div
+      className={cn(
+        'relative rounded-lg border bg-card overflow-hidden',
+        isPrivate && 'border-dashed bg-muted/30',
+        className
+      )}
+    >
+      {isPrivate ? (
+        <Badge
+          variant="outline"
+          className="pointer-events-none absolute right-2 top-2 z-10 gap-1 bg-background/80 text-[10px] uppercase text-muted-foreground backdrop-blur-sm"
+        >
+          <Lock className="h-3 w-3" />
+          Private
+        </Badge>
+      ) : null}
+
       {isSubjectInteractive ? (
         <button
           type="button"

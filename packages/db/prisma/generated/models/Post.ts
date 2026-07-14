@@ -29,6 +29,7 @@ export type PostMinAggregateOutputType = {
   content: string | null
   contentHtml: string | null
   type: $Enums.PostType | null
+  visibility: $Enums.PostVisibility | null
   authorId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -39,6 +40,7 @@ export type PostMaxAggregateOutputType = {
   content: string | null
   contentHtml: string | null
   type: $Enums.PostType | null
+  visibility: $Enums.PostVisibility | null
   authorId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +51,7 @@ export type PostCountAggregateOutputType = {
   content: number
   contentHtml: number
   type: number
+  visibility: number
   authorId: number
   createdAt: number
   updatedAt: number
@@ -61,6 +64,7 @@ export type PostMinAggregateInputType = {
   content?: true
   contentHtml?: true
   type?: true
+  visibility?: true
   authorId?: true
   createdAt?: true
   updatedAt?: true
@@ -71,6 +75,7 @@ export type PostMaxAggregateInputType = {
   content?: true
   contentHtml?: true
   type?: true
+  visibility?: true
   authorId?: true
   createdAt?: true
   updatedAt?: true
@@ -81,6 +86,7 @@ export type PostCountAggregateInputType = {
   content?: true
   contentHtml?: true
   type?: true
+  visibility?: true
   authorId?: true
   createdAt?: true
   updatedAt?: true
@@ -164,6 +170,7 @@ export type PostGroupByOutputType = {
   content: string
   contentHtml: string | null
   type: $Enums.PostType
+  visibility: $Enums.PostVisibility
   authorId: string
   createdAt: Date
   updatedAt: Date
@@ -195,6 +202,7 @@ export type PostWhereInput = {
   content?: Prisma.StringFilter<"Post"> | string
   contentHtml?: Prisma.StringNullableFilter<"Post"> | string | null
   type?: Prisma.EnumPostTypeFilter<"Post"> | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFilter<"Post"> | $Enums.PostVisibility
   authorId?: Prisma.StringFilter<"Post"> | string
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
@@ -211,6 +219,7 @@ export type PostOrderByWithRelationInput = {
   content?: Prisma.SortOrder
   contentHtml?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -230,6 +239,7 @@ export type PostWhereUniqueInput = Prisma.AtLeast<{
   content?: Prisma.StringFilter<"Post"> | string
   contentHtml?: Prisma.StringNullableFilter<"Post"> | string | null
   type?: Prisma.EnumPostTypeFilter<"Post"> | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFilter<"Post"> | $Enums.PostVisibility
   authorId?: Prisma.StringFilter<"Post"> | string
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
@@ -246,6 +256,7 @@ export type PostOrderByWithAggregationInput = {
   content?: Prisma.SortOrder
   contentHtml?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -262,6 +273,7 @@ export type PostScalarWhereWithAggregatesInput = {
   content?: Prisma.StringWithAggregatesFilter<"Post"> | string
   contentHtml?: Prisma.StringNullableWithAggregatesFilter<"Post"> | string | null
   type?: Prisma.EnumPostTypeWithAggregatesFilter<"Post"> | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityWithAggregatesFilter<"Post"> | $Enums.PostVisibility
   authorId?: Prisma.StringWithAggregatesFilter<"Post"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Post"> | Date | string
@@ -272,6 +284,7 @@ export type PostCreateInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   author: Prisma.UserCreateNestedOneWithoutPostsInput
@@ -287,6 +300,7 @@ export type PostUncheckedCreateInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -302,6 +316,7 @@ export type PostUpdateInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
@@ -317,6 +332,7 @@ export type PostUncheckedUpdateInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -332,6 +348,7 @@ export type PostCreateManyInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -342,6 +359,7 @@ export type PostUpdateManyMutationInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -351,6 +369,7 @@ export type PostUncheckedUpdateManyInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -371,6 +390,7 @@ export type PostCountOrderByAggregateInput = {
   content?: Prisma.SortOrder
   contentHtml?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -381,6 +401,7 @@ export type PostMaxOrderByAggregateInput = {
   content?: Prisma.SortOrder
   contentHtml?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -391,6 +412,7 @@ export type PostMinOrderByAggregateInput = {
   content?: Prisma.SortOrder
   contentHtml?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -450,6 +472,10 @@ export type PostUncheckedUpdateManyWithoutAuthorNestedInput = {
 
 export type EnumPostTypeFieldUpdateOperationsInput = {
   set?: $Enums.PostType
+}
+
+export type EnumPostVisibilityFieldUpdateOperationsInput = {
+  set?: $Enums.PostVisibility
 }
 
 export type PostCreateNestedOneWithoutReviewSubjectInput = {
@@ -531,6 +557,7 @@ export type PostCreateWithoutAuthorInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   comments?: Prisma.CommentCreateNestedManyWithoutPostInput
@@ -545,6 +572,7 @@ export type PostUncheckedCreateWithoutAuthorInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPostInput
@@ -588,6 +616,7 @@ export type PostScalarWhereInput = {
   content?: Prisma.StringFilter<"Post"> | string
   contentHtml?: Prisma.StringNullableFilter<"Post"> | string | null
   type?: Prisma.EnumPostTypeFilter<"Post"> | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFilter<"Post"> | $Enums.PostVisibility
   authorId?: Prisma.StringFilter<"Post"> | string
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
@@ -598,6 +627,7 @@ export type PostCreateWithoutReviewSubjectInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   author: Prisma.UserCreateNestedOneWithoutPostsInput
@@ -612,6 +642,7 @@ export type PostUncheckedCreateWithoutReviewSubjectInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -642,6 +673,7 @@ export type PostUpdateWithoutReviewSubjectInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
@@ -656,6 +688,7 @@ export type PostUncheckedUpdateWithoutReviewSubjectInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -670,6 +703,7 @@ export type PostCreateWithoutRepostsInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   author: Prisma.UserCreateNestedOneWithoutPostsInput
@@ -684,6 +718,7 @@ export type PostUncheckedCreateWithoutRepostsInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -714,6 +749,7 @@ export type PostUpdateWithoutRepostsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
@@ -728,6 +764,7 @@ export type PostUncheckedUpdateWithoutRepostsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -742,6 +779,7 @@ export type PostCreateWithoutCommentsInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   author: Prisma.UserCreateNestedOneWithoutPostsInput
@@ -756,6 +794,7 @@ export type PostUncheckedCreateWithoutCommentsInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -786,6 +825,7 @@ export type PostUpdateWithoutCommentsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
@@ -800,6 +840,7 @@ export type PostUncheckedUpdateWithoutCommentsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -814,6 +855,7 @@ export type PostCreateWithoutLikesInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   author: Prisma.UserCreateNestedOneWithoutPostsInput
@@ -828,6 +870,7 @@ export type PostUncheckedCreateWithoutLikesInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -858,6 +901,7 @@ export type PostUpdateWithoutLikesInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
@@ -872,6 +916,7 @@ export type PostUncheckedUpdateWithoutLikesInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -886,6 +931,7 @@ export type PostCreateWithoutMentionsInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   author: Prisma.UserCreateNestedOneWithoutPostsInput
@@ -900,6 +946,7 @@ export type PostUncheckedCreateWithoutMentionsInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   authorId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -930,6 +977,7 @@ export type PostUpdateWithoutMentionsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
@@ -944,6 +992,7 @@ export type PostUncheckedUpdateWithoutMentionsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -958,6 +1007,7 @@ export type PostCreateManyAuthorInput = {
   content: string
   contentHtml?: string | null
   type?: $Enums.PostType
+  visibility?: $Enums.PostVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -967,6 +1017,7 @@ export type PostUpdateWithoutAuthorInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   comments?: Prisma.CommentUpdateManyWithoutPostNestedInput
@@ -981,6 +1032,7 @@ export type PostUncheckedUpdateWithoutAuthorInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   comments?: Prisma.CommentUncheckedUpdateManyWithoutPostNestedInput
@@ -995,6 +1047,7 @@ export type PostUncheckedUpdateManyWithoutAuthorInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
+  visibility?: Prisma.EnumPostVisibilityFieldUpdateOperationsInput | $Enums.PostVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1062,6 +1115,7 @@ export type PostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   content?: boolean
   contentHtml?: boolean
   type?: boolean
+  visibility?: boolean
   authorId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1079,6 +1133,7 @@ export type PostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   content?: boolean
   contentHtml?: boolean
   type?: boolean
+  visibility?: boolean
   authorId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1090,6 +1145,7 @@ export type PostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   content?: boolean
   contentHtml?: boolean
   type?: boolean
+  visibility?: boolean
   authorId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1101,12 +1157,13 @@ export type PostSelectScalar = {
   content?: boolean
   contentHtml?: boolean
   type?: boolean
+  visibility?: boolean
   authorId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "content" | "contentHtml" | "type" | "authorId" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
+export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "content" | "contentHtml" | "type" | "visibility" | "authorId" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
 export type PostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   comments?: boolean | Prisma.Post$commentsArgs<ExtArgs>
@@ -1138,6 +1195,7 @@ export type $PostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     content: string
     contentHtml: string | null
     type: $Enums.PostType
+    visibility: $Enums.PostVisibility
     authorId: string
     createdAt: Date
     updatedAt: Date
@@ -1574,6 +1632,7 @@ export interface PostFieldRefs {
   readonly content: Prisma.FieldRef<"Post", 'String'>
   readonly contentHtml: Prisma.FieldRef<"Post", 'String'>
   readonly type: Prisma.FieldRef<"Post", 'PostType'>
+  readonly visibility: Prisma.FieldRef<"Post", 'PostVisibility'>
   readonly authorId: Prisma.FieldRef<"Post", 'String'>
   readonly createdAt: Prisma.FieldRef<"Post", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Post", 'DateTime'>

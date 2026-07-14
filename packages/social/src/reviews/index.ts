@@ -1,4 +1,4 @@
-export { createReview, updateReview } from './mutations';
+export { createReview, updateReview, setReviewVisibility } from './mutations';
 export { getReviews, type GetReviewsParams } from './queries';
 export {
   buildReviewSubjectFromSnapshot,

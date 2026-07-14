@@ -25,6 +25,22 @@ export const reviewSubjectSelect = {
 
 export type ReviewSubjectData = ReviewSubject;
 
+/**
+ * Prisma `where` fragment enforcing post visibility for a given viewer.
+ *
+ * A post is visible when it is PUBLIC, or when the viewer is its author.
+ * AND this with any other filters on a `post.findMany` where clause so that
+ * private reviews are only ever returned to their author.
+ */
+export function visibilityWhere(viewerId?: string) {
+  return {
+    OR: [
+      { visibility: 'PUBLIC' as const },
+      ...(viewerId ? [{ authorId: viewerId }] : []),
+    ],
+  };
+}
+
 export function getPostInclude(userId?: string) {
   return {
     author: { select: authorSelect },

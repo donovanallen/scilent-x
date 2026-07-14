@@ -24,6 +24,10 @@ export interface PostFormProps {
   onMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
   /** Callback to search for artist mention suggestions */
   onArtistMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
+  /** Content rendered on the left side of the footer (e.g. help text) */
+  footerLeading?: React.ReactNode;
+  /** Actions rendered next to the submit button (e.g. a visibility toggle) */
+  footerActions?: React.ReactNode;
 }
 
 export function PostForm({
@@ -35,6 +39,8 @@ export function PostForm({
   className,
   onMentionQuery,
   onArtistMentionQuery,
+  footerLeading,
+  footerActions,
 }: PostFormProps) {
   const [content, setContent] = React.useState('');
   const [contentHtml, setContentHtml] = React.useState('');
@@ -93,25 +99,29 @@ export function PostForm({
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex items-center justify-end gap-3 px-3 py-2 border-t">
-          {isNearLimit && (
-            <span
-              className={cn(
-                'text-xs text-muted-foreground',
-                isNearLimit && 'text-yellow-600',
-                isOverLimit && 'text-destructive'
-              )}
+        <CardFooter className="flex items-center justify-between gap-3 px-3 py-2 border-t">
+          <div className="min-w-0 flex-1 text-left">{footerLeading}</div>
+          <div className="flex items-center gap-3">
+            {footerActions}
+            {isNearLimit && (
+              <span
+                className={cn(
+                  'text-xs text-muted-foreground',
+                  isNearLimit && 'text-yellow-600',
+                  isOverLimit && 'text-destructive'
+                )}
+              >
+                {charactersRemaining}
+              </span>
+            )}
+            <Button
+              type="submit"
+              size="sm"
+              disabled={!content.trim() || isOverLimit || isSubmitting}
             >
-              {charactersRemaining}
-            </span>
-          )}
-          <Button
-            type="submit"
-            size="sm"
-            disabled={!content.trim() || isOverLimit || isSubmitting}
-          >
-            {isSubmitting ? 'Posting...' : 'Post'}
-          </Button>
+              {isSubmitting ? 'Posting...' : 'Post'}
+            </Button>
+          </div>
         </CardFooter>
       </form>
     </Card>

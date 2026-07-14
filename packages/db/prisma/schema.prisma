@@ -130,15 +130,22 @@ enum ReviewSubjectType {
   TRACK
 }
 
+/// Visibility of a post/review
+enum PostVisibility {
+  PUBLIC
+  PRIVATE
+}
+
 /// Post model - User-created content
 model Post {
   id          String   @id @default(cuid())
-  content     String   @db.Text
-  contentHtml String?  @db.Text
-  type        PostType @default(POST)
+  content     String         @db.Text
+  contentHtml String?        @db.Text
+  type        PostType       @default(POST)
+  visibility  PostVisibility @default(PUBLIC)
   authorId    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments      Comment[]
@@ -150,6 +157,7 @@ model Post {
   @@index([authorId])
   @@index([createdAt])
   @@index([type])
+  @@index([visibility])
   @@map("posts")
 }
 

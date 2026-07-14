@@ -41,10 +41,16 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       };
     }
 
+    const visibility =
+      body.visibility === 'PUBLIC' || body.visibility === 'PRIVATE'
+        ? body.visibility
+        : undefined;
+
     const review = await updateReview(user.id, id, {
       content: body.content,
       contentHtml: body.contentHtml,
       subject,
+      ...(visibility ? { visibility } : {}),
     });
 
     return NextResponse.json(review);
