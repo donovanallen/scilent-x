@@ -75,7 +75,9 @@ export function ProviderToggle({
         aria-label={`Toggle ${providerName}`}
         className={`transition-opacity ${isPending ? 'opacity-50 cursor-wait' : ''}`}
       />
-      {isPending && <Loader2 className='h-3 w-3 animate-spin text-muted-foreground' />}
+      {isPending && (
+        <Loader2 className='h-3 w-3 animate-spin text-muted-foreground' />
+      )}
     </div>
   );
 }
