@@ -1,5 +1,5 @@
 import { db } from '@scilent-one/db';
-import type { UpdateProfileInput, UserProfile } from '../types';
+import type { UpdateProfileInput, UserProfile, ProfileType } from '../types';
 import { NotFoundError, ValidationError, ConflictError } from '../utils/errors';
 
 // Username validation regex: starts with letter, alphanumeric and underscores, 3-30 chars
@@ -41,7 +41,10 @@ export async function updateProfile(
       );
     }
 
-    if (input.username && RESERVED_USERNAMES.includes(input.username.toLowerCase())) {
+    if (
+      input.username &&
+      RESERVED_USERNAMES.includes(input.username.toLowerCase())
+    ) {
       throw new ValidationError('This username is reserved');
     }
 
@@ -123,4 +126,41 @@ export async function checkUsernameAvailability(
   }
 
   return { available: true };
+}
+
+export async function setProfileType(
+  userId: string,
+  profileType: ProfileType
+): Promise<UserProfile> {
+  try {
+    const user = await db.user.update({
+      where: { id: userId },
+      data: { profileType },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        bio: true,
+        avatarUrl: true,
+        image: true,
+        profileType: true,
+        createdAt: true,
+        _count: {
+          select: {
+            posts: true,
+            followers: true,
+            following: true,
+          },
+        },
+      },
+    });
+
+    return user;
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('Unknown user')) {
+      throw new NotFoundError('User');
+    }
+    throw error;
+  }
 }

@@ -10,6 +10,7 @@ import type {
   ConversationParticipant,
   Message,
   User,
+  ProfileType,
 } from '@scilent-one/db';
 
 // Pagination
@@ -33,6 +34,7 @@ export interface UserProfile {
   bio: string | null;
   avatarUrl: string | null;
   image: string | null;
+  profileType: ProfileType;
   createdAt: Date;
   _count?: {
     posts: number;
@@ -68,7 +70,10 @@ export interface ReviewSubjectSummary {
 }
 
 export interface PostWithAuthor extends Post {
-  author: Pick<User, 'id' | 'name' | 'username' | 'avatarUrl' | 'image'>;
+  author: Pick<
+    User,
+    'id' | 'name' | 'username' | 'avatarUrl' | 'image' | 'profileType'
+  >;
   _count: {
     likes: number;
     comments: number;
@@ -116,7 +121,10 @@ export interface UpdateReviewInput {
 
 // Comment types
 export interface CommentWithAuthor extends Comment {
-  author: Pick<User, 'id' | 'name' | 'username' | 'avatarUrl' | 'image'>;
+  author: Pick<
+    User,
+    'id' | 'name' | 'username' | 'avatarUrl' | 'image' | 'profileType'
+  >;
   _count: {
     likes: number;
     replies: number;
@@ -139,13 +147,22 @@ export interface UpdateCommentInput {
 
 // Follow types
 export interface FollowWithUser extends Follow {
-  follower: Pick<User, 'id' | 'name' | 'username' | 'avatarUrl' | 'image'>;
-  following: Pick<User, 'id' | 'name' | 'username' | 'avatarUrl' | 'image'>;
+  follower: Pick<
+    User,
+    'id' | 'name' | 'username' | 'avatarUrl' | 'image' | 'profileType'
+  >;
+  following: Pick<
+    User,
+    'id' | 'name' | 'username' | 'avatarUrl' | 'image' | 'profileType'
+  >;
 }
 
 // Activity types
 export interface ActivityWithDetails extends Activity {
-  actor?: Pick<User, 'id' | 'name' | 'username' | 'avatarUrl' | 'image'>;
+  actor?: Pick<
+    User,
+    'id' | 'name' | 'username' | 'avatarUrl' | 'image' | 'profileType'
+  >;
 }
 
 // Mention types
@@ -180,7 +197,7 @@ export interface LegacyParsedMention {
 // Messaging types
 type ConversationParticipantUser = Pick<
   User,
-  'id' | 'name' | 'username' | 'avatarUrl' | 'image'
+  'id' | 'name' | 'username' | 'avatarUrl' | 'image' | 'profileType'
 >;
 
 export interface MessageWithSender extends Message {
@@ -224,4 +241,5 @@ export type {
   PostType,
   ReviewSubjectType,
   PostVisibility,
+  ProfileType,
 } from '@scilent-one/db';
