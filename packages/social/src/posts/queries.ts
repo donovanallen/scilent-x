@@ -15,6 +15,7 @@ import {
   authorSelect,
   reviewSubjectSelect,
   mapPostWithAuthor,
+  visibilityWhere,
 } from './includes';
 
 export async function getPostById(
@@ -52,6 +53,11 @@ export async function getPostById(
     throw new NotFoundError('Post');
   }
 
+  // Don't leak the existence of a private post to non-authors.
+  if (post.visibility === 'PRIVATE' && post.authorId !== currentUserId) {
+    throw new NotFoundError('Post');
+  }
+
   return mapPostWithAuthor(post, currentUserId) as PostWithAuthor;
 }
 
@@ -64,7 +70,7 @@ export async function getPostsByAuthor(
   const limit = params.limit ?? DEFAULT_PAGE_SIZE;
 
   const posts = await db.post.findMany({
-    where: { authorId },
+    where: { authorId, ...visibilityWhere(currentUserId) },
     include: {
       author: { select: authorSelect },
       reviewSubject: { select: reviewSubjectSelect },

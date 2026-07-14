@@ -104,12 +104,14 @@ export interface CreateReviewInput {
   content: string;
   contentHtml?: string;
   subject: CreateReviewSubjectInput;
+  visibility?: 'PUBLIC' | 'PRIVATE';
 }
 
 export interface UpdateReviewInput {
   content: string;
   contentHtml?: string;
   subject?: CreateReviewSubjectInput;
+  visibility?: 'PUBLIC' | 'PRIVATE';
 }
 
 // Comment types
@@ -221,4 +223,5 @@ export type {
   User,
   PostType,
   ReviewSubjectType,
+  PostVisibility,
 } from '@scilent-one/db';
