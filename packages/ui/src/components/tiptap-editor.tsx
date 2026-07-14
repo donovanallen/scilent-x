@@ -18,6 +18,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { Input } from './input';
 import { Button } from './button';
+import { createBoundedSpaceMatcher } from './mention-suggestion-match';
 
 export interface TiptapEditorProps {
   value: string;
@@ -468,6 +469,14 @@ export function TiptapEditor({
       },
       suggestion: {
         char: '#',
+        // Allow multi-word artist names (e.g. "Massive Attack") to stay
+        // searchable without the popover closing on the first space, while
+        // keeping the active mention bounded so unrelated prose exits cleanly.
+        findSuggestionMatch: createBoundedSpaceMatcher({
+          char: '#',
+          maxWords: 5,
+          maxChars: 80,
+        }),
         items: ({ query }) => {
           setArtistQuery(query);
           return artistSuggestionsRef.current;

@@ -12,6 +12,7 @@ import {
   type MentionSuggestion,
   type MentionListRef,
 } from './mention-list';
+import { createBoundedSpaceMatcher } from './mention-suggestion-match';
 
 export interface SimpleTiptapEditorProps {
   value: string;
@@ -22,9 +23,11 @@ export interface SimpleTiptapEditorProps {
   /** Key to force remount and clear editor state */
   editorKey?: string | number | undefined;
   /** Callback to search for mention suggestions */
-  onMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
+  onMentionQuery?:
+    ((query: string) => Promise<MentionSuggestion[]>) | undefined;
   /** Callback to search for artist mention suggestions */
-  onArtistMentionQuery?: ((query: string) => Promise<MentionSuggestion[]>) | undefined;
+  onArtistMentionQuery?:
+    ((query: string) => Promise<MentionSuggestion[]>) | undefined;
   /** Called on Enter key (Shift+Enter for newline) */
   onSubmit?: (() => void) | undefined;
   className?: string | undefined;
@@ -44,12 +47,19 @@ export function SimpleTiptapEditor({
 }: SimpleTiptapEditorProps) {
   const [mentionQuery, setMentionQuery] = React.useState('');
   const [artistQuery, setArtistQuery] = React.useState('');
-  const [mentionSuggestions, setMentionSuggestions] = React.useState<MentionSuggestion[]>([]);
-  const [artistSuggestions, setArtistSuggestions] = React.useState<MentionSuggestion[]>([]);
+  const [mentionSuggestions, setMentionSuggestions] = React.useState<
+    MentionSuggestion[]
+  >([]);
+  const [artistSuggestions, setArtistSuggestions] = React.useState<
+    MentionSuggestion[]
+  >([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
-  const [isLoadingArtistSuggestions, setIsLoadingArtistSuggestions] = React.useState(false);
+  const [isLoadingArtistSuggestions, setIsLoadingArtistSuggestions] =
+    React.useState(false);
   const [mentionError, setMentionError] = React.useState<string | null>(null);
-  const [artistMentionError, setArtistMentionError] = React.useState<string | null>(null);
+  const [artistMentionError, setArtistMentionError] = React.useState<
+    string | null
+  >(null);
 
   // Use refs to avoid stale closure issues in the mention extension
   const mentionSuggestionsRef = React.useRef<MentionSuggestion[]>([]);
@@ -204,13 +214,18 @@ export function SimpleTiptapEditor({
         },
         render: () => {
           let popup: HTMLDivElement | null = null;
-          let reactRoot: ReturnType<typeof import('react-dom/client').createRoot> | null = null;
-          let currentCommand: ((attrs: { id: string; label: string }) => void) | null = null;
+          let reactRoot: ReturnType<
+            typeof import('react-dom/client').createRoot
+          > | null = null;
+          let currentCommand:
+            ((attrs: { id: string; label: string }) => void) | null = null;
           let currentItems: MentionSuggestion[] = [];
           let currentSelectedIndex = 0;
           let currentQuery = '';
 
-          const resolveClientRect = (props: SuggestionRectProps): DOMRect | null => {
+          const resolveClientRect = (
+            props: SuggestionRectProps
+          ): DOMRect | null => {
             const rect = props.clientRect?.();
             if (rect) return rect;
             const coords = props.editor.view.coordsAtPos(props.range.from);
@@ -319,14 +334,16 @@ export function SimpleTiptapEditor({
               if (event.key === 'ArrowUp') {
                 event.preventDefault();
                 currentSelectedIndex =
-                  (currentSelectedIndex - 1 + currentItems.length) % currentItems.length;
+                  (currentSelectedIndex - 1 + currentItems.length) %
+                  currentItems.length;
                 renderMentionList();
                 return true;
               }
 
               if (event.key === 'ArrowDown') {
                 event.preventDefault();
-                currentSelectedIndex = (currentSelectedIndex + 1) % currentItems.length;
+                currentSelectedIndex =
+                  (currentSelectedIndex + 1) % currentItems.length;
                 renderMentionList();
                 return true;
               }
@@ -335,7 +352,8 @@ export function SimpleTiptapEditor({
                 event.preventDefault();
                 const selectedItem = currentItems[currentSelectedIndex];
                 if (selectedItem && currentCommand) {
-                  const mentionLabel = selectedItem.username ?? selectedItem.label;
+                  const mentionLabel =
+                    selectedItem.username ?? selectedItem.label;
                   currentCommand({
                     id: selectedItem.id,
                     label: mentionLabel,
@@ -400,19 +418,32 @@ export function SimpleTiptapEditor({
       },
       suggestion: {
         char: '#',
+        // Allow multi-word artist names (e.g. "Massive Attack") to stay
+        // searchable without the popover closing on the first space, while
+        // keeping the active mention bounded so unrelated prose exits cleanly.
+        findSuggestionMatch: createBoundedSpaceMatcher({
+          char: '#',
+          maxWords: 5,
+          maxChars: 80,
+        }),
         items: ({ query }) => {
           setArtistQuery(query);
           return artistSuggestionsRef.current;
         },
         render: () => {
           let popup: HTMLDivElement | null = null;
-          let reactRoot: ReturnType<typeof import('react-dom/client').createRoot> | null = null;
-          let currentCommand: ((attrs: { id: string; label: string }) => void) | null = null;
+          let reactRoot: ReturnType<
+            typeof import('react-dom/client').createRoot
+          > | null = null;
+          let currentCommand:
+            ((attrs: { id: string; label: string }) => void) | null = null;
           let currentItems: MentionSuggestion[] = [];
           let currentSelectedIndex = 0;
           let currentQuery = '';
 
-          const resolveClientRect = (props: SuggestionRectProps): DOMRect | null => {
+          const resolveClientRect = (
+            props: SuggestionRectProps
+          ): DOMRect | null => {
             const rect = props.clientRect?.();
             if (rect) return rect;
             const coords = props.editor.view.coordsAtPos(props.range.from);
@@ -520,14 +551,16 @@ export function SimpleTiptapEditor({
               if (event.key === 'ArrowUp') {
                 event.preventDefault();
                 currentSelectedIndex =
-                  (currentSelectedIndex - 1 + currentItems.length) % currentItems.length;
+                  (currentSelectedIndex - 1 + currentItems.length) %
+                  currentItems.length;
                 renderMentionList();
                 return true;
               }
 
               if (event.key === 'ArrowDown') {
                 event.preventDefault();
-                currentSelectedIndex = (currentSelectedIndex + 1) % currentItems.length;
+                currentSelectedIndex =
+                  (currentSelectedIndex + 1) % currentItems.length;
                 renderMentionList();
                 return true;
               }
