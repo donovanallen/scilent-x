@@ -254,6 +254,8 @@ export {
   type PostCardAuthor,
   PostForm,
   type PostFormProps,
+  ComposerHint,
+  type ComposerHintProps,
   MentionText,
   type MentionTextProps,
   CommentCard,

@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { Input } from './input';
 import { Button } from './button';
 import { createBoundedSpaceMatcher } from './mention-suggestion-match';
+import { ComposerHint } from './social/composer-hint';
 
 export interface TiptapEditorProps {
   value: string;
@@ -40,6 +41,12 @@ export interface TiptapEditorProps {
   mentionPlaceholder?: string | undefined;
   /** Placeholder text for artist mention suggestions */
   artistMentionPlaceholder?: string | undefined;
+  /**
+   * One or more hint strings shown inset in the editor while it's empty,
+   * cycling between them with a fade. When provided, the static placeholder
+   * is suppressed so the two don't overlap.
+   */
+  composerHints?: string[] | undefined;
 }
 
 export function TiptapEditor({
@@ -55,7 +62,9 @@ export function TiptapEditor({
   onArtistMentionQuery,
   mentionPlaceholder,
   artistMentionPlaceholder,
+  composerHints,
 }: TiptapEditorProps) {
+  const hasComposerHints = !!composerHints && composerHints.length > 0;
   const [mentionQuery, setMentionQuery] = React.useState('');
   const [artistQuery, setArtistQuery] = React.useState('');
   const [mentionSuggestions, setMentionSuggestions] = React.useState<
@@ -701,7 +710,9 @@ export function TiptapEditor({
       }),
       Underline,
       Placeholder.configure({
-        placeholder,
+        // When cycling composer hints are shown, suppress the static Tiptap
+        // placeholder so the two don't render on top of each other.
+        placeholder: hasComposerHints ? '' : placeholder,
       }),
       // Use CharacterCount extension for proper max length handling
       ...(maxLength
@@ -751,7 +762,7 @@ export function TiptapEditor({
     <div
       ref={containerRef}
       className={cn(
-        'tiptap-editor rounded-md border bg-background transition-colors duration-200',
+        'tiptap-editor relative rounded-md border bg-background transition-colors duration-200',
         isFocused ? 'border-brand ring-1 ring-brand' : 'border-input',
         readOnly && 'opacity-50 pointer-events-none',
         className
@@ -762,7 +773,16 @@ export function TiptapEditor({
       onFocus={handleContainerFocus}
       onBlur={handleContainerBlur}
     >
-      <EditorContent editor={editor} />
+      <div className="relative">
+        <EditorContent editor={editor} />
+        {hasComposerHints && (
+          <ComposerHint
+            hints={composerHints}
+            visible={editor?.isEmpty ?? false}
+            className="absolute left-3 top-1/2 -translate-y-1/2 max-w-[calc(100%-1.5rem)]"
+          />
+        )}
+      </div>
       {/* Footer: character count + toolbar toggle */}
       <div className="flex items-center justify-between px-3 py-1.5 border-t border-border/50">
         <button

@@ -1,6 +1,7 @@
 export { UserAvatar, type UserAvatarProps } from './user-avatar';
 export { PostCard, type PostCardProps, type PostCardAuthor } from './post-card';
 export { PostForm, type PostFormProps } from './post-form';
+export { ComposerHint, type ComposerHintProps } from './composer-hint';
 export { MentionText, type MentionTextProps } from './mention-text';
 export {
   CommentCard,
