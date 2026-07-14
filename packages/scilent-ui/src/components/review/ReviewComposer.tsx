@@ -4,7 +4,7 @@ import * as React from 'react';
 import { PostForm } from '@scilent-one/ui';
 import type { MentionSuggestion } from '@scilent-one/ui';
 import { Button } from '@scilent-one/ui';
-import { Music2 } from 'lucide-react';
+import { Music2, Eye, EyeOff } from 'lucide-react';
 
 import {
   MusicSubjectPicker,
@@ -24,7 +24,8 @@ export interface ReviewComposerProps {
   onSubmit: (
     content: string,
     contentHtml: string,
-    subject: SelectedMusicSubject
+    subject: SelectedMusicSubject,
+    visibility: 'PUBLIC' | 'PRIVATE'
   ) => void | Promise<void>;
   onMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
   onArtistMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
@@ -43,6 +44,9 @@ export function ReviewComposer({
   const [subject, setSubject] = React.useState<SelectedMusicSubject | null>(
     initialSubject ?? null
   );
+  const [visibility, setVisibility] = React.useState<'PUBLIC' | 'PRIVATE'>(
+    'PUBLIC'
+  );
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [pendingContent, setPendingContent] = React.useState<{
     content: string;
@@ -55,6 +59,8 @@ export function ReviewComposer({
     }
   }, [initialSubject]);
 
+  const isPrivate = visibility === 'PRIVATE';
+
   const handlePostSubmit = async (content: string, contentHtml: string) => {
     if (!subject) {
       setPendingContent({ content, contentHtml });
@@ -62,7 +68,7 @@ export function ReviewComposer({
       return;
     }
 
-    await onSubmit(content, contentHtml, subject);
+    await onSubmit(content, contentHtml, subject, visibility);
   };
 
   const handleSubjectSelect = (selected: SelectedMusicSubject) => {
@@ -72,7 +78,8 @@ export function ReviewComposer({
       void onSubmit(
         pendingContent.content,
         pendingContent.contentHtml,
-        selected
+        selected,
+        visibility
       );
       setPendingContent(null);
     }
@@ -98,6 +105,38 @@ export function ReviewComposer({
           Attach album or track
         </Button>
       )}
+
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">
+          {isPrivate
+            ? 'Only you can see this review.'
+            : 'This review is visible to everyone.'}
+        </p>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="gap-2 active:scale-95 transition-transform"
+          aria-pressed={isPrivate}
+          onClick={() =>
+            setVisibility((current) =>
+              current === 'PRIVATE' ? 'PUBLIC' : 'PRIVATE'
+            )
+          }
+        >
+          <span
+            key={visibility}
+            className="inline-flex animate-in fade-in-0 zoom-in-95 duration-200"
+          >
+            {isPrivate ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </span>
+          {isPrivate ? 'Private' : 'Public'}
+        </Button>
+      </div>
 
       <PostForm
         {...(user ? { user } : {})}
