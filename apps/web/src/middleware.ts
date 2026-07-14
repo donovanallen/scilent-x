@@ -4,10 +4,15 @@
  * This middleware:
  * - Logs all requests with timing and request IDs
  * - Propagates request IDs via headers for distributed tracing
- * - Handles path-based routing logic
+ * - Optimistically gates /admin/* behind a session cookie presence check
+ *
+ * Role enforcement (admin vs user) happens in the admin layout via
+ * `auth.api.getSession` — Better Auth session validation is not Edge-safe
+ * when the Prisma adapter is used, so middleware only checks cookie presence.
  */
 
 import { withRequestLogging } from '@scilent-one/logger/next';
+import { getSessionCookie } from 'better-auth/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
 
 /**
@@ -22,6 +27,18 @@ import { NextResponse, type NextRequest } from 'next/server';
  */
 export const middleware = withRequestLogging(
   async (request: NextRequest, { requestId }) => {
+    const { pathname } = request.nextUrl;
+
+    // Optimistic auth gate for admin UI. Full role checks run in the admin layout.
+    if (pathname.startsWith('/admin')) {
+      const sessionCookie = getSessionCookie(request);
+      if (!sessionCookie) {
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('redirect', pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+    }
+
     const response = NextResponse.next();
 
     // Propagate request ID for downstream logging correlation

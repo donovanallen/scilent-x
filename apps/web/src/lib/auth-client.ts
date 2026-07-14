@@ -39,6 +39,7 @@ export {
   linkSocial,
   unlinkAccount,
   listAccounts,
+  hasAdminRole,
 } from '@scilent-one/auth/client';
 
 export type { Session } from '@scilent-one/auth/client';
