@@ -5,7 +5,11 @@ import { Badge, cn, Separator } from '@scilent-one/ui';
 import { Clock, Hash, Music, Users } from 'lucide-react';
 import type { HarmonizedEntity } from '../types';
 import type { HarmonizedTrack } from '../../types';
-import { formatDuration, formatTrackPosition } from '../../utils';
+import {
+  formatDuration,
+  formatTrackPosition,
+  getFrontArtworkUrl,
+} from '../../utils';
 import { PlatformBadgeList } from '../../components/common';
 import { ArtistCredit } from '../../components/artist/ArtistCredit';
 
@@ -35,14 +39,34 @@ export function TrackHoverPreview({
     return track.sources?.map((s) => s.provider) ?? [];
   }, [track.sources]);
 
+  const artworkUrl = getFrontArtworkUrl(track.artwork);
+
+  const renderArtwork = (containerClass: string, iconClass: string) => (
+    <div
+      className={cn(
+        'rounded-md overflow-hidden bg-muted flex items-center justify-center shrink-0 ring-1 ring-border/50',
+        containerClass
+      )}
+    >
+      {artworkUrl ? (
+        <img
+          src={artworkUrl}
+          alt={track.title}
+          className="h-full w-full object-cover"
+          loading="lazy"
+        />
+      ) : (
+        <Music className={cn('text-muted-foreground', iconClass)} />
+      )}
+    </div>
+  );
+
   // Links only mode - streamlined platform links
   if (mode === 'links') {
     return (
       <div className={cn('space-y-3', className)}>
         <div className="flex items-center gap-3">
-          <div className="size-10 rounded-md bg-muted flex items-center justify-center shrink-0 ring-1 ring-border/50">
-            <Music className="size-4 text-muted-foreground" />
-          </div>
+          {renderArtwork('size-10', 'size-4')}
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium truncate">{track.title}</p>
             <ArtistCredit
@@ -65,9 +89,7 @@ export function TrackHoverPreview({
       <div className={cn('group space-y-3', className)}>
         {/* Header with icon - mirrors TrackCard artwork area */}
         <div className="flex gap-3">
-          <div className="size-12 rounded-md bg-muted flex items-center justify-center shrink-0 ring-1 ring-border/50">
-            <Music className="size-5 text-muted-foreground" />
-          </div>
+          {renderArtwork('size-12', 'size-5')}
           <div className="min-w-0 flex-1 flex flex-col justify-center gap-0.5">
             <div className="flex items-center gap-2">
               <p className="font-medium leading-tight line-clamp-2 group-hover:text-primary transition-colors">
@@ -124,9 +146,7 @@ export function TrackHoverPreview({
     <div className={cn('group space-y-4', className)}>
       {/* Header with large icon - mirrors TrackCard structure */}
       <div className="flex items-start gap-3">
-        <div className="size-14 rounded-md bg-muted flex items-center justify-center shrink-0 ring-1 ring-border/50">
-          <Music className="size-6 text-muted-foreground" />
-        </div>
+        {renderArtwork('size-14', 'size-6')}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h4 className="font-medium leading-tight line-clamp-2 group-hover:text-primary transition-colors">

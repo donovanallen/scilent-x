@@ -14,6 +14,7 @@ import {
   formatDuration,
   formatArtistCredits,
   formatTrackPosition,
+  getFrontArtworkUrl,
 } from '../../utils';
 import { TrackArtwork } from './TrackArtwork';
 import type { ProviderSource } from '@scilent-one/harmony-engine';
@@ -37,10 +38,11 @@ export function TrackDetails({
   className,
   ...props
 }: TrackDetailsProps) {
+  const resolvedArtworkUrl = artworkUrl ?? getFrontArtworkUrl(track.artwork);
   return (
     <Card className={cn('overflow-hidden', className)} {...props}>
       <CardHeader className="flex-row items-start gap-4 space-y-0">
-        <TrackArtwork src={artworkUrl} alt={track.title} size="lg" />
+        <TrackArtwork src={resolvedArtworkUrl} alt={track.title} size="lg" />
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2">
             <CardTitle className="truncate">{track.title}</CardTitle>
