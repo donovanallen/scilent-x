@@ -69,6 +69,7 @@ export {
   type PageSkeletonProps,
   type InlineSkeletonProps,
   type ArtworkProps,
+  type ArtworkFallback,
   type PlatformProfileCardProps,
   type PlatformProfileCardSkeletonProps,
   type PlatformProfile,

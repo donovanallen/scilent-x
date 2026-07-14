@@ -1,14 +1,22 @@
 'use client';
 
 import { cn } from '@scilent-one/ui';
-import { Disc3 } from 'lucide-react';
+import { Album, Music } from 'lucide-react';
 import * as React from 'react';
+
+export type ArtworkFallback = 'album' | 'track';
 
 export interface ArtworkProps extends React.HTMLAttributes<HTMLDivElement> {
   src?: string | null | undefined;
   alt: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  /**
+   * Icon shown when artwork is missing or fails to load.
+   * - `album`: album/release icon (default)
+   * - `track`: music note
+   */
+  fallback?: ArtworkFallback;
 }
 
 const sizeClasses = {
@@ -26,11 +34,25 @@ const roundedClasses = {
   full: 'rounded-full',
 } as const;
 
+function FallbackIcon({
+  fallback,
+  className,
+}: {
+  fallback: ArtworkFallback;
+  className?: string;
+}) {
+  if (fallback === 'track') {
+    return <Music className={className} aria-hidden="true" />;
+  }
+  return <Album className={className} aria-hidden="true" />;
+}
+
 export function Artwork({
   src,
   alt,
   size = 'md',
   rounded = 'md',
+  fallback = 'album',
   className,
   ...props
 }: ArtworkProps) {
@@ -56,7 +78,10 @@ export function Artwork({
     >
       {showFallback ? (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10">
-          <Disc3 className="size-1/2 text-muted-foreground/40" />
+          <FallbackIcon
+            fallback={fallback}
+            className="size-1/2 text-muted-foreground/40"
+          />
         </div>
       ) : (
         <>
