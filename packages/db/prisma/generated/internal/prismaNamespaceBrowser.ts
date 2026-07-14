@@ -96,7 +96,8 @@ export const UserScalarFieldEnum = {
   username: 'username',
   bio: 'bio',
   avatarUrl: 'avatarUrl',
-  palette: 'palette'
+  palette: 'palette',
+  profileType: 'profileType'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]

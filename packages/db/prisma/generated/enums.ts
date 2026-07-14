@@ -33,6 +33,15 @@ export const PostVisibility = {
 export type PostVisibility = (typeof PostVisibility)[keyof typeof PostVisibility]
 
 
+export const ProfileType = {
+  USER: 'USER',
+  VOICE: 'VOICE',
+  ARTIST: 'ARTIST'
+} as const
+
+export type ProfileType = (typeof ProfileType)[keyof typeof ProfileType]
+
+
 export const MentionType = {
   USER: 'USER',
   ARTIST: 'ARTIST',

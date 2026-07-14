@@ -36,6 +36,8 @@ export type {
   Mention,
   Activity,
   ActivityType,
+  // Profile types
+  ProfileType,
   // Messaging types
   Conversation,
   ConversationParticipant,
