@@ -28,8 +28,19 @@ export interface ReviewComposerProps {
   ) => void | Promise<void>;
   onMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
   onArtistMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
+  /**
+   * One or more hint strings cycled inset in the composer while it's empty.
+   * Defaults to mention hints when the composer supports mentions (i.e. when
+   * `onMentionQuery`/`onArtistMentionQuery` are supplied).
+   */
+  composerHints?: string[];
   className?: string;
 }
+
+const DEFAULT_MENTION_HINTS = [
+  'Type @ to mention a user',
+  'Type # to mention an Artist',
+];
 
 export function ReviewComposer({
   user,
@@ -38,8 +49,12 @@ export function ReviewComposer({
   onSubmit,
   onMentionQuery,
   onArtistMentionQuery,
+  composerHints,
   className,
 }: ReviewComposerProps) {
+  const supportsMentions = !!onMentionQuery || !!onArtistMentionQuery;
+  const effectiveHints =
+    composerHints ?? (supportsMentions ? DEFAULT_MENTION_HINTS : undefined);
   const [subject, setSubject] = React.useState<SelectedMusicSubject | null>(
     initialSubject ?? null
   );
@@ -106,6 +121,7 @@ export function ReviewComposer({
         onSubmit={handlePostSubmit}
         {...(onMentionQuery ? { onMentionQuery } : {})}
         {...(onArtistMentionQuery ? { onArtistMentionQuery } : {})}
+        {...(effectiveHints ? { composerHints: effectiveHints } : {})}
       />
 
       <MusicSubjectPicker
