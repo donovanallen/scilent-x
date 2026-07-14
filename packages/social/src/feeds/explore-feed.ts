@@ -9,7 +9,11 @@ import {
   createPaginatedResult,
   DEFAULT_PAGE_SIZE,
 } from '../utils/pagination';
-import { getPostInclude, mapPostWithAuthor } from '../posts/includes';
+import {
+  getPostInclude,
+  mapPostWithAuthor,
+  visibilityWhere,
+} from '../posts/includes';
 
 /**
  * Get the explore feed - all public posts, sorted by recency
@@ -23,6 +27,7 @@ export async function getExploreFeed(
   const limit = params.limit ?? DEFAULT_PAGE_SIZE;
 
   const posts = await db.post.findMany({
+    where: visibilityWhere(currentUserId),
     include: getPostInclude(currentUserId),
     orderBy: { createdAt: 'desc' },
     take,
@@ -56,6 +61,7 @@ export async function getTrendingPosts(
   const posts = await db.post.findMany({
     where: {
       createdAt: { gte: sevenDaysAgo },
+      ...visibilityWhere(currentUserId),
     },
     include: getPostInclude(currentUserId),
     orderBy: [

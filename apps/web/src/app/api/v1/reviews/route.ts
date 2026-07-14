@@ -74,10 +74,13 @@ export async function POST(request: Request) {
       };
     }
 
+    const visibility = body.visibility === 'PRIVATE' ? 'PRIVATE' : 'PUBLIC';
+
     const review = await createReview(user.id, {
       content: body.content,
       contentHtml: body.contentHtml,
       subject,
+      visibility,
     });
 
     return NextResponse.json(review, { status: 201 });

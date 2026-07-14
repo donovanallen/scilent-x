@@ -25,6 +25,14 @@ export const ReviewSubjectType = {
 export type ReviewSubjectType = (typeof ReviewSubjectType)[keyof typeof ReviewSubjectType]
 
 
+export const PostVisibility = {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE'
+} as const
+
+export type PostVisibility = (typeof PostVisibility)[keyof typeof PostVisibility]
+
+
 export const MentionType = {
   USER: 'USER',
   ARTIST: 'ARTIST',

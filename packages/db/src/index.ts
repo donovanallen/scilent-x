@@ -26,6 +26,7 @@ export type {
   // Social types
   Post,
   PostType,
+  PostVisibility,
   ReviewSubject,
   ReviewSubjectType,
   Comment,

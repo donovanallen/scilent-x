@@ -13,6 +13,7 @@ import {
   authorSelect,
   reviewSubjectSelect,
   mapPostWithAuthor,
+  visibilityWhere,
 } from '../posts/includes';
 
 export interface GetReviewsParams extends PaginationParams {
@@ -63,6 +64,7 @@ export async function getReviews(
       ...(params.userId ? { authorId: params.userId } : {}),
       ...reviewSubjectFilter,
       ...trendingFilter,
+      ...visibilityWhere(currentUserId),
     },
     include: {
       author: { select: authorSelect },

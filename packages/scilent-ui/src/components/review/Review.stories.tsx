@@ -37,7 +37,7 @@ const trackSubject = {
   title: mockTrack.title,
   artistLabel: getPrimaryArtistName(mockTrack.artists),
   artworkUrl: STORY_ALBUM_ART_ALT,
-  isrc: mockTrack.isrc,
+  isrc: mockTrack.isrc ?? null,
 };
 
 const meta: Meta = {
@@ -103,7 +103,7 @@ export const SubjectPreview: StoryObj = {
           artistLabel: getPrimaryArtistName(mockRelease.artists),
           artworkUrl: STORY_ALBUM_ART,
           snapshot: mockRelease,
-          gtin: mockRelease.gtin,
+          gtin: mockRelease.gtin ?? '0724382774923',
         }}
         onChange={() => {}}
         onClear={() => {}}
@@ -115,7 +115,7 @@ export const SubjectPreview: StoryObj = {
           artistLabel: getPrimaryArtistName(mockTrack.artists),
           artworkUrl: STORY_ALBUM_ART_ALT,
           snapshot: mockTrack,
-          isrc: mockTrack.isrc,
+          isrc: mockTrack.isrc ?? 'GBAYE0001498',
         }}
         onChange={() => {}}
       />
@@ -135,7 +135,7 @@ export const ComposerWithSubject: StoryObj = {
           artistLabel: getPrimaryArtistName(mockRelease.artists),
           artworkUrl: STORY_ALBUM_ART,
           snapshot: mockRelease,
-          gtin: mockRelease.gtin,
+          gtin: mockRelease.gtin ?? '0724382774923',
         }}
         onSubmit={async () => {}}
       />

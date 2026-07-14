@@ -14,6 +14,11 @@ export interface AlbumTrackListProps extends React.HTMLAttributes<HTMLDivElement
   playingTrackId?: string | undefined;
   /** Callback when a track is clicked */
   onTrackPlay?: ((track: HarmonizedTrack) => void) | undefined;
+  /**
+   * Enable Harmony interactions (context menu, hover preview) on each track.
+   * Requires a surrounding `HarmonyInteractionProvider`. @default false
+   */
+  interactive?: boolean | undefined;
 }
 
 export function AlbumTrackList({
@@ -22,6 +27,7 @@ export function AlbumTrackList({
   showPositions = true,
   playingTrackId,
   // onTrackPlay,
+  interactive = false,
   className,
   ...props
 }: AlbumTrackListProps) {
@@ -82,6 +88,7 @@ export function AlbumTrackList({
               showPositions={showPositions}
               groupByDisc={false}
               playingTrackId={playingTrackId}
+              interactive={interactive}
               // onTrackPlay={onTrackPlay}
             />
           </div>

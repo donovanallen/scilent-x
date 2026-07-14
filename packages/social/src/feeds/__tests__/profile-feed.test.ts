@@ -34,7 +34,12 @@ describe('getProfileFeed', () => {
     const result = await getProfileFeed('author-1', { limit: 20 }, 'user-1');
 
     expect(postFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { authorId: 'author-1' } })
+      expect.objectContaining({
+        where: {
+          authorId: 'author-1',
+          OR: [{ visibility: 'PUBLIC' }, { authorId: 'user-1' }],
+        },
+      })
     );
     expect(result.items[0]?.isLiked).toBe(true);
     expect(result.items[0]?.isReposted).toBe(false);

@@ -85,6 +85,7 @@ export {
 export {
   createReview,
   updateReview,
+  setReviewVisibility,
   getReviews,
   buildReviewSubjectFromSnapshot,
   getCanonicalKey,

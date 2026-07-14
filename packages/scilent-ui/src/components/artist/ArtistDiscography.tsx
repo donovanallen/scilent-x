@@ -22,6 +22,11 @@ export interface ArtistDiscographyProps extends React.HTMLAttributes<HTMLDivElem
   defaultTab?: ReleaseType | 'all' | undefined;
   /** Callback when a release is clicked */
   onReleaseClick?: ((release: HarmonizedRelease) => void) | undefined;
+  /**
+   * Enable Harmony interactions (context menu, hover preview) on each release card.
+   * Requires a surrounding `HarmonyInteractionProvider`. @default false
+   */
+  interactive?: boolean | undefined;
 }
 
 export function ArtistDiscography({
@@ -30,6 +35,7 @@ export function ArtistDiscography({
   releaseTypes = ['album', 'single', 'ep'],
   defaultTab = 'all',
   onReleaseClick,
+  interactive = false,
   className,
   ...props
 }: ArtistDiscographyProps) {
@@ -91,6 +97,7 @@ export function ArtistDiscography({
                       release={release}
                       artworkUrl={getArtworkUrl(release)}
                       onClick={onReleaseClick}
+                      interactive={interactive}
                       previewSide="bottom"
                       previewAlign="start"
                     />

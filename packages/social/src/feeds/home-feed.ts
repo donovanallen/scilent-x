@@ -9,7 +9,11 @@ import {
   createPaginatedResult,
   DEFAULT_PAGE_SIZE,
 } from '../utils/pagination';
-import { authorSelect, mapPostWithAuthor } from '../posts/includes';
+import {
+  authorSelect,
+  mapPostWithAuthor,
+  visibilityWhere,
+} from '../posts/includes';
 
 /** Number of recent comments to include per post in the feed */
 const COMMENTS_PER_POST = 3;
@@ -38,6 +42,7 @@ export async function getHomeFeed(
   const posts = await db.post.findMany({
     where: {
       authorId: { in: authorIds },
+      ...visibilityWhere(userId),
     },
     include: {
       author: { select: authorSelect },

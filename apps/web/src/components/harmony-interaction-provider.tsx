@@ -139,6 +139,24 @@ export function HarmonyInteractionProvider({
     [router]
   );
 
+  const handleViewReviews = useCallback(
+    (entityType: 'album' | 'track', entity: HarmonizedEntity) => {
+      if (entityType === 'album') {
+        const release = entity as HarmonizedRelease;
+        if (release.gtin) {
+          router.push(`/releases/${encodeURIComponent(release.gtin)}/reviews`);
+        }
+        return;
+      }
+
+      const track = entity as HarmonizedTrack;
+      if (track.isrc) {
+        router.push(`/tracks/${encodeURIComponent(track.isrc)}/reviews`);
+      }
+    },
+    [router]
+  );
+
   const providerActions = useMemo<ProviderActions>(
     () => ({
       track: [],
@@ -160,6 +178,7 @@ export function HarmonyInteractionProvider({
         onCopyLink: handleCopyLink,
         onViewCredits: handleViewCredits,
         onWriteReview: handleWriteReview,
+        onViewReviews: handleViewReviews,
         providerActions,
         enabledProviders: connectedProviders,
         ...config,
