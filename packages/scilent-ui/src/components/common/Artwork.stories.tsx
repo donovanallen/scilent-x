@@ -24,11 +24,17 @@ const meta: Meta<typeof Artwork> = {
       options: ['none', 'sm', 'md', 'lg', 'full'],
       description: 'Border radius style',
     },
+    fallback: {
+      control: 'select',
+      options: ['album', 'track'],
+      description: 'Fallback icon when artwork is missing or fails',
+    },
   },
   args: {
     alt: 'Artwork',
     size: 'md',
     rounded: 'md',
+    fallback: 'album',
   },
 };
 
@@ -43,10 +49,20 @@ export const Default: Story = {
 };
 
 export const NoImage: Story = {
-  name: 'No Image (Placeholder)',
+  name: 'No Image (Album Placeholder)',
   args: {
     src: undefined,
-    alt: 'Missing artwork',
+    alt: 'Missing album artwork',
+    fallback: 'album',
+  },
+};
+
+export const NoImageTrack: Story = {
+  name: 'No Image (Track Placeholder)',
+  args: {
+    src: undefined,
+    alt: 'Missing track artwork',
+    fallback: 'track',
   },
 };
 
@@ -173,23 +189,48 @@ export const AllRounded: Story = {
   render: () => (
     <div className="flex gap-4 items-center">
       <div className="text-center">
-        <Artwork src={PLACEHOLDER_ALBUM_ART} size="lg" rounded="none" alt="None" />
+        <Artwork
+          src={PLACEHOLDER_ALBUM_ART}
+          size="lg"
+          rounded="none"
+          alt="None"
+        />
         <p className="text-xs text-muted-foreground mt-1">none</p>
       </div>
       <div className="text-center">
-        <Artwork src={PLACEHOLDER_ALBUM_ART} size="lg" rounded="sm" alt="Small" />
+        <Artwork
+          src={PLACEHOLDER_ALBUM_ART}
+          size="lg"
+          rounded="sm"
+          alt="Small"
+        />
         <p className="text-xs text-muted-foreground mt-1">sm</p>
       </div>
       <div className="text-center">
-        <Artwork src={PLACEHOLDER_ALBUM_ART} size="lg" rounded="md" alt="Medium" />
+        <Artwork
+          src={PLACEHOLDER_ALBUM_ART}
+          size="lg"
+          rounded="md"
+          alt="Medium"
+        />
         <p className="text-xs text-muted-foreground mt-1">md</p>
       </div>
       <div className="text-center">
-        <Artwork src={PLACEHOLDER_ALBUM_ART} size="lg" rounded="lg" alt="Large" />
+        <Artwork
+          src={PLACEHOLDER_ALBUM_ART}
+          size="lg"
+          rounded="lg"
+          alt="Large"
+        />
         <p className="text-xs text-muted-foreground mt-1">lg</p>
       </div>
       <div className="text-center">
-        <Artwork src={PLACEHOLDER_ARTIST_IMAGE} size="lg" rounded="full" alt="Full" />
+        <Artwork
+          src={PLACEHOLDER_ARTIST_IMAGE}
+          size="lg"
+          rounded="full"
+          alt="Full"
+        />
         <p className="text-xs text-muted-foreground mt-1">full</p>
       </div>
     </div>
@@ -199,22 +240,88 @@ export const AllRounded: Story = {
 export const PlaceholderVariants: Story = {
   name: 'Placeholder Variants',
   render: () => (
-    <div className="flex gap-4 items-end">
-      <div className="text-center">
-        <Artwork src={undefined} size="sm" alt="Small placeholder" />
-        <p className="text-xs text-muted-foreground mt-1">sm</p>
+    <div className="flex flex-col gap-6">
+      <div>
+        <p className="text-sm font-medium mb-2">Album fallback</p>
+        <div className="flex gap-4 items-end">
+          <div className="text-center">
+            <Artwork
+              src={undefined}
+              size="sm"
+              alt="Small album placeholder"
+              fallback="album"
+            />
+            <p className="text-xs text-muted-foreground mt-1">sm</p>
+          </div>
+          <div className="text-center">
+            <Artwork
+              src={undefined}
+              size="md"
+              alt="Medium album placeholder"
+              fallback="album"
+            />
+            <p className="text-xs text-muted-foreground mt-1">md</p>
+          </div>
+          <div className="text-center">
+            <Artwork
+              src={undefined}
+              size="lg"
+              alt="Large album placeholder"
+              fallback="album"
+            />
+            <p className="text-xs text-muted-foreground mt-1">lg</p>
+          </div>
+          <div className="text-center">
+            <Artwork
+              src={undefined}
+              size="xl"
+              alt="XL album placeholder"
+              fallback="album"
+            />
+            <p className="text-xs text-muted-foreground mt-1">xl</p>
+          </div>
+        </div>
       </div>
-      <div className="text-center">
-        <Artwork src={undefined} size="md" alt="Medium placeholder" />
-        <p className="text-xs text-muted-foreground mt-1">md</p>
-      </div>
-      <div className="text-center">
-        <Artwork src={undefined} size="lg" alt="Large placeholder" />
-        <p className="text-xs text-muted-foreground mt-1">lg</p>
-      </div>
-      <div className="text-center">
-        <Artwork src={undefined} size="xl" alt="XL placeholder" />
-        <p className="text-xs text-muted-foreground mt-1">xl</p>
+      <div>
+        <p className="text-sm font-medium mb-2">Track fallback</p>
+        <div className="flex gap-4 items-end">
+          <div className="text-center">
+            <Artwork
+              src={undefined}
+              size="sm"
+              alt="Small track placeholder"
+              fallback="track"
+            />
+            <p className="text-xs text-muted-foreground mt-1">sm</p>
+          </div>
+          <div className="text-center">
+            <Artwork
+              src={undefined}
+              size="md"
+              alt="Medium track placeholder"
+              fallback="track"
+            />
+            <p className="text-xs text-muted-foreground mt-1">md</p>
+          </div>
+          <div className="text-center">
+            <Artwork
+              src={undefined}
+              size="lg"
+              alt="Large track placeholder"
+              fallback="track"
+            />
+            <p className="text-xs text-muted-foreground mt-1">lg</p>
+          </div>
+          <div className="text-center">
+            <Artwork
+              src={undefined}
+              size="xl"
+              alt="XL track placeholder"
+              fallback="track"
+            />
+            <p className="text-xs text-muted-foreground mt-1">xl</p>
+          </div>
+        </div>
       </div>
     </div>
   ),
@@ -225,7 +332,12 @@ export const InContext: Story = {
   render: () => (
     <div className="space-y-2 w-[350px]">
       <div className="flex items-center gap-3 p-2 rounded-lg border">
-        <Artwork src={PLACEHOLDER_ALBUM_ART_SM} size="sm" alt="Track artwork" />
+        <Artwork
+          src={PLACEHOLDER_ALBUM_ART_SM}
+          size="sm"
+          alt="Track artwork"
+          fallback="track"
+        />
         <div className="flex-1 min-w-0">
           <p className="font-medium truncate">Everything In Its Right Place</p>
           <p className="text-sm text-muted-foreground">Radiohead</p>
@@ -233,14 +345,24 @@ export const InContext: Story = {
         <span className="text-sm text-muted-foreground">4:11</span>
       </div>
       <div className="flex items-center gap-3 p-2 rounded-lg border">
-        <Artwork src={PLACEHOLDER_ALBUM_ART_SM} size="md" alt="Album artwork" />
+        <Artwork
+          src={PLACEHOLDER_ALBUM_ART_SM}
+          size="md"
+          alt="Album artwork"
+          fallback="album"
+        />
         <div className="flex-1 min-w-0">
           <p className="font-medium truncate">Kid A</p>
           <p className="text-sm text-muted-foreground">Radiohead • 2000</p>
         </div>
       </div>
       <div className="flex items-center gap-3 p-2 rounded-lg border">
-        <Artwork src={PLACEHOLDER_ARTIST_IMAGE} size="md" rounded="full" alt="Artist" />
+        <Artwork
+          src={PLACEHOLDER_ARTIST_IMAGE}
+          size="md"
+          rounded="full"
+          alt="Artist"
+        />
         <div className="flex-1 min-w-0">
           <p className="font-medium truncate">Radiohead</p>
           <p className="text-sm text-muted-foreground">Artist • Rock</p>
@@ -255,21 +377,47 @@ export const MixedContent: Story = {
   render: () => (
     <div className="space-y-2 w-[350px]">
       <div className="flex items-center gap-3 p-2 rounded-lg border">
-        <Artwork src={PLACEHOLDER_ALBUM_ART_SM} size="md" alt="Has image" />
+        <Artwork
+          src={PLACEHOLDER_ALBUM_ART_SM}
+          size="md"
+          alt="Has image"
+          fallback="track"
+        />
         <div className="flex-1">
           <p className="font-medium">Track with artwork</p>
         </div>
       </div>
       <div className="flex items-center gap-3 p-2 rounded-lg border">
-        <Artwork src={undefined} size="md" alt="Missing image" />
+        <Artwork
+          src={undefined}
+          size="md"
+          alt="Missing image"
+          fallback="track"
+        />
         <div className="flex-1">
           <p className="font-medium">Track without artwork</p>
         </div>
       </div>
       <div className="flex items-center gap-3 p-2 rounded-lg border">
-        <Artwork src="https://broken.url/image.jpg" size="md" alt="Broken image" />
+        <Artwork
+          src="https://broken.url/image.jpg"
+          size="md"
+          alt="Broken image"
+          fallback="track"
+        />
         <div className="flex-1">
           <p className="font-medium">Track with broken image</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-3 p-2 rounded-lg border">
+        <Artwork
+          src={undefined}
+          size="md"
+          alt="Missing album image"
+          fallback="album"
+        />
+        <div className="flex-1">
+          <p className="font-medium">Album without artwork</p>
         </div>
       </div>
     </div>

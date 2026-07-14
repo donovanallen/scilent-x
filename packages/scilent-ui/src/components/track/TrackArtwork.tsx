@@ -10,8 +10,7 @@ import {
 } from '@scilent-one/ui';
 import { Music } from 'lucide-react';
 
-export interface TrackArtworkProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface TrackArtworkProps extends React.HTMLAttributes<HTMLDivElement> {
   /** URL of the artwork image */
   src?: string | undefined;
   /** Alt text for the image */
@@ -83,19 +82,15 @@ export function TrackArtwork({
     >
       {src && <AvatarImage src={src} alt={alt} className="object-cover" />}
       <AvatarFallback
-        className={cn(
-          roundedClass,
-          'bg-muted text-muted-foreground'
-        )}
+        className={cn(roundedClass, 'bg-muted text-muted-foreground')}
       >
-        <Music className={iconSize} />
+        <Music className={iconSize} aria-hidden="true" />
       </AvatarFallback>
     </Avatar>
   );
 }
 
-export interface TrackArtworkSkeletonProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface TrackArtworkSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Size of the skeleton */
   size?: 'xs' | 'sm' | 'md' | 'lg' | undefined;
   /** Border radius style */
@@ -110,7 +105,12 @@ export function TrackArtworkSkeleton({
 }: TrackArtworkSkeletonProps) {
   return (
     <Skeleton
-      className={cn(sizeClasses[size], roundedClasses[rounded], 'shrink-0', className)}
+      className={cn(
+        sizeClasses[size],
+        roundedClasses[rounded],
+        'shrink-0',
+        className
+      )}
       {...props}
     />
   );

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn, Skeleton } from '@scilent-one/ui';
-import { Disc3 } from 'lucide-react';
+import { Album } from 'lucide-react';
 
 export interface AlbumArtworkProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -71,16 +71,18 @@ export function AlbumArtwork({
     [src, fallbackSrc]
   );
   const [sourceIndex, setSourceIndex] = React.useState(0);
+  const [hasFailed, setHasFailed] = React.useState(false);
   const [isImageLoading, setIsImageLoading] = React.useState(
     sources.length > 0
   );
-  const currentSrc = sources[sourceIndex];
+  const currentSrc = !hasFailed ? sources[sourceIndex] : undefined;
 
   const sizeClass = sizeClasses[size];
   const roundedClass = roundedClasses[rounded];
 
   React.useEffect(() => {
     setSourceIndex(0);
+    setHasFailed(false);
     setIsImageLoading(sources.length > 0);
   }, [sources]);
 
@@ -95,22 +97,26 @@ export function AlbumArtwork({
         return index + 1;
       }
       setIsImageLoading(false);
+      setHasFailed(true);
       return index;
     });
   }, [sources.length]);
 
   // Data-URI / cached images often complete before React binds onLoad.
-  const imageRef = React.useCallback((node: HTMLImageElement | null) => {
-    if (!node) return;
-    if (node.complete) {
-      if (node.naturalWidth > 0) {
-        setIsImageLoading(false);
-      } else if (node.currentSrc || node.src) {
-        // Broken image that finished without dimensions
-        setIsImageLoading(false);
+  const imageRef = React.useCallback(
+    (node: HTMLImageElement | null) => {
+      if (!node) return;
+      if (node.complete) {
+        if (node.naturalWidth > 0) {
+          setIsImageLoading(false);
+        } else if (node.currentSrc || node.src) {
+          // Broken image that finished without dimensions — try next source or fallback
+          handleImageError();
+        }
       }
-    }
-  }, []);
+    },
+    [handleImageError]
+  );
 
   // Loading state - skeleton
   if (isLoading) {
@@ -139,7 +145,7 @@ export function AlbumArtwork({
         aria-label={alt}
         {...props}
       >
-        <Disc3 className="text-muted-foreground" />
+        <Album className="text-muted-foreground" aria-hidden="true" />
       </div>
     );
   }
