@@ -4,7 +4,11 @@ import * as React from 'react';
 import { Card, CardContent, CardFooter } from '../card';
 import { Button } from '../button';
 import { UserAvatar } from './user-avatar';
-import { TiptapEditor } from '../tiptap-editor';
+import {
+  TiptapEditor,
+  type EditorMention,
+  type SecondaryToolbar,
+} from '../tiptap-editor';
 import { type MentionSuggestion } from '../mention-list';
 import { cn } from '../../utils';
 
@@ -24,6 +28,10 @@ export interface PostFormProps {
   onMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
   /** Callback to search for artist mention suggestions */
   onArtistMentionQuery?: (query: string) => Promise<MentionSuggestion[]>;
+  /** Reports the mentions currently present in the editor document. */
+  onMentionsChange?: (mentions: EditorMention[]) => void;
+  /** Optional extra toggle pill + collapsible content next to "Format". */
+  secondaryToolbar?: SecondaryToolbar | null;
 }
 
 export function PostForm({
@@ -35,6 +43,8 @@ export function PostForm({
   className,
   onMentionQuery,
   onArtistMentionQuery,
+  onMentionsChange,
+  secondaryToolbar,
 }: PostFormProps) {
   const [content, setContent] = React.useState('');
   const [contentHtml, setContentHtml] = React.useState('');
@@ -87,6 +97,8 @@ export function PostForm({
                 editorKey={editorKey}
                 onMentionQuery={onMentionQuery}
                 onArtistMentionQuery={onArtistMentionQuery}
+                onMentionsChange={onMentionsChange}
+                secondaryToolbar={secondaryToolbar}
                 mentionPlaceholder="Search for a user"
                 artistMentionPlaceholder="Search for an artist"
               />

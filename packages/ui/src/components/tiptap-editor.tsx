@@ -20,6 +20,24 @@ import { Input } from './input';
 import { Button } from './button';
 import { createBoundedSpaceMatcher } from './mention-suggestion-match';
 
+/** A mention (user or artist) currently present in the editor document. */
+export interface EditorMention {
+  id: string;
+  label: string;
+  type: 'user' | 'artist';
+}
+
+/**
+ * An optional additional toggle pill + collapsible content rendered next to the
+ * built-in "Format" pill in the editor footer.
+ */
+export interface SecondaryToolbar {
+  label: string;
+  ariaLabel?: string | undefined;
+  icon?: React.ReactNode | undefined;
+  content: React.ReactNode;
+}
+
 export interface TiptapEditorProps {
   value: string;
   onChange: (content: string, html: string) => void;
@@ -40,6 +58,10 @@ export interface TiptapEditorProps {
   mentionPlaceholder?: string | undefined;
   /** Placeholder text for artist mention suggestions */
   artistMentionPlaceholder?: string | undefined;
+  /** Reports the mentions currently present in the editor document. */
+  onMentionsChange?: ((mentions: EditorMention[]) => void) | undefined;
+  /** Optional extra toggle pill + collapsible content next to "Format". */
+  secondaryToolbar?: SecondaryToolbar | null | undefined;
 }
 
 export function TiptapEditor({
@@ -55,6 +77,8 @@ export function TiptapEditor({
   onArtistMentionQuery,
   mentionPlaceholder,
   artistMentionPlaceholder,
+  onMentionsChange,
+  secondaryToolbar,
 }: TiptapEditorProps) {
   const [mentionQuery, setMentionQuery] = React.useState('');
   const [artistQuery, setArtistQuery] = React.useState('');
@@ -87,6 +111,13 @@ export function TiptapEditor({
   // onStart/onUpdate/onKeyDown events, not on unrelated React state changes.
   const mentionForceRenderRef = React.useRef<(() => void) | null>(null);
   const artistMentionForceRenderRef = React.useRef<(() => void) | null>(null);
+  // Held in a ref so the (stable) editor onUpdate handler always calls the
+  // latest callback without recreating the editor.
+  const onMentionsChangeRef = React.useRef(onMentionsChange);
+
+  React.useEffect(() => {
+    onMentionsChangeRef.current = onMentionsChange;
+  }, [onMentionsChange]);
 
   // Keep refs in sync with state
   React.useEffect(() => {
@@ -658,6 +689,7 @@ export function TiptapEditor({
 
   const [isFocused, setIsFocused] = React.useState(false);
   const [showToolbar, setShowToolbar] = React.useState(false);
+  const [showSecondary, setShowSecondary] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   // Handle container-level focus tracking
@@ -725,6 +757,28 @@ export function TiptapEditor({
       const text = editor.getText().trim();
       const html = editor.getHTML();
       onChange(text, html);
+
+      const reportMentions = onMentionsChangeRef.current;
+      if (reportMentions) {
+        const mentions: EditorMention[] = [];
+        const seen = new Set<string>();
+        editor.state.doc.descendants((node) => {
+          const type =
+            node.type.name === 'userMention'
+              ? 'user'
+              : node.type.name === 'artistMention'
+                ? 'artist'
+                : null;
+          if (!type) return;
+          const id = String(node.attrs.id ?? '');
+          const label = String(node.attrs.label ?? node.attrs.id ?? '');
+          const key = `${type}:${id}:${label}`;
+          if (seen.has(key)) return;
+          seen.add(key);
+          mentions.push({ id, label, type });
+        });
+        reportMentions(mentions);
+      }
     },
   });
 
@@ -765,32 +819,54 @@ export function TiptapEditor({
       <EditorContent editor={editor} />
       {/* Footer: character count + toolbar toggle */}
       <div className="flex items-center justify-between px-3 py-1.5 border-t border-border/50">
-        <button
-          type="button"
-          onClick={() => setShowToolbar(!showToolbar)}
-          className={cn(
-            'flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors rounded px-1.5 py-0.5',
-            showToolbar && 'text-foreground bg-brand/10'
-          )}
-          aria-label={showToolbar ? 'Hide formatting' : 'Show formatting'}
-          aria-expanded={showToolbar}
-        >
-          <svg
-            className="w-3.5 h-3.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-            aria-hidden="true"
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowToolbar(!showToolbar)}
+            className={cn(
+              'flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors rounded px-1.5 py-0.5',
+              showToolbar && 'text-foreground bg-brand/10'
+            )}
+            aria-label={showToolbar ? 'Hide formatting' : 'Show formatting'}
+            aria-expanded={showToolbar}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4 6h16M4 12h16m-7 6h7"
-            />
-          </svg>
-          <span className="hidden sm:inline">Format</span>
-        </button>
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 6h16M4 12h16m-7 6h7"
+              />
+            </svg>
+            <span className="hidden sm:inline">Format</span>
+          </button>
+          {secondaryToolbar && (
+            <button
+              type="button"
+              onClick={() => setShowSecondary(!showSecondary)}
+              className={cn(
+                'flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors rounded px-1.5 py-0.5',
+                showSecondary && 'text-foreground bg-brand/10'
+              )}
+              aria-label={
+                secondaryToolbar.ariaLabel ??
+                (showSecondary
+                  ? `Hide ${secondaryToolbar.label}`
+                  : `Show ${secondaryToolbar.label}`)
+              }
+              aria-expanded={showSecondary}
+            >
+              {secondaryToolbar.icon}
+              <span className="hidden sm:inline">{secondaryToolbar.label}</span>
+            </button>
+          )}
+        </div>
         {maxLength && (
           <div
             className={cn(
@@ -812,6 +888,21 @@ export function TiptapEditor({
       >
         {editor && <TiptapToolbar editor={editor} />}
       </div>
+      {/* Collapsible secondary toolbar */}
+      {secondaryToolbar && (
+        <div
+          className={cn(
+            'overflow-hidden transition-all duration-200 ease-out',
+            showSecondary
+              ? 'max-h-40 opacity-100 overflow-y-auto'
+              : 'max-h-0 opacity-0'
+          )}
+        >
+          <div className="px-2 py-1.5 border-t border-border/50 bg-muted/30 rounded-b-md">
+            {secondaryToolbar.content}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

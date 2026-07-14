@@ -14,6 +14,8 @@ export {
 export {
   TiptapEditor,
   type TiptapEditorProps,
+  type EditorMention,
+  type SecondaryToolbar,
 } from './components/tiptap-editor';
 export {
   SimpleTiptapEditor,
