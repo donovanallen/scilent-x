@@ -1,6 +1,8 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+import { getArtistImageUrl } from '@scilent-one/harmony-engine';
+
 import { getCurrentUser, handleApiError } from '@/lib/api-utils';
 import { searchArtistsWithUserProvider } from '@/lib/harmonization';
 import {
@@ -66,7 +68,7 @@ export async function GET(request: Request) {
       return {
         id: `${provider}:${sourceId}`,
         name: artist.name,
-        imageUrl: null,
+        imageUrl: getArtistImageUrl(artist.images) ?? null,
         provider,
         externalIds: artist.externalIds,
         subtitle: artist.disambiguation ?? artist.country ?? null,
