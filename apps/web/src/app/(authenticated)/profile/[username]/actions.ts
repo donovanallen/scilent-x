@@ -220,7 +220,10 @@ export async function getFollowedArtists(
 
     return response;
   } catch (error) {
-    log.error(`Failed to fetch ${providerId} followed artists`, toLogError(error));
+    log.error(
+      `Failed to fetch ${providerId} followed artists`,
+      toLogError(error)
+    );
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -382,7 +385,10 @@ export async function getRecentlyPlayed(
       nextCursor: result.nextCursor,
     };
   } catch (error) {
-    log.error(`Failed to fetch ${providerId} recently played`, toLogError(error));
+    log.error(
+      `Failed to fetch ${providerId} recently played`,
+      toLogError(error)
+    );
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

@@ -1,5 +1,5 @@
-import { auth } from '@scilent-one/auth/server';
 import { hasAdminRole } from '@scilent-one/auth/roles';
+import { auth } from '@scilent-one/auth/server';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 

@@ -1,7 +1,6 @@
+import { getArtistImageUrl } from '@scilent-one/harmony-engine';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-
-import { getArtistImageUrl } from '@scilent-one/harmony-engine';
 
 import { getCurrentUser, handleApiError } from '@/lib/api-utils';
 import { searchArtistsWithUserProvider } from '@/lib/harmonization';

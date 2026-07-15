@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation';
 import { Link } from 'next-view-transitions';
 
 import { hasAdminRole, useSession } from '@/lib/auth-client';
+
 import { ROUTES } from '../lib/routes';
 
 export function SidebarAdminNav() {
