@@ -155,7 +155,10 @@ export async function resolveReviewSubject(
 }
 
 async function resolveTrackArtwork(
-  _track: HarmonizedTrack
+  track: HarmonizedTrack
 ): Promise<string | undefined> {
-  return undefined;
+  // Track artwork is inherited from the parent release at harmonization time.
+  return resolveArtworkUrl({
+    ...(track.artwork ? { artwork: track.artwork } : {}),
+  });
 }

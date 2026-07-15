@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn, Badge, Skeleton, Separator } from '@scilent-one/ui';
 import type { HarmonizedArtist } from '../../types';
+import { getArtistImageUrl } from '@scilent-one/harmony-engine';
 import { formatPartialDate } from '../../utils';
 import Image from 'next/image';
 
@@ -35,15 +36,17 @@ export function ArtistHeader({
     other: 'Artist',
   };
 
+  const resolvedImageUrl = imageUrl ?? getArtistImageUrl(artist.images);
+
   return (
     <div className={cn('space-y-6', className)} {...props}>
       <div className="flex flex-col md:flex-row gap-6">
         {/* Artist Image */}
         <div className="shrink-0">
           <div className="h-48 w-48 rounded-full overflow-hidden bg-muted relative">
-            {imageUrl ? (
+            {resolvedImageUrl ? (
               <Image
-                src={imageUrl}
+                src={resolvedImageUrl}
                 alt={artist.name}
                 width={192}
                 height={192}

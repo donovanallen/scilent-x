@@ -36,6 +36,10 @@ export class ReleaseMerger {
     // Merge genres (deduplicated)
     const allGenres = this.collectGenres(releases);
 
+    // Merge artwork so a high-confidence provider without covers (e.g.
+    // MusicBrainz) doesn't clobber artwork supplied by another provider.
+    const mergedArtwork = this.mergeArtwork(sorted);
+
     // Calculate combined confidence
     const combinedConfidence = this.calculateConfidence(releases);
 
@@ -43,11 +47,34 @@ export class ReleaseMerger {
       ...primary,
       artists: mergedArtists,
       genres: allGenres.length > 0 ? allGenres : primary.genres,
+      ...(mergedArtwork ? { artwork: mergedArtwork } : {}),
       externalIds: allExternalIds,
       sources: allSources,
       confidence: combinedConfidence,
       mergedAt: new Date(),
     };
+  }
+
+  /**
+   * Combine artwork from every provider (confidence-sorted) into a single
+   * deduplicated list. Preserving all covers keeps a front image available even
+   * when the highest-confidence provider supplies none.
+   */
+  private mergeArtwork(
+    sortedReleases: HarmonizedRelease[]
+  ): HarmonizedRelease['artwork'] | undefined {
+    const seen = new Set<string>();
+    const merged: NonNullable<HarmonizedRelease['artwork']> = [];
+
+    for (const release of sortedReleases) {
+      for (const art of release.artwork ?? []) {
+        if (seen.has(art.url)) continue;
+        seen.add(art.url);
+        merged.push(art);
+      }
+    }
+
+    return merged.length > 0 ? merged : undefined;
   }
 
   private collectSources(releases: HarmonizedRelease[]): ProviderSource[] {
@@ -158,16 +185,39 @@ export class ArtistMerger {
     const allExternalIds = this.collectExternalIds(artists);
     const allAliases = this.collectAliases(artists);
     const allGenres = this.collectGenres(artists);
+    const allImages = this.collectImages(sorted);
 
     return {
       ...primary,
       aliases: allAliases.length > 0 ? allAliases : primary.aliases,
       genres: allGenres.length > 0 ? allGenres : primary.genres,
+      ...(allImages ? { images: allImages } : {}),
       externalIds: allExternalIds,
       sources: allSources,
       confidence: this.calculateConfidence(artists),
       mergedAt: new Date(),
     };
+  }
+
+  /**
+   * Combine artist images from every provider (confidence-sorted) into a single
+   * deduplicated list so a provider without photos doesn't hide another's.
+   */
+  private collectImages(
+    sortedArtists: HarmonizedArtist[]
+  ): HarmonizedArtist['images'] | undefined {
+    const seen = new Set<string>();
+    const merged: NonNullable<HarmonizedArtist['images']> = [];
+
+    for (const artist of sortedArtists) {
+      for (const image of artist.images ?? []) {
+        if (seen.has(image.url)) continue;
+        seen.add(image.url);
+        merged.push(image);
+      }
+    }
+
+    return merged.length > 0 ? merged : undefined;
   }
 
   private collectSources(artists: HarmonizedArtist[]): ProviderSource[] {

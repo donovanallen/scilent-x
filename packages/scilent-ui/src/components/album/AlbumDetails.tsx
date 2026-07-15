@@ -5,6 +5,7 @@ import {
   formatPartialDate,
   formatArtistCredits,
   getFrontArtworkUrl,
+  getReleaseArtworkFallbacks,
 } from '../../utils';
 import { AlbumArtwork, AlbumArtworkSkeleton } from './AlbumArtwork';
 import { getReleaseTypeLabel } from '../common';
@@ -43,6 +44,10 @@ export function AlbumDetails({
   ...props
 }: AlbumDetailsProps) {
   const imageUrl = artworkUrl ?? getFrontArtworkUrl(release.artwork);
+  const fallbackSrc = React.useMemo(
+    () => getReleaseArtworkFallbacks(release),
+    [release]
+  );
 
   const trackCount = release.media.reduce(
     (sum: number, medium: { tracks: HarmonizedTrack[] }) =>
@@ -56,6 +61,7 @@ export function AlbumDetails({
         {/* Album Artwork */}
         <AlbumArtwork
           src={imageUrl}
+          fallbackSrc={fallbackSrc}
           alt={release.title}
           size="2xl"
           rounded="lg"

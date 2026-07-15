@@ -1,10 +1,15 @@
-import type { PartialDate, HarmonizedArtistCredit } from "../types";
+import type {
+  PartialDate,
+  HarmonizedArtistCredit,
+  HarmonizedRelease,
+} from '../types';
+import { getCoverArtArchiveUrl } from '@scilent-one/harmony-engine';
 
 /**
  * Format duration from milliseconds to a human-readable string (MM:SS or HH:MM:SS)
  */
 export function formatDuration(ms: number | undefined): string {
-  if (!ms || !Number.isFinite(ms)) return "--:--";
+  if (!ms || !Number.isFinite(ms)) return '--:--';
 
   const totalSeconds = Math.floor(ms / 1000);
   const hours = Math.floor(totalSeconds / 3600);
@@ -12,17 +17,17 @@ export function formatDuration(ms: number | undefined): string {
   const seconds = totalSeconds % 60;
 
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
 /**
  * Format a partial date to a human-readable string
  */
 export function formatPartialDate(date: PartialDate | undefined): string {
-  if (!date) return "";
+  if (!date) return '';
 
   const parts: string[] = [];
 
@@ -32,42 +37,41 @@ export function formatPartialDate(date: PartialDate | undefined): string {
 
   if (date.month) {
     const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
-    parts.unshift(monthNames[date.month - 1] || "");
+    parts.unshift(monthNames[date.month - 1] || '');
   }
 
   if (date.day) {
     parts.splice(1, 0, date.day.toString());
   }
 
-  return parts.filter(Boolean).join(" ");
+  return parts.filter(Boolean).join(' ');
 }
 
 /**
  * Format artist credits to a displayable string
  */
-export function formatArtistCredits(
-  credits: HarmonizedArtistCredit[]
-): string {
+export function formatArtistCredits(credits: HarmonizedArtistCredit[]): string {
   return credits
     .map((credit, index) => {
       const name = credit.creditedName || credit.name;
-      const joinPhrase = credit.joinPhrase ?? (index < credits.length - 1 ? ", " : "");
+      const joinPhrase =
+        credit.joinPhrase ?? (index < credits.length - 1 ? ', ' : '');
       return name + joinPhrase;
     })
-    .join("");
+    .join('');
 }
 
 /**
@@ -77,7 +81,7 @@ export function getPrimaryArtistName(
   credits: HarmonizedArtistCredit[]
 ): string {
   const first = credits[0];
-  if (!first) return "Unknown Artist";
+  if (!first) return 'Unknown Artist';
   return first.creditedName || first.name;
 }
 
@@ -85,12 +89,8 @@ export function getPrimaryArtistName(
  * Format artist credits to a simple comma-separated list of names
  * (simpler version of formatArtistCredits without join phrases)
  */
-export function formatArtistNames(
-  credits: HarmonizedArtistCredit[]
-): string {
-  return credits
-    .map((credit) => credit.creditedName || credit.name)
-    .join(", ");
+export function formatArtistNames(credits: HarmonizedArtistCredit[]): string {
+  return credits.map((credit) => credit.creditedName || credit.name).join(', ');
 }
 
 /**
@@ -117,9 +117,26 @@ export function getFrontArtworkUrl(
 ): string | undefined {
   if (!artwork || artwork.length === 0) return undefined;
 
-  const front = artwork.find((a) => a.type === "front");
+  const front = artwork.find((a) => a.type === 'front');
   const firstArtwork = artwork[0];
   return front?.url ?? firstArtwork?.url;
+}
+
+const EMPTY_FALLBACKS: readonly string[] = [];
+
+/**
+ * Build the fallback artwork URLs for a release. When a release has a
+ * MusicBrainz id we can point at the Cover Art Archive front cover, which
+ * covers the common case of MusicBrainz-only results (no streaming provider
+ * artwork). The returned array is stable when no fallback is available so it
+ * can be passed to memoized artwork components without churn.
+ */
+export function getReleaseArtworkFallbacks(
+  release: Pick<HarmonizedRelease, 'externalIds'>
+): string[] {
+  const mbid = release.externalIds?.musicbrainz;
+  if (!mbid) return EMPTY_FALLBACKS as string[];
+  return [getCoverArtArchiveUrl(mbid)];
 }
 
 /**

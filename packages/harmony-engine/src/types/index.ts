@@ -11,6 +11,8 @@ export {
   type ReleaseStatus,
   ArtworkTypeSchema,
   type ArtworkType,
+  ArtworkSchema,
+  type Artwork,
   PartialDateSchema,
   type PartialDate,
   HarmonizedReleaseSchema,

@@ -4,7 +4,11 @@ import * as React from 'react';
 import { cn, Card, CardContent, Badge, Skeleton } from '@scilent-one/ui';
 import type { HarmonizedTrack } from '@scilent-one/harmony-engine';
 import { Clock, ExternalLink, GripVertical, X } from 'lucide-react';
-import { formatDuration, formatTrackPosition } from '../../utils';
+import {
+  formatDuration,
+  formatTrackPosition,
+  getFrontArtworkUrl,
+} from '../../utils';
 import { TrackArtwork } from './TrackArtwork';
 import { ArtistCredit } from '../artist/ArtistCredit';
 import { InteractiveWrapper } from '../../interactions/InteractiveWrapper';
@@ -143,6 +147,9 @@ export function TrackCard({
 
   const primarySource = track.sources[0];
 
+  // Prefer an explicit URL, otherwise inherit the track's (parent release) artwork.
+  const resolvedArtworkUrl = artworkUrl ?? getFrontArtworkUrl(track.artwork);
+
   // Default showArtwork based on variant if not explicitly set
   const shouldShowArtwork = showArtwork ?? variant === 'card';
 
@@ -170,7 +177,7 @@ export function TrackCard({
       {/* Track artwork */}
       {shouldShowArtwork && (
         <TrackArtwork
-          src={artworkUrl}
+          src={resolvedArtworkUrl}
           alt={track.title}
           size={variant === 'compact' ? 'xs' : 'sm'}
           rounded="md"

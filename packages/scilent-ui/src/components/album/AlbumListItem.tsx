@@ -9,7 +9,11 @@ import { ArtistCredit } from '../artist/ArtistCredit';
 import { ReleaseTypePill } from '../common';
 import { PlatformBadgeList } from '../common';
 import { InteractiveWrapper } from '../../interactions/InteractiveWrapper';
-import { formatDuration, getFrontArtworkUrl } from '../../utils';
+import {
+  formatDuration,
+  getFrontArtworkUrl,
+  getReleaseArtworkFallbacks,
+} from '../../utils';
 
 export interface AlbumListItemProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -111,6 +115,10 @@ export function AlbumListItem({
   }, [onClick, release]);
 
   const imageUrl = artworkUrl ?? getFrontArtworkUrl(release.artwork);
+  const fallbackSrc = React.useMemo(
+    () => getReleaseArtworkFallbacks(release),
+    [release]
+  );
   const year = release.releaseDate?.year;
   const trackCount = release.media.reduce((acc, m) => acc + m.tracks.length, 0);
   const totalDuration = release.media.reduce(
@@ -140,6 +148,7 @@ export function AlbumListItem({
     >
       <AlbumArtwork
         src={imageUrl}
+        fallbackSrc={fallbackSrc}
         alt={release.title}
         size={artworkSize}
         rounded="md"

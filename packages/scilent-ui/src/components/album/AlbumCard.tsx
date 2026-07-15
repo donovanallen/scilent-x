@@ -14,7 +14,11 @@ import { AlbumArtwork } from './AlbumArtwork';
 import { InteractiveWrapper } from '../../interactions/InteractiveWrapper';
 import { ReleaseTypePill } from '../common';
 import { ArtistCredit } from '../artist/ArtistCredit';
-import { formatPartialDate, getFrontArtworkUrl } from '../../utils';
+import {
+  formatPartialDate,
+  getFrontArtworkUrl,
+  getReleaseArtworkFallbacks,
+} from '../../utils';
 
 export interface AlbumCardProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -83,6 +87,10 @@ export function AlbumCard({
   }, [onClick, release]);
 
   const imageUrl = artworkUrl ?? getFrontArtworkUrl(release.artwork);
+  const fallbackSrc = React.useMemo(
+    () => getReleaseArtworkFallbacks(release),
+    [release]
+  );
   const trackCount = release.media.reduce((acc, m) => acc + m.tracks.length, 0);
 
   const card = (
@@ -106,6 +114,7 @@ export function AlbumCard({
       <div className="relative">
         <AlbumArtwork
           src={imageUrl}
+          fallbackSrc={fallbackSrc}
           alt={release.title}
           size="full"
           rounded="none"
