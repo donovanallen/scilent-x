@@ -260,17 +260,19 @@ export default function DatabasePage() {
   return (
     <div className='w-full flex flex-col h-full min-h-0 space-y-6'>
       <div className='flex items-center justify-end gap-2'>
-        <Button variant='outline' asChild>
-          <a
-            href='http://localhost:5555'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            Prisma Studio
-          </a>
-        </Button>
+        {process.env.NODE_ENV === 'development' ? (
+          <Button variant='outline' asChild>
+            <a
+              href='http://localhost:5555'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              Prisma Studio
+            </a>
+          </Button>
+        ) : null}
         <Button asChild>
-          <Link href='/db/setup'>Setup Guide</Link>
+          <Link href='/admin/db/setup'>Setup Guide</Link>
         </Button>
       </div>
 

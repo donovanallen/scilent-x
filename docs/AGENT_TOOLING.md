@@ -66,6 +66,13 @@ level:
 Both hooks fail open (`failClosed: false`): a missing `jq`, an unformattable file, or a hook script
 crash never blocks the agent's work.
 
+### `.cursor/skills/production-readiness/`
+
+Pre-deploy audit checklist (auth gate, env schema, headers, DB migrations, CI,
+health, Sentry, trustedOrigins). Pair with `.cursor/commands/deploy-check.md`
+before promoting builds. After WS8, prefer Vercel MCP + Sentry MCP for live
+deploy/error inspection.
+
 ### `.cursor/skills/vercel-react-best-practices/`
 
 Pre-existing in this repo (not part of this port) — React/Next.js performance guidance from
@@ -87,7 +94,7 @@ subfolder of granular, single-topic files, and an `AGENTS.md` compiling the full
   repo doesn't use.
 - **`.github/pull_request_template.md`**: tied to Jira ticket linking (`CAT-###`), which this repo
   doesn't use, and isn't Cursor-specific tooling.
-- **Husky** (`.husky/pre-commit`, `.husky/pre-push`): not added. Their *intent* (format/lint/
+- **Husky** (`.husky/pre-commit`, `.husky/pre-push`): not added. Their _intent_ (format/lint/
   typecheck before commit, plus the changeset requirement) is covered by the two Cursor hooks
   above instead of introducing a new git-hook dependency.
 

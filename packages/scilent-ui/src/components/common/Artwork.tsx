@@ -2,6 +2,7 @@
 
 import { cn } from '@scilent-one/ui';
 import { Album, Music } from 'lucide-react';
+import Image from 'next/image';
 import * as React from 'react';
 
 export type ArtworkFallback = 'album' | 'track';
@@ -28,6 +29,13 @@ const sizeClasses = {
   md: 'size-16',
   lg: 'size-24',
   xl: 'size-32',
+} as const;
+
+const sizePx = {
+  sm: 40,
+  md: 64,
+  lg: 96,
+  xl: 128,
 } as const;
 
 const roundedClasses = {
@@ -77,6 +85,7 @@ export function Artwork({
 
   const currentSrc = sources[sourceIndex];
   const showFallback = !currentSrc || hasError;
+  const px = sizePx[size];
 
   const handleError = React.useCallback(() => {
     setSourceIndex((index) => {
@@ -112,10 +121,12 @@ export function Artwork({
           {isLoading && (
             <div className="absolute inset-0 animate-pulse bg-muted" />
           )}
-          <img
+          <Image
             src={currentSrc}
             alt={alt}
-            loading="lazy"
+            width={px}
+            height={px}
+            sizes={`${px}px`}
             onLoad={() => setIsLoading(false)}
             onError={handleError}
             className={cn(

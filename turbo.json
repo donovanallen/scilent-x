@@ -10,21 +10,34 @@
       "outputs": ["storybook-static/**"]
     },
     "db:generate": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:migrate": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:push": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:studio": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["DATABASE_URL"]
     },
     "build": {
       "dependsOn": ["^build", "^db:generate"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": [
+        "DATABASE_URL",
+        "SKIP_ENV_VALIDATION",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "SENTRY_AUTH_TOKEN",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "SENTRY_DSN"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -38,17 +51,44 @@
     "test": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "cache": true
+      "cache": true,
+      "env": [
+        "DATABASE_URL",
+        "SKIP_ENV_VALIDATION",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "SENTRY_AUTH_TOKEN",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "SENTRY_DSN"
+      ]
     },
     "test:run": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "cache": true
+      "cache": true,
+      "env": [
+        "DATABASE_URL",
+        "SKIP_ENV_VALIDATION",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "SENTRY_AUTH_TOKEN",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "SENTRY_DSN"
+      ]
     },
     "test:coverage": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "cache": true
+      "cache": true,
+      "env": [
+        "DATABASE_URL",
+        "SKIP_ENV_VALIDATION",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "SENTRY_AUTH_TOKEN",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "SENTRY_DSN"
+      ]
     },
     "dev": {
       "cache": false,

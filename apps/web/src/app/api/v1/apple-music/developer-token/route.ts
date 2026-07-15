@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import { env } from '@/env';
 import { getCurrentUser, handleApiError } from '@/lib/api-utils';
 import {
   getAppleMusicCredentials,
@@ -37,10 +38,9 @@ export async function GET(request: Request) {
     const requestOrigin = request.headers.get('origin');
     if (requestOrigin) origins.add(requestOrigin);
 
-    const appUrl = process.env.BETTER_AUTH_URL;
-    if (appUrl) {
+    if (env.BETTER_AUTH_URL) {
       try {
-        origins.add(new URL(appUrl).origin);
+        origins.add(new URL(env.BETTER_AUTH_URL).origin);
       } catch {
         // Ignore a malformed BETTER_AUTH_URL; the request origin still applies.
       }
