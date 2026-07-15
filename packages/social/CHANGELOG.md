@@ -1,5 +1,29 @@
 # @scilent-one/social
 
+## 0.6.0
+
+### Minor Changes
+
+- 511e871: Add profileType field to UserProfile interface and all user-related types (PostWithAuthor, CommentWithAuthor, FollowWithUser, etc.). Add profileType to all user query selects. Add setProfileType(userId, profileType) mutation for admin profile type changes.
+- 6d20372: Add review visibility (public/private) support.
+
+  - `@scilent-one/db`: new `PostVisibility` enum and `Post.visibility` column (defaults to `PUBLIC`) plus a migration and index.
+  - `@scilent-one/social`: `createReview`/`updateReview` accept `visibility`, new `setReviewVisibility` mutation, and a shared `visibilityWhere` filter enforced across every review/post read path (reviews, post-by-id, posts-by-author, liked/reposted posts, and the home/explore/profile feeds) so private reviews are only ever returned to their author.
+  - `@scilent-one/ui`: `PostCard` gains `visibility` + `onToggleVisibility` for an owner "Make private/public" menu item.
+  - `@scilent-one/scilent-ui`: `ReviewComposer` gains an animated eye visibility toggle, and `ReviewCard` shows a private badge with subtle styling for private reviews.
+
+- 73187e2: Add music reviews as a post type with ReviewSubject attachments, review composer UI, artwork fallback utilities, and review APIs.
+- e2c08da: Add optional `trending` filter to `getReviews` for surfacing recently engaged-with reviews (last 7 days, ordered by likes/comments).
+
+### Patch Changes
+
+- Updated dependencies [6a1c026]
+- Updated dependencies [64296ac]
+- Updated dependencies [71e1c8d]
+- Updated dependencies [6d20372]
+- Updated dependencies [73187e2]
+  - @scilent-one/db@0.6.0
+
 ## 0.5.0
 
 ### Minor Changes

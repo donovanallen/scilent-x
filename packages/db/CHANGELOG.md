@@ -1,5 +1,24 @@
 # @scilent-one/db
 
+## 0.6.0
+
+### Minor Changes
+
+- 6a1c026: Add ProfileType enum with USER, VOICE, and ARTIST values. Add profileType field to User model with default value of USER. Export ProfileType type for downstream packages.
+- 64296ac: Enable Better Auth admin plugin (roles + user impersonation) and seed mock users with basic profiles for local development. Adds admin schema fields, `db:seed`, and Admin → Users impersonate/stop-impersonate UI with middleware and layout guards.
+- 6d20372: Add review visibility (public/private) support.
+
+  - `@scilent-one/db`: new `PostVisibility` enum and `Post.visibility` column (defaults to `PUBLIC`) plus a migration and index.
+  - `@scilent-one/social`: `createReview`/`updateReview` accept `visibility`, new `setReviewVisibility` mutation, and a shared `visibilityWhere` filter enforced across every review/post read path (reviews, post-by-id, posts-by-author, liked/reposted posts, and the home/explore/profile feeds) so private reviews are only ever returned to their author.
+  - `@scilent-one/ui`: `PostCard` gains `visibility` + `onToggleVisibility` for an owner "Make private/public" menu item.
+  - `@scilent-one/scilent-ui`: `ReviewComposer` gains an animated eye visibility toggle, and `ReviewCard` shows a private badge with subtle styling for private reviews.
+
+- 73187e2: Add music reviews as a post type with ReviewSubject attachments, review composer UI, artwork fallback utilities, and review APIs.
+
+### Patch Changes
+
+- 71e1c8d: Allow optional `DATABASE_POOL_MAX` (and a conservative production default of 5) when constructing the Prisma `PrismaPg` adapter pool for serverless-friendly connection limits.
+
 ## 0.5.0
 
 ### Minor Changes
