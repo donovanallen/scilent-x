@@ -1,5 +1,80 @@
 # @scilent-one/scilent-ui
 
+## 1.2.0
+
+### Minor Changes
+
+- 357c1ae: Add ProfileTypePill component for consistent profile type display across the app. Includes profileTypeLabels, profileTypeColors mappings, and getProfileTypeLabel utility function. Pill shows distinct colors for USER (muted), VOICE (blue), and ARTIST (purple) types.
+- ec7df63: Surface artist images and album/release artwork across the app.
+
+  - Add an `images` field to `HarmonizedArtist` and populate it from the Spotify,
+    Tidal, and Apple Music provider transforms (previously dropped).
+  - Preserve artwork and artist images when merging results across providers so a
+    high-confidence provider without covers (e.g. MusicBrainz) no longer clobbers
+    another provider's artwork/images.
+  - Add a `getArtistImageUrl` helper for picking the best-resolution artist image.
+  - Render artist images in `ArtistCard`, `ArtistListItem`, `ArtistHeader`, and
+    `ArtistHoverPreview`, falling back to the placeholder icon when none exist.
+  - Add a Cover Art Archive fallback (via `getReleaseArtworkFallbacks`) for
+    MusicBrainz-only releases in the album card, list item, details, and hover
+    preview, and give the shared `Artwork` component a fallback-source chain.
+  - Add an `artwork` field to `HarmonizedTrack`, derived from the track's parent
+    release: Spotify and Apple Music populate it from the track/song payload,
+    Tidal and the release-lookup path inherit it from the parent album. Render it
+    in `TrackCard`, `TrackDetails`, and `TrackHoverPreview`, and resolve it for
+    track review subjects.
+
+- e9249e5: Expand entity interactions for review ingress:
+
+  - Make `InteractiveWrapper` platform-adaptive: it now opens a long-press dropdown menu on mobile (via the resolved `platform` config) in addition to the existing right-click context menu and hover preview on web. `EntityMenu` is deprecated in favor of `InteractiveWrapper`.
+  - Add an `onViewReviews` callback to `HarmonyInteractionConfig` and render a "See reviews" action alongside "Write review" in the track and album context menus.
+  - Add an `interactive` prop to `ArtistCredit` so credited artists can surface Harmony interactions, and thread `interactive` through `TrackList`, `AlbumTrackList`, and `ArtistDiscography` so nested entities inherit context menus and hover previews.
+
+- 853a4c0: Add a "Tags" toolbar to the review composer. Once a review subject is attached, a second toggle pill appears next to "Format" that reveals auto-generated (non-interactive) tag pills for the subject's artist and track/release name, plus a pill for each artist (`#`) mention added in the review body.
+
+  `TiptapEditor` (and `PostForm`) gain two new optional props to support this generically: `secondaryToolbar` (an extra toggle pill + collapsible content rendered next to "Format") and `onMentionsChange` (reports the user/artist mentions currently present in the editor). A new `ReviewTagsToolbar` component renders the pills.
+
+- 6d20372: Add review visibility (public/private) support.
+
+  - `@scilent-one/db`: new `PostVisibility` enum and `Post.visibility` column (defaults to `PUBLIC`) plus a migration and index.
+  - `@scilent-one/social`: `createReview`/`updateReview` accept `visibility`, new `setReviewVisibility` mutation, and a shared `visibilityWhere` filter enforced across every review/post read path (reviews, post-by-id, posts-by-author, liked/reposted posts, and the home/explore/profile feeds) so private reviews are only ever returned to their author.
+  - `@scilent-one/ui`: `PostCard` gains `visibility` + `onToggleVisibility` for an owner "Make private/public" menu item.
+  - `@scilent-one/scilent-ui`: `ReviewComposer` gains an animated eye visibility toggle, and `ReviewCard` shows a private badge with subtle styling for private reviews.
+
+- 73187e2: Add music reviews as a post type with ReviewSubject attachments, review composer UI, artwork fallback utilities, and review APIs.
+- f5a84d3: Use `next/image` for artwork surfaces (`Artwork`, `AlbumArtwork`, `ArtistCard`, `ArtistHeader`) so the Next app can optimize remote CDN images. `next` is an optional peer dependency; Storybook aliases `next/image` to a native `<img>` mock.
+
+### Patch Changes
+
+- 9f3f588: Reserve a fixed-width external-link slot on ArtistListItem so provider pills stay aligned across rows with and without a link. Make ArtistCard fill grid cells with a reserved genre row so cards share consistent height.
+- e144b56: Use distinct artwork fallback icons: music note for tracks, album icon for albums/releases.
+- d8fb38f: Add a themeable custom scrollbar system.
+
+  - New scrollbar design tokens (`--scrollbar-size`, `--scrollbar-thumb`, `--scrollbar-thumb-active`, `--scrollbar-track`, `--scrollbar-thumb-opacity`) derived from the palette so they adapt across light/dark and every theme.
+  - `custom-scrollbars` class applies a subtle, theme-aware native scrollbar (standard `scrollbar-*` properties plus `::-webkit-scrollbar` fallback) with a `scrollbar-none` opt-out, a `[data-custom-scrollbars='off']` escape hatch, and a coarse-pointer fallback to native overlay scrollbars.
+  - `ScrollArea` restyled into a subtle line thumb that animates opacity and shifts to the theme accent while scrolling; adds `scrollbarWidth` and `accent` props plus CSS-variable overrides, and is now touch-aware. `ScrollBar` is now exported.
+  - New `useScrollActivity` hook for driving a scrolling state on plain native `overflow` containers.
+  - `scilent-ui`: replaced dead `scrollbar-*` utility classes in `EntityPreview` with `custom-scrollbars`.
+
+- 286316a: Add optional `followedArtistsViewAllHref` prop to PlatformProfileCard for linking to the full My Artists page.
+- d6f6d66: Improve ReviewCard subject header click targets with proper pointer cursor, focus ring, and non-interactive fallback styling.
+- 617ff98: Fix review subject search picker overflow by constraining dialog height and scrolling results.
+- ba0fdfc: Add unit tests for icon helpers and tighten coverage reporting scope.
+- Updated dependencies [357c1ae]
+- Updated dependencies [ec7df63]
+- Updated dependencies [e2c08da]
+- Updated dependencies [5cf9205]
+- Updated dependencies [d8fb38f]
+- Updated dependencies [1e76eb2]
+- Updated dependencies [853a4c0]
+- Updated dependencies [6d20372]
+- Updated dependencies [73187e2]
+- Updated dependencies [ce42876]
+- Updated dependencies [9f3f588]
+- Updated dependencies [797c06d]
+  - @scilent-one/ui@0.7.0
+  - @scilent-one/harmony-engine@0.6.0
+
 ## 1.1.0
 
 ### Minor Changes

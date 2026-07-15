@@ -1,5 +1,24 @@
 # @scilent-one/auth
 
+## 0.5.0
+
+### Minor Changes
+
+- a781dd7: Add profileType to Better Auth user.additionalFields as a read-only field (input: false) with default value 'USER'. This allows profileType to be available on session.user.
+- 64296ac: Enable Better Auth admin plugin (roles + user impersonation) and seed mock users with basic profiles for local development. Adds admin schema fields, `db:seed`, and Admin → Users impersonate/stop-impersonate UI with middleware and layout guards.
+- 16d60c0: Harden Better Auth for production: derive trustedOrigins from app/Vercel URLs, set explicit session expiresIn/updateAge, enable rate limiting on auth endpoints, and scaffold optional Resend-backed password-reset/verification email that no-ops when unset.
+
+### Patch Changes
+
+- 7639833: Allow production builds to proceed when SKIP_ENV_VALIDATION=true (CI) without
+  BETTER_AUTH_SECRET mid-module throw.
+- Updated dependencies [6a1c026]
+- Updated dependencies [64296ac]
+- Updated dependencies [71e1c8d]
+- Updated dependencies [6d20372]
+- Updated dependencies [73187e2]
+  - @scilent-one/db@0.6.0
+
 ## 0.4.0
 
 ### Minor Changes

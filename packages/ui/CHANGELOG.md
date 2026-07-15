@@ -1,5 +1,38 @@
 # @scilent-one/ui
 
+## 0.7.0
+
+### Minor Changes
+
+- 357c1ae: Add profileType support across user-facing components. Extend UserAvatar with optional profileType prop that renders a corner badge for non-USER types. Add profileType to ProfileHeaderProps, UserCardProps, PostCardAuthor, and CommentCardAuthor interfaces. Render ProfileTypePill next to names in ProfileHeader, UserCard, PostCard, and CommentCard for non-USER profile types.
+- d8fb38f: Add a themeable custom scrollbar system.
+
+  - New scrollbar design tokens (`--scrollbar-size`, `--scrollbar-thumb`, `--scrollbar-thumb-active`, `--scrollbar-track`, `--scrollbar-thumb-opacity`) derived from the palette so they adapt across light/dark and every theme.
+  - `custom-scrollbars` class applies a subtle, theme-aware native scrollbar (standard `scrollbar-*` properties plus `::-webkit-scrollbar` fallback) with a `scrollbar-none` opt-out, a `[data-custom-scrollbars='off']` escape hatch, and a coarse-pointer fallback to native overlay scrollbars.
+  - `ScrollArea` restyled into a subtle line thumb that animates opacity and shifts to the theme accent while scrolling; adds `scrollbarWidth` and `accent` props plus CSS-variable overrides, and is now touch-aware. `ScrollBar` is now exported.
+  - New `useScrollActivity` hook for driving a scrolling state on plain native `overflow` containers.
+  - `scilent-ui`: replaced dead `scrollbar-*` utility classes in `EntityPreview` with `custom-scrollbars`.
+
+- 853a4c0: Add a "Tags" toolbar to the review composer. Once a review subject is attached, a second toggle pill appears next to "Format" that reveals auto-generated (non-interactive) tag pills for the subject's artist and track/release name, plus a pill for each artist (`#`) mention added in the review body.
+
+  `TiptapEditor` (and `PostForm`) gain two new optional props to support this generically: `secondaryToolbar` (an extra toggle pill + collapsible content rendered next to "Format") and `onMentionsChange` (reports the user/artist mentions currently present in the editor). A new `ReviewTagsToolbar` component renders the pills.
+
+- 6d20372: Add review visibility (public/private) support.
+
+  - `@scilent-one/db`: new `PostVisibility` enum and `Post.visibility` column (defaults to `PUBLIC`) plus a migration and index.
+  - `@scilent-one/social`: `createReview`/`updateReview` accept `visibility`, new `setReviewVisibility` mutation, and a shared `visibilityWhere` filter enforced across every review/post read path (reviews, post-by-id, posts-by-author, liked/reposted posts, and the home/explore/profile feeds) so private reviews are only ever returned to their author.
+  - `@scilent-one/ui`: `PostCard` gains `visibility` + `onToggleVisibility` for an owner "Make private/public" menu item.
+  - `@scilent-one/scilent-ui`: `ReviewComposer` gains an animated eye visibility toggle, and `ReviewCard` shows a private badge with subtle styling for private reviews.
+
+### Patch Changes
+
+- e2c08da: Highlight the current breadcrumb page title with brand color (`brand-dark` in light mode, `brand` in dark) for readable contrast.
+- 5cf9205: Fix useInfiniteScroll rootMargin handling.
+- 1e76eb2: Allow multi-word artist (`#`) mention searches. The mention popover previously closed on the first space, making artists like "Massive Attack" unsearchable. A new bounded `findSuggestionMatch` (`createBoundedSpaceMatcher`) lets the query span multiple space-separated words while still exiting cleanly on double spaces, newlines, or once word/character caps are exceeded. User (`@`) mentions are unchanged.
+- ce42876: Remove the blue focus outline on `SimpleTiptapEditor` (used by comment inputs) by clearing the ProseMirror outline and dropping the focus ring.
+- 9f3f588: Fix TiptapEditor mention suggestion popup getting stuck on "Searching..." when the debounced async fetch settles without an accompanying keystroke.
+- 797c06d: Bump jsdom to v29 for vitest/unit test compatibility.
+
 ## 0.6.0
 
 ### Minor Changes
