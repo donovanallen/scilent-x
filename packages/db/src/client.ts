@@ -32,7 +32,22 @@ const createPrismaClient = () => {
     );
   }
 
-  const adapter = new PrismaPg({ connectionString });
+  // Serverless (Vercel) + PgBouncer/Neon pooler: keep the client pool small.
+  // Override with DATABASE_POOL_MAX when needed; unset uses pg defaults in
+  // non-production (typically max 10) and a conservative default in production.
+  const poolMaxRaw = process.env.DATABASE_POOL_MAX;
+  const poolMaxParsed = poolMaxRaw ? Number.parseInt(poolMaxRaw, 10) : NaN;
+  const poolMax =
+    Number.isFinite(poolMaxParsed) && poolMaxParsed > 0
+      ? poolMaxParsed
+      : process.env.NODE_ENV === 'production'
+        ? 5
+        : undefined;
+
+  const adapter = new PrismaPg({
+    connectionString,
+    ...(poolMax !== undefined ? { max: poolMax } : {}),
+  });
 
   // Configure Prisma logging to emit events instead of console output
   const client = new PrismaClient({

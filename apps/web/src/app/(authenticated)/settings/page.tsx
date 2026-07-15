@@ -27,6 +27,7 @@ import {
   Unlink,
   User,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 
 import { AppearanceSettings } from '@/components/appearance-settings';
@@ -201,10 +202,12 @@ export default function SettingsPage() {
               <CardContent className='space-y-4'>
                 <div className='flex items-center gap-4'>
                   {user?.image ? (
-                    <img
+                    <Image
                       src={user.image}
                       alt={user.name ?? 'User avatar'}
-                      className='size-16 rounded-full'
+                      width={64}
+                      height={64}
+                      className='size-16 rounded-full object-cover'
                     />
                   ) : (
                     <div className='size-16 rounded-full bg-muted flex items-center justify-center text-xl font-medium text-muted-foreground'>

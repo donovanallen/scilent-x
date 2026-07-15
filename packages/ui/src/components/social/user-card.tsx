@@ -6,7 +6,7 @@ import { UserAvatar } from './user-avatar';
 import { FollowButton } from './follow-button';
 import { ProfileTypePill } from '../profile-type-pill';
 import { cn } from '../../utils';
-import type { ProfileType } from '@scilent-one/db';
+import type { ProfileType } from '../profile-type';
 
 export interface UserCardProps {
   id: string;

@@ -5,6 +5,11 @@ import type { ProfileType } from '@scilent-one/db';
 import { setProfileType } from '@scilent-one/social/users/mutations';
 import { revalidatePath } from 'next/cache';
 
+import { requireAdmin } from '@/lib/api-utils';
+import { createActionDomainLogger, toLogError } from '@/lib/logger';
+
+const log = createActionDomainLogger('admin-users');
+
 export type ConnectedAccount = {
   providerId: string;
 };
@@ -26,6 +31,8 @@ export type UserListItem = {
  * Fetches all users from the database
  */
 export async function getUsers(): Promise<UserListItem[]> {
+  await requireAdmin();
+
   try {
     const users = await db.user.findMany({
       select: {
@@ -54,7 +61,7 @@ export async function getUsers(): Promise<UserListItem[]> {
       accounts: undefined as never,
     }));
   } catch (error) {
-    console.error('Failed to fetch users:', error);
+    log.error('Failed to fetch users', toLogError(error));
     return [];
   }
 }
@@ -63,10 +70,12 @@ export async function getUsers(): Promise<UserListItem[]> {
  * Gets the total count of users
  */
 export async function getUserCount(): Promise<number> {
+  await requireAdmin();
+
   try {
     return await db.user.count();
   } catch (error) {
-    console.error('Failed to count users:', error);
+    log.error('Failed to count users', toLogError(error));
     return 0;
   }
 }

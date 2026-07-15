@@ -26,7 +26,7 @@ import {
 import { SimpleTiptapEditor } from '../simple-tiptap-editor';
 import { type MentionSuggestion } from '../mention-list';
 import { cn } from '../../utils';
-import type { ProfileType } from '@scilent-one/db';
+import type { ProfileType } from '../profile-type';
 import { ProfileTypePill } from '../profile-type-pill';
 
 export interface CommentCardAuthor {

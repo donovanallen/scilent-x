@@ -6,7 +6,6 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-  // SidebarSeparator,
 } from '@scilent-one/ui';
 import * as React from 'react';
 
@@ -15,7 +14,10 @@ import { SidebarFooterContent } from './sidebar-footer';
 import { SidebarLogo } from './sidebar-logo';
 import { SidebarNav } from './sidebar-nav';
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  isAdmin = false,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { isAdmin?: boolean }) {
   return (
     <Sidebar variant='inset' collapsible='icon' expandOnHover {...props}>
       <SidebarHeader>
@@ -23,8 +25,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent className='overflow-x-hidden'>
         <SidebarNav />
-        {/* <SidebarSeparator /> */}
-        <SidebarAdminNav />
+        {isAdmin ? <SidebarAdminNav /> : null}
       </SidebarContent>
       <SidebarFooter>
         <SidebarFooterContent />

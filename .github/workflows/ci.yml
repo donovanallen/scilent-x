@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Lint, typecheck, build, test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      # apps/web env schema requires secrets at build; CI has none.
+      SKIP_ENV_VALIDATION: 'true'
+      # prisma.config.ts requires DATABASE_URL for `prisma generate` (no live DB).
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/ci?schema=public
+      # Auth module throws without a secret when NODE_ENV=production (Next build).
+      BETTER_AUTH_SECRET: ci-only-better-auth-secret-min-32-chars
+      BETTER_AUTH_URL: http://127.0.0.1:3000
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.1
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm turbo lint
+
+      - name: Typecheck
+        run: pnpm turbo typecheck
+
+      - name: Build web
+        run: pnpm turbo build --filter=web
+
+      - name: Test
+        # --run so Vitest exits in CI even when a package's script is bare `vitest`
+        run: pnpm turbo test -- --run

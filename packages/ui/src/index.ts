@@ -75,6 +75,7 @@ export {
   profileTypeColors,
   type ProfileTypePillProps,
 } from './components/profile-type-pill';
+export { PROFILE_TYPES, type ProfileType } from './components/profile-type';
 export {
   Breadcrumb,
   BreadcrumbList,

@@ -58,3 +58,9 @@ export function createApiLogger(route: string) {
 export function createActionDomainLogger(domain: string) {
   return createLogger(`action:${domain}`);
 }
+
+/** Normalize unknown catch values for structured logging. */
+export function toLogError(error: unknown): Error | { error: string } {
+  if (error instanceof Error) return error;
+  return { error: String(error) };
+}

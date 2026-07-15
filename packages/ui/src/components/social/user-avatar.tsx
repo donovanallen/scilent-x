@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '../avatar';
 import { Badge } from '../badge';
 import { cn } from '../../utils';
-import type { ProfileType } from '@scilent-one/db';
+import type { ProfileType } from '../profile-type';
 
 export interface UserAvatarProps {
   name?: string | null | undefined;

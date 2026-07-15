@@ -1,6 +1,8 @@
 import * as React from 'react';
-import { cn, Badge } from './index';
-import type { ProfileType } from '@scilent-one/db';
+
+import { cn } from '../utils';
+import { Badge } from './badge';
+import type { ProfileType } from './profile-type';
 
 /**
  * Labels for each profile type - human-readable display names

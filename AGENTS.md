@@ -42,7 +42,9 @@ pnpm fix                     # lint + format + typecheck
 
 pnpm db:generate             # prisma generate (packages/db)
 pnpm db:migrate              # prisma migrate dev
+pnpm db:migrate:deploy       # prisma migrate deploy
 pnpm db:push                 # prisma db push
+pnpm db:seed                 # prisma db seed
 pnpm db:studio               # prisma studio
 
 pnpm changeset                # author a changeset for a packages/* or apps/* (non-web) change
@@ -79,6 +81,8 @@ like you forgot; treat that prompt as a real checklist item, not noise to dismis
 
 - `.cursor/skills/vercel-react-best-practices/SKILL.md` — React/Next.js performance guidelines.
   Apply when writing or reviewing components, data fetching, or bundle-affecting code.
+- `.cursor/skills/production-readiness/SKILL.md` — pre-deploy checklist (auth, env, DB, CI,
+  health, Sentry). Pair with `.cursor/commands/deploy-check.md` before promoting builds.
 
 ## Conventions worth knowing before you edit code
 

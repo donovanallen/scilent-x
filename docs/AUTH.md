@@ -6,11 +6,13 @@ This document covers the authentication setup using [Better Auth](https://www.be
 
 The `@scilent-one/auth` package provides a unified authentication solution that:
 
-- Supports email/password authentication
-- Supports OAuth providers (Google, GitHub, Apple)
-- Integrates with the existing Prisma database (`@scilent-one/db`)
-- Works across multiple platforms (Next.js, React Native, etc.)
-- Provides type-safe client and server utilities
+- Supports **email/password** authentication (primary login path today)
+- Links **streaming accounts** (Spotify, Tidal) via Better Auth `genericOAuth` — not social login
+- Integrates with Prisma (`@scilent-one/db`) and Next.js cookies
+- Enforces **trusted origins**, **session expiry**, and **rate limiting** for production
+- Optionally sends verification / password-reset email via **Resend** when `RESEND_API_KEY` is set
+
+**Not enabled:** Google / GitHub / Apple social login. Env vars and admin status UI may still list them; the Better Auth `socialProviders` block remains commented out. See [Social login (disabled)](#social-login-disabled).
 
 ## Quick Start
 
@@ -24,28 +26,36 @@ pnpm install
 
 ### 2. Set Up Environment Variables
 
-Create or update your `.env` file in the monorepo root (or `apps/web/.env.local` for Next.js):
+Create or update `apps/web/.env.local` (canonical template: `apps/web/.env.example`):
 
 ```env
 # Database (required)
-DATABASE_URL="postgresql://user:password@localhost:5432/scilent_one"
+DATABASE_URL="postgresql://user:password@localhost:5432/scilent_x?schema=public"
 
 # Better Auth (required)
-BETTER_AUTH_SECRET="your-secret-key-min-32-chars"
-BETTER_AUTH_URL="http://localhost:3000"
+BETTER_AUTH_SECRET="your-secret-here-at-least-32-chars!!"
+BETTER_AUTH_URL="http://127.0.0.1:3000"
 # Optional bootstrap admin IDs (comma-separated) before a seeded admin exists
 # BETTER_AUTH_ADMIN_USER_IDS=
 
-# OAuth Providers (configure as needed)
-GOOGLE_CLIENT_ID=""
-GOOGLE_CLIENT_SECRET=""
+# Optional public app URL (also added to trustedOrigins when set)
+# NEXT_PUBLIC_APP_URL="http://127.0.0.1:3000"
 
-GITHUB_CLIENT_ID=""
-GITHUB_CLIENT_SECRET=""
+# Streaming OAuth — account linking (optional)
+# SPOTIFY_CLIENT_ID=
+# SPOTIFY_CLIENT_SECRET=
+# SPOTIFY_REDIRECT_URI=
+# TIDAL_CLIENT_ID=
+# TIDAL_CLIENT_SECRET=
 
-APPLE_CLIENT_ID=""
-APPLE_CLIENT_SECRET=""
+# Auth email via Resend (optional — password reset / verification)
+# RESEND_API_KEY=
+# AUTH_EMAIL_FROM="Scilent <noreply@yourdomain.com>"
 ```
+
+Required vars are validated at Next.js build/boot by `apps/web/src/env.ts`
+(`@t3-oss/env-nextjs` + Zod). Set `SKIP_ENV_VALIDATION=true` only for tooling
+that must run without secrets (e.g. CI builds without a real DB).
 
 Generate a secret key:
 
@@ -67,6 +77,18 @@ pnpm db:migrate   # Apply migrations
 pnpm dev
 ```
 
+## Production hardening (current defaults)
+
+Configured in `packages/auth/src/server.ts`:
+
+| Concern            | Behavior                                                                                                                                                                                                                                             |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `baseURL` / secret | `BETTER_AUTH_URL` + `BETTER_AUTH_SECRET` (secret required in production)                                                                                                                                                                             |
+| `trustedOrigins`   | Origins from `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, `VERCEL_URL`, plus localhost in non-prod (`packages/auth/src/origins.ts`)                                                                                                                     |
+| Session            | `expiresIn` = 7 days; `updateAge` = 1 day (rolling refresh)                                                                                                                                                                                          |
+| Rate limit         | Enabled everywhere; default 100 req / 60s; stricter rules for sign-in / sign-up / password reset / verification                                                                                                                                      |
+| Email              | `sendResetPassword` + `sendVerificationEmail` always registered; deliver via Resend when `RESEND_API_KEY` is set, otherwise no-op with a warning log. `requireEmailVerification` stays **false** until you intentionally enable it after email works |
+
 ## Package Structure
 
 ```
@@ -76,7 +98,10 @@ packages/auth/
 └── src/
     ├── index.ts      # Main exports (both server & client)
     ├── server.ts     # Server-side auth configuration
-    └── client.ts     # Client-side auth utilities
+    ├── client.ts     # Client-side auth utilities
+    ├── email.ts      # Optional Resend delivery
+    ├── origins.ts    # trustedOrigins derivation
+    └── roles.ts      # Admin role helpers
 ```
 
 ## Usage
@@ -93,19 +118,6 @@ export async function getCurrentUser() {
     headers: await headers(),
   });
   return session?.user ?? null;
-}
-
-// In a Server Component
-export default async function ProfilePage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    return <div>Please sign in</div>;
-  }
-
-  return <div>Welcome, {session.user.name}!</div>;
 }
 ```
 
@@ -137,164 +149,59 @@ export function AuthButton() {
   }
 
   return (
-    <div>
-      <button onClick={() => signIn.social({ provider: 'google' })}>
-        Sign in with Google
-      </button>
-      <button onClick={() => signIn.social({ provider: 'github' })}>
-        Sign in with GitHub
-      </button>
-    </div>
+    <button
+      onClick={() =>
+        signIn.email({ email: 'you@example.com', password: '••••••••' })
+      }
+    >
+      Sign in
+    </button>
   );
 }
 ```
 
 ### Email/Password Authentication
 
-```tsx
-'use client';
+Use `signUp.email` / `signIn.email` from the auth client. Minimum password length is 8 characters.
 
-import { signIn, signUp } from '@/lib/auth-client';
-import { useState } from 'react';
+### Password reset & email verification (optional Resend)
 
-export function SignUpForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+1. Set `RESEND_API_KEY` (and preferably `AUTH_EMAIL_FROM` with a verified domain).
+2. Password-reset emails go out via `sendResetPassword`.
+3. Verification emails send on sign-up when Resend is configured (`sendOnSignUp`).
+4. When ready to require verified emails before sign-in, set `requireEmailVerification: true` in `server.ts`.
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
+Without Resend, reset/verification requests still succeed from Better Auth’s perspective but **no email is delivered** (server logs a warning).
 
-    const { data, error } = await signUp.email({
-      email,
-      password,
-      name,
-      callbackURL: '/dashboard',
-    });
+## Social login (disabled)
 
-    if (error) {
-      console.error('Sign up failed:', error.message);
-      return;
-    }
+Google / GitHub / Apple **login** is not configured. To enable later:
 
-    // User is automatically signed in after registration
-    console.log('Signed up successfully:', data);
-  };
+1. Uncomment `socialProviders` in `packages/auth/src/server.ts`
+2. Set the corresponding client ID/secret env vars
+3. Register callback URLs (`/api/auth/callback/<provider>`) in each console
+4. Add `https://appleid.apple.com` to trusted origins if enabling Apple
 
-  return (
-    <form onSubmit={handleSignUp}>
-      <input
-        type="text"
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <input
-        type="password"
-        placeholder="Password (min 8 chars)"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        minLength={8}
-        required
-      />
-      <button type="submit">Sign Up</button>
-    </form>
-  );
-}
+Streaming OAuth (Spotify/Tidal) for **account linking** is separate and already live via `genericOAuth`.
 
-export function SignInForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const { data, error } = await signIn.email({
-      email,
-      password,
-      callbackURL: '/dashboard',
-    });
-
-    if (error) {
-      console.error('Sign in failed:', error.message);
-      return;
-    }
-
-    console.log('Signed in successfully:', data);
-  };
-
-  return (
-    <form onSubmit={handleSignIn}>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-      <button type="submit">Sign In</button>
-    </form>
-  );
-}
-```
-
-## OAuth Provider Setup
+<details>
+<summary>Historical provider setup notes (when re-enabling social login)</summary>
 
 ### Google
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. Create a new project or select existing
-3. Go to **Credentials** → **Create Credentials** → **OAuth client ID**
-4. Choose **Web application**
-5. Add authorized redirect URIs:
-   - Development: `http://localhost:3000/api/auth/callback/google`
-   - Production: `https://yourdomain.com/api/auth/callback/google`
-6. Copy **Client ID** and **Client Secret** to your `.env`
+1. [Google Cloud Console](https://console.cloud.google.com/apis/credentials) → OAuth client ID (Web)
+2. Redirect URIs: `http://localhost:3000/api/auth/callback/google` / production equivalent
 
 ### GitHub
 
-1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
-2. Click **New OAuth App**
-3. Fill in application details:
-   - Homepage URL: `http://localhost:3000` (or production URL)
-   - Authorization callback URL: `http://localhost:3000/api/auth/callback/github`
-4. Copy **Client ID** and generate a **Client Secret**
-5. Add to your `.env`
-
-> **Important**: For GitHub Apps (not OAuth Apps), you must enable email permission:
-> Go to _Permissions and Events_ → _Account Permissions_ → _Email Addresses_ → Select "Read-Only"
+1. [GitHub OAuth Apps](https://github.com/settings/developers)
+2. Callback: `http://localhost:3000/api/auth/callback/github`
 
 ### Apple
 
-Apple Sign In requires an Apple Developer account ($99/year) and is more complex to set up.
+Requires an Apple Developer account; does not work with plain `localhost` (use HTTPS / tunnel). See [Apple’s docs](https://developer.apple.com/documentation/accountorganizationaldatasharing/creating-a-client-secret).
 
-1. Go to [Apple Developer Portal](https://developer.apple.com/account/resources/authkeys/list)
-2. Create an **App ID** with Sign In with Apple capability
-3. Create a **Service ID** (this is your `APPLE_CLIENT_ID`)
-4. Configure domains and return URLs:
-   - Development: `http://localhost:3000/api/auth/callback/apple`
-   - Production: `https://yourdomain.com/api/auth/callback/apple`
-5. Create a **Key** for Sign In with Apple
-6. Generate a **Client Secret** (JWT) using the key
-
-> **Note**: Apple Sign In does NOT work with `localhost` or non-HTTPS URLs. For local development, you'll need to use a tunnel service like ngrok or skip Apple testing locally.
-
-The client secret is a JWT that must be regenerated every 6 months. See [Apple's documentation](https://developer.apple.com/documentation/accountorganizationaldatasharing/creating-a-client-secret) for details.
+</details>
 
 ## Database Schema
 
@@ -326,6 +233,8 @@ Better Auth's [admin plugin](https://www.better-auth.com/docs/plugins/admin) is 
 
 - **Seeded admin:** run `pnpm --filter @scilent-one/db db:seed`, then sign in as
   `admin@scilent.local` (default password `password123`, or `SEED_USER_PASSWORD`).
+- **Set role:** Admin → Users → Make admin / Revoke admin (`authClient.admin.setRole`).
+  You cannot revoke your own admin role or demote the last remaining admin.
 - **Impersonate:** Admin → Users → Impersonate. An amber banner lets you stop and restore the
   admin session (`authClient.admin.stopImpersonating()`).
 - **Bootstrap without seed:** set `BETTER_AUTH_ADMIN_USER_IDS` to a comma-separated list of user IDs.
@@ -341,12 +250,10 @@ Better Auth's [admin plugin](https://www.better-auth.com/docs/plugins/admin) is 
 
 ## Protected Routes
 
-### Next.js Middleware/Proxy (Optimistic)
-
-For fast, cookie-based checks (recommended for most cases):
+### Next.js Middleware (Optimistic)
 
 ```typescript
-// middleware.ts (or proxy.ts for Next.js 16+)
+// middleware.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionCookie } from 'better-auth/cookies';
 
@@ -354,7 +261,7 @@ export function middleware(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
 
   if (!sessionCookie) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   return NextResponse.next();
@@ -367,8 +274,6 @@ export const config = {
 
 ### Server Component (Full Validation)
 
-For routes requiring full session validation:
-
 ```tsx
 import { auth } from '@scilent-one/auth/server';
 import { headers } from 'next/headers';
@@ -380,7 +285,7 @@ export default async function DashboardPage() {
   });
 
   if (!session) {
-    redirect('/sign-in');
+    redirect('/login');
   }
 
   return <div>Welcome to your dashboard, {session.user.name}!</div>;
@@ -391,13 +296,12 @@ export default async function DashboardPage() {
 
 ### Server (`@scilent-one/auth/server`)
 
-| Export                             | Description                                        |
-| ---------------------------------- | -------------------------------------------------- |
-| `auth`                             | Better Auth instance with all configured providers |
-| `auth.api.getSession({ headers })` | Get current session                                |
-| `auth.api.signInEmail({ body })`   | Sign in with email/password                        |
-| `auth.api.signUpEmail({ body })`   | Register with email/password                       |
-| `auth.api.signInSocial({ body })`  | Initiate OAuth sign in                             |
+| Export                             | Description                  |
+| ---------------------------------- | ---------------------------- |
+| `auth`                             | Better Auth instance         |
+| `auth.api.getSession({ headers })` | Get current session          |
+| `auth.api.signInEmail({ body })`   | Sign in with email/password  |
+| `auth.api.signUpEmail({ body })`   | Register with email/password |
 
 ### Client (`@scilent-one/auth/client`)
 
@@ -407,7 +311,6 @@ export default async function DashboardPage() {
 | `useSession()`                            | React hook for session state  |
 | `getSession()`                            | Async function to get session |
 | `signIn.email({ email, password })`       | Sign in with email/password   |
-| `signIn.social({ provider })`             | Sign in with OAuth provider   |
 | `signUp.email({ email, password, name })` | Register new user             |
 | `signOut()`                               | Sign out current user         |
 
@@ -417,22 +320,20 @@ export default async function DashboardPage() {
 
 Ensure your `.env` file contains the `DATABASE_URL` variable and restart your dev server.
 
-### OAuth callback errors
+### Auth email never arrives
 
-1. Verify redirect URLs match exactly in provider console
-2. Check that client ID and secret are correct
-3. For Google: Ensure you've enabled the Google+ API
-4. For GitHub: Ensure email permission is enabled for GitHub Apps
+1. Confirm `RESEND_API_KEY` is set in the environment that serves `/api/auth/*`
+2. Verify `AUTH_EMAIL_FROM` uses a domain verified in Resend
+3. Check server logs for `Auth email skipped — RESEND_API_KEY not set`
 
 ### Session not persisting
 
-1. Check that `BETTER_AUTH_SECRET` is set
-2. Verify cookies are being set (check browser dev tools)
-3. Ensure `BETTER_AUTH_URL` matches your actual URL
+1. Check that `BETTER_AUTH_SECRET` is set (≥32 characters)
+2. Verify cookies are being set (browser DevTools)
+3. Ensure `BETTER_AUTH_URL` matches the origin you use in the browser (prefer `127.0.0.1` locally)
+4. Confirm the request origin is in `trustedOrigins` (derived from auth/app/Vercel URL)
 
 ### Type errors with Prisma
-
-After schema changes, regenerate the Prisma client:
 
 ```bash
 cd packages/db
@@ -441,12 +342,11 @@ pnpm db:generate
 
 ## Next Steps
 
-- [ ] Implement email verification flow
-- [ ] Add password reset functionality
-- [ ] Create sign-in/sign-up UI pages
-- [ ] Add session management UI (view/revoke sessions)
-- [ ] Configure rate limiting for auth endpoints
-- [ ] Add two-factor authentication (2FA) plugin
+- [ ] Turn on `requireEmailVerification` once Resend + `AUTH_EMAIL_FROM` are production-ready
+- [ ] Build password-reset / verify-email UI against Better Auth client helpers
+- [ ] Session management UI (view/revoke sessions)
+- [ ] Optional: re-enable social login providers
+- [ ] Optional: two-factor authentication (2FA) plugin
 
 ## Resources
 
