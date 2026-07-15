@@ -7,6 +7,7 @@ import {
   useInfiniteScroll,
   Skeleton,
   type PostCardProps,
+  type ProfileType,
   Card,
   CardContent,
   CardHeader,
@@ -34,6 +35,7 @@ interface UserProfile {
   image: string | null;
   email: string;
   createdAt: string;
+  profileType?: ProfileType | null;
   isFollowing?: boolean | undefined;
   canMessage?: boolean | undefined;
   _count?:

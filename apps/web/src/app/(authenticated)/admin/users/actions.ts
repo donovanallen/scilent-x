@@ -2,7 +2,7 @@
 
 import { db } from '@scilent-one/db';
 import type { ProfileType } from '@scilent-one/db';
-import { setProfileType } from '@scilent-one/social/users/mutations';
+import { setProfileType } from '@scilent-one/social';
 import { revalidatePath } from 'next/cache';
 
 import { requireAdmin } from '@/lib/api-utils';
