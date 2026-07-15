@@ -19,6 +19,8 @@ jobs:
     env:
       # apps/web env schema requires secrets at build; CI has none.
       SKIP_ENV_VALIDATION: 'true'
+      # prisma.config.ts requires DATABASE_URL for `prisma generate` (no live DB).
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/ci?schema=public
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
