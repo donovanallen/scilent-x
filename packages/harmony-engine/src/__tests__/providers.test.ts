@@ -256,6 +256,108 @@ describe('SpotifyProvider', () => {
       expect(mockFetch).not.toHaveBeenCalled();
     });
   });
+
+  describe('searchArtistsWithUserToken', () => {
+    it('maps artist images into the harmonized artist', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          artists: {
+            items: [
+              {
+                id: 'artist-1',
+                name: 'Queen',
+                genres: ['rock'],
+                images: [
+                  {
+                    url: 'https://i.scdn.co/image/large.jpg',
+                    width: 640,
+                    height: 640,
+                  },
+                  {
+                    url: 'https://i.scdn.co/image/small.jpg',
+                    width: 160,
+                    height: 160,
+                  },
+                ],
+                external_urls: {
+                  spotify: 'https://open.spotify.com/artist/artist-1',
+                },
+              },
+            ],
+          },
+        })
+      );
+
+      const [artist] = await provider.searchArtistsWithUserToken(
+        'Queen',
+        'user-token'
+      );
+
+      expect(artist?.images).toEqual([
+        {
+          url: 'https://i.scdn.co/image/large.jpg',
+          width: 640,
+          height: 640,
+          provider: 'spotify',
+        },
+        {
+          url: 'https://i.scdn.co/image/small.jpg',
+          width: 160,
+          height: 160,
+          provider: 'spotify',
+        },
+      ]);
+    });
+  });
+
+  describe('searchTracks', () => {
+    it('derives track artwork from the embedded album images', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          access_token: 'test-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+        })
+      );
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          tracks: {
+            items: [
+              {
+                id: 'track-1',
+                name: 'Bohemian Rhapsody',
+                duration_ms: 354320,
+                explicit: false,
+                track_number: 11,
+                disc_number: 1,
+                artists: [{ id: 'artist-1', name: 'Queen' }],
+                album: {
+                  images: [
+                    {
+                      url: 'https://i.scdn.co/image/cover.jpg',
+                      width: 640,
+                      height: 640,
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        })
+      );
+
+      const [track] = await provider.searchTracks('bohemian rhapsody', 10);
+      expect(track?.artwork).toEqual([
+        {
+          url: 'https://i.scdn.co/image/cover.jpg',
+          type: 'front',
+          width: 640,
+          height: 640,
+          provider: 'spotify',
+        },
+      ]);
+    });
+  });
 });
 
 describe('TidalProvider', () => {
@@ -748,6 +850,10 @@ describe('AppleMusicProvider', () => {
         { name: 'Taylor Swift', externalIds: { apple_music: '159260351' } },
       ]);
       expect(release?.media[0]?.tracks[0]?.title).toBe('Delicate');
+      // Nested track inherits the parent release artwork.
+      expect(release?.media[0]?.tracks[0]?.artwork?.[0]?.url).toBe(
+        'https://example.com/3000x3000bb.jpg'
+      );
       expect(release?.externalIds).toEqual({ apple_music: '1440783617' });
     });
   });
@@ -841,6 +947,38 @@ describe('AppleMusicProvider', () => {
       const [url] = mockFetch.mock.calls[0] as [string];
       expect(url).toContain('/v1/catalog/us/search');
       expect(url).toContain('types=songs');
+    });
+
+    it('derives track artwork from the song artwork', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse({
+          results: {
+            songs: {
+              data: [
+                {
+                  id: '1',
+                  type: 'songs',
+                  attributes: {
+                    name: 'Song One',
+                    artistName: 'Artist',
+                    trackNumber: 1,
+                    artwork: {
+                      url: 'https://example.com/{w}x{h}bb.jpg',
+                      width: 1200,
+                      height: 1200,
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        })
+      );
+
+      const tracks = await provider.searchTracks('song one', 10);
+      expect(tracks[0]?.artwork?.[0]?.url).toBe(
+        'https://example.com/1200x1200bb.jpg'
+      );
     });
   });
 

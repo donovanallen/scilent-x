@@ -5,6 +5,7 @@ import { Badge, cn, Separator } from '@scilent-one/ui';
 import { Calendar, Globe, User, Users, Music2 } from 'lucide-react';
 import type { HarmonizedEntity } from '../types';
 import type { HarmonizedArtist, ArtistType } from '../../types';
+import { getArtistImageUrl } from '@scilent-one/harmony-engine';
 import { formatPartialDate } from '../../utils';
 import { PlatformBadgeList } from '../../components/common';
 
@@ -57,14 +58,34 @@ export function ArtistHoverPreview({
     ? (artistTypeIcons[artist.type] ?? User)
     : User;
 
+  const imageUrl = getArtistImageUrl(artist.images);
+
+  const renderAvatar = (containerClass: string, iconClass: string) => (
+    <div
+      className={cn(
+        'rounded-full overflow-hidden bg-muted flex items-center justify-center shrink-0 ring-1 ring-border/50',
+        containerClass
+      )}
+    >
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          alt={artist.name}
+          className="h-full w-full object-cover"
+          loading="lazy"
+        />
+      ) : (
+        <ArtistIcon className={cn('text-muted-foreground', iconClass)} />
+      )}
+    </div>
+  );
+
   // Links only mode - streamlined platform links
   if (mode === 'links') {
     return (
       <div className={cn('space-y-3', className)}>
         <div className="flex items-center gap-3">
-          <div className="size-10 rounded-full bg-muted flex items-center justify-center shrink-0 ring-1 ring-border/50">
-            <ArtistIcon className="size-5 text-muted-foreground" />
-          </div>
+          {renderAvatar('size-10', 'size-5')}
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium truncate">{artist.name}</p>
             {artist.disambiguation && (
@@ -87,9 +108,7 @@ export function ArtistHoverPreview({
       <div className={cn('group space-y-3', className)}>
         {/* Header with icon avatar - mirrors ArtistCard image area */}
         <div className="flex gap-3">
-          <div className="size-16 rounded-full bg-muted flex items-center justify-center shrink-0 ring-1 ring-border/50">
-            <ArtistIcon className="size-8 text-muted-foreground" />
-          </div>
+          {renderAvatar('size-16', 'size-8')}
           <div className="min-w-0 flex-1 flex flex-col justify-center gap-1">
             <p className="font-medium leading-tight line-clamp-2 group-hover:text-primary transition-colors">
               {artist.name}
@@ -144,9 +163,7 @@ export function ArtistHoverPreview({
     <div className={cn('group space-y-4', className)}>
       {/* Header with large icon - mirrors ArtistCard structure */}
       <div className="flex items-start gap-4">
-        <div className="size-20 rounded-full bg-muted flex items-center justify-center shrink-0 ring-1 ring-border/50">
-          <ArtistIcon className="size-10 text-muted-foreground" />
-        </div>
+        {renderAvatar('size-20', 'size-10')}
         <div className="min-w-0 flex-1 pt-1">
           <h4 className="font-medium text-base leading-tight line-clamp-2 group-hover:text-primary transition-colors">
             {artist.name}

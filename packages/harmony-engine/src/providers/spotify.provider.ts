@@ -14,6 +14,7 @@ import type {
   PartialDate,
   PaginatedCollection,
   CollectionParams,
+  Artwork,
 } from '../types/index';
 import { HttpError, ProviderError } from '../errors/index';
 
@@ -66,6 +67,9 @@ interface SpotifyTrack {
   external_ids?: SpotifyExternalIds;
   external_urls?: { spotify?: string };
   preview_url?: string;
+  // Present on standalone track objects (search / `GET /tracks/{id}`), absent on
+  // the simplified track objects nested inside an album payload.
+  album?: { images?: SpotifyImage[] };
 }
 
 interface SpotifyAlbumTracks {
@@ -542,12 +546,18 @@ export class SpotifyProvider extends BaseProvider {
 
   private transformAlbum(raw: SpotifyAlbum): HarmonizedRelease {
     const tracks: HarmonizedTrack[] = [];
+    const albumArtwork = this.mapImagesToArtwork(raw.images);
 
     // Group tracks by disc
     if (raw.tracks?.items) {
       for (const track of raw.tracks.items) {
         tracks.push(
-          this.transformTrack(track, track.track_number, track.disc_number)
+          this.transformTrack(
+            track,
+            track.track_number,
+            track.disc_number,
+            albumArtwork
+          )
         );
       }
     }
@@ -593,13 +603,7 @@ export class SpotifyProvider extends BaseProvider {
 
       media,
 
-      artwork: raw.images?.map((img) => ({
-        url: img.url,
-        type: 'front' as const,
-        width: img.width,
-        height: img.height,
-        provider: 'spotify',
-      })),
+      artwork: albumArtwork,
 
       genres: raw.genres?.length ? raw.genres : undefined,
 
@@ -611,11 +615,26 @@ export class SpotifyProvider extends BaseProvider {
     };
   }
 
+  private mapImagesToArtwork(images?: SpotifyImage[]): Artwork[] | undefined {
+    if (!images?.length) return undefined;
+    return images.map((img) => ({
+      url: img.url,
+      type: 'front' as const,
+      width: img.width,
+      height: img.height,
+      provider: 'spotify',
+    }));
+  }
+
   private transformTrack(
     raw: SpotifyTrack,
     position: number,
-    discNumber?: number
+    discNumber?: number,
+    parentArtwork?: Artwork[]
   ): HarmonizedTrack {
+    // Standalone tracks embed their album (with images); nested album tracks
+    // don't, so fall back to the parent release's artwork.
+    const artwork = this.mapImagesToArtwork(raw.album?.images) ?? parentArtwork;
     return {
       isrc: raw.external_ids?.isrc,
       title: raw.name,
@@ -625,6 +644,7 @@ export class SpotifyProvider extends BaseProvider {
       duration: raw.duration_ms,
       explicit: raw.explicit,
       artists: raw.artists.map((a) => this.transformArtistCredit(a)),
+      ...(artwork ? { artwork } : {}),
       externalIds: { spotify: raw.id },
       sources: [this.createSource(raw.id, raw.external_urls?.spotify)],
     };
@@ -635,6 +655,14 @@ export class SpotifyProvider extends BaseProvider {
       name: raw.name,
       nameNormalized: this.normalizeString(raw.name),
       genres: raw.genres?.length ? raw.genres : undefined,
+      images: raw.images?.length
+        ? raw.images.map((img) => ({
+            url: img.url,
+            width: img.width,
+            height: img.height,
+            provider: 'spotify',
+          }))
+        : undefined,
       externalIds: { spotify: raw.id },
       sources: [this.createSource(raw.id, raw.external_urls?.spotify)],
       mergedAt: new Date(),

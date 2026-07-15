@@ -5,7 +5,11 @@ import { Badge, cn, Separator } from '@scilent-one/ui';
 import { Calendar, Disc, Music, Tag } from 'lucide-react';
 import type { HarmonizedEntity } from '../types';
 import type { HarmonizedRelease } from '../../types';
-import { formatPartialDate, getFrontArtworkUrl } from '../../utils';
+import {
+  formatPartialDate,
+  getFrontArtworkUrl,
+  getReleaseArtworkFallbacks,
+} from '../../utils';
 import {
   Artwork,
   PlatformBadgeList,
@@ -34,6 +38,10 @@ export function AlbumHoverPreview({
 }: AlbumHoverPreviewProps) {
   const release = entity as HarmonizedRelease;
   const artworkUrl = getFrontArtworkUrl(release.artwork);
+  const artworkFallbacks = React.useMemo(
+    () => getReleaseArtworkFallbacks(release),
+    [release]
+  );
 
   // Build platform list for badge display
   const platforms = React.useMemo(() => {
@@ -54,6 +62,7 @@ export function AlbumHoverPreview({
         <div className="flex items-center gap-3">
           <Artwork
             src={artworkUrl}
+            fallbackSrc={artworkFallbacks}
             alt={release.title}
             size="sm"
             rounded="md"
@@ -82,6 +91,7 @@ export function AlbumHoverPreview({
         <div className="flex gap-3">
           <Artwork
             src={artworkUrl}
+            fallbackSrc={artworkFallbacks}
             alt={release.title}
             size="lg"
             rounded="md"
@@ -149,6 +159,7 @@ export function AlbumHoverPreview({
       <div className="relative overflow-hidden rounded-lg ring-1 ring-border/50">
         <Artwork
           src={artworkUrl}
+          fallbackSrc={artworkFallbacks}
           alt={release.title}
           className="w-full aspect-square"
           rounded="none"

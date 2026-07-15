@@ -9,6 +9,7 @@ import {
   Skeleton,
 } from '@scilent-one/ui';
 import type { HarmonizedArtist } from '../../types';
+import { getArtistImageUrl } from '@scilent-one/harmony-engine';
 import { InteractiveWrapper } from '../../interactions/InteractiveWrapper';
 import { User } from 'lucide-react';
 import Image from 'next/image';
@@ -52,6 +53,8 @@ export function ArtistCard({
   const hasExtraGenres =
     showGenres && !!artist.genres && artist.genres.length > 3;
 
+  const resolvedImageUrl = imageUrl ?? getArtistImageUrl(artist.images);
+
   const card = (
     <Card
       className={cn(
@@ -71,9 +74,9 @@ export function ArtistCard({
       {...props}
     >
       <div className="aspect-square relative overflow-hidden bg-muted shrink-0">
-        {imageUrl ? (
+        {resolvedImageUrl ? (
           <Image
-            src={imageUrl}
+            src={resolvedImageUrl}
             alt={artist.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

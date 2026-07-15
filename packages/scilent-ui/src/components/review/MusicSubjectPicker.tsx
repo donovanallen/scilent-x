@@ -122,11 +122,13 @@ export function MusicSubjectPicker({
   };
 
   const handleSelectTrack = (track: HarmonizedTrack) => {
+    const artworkUrl = getArtworkUrl(track.artwork);
     onSelect({
       type: 'TRACK',
       ...(track.isrc ? { isrc: track.isrc } : {}),
       title: track.title,
       artistLabel: getPrimaryArtist(track.artists),
+      ...(artworkUrl ? { artworkUrl } : {}),
       snapshot: track,
     });
     onOpenChange(false);

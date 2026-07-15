@@ -6,5 +6,6 @@ export {
   getPrimaryArtistName,
   formatTrackPosition,
   getFrontArtworkUrl,
+  getReleaseArtworkFallbacks,
   formatPlatformName,
-} from "./format";
+} from './format';

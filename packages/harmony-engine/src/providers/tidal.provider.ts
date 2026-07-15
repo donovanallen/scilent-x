@@ -14,6 +14,7 @@ import type {
   PartialDate,
   PaginatedCollection,
   CollectionParams,
+  Artwork,
 } from '../types/index';
 import { HttpError, ProviderError } from '../errors/index';
 
@@ -543,7 +544,8 @@ export class TidalProvider extends BaseProvider {
     const data = await this.fetchApi<TidalSearchResultsResponse>(
       `/searchResults/${encodedQuery}`,
       {
-        include: 'tracks',
+        // Include albums so each track can inherit its parent release artwork.
+        include: 'tracks,albums',
         limit: String(limit),
       }
     );
@@ -734,13 +736,16 @@ export class TidalProvider extends BaseProvider {
       .map((id) => included?.find((i) => i.type === 'artists' && i.id === id))
       .filter((a): a is TidalArtist => a !== undefined);
 
+    const albumArtwork = this.mapImageCoverToArtwork(raw.attributes.imageCover);
+
     // Transform tracks grouped by volume
     const harmonizedTracks = tracks.map((t) =>
       this.transformTrack(
         t,
         t.attributes.trackNumber,
         t.attributes.volumeNumber,
-        trackIncluded
+        trackIncluded,
+        albumArtwork
       )
     );
 
@@ -768,15 +773,6 @@ export class TidalProvider extends BaseProvider {
       }
     }
 
-    // Get the largest cover image
-    const artwork = raw.attributes.imageCover?.map((img) => ({
-      url: img.url,
-      type: 'front' as const,
-      width: img.width,
-      height: img.height,
-      provider: 'tidal',
-    }));
-
     return {
       gtin: raw.attributes.barcodeId,
       title: raw.attributes.title,
@@ -789,7 +785,7 @@ export class TidalProvider extends BaseProvider {
 
       media,
 
-      artwork,
+      artwork: albumArtwork,
 
       externalIds: { tidal: raw.id },
       sources: [
@@ -801,11 +797,23 @@ export class TidalProvider extends BaseProvider {
     };
   }
 
+  private mapImageCoverToArtwork(images?: TidalImage[]): Artwork[] | undefined {
+    if (!images?.length) return undefined;
+    return images.map((img) => ({
+      url: img.url,
+      type: 'front' as const,
+      width: img.width,
+      height: img.height,
+      provider: 'tidal',
+    }));
+  }
+
   private transformTrack(
     raw: TidalTrack,
     position: number,
     discNumber?: number,
-    included?: Array<TidalArtist | TidalTrack | TidalAlbum>
+    included?: Array<TidalArtist | TidalTrack | TidalAlbum>,
+    parentArtwork?: Artwork[]
   ): HarmonizedTrack {
     // Extract artists from relationships
     const artistIds =
@@ -819,6 +827,21 @@ export class TidalProvider extends BaseProvider {
       .map((id) => included?.find((i) => i.type === 'artists' && i.id === id))
       .filter((a): a is TidalArtist => a !== undefined);
 
+    // Derive artwork from the track's parent album (when the album resource is
+    // in `included`, e.g. search with albums included), else the passed-in
+    // release artwork (release-lookup path).
+    const albumIds =
+      raw.relationships?.albums?.data instanceof Array
+        ? raw.relationships.albums.data.map((r) => r.id)
+        : raw.relationships?.albums?.data
+          ? [raw.relationships.albums.data.id]
+          : [];
+    const albumImages = albumIds
+      .map((id) => included?.find((i) => i.type === 'albums' && i.id === id))
+      .filter((a): a is TidalAlbum => a !== undefined)[0]
+      ?.attributes.imageCover;
+    const artwork = this.mapImageCoverToArtwork(albumImages) ?? parentArtwork;
+
     return {
       isrc: raw.attributes.isrc,
       title: raw.attributes.title,
@@ -829,6 +852,7 @@ export class TidalProvider extends BaseProvider {
       duration: raw.attributes.duration * 1000,
       explicit: raw.attributes.explicit,
       artists: artists.map((a) => this.transformArtistCredit(a)),
+      ...(artwork ? { artwork } : {}),
       externalIds: { tidal: raw.id },
       sources: [
         this.createSource(raw.id, `https://tidal.com/browse/track/${raw.id}`),
@@ -840,6 +864,14 @@ export class TidalProvider extends BaseProvider {
     return {
       name: raw.attributes.name,
       nameNormalized: this.normalizeString(raw.attributes.name),
+      images: raw.attributes.picture?.length
+        ? raw.attributes.picture.map((img) => ({
+            url: img.url,
+            width: img.width,
+            height: img.height,
+            provider: 'tidal',
+          }))
+        : undefined,
       externalIds: { tidal: raw.id },
       sources: [
         this.createSource(raw.id, `https://tidal.com/browse/artist/${raw.id}`),
