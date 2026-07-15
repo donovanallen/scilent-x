@@ -4,9 +4,20 @@ import type { NextConfig } from 'next';
 // Validate env at build time (skipped when SKIP_ENV_VALIDATION=true or NODE_ENV=test).
 import './src/env';
 
+const sourceDateEpoch = Number(process.env.SOURCE_DATE_EPOCH);
+const buildTimestamp =
+  process.env.VERCEL_DEPLOYMENT_CREATED_AT ||
+  (Number.isFinite(sourceDateEpoch) && sourceDateEpoch > 0
+    ? new Date(sourceDateEpoch * 1000).toISOString()
+    : new Date().toISOString());
+
 const nextConfig: NextConfig = {
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
   devIndicators: false,
+  env: {
+    // A stable timestamp captured once per build, not once per status request.
+    SCILENT_BUILD_TIME: buildTimestamp,
+  },
   experimental: {
     optimizePackageImports: [
       'lucide-react',
