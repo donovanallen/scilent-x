@@ -24,28 +24,29 @@ pnpm install
 
 ### 2. Set Up Environment Variables
 
-Create or update your `.env` file in the monorepo root (or `apps/web/.env.local` for Next.js):
+Create or update `apps/web/.env.local` (canonical template: `apps/web/.env.example`):
 
 ```env
 # Database (required)
-DATABASE_URL="postgresql://user:password@localhost:5432/scilent_one"
+DATABASE_URL="postgresql://user:password@localhost:5432/scilent_x?schema=public"
 
 # Better Auth (required)
-BETTER_AUTH_SECRET="your-secret-key-min-32-chars"
-BETTER_AUTH_URL="http://localhost:3000"
+BETTER_AUTH_SECRET="your-secret-here-at-least-32-chars!!"
+BETTER_AUTH_URL="http://127.0.0.1:3000"
 # Optional bootstrap admin IDs (comma-separated) before a seeded admin exists
 # BETTER_AUTH_ADMIN_USER_IDS=
 
-# OAuth Providers (configure as needed)
-GOOGLE_CLIENT_ID=""
-GOOGLE_CLIENT_SECRET=""
-
-GITHUB_CLIENT_ID=""
-GITHUB_CLIENT_SECRET=""
-
-APPLE_CLIENT_ID=""
-APPLE_CLIENT_SECRET=""
+# OAuth Providers (optional — streaming; social login is disabled in config today)
+# SPOTIFY_CLIENT_ID=
+# SPOTIFY_CLIENT_SECRET=
+# SPOTIFY_REDIRECT_URI=
+# TIDAL_CLIENT_ID=
+# TIDAL_CLIENT_SECRET=
 ```
+
+Required vars are validated at Next.js build/boot by `apps/web/src/env.ts`
+(`@t3-oss/env-nextjs` + Zod). Set `SKIP_ENV_VALIDATION=true` only for tooling
+that must run without secrets.
 
 Generate a secret key:
 

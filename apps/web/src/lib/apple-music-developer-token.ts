@@ -1,5 +1,7 @@
 import { createPrivateKey, sign, type KeyObject } from 'node:crypto';
 
+import { env } from '@/env';
+
 /**
  * Mints Apple Music developer tokens (ES256 JWTs) for delivery to MusicKit JS in
  * the browser.
@@ -28,9 +30,9 @@ export interface AppleMusicCredentials {
  * are not fully configured.
  */
 export function getAppleMusicCredentials(): AppleMusicCredentials | null {
-  const teamId = process.env.APPLE_MUSIC_TEAM_ID;
-  const keyId = process.env.APPLE_MUSIC_KEY_ID;
-  const privateKey = process.env.APPLE_MUSIC_PRIVATE_KEY;
+  const teamId = env.APPLE_MUSIC_TEAM_ID;
+  const keyId = env.APPLE_MUSIC_KEY_ID;
+  const privateKey = env.APPLE_MUSIC_PRIVATE_KEY;
 
   if (!teamId || !keyId || !privateKey) {
     return null;

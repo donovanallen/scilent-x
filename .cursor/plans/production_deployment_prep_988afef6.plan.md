@@ -7,7 +7,7 @@ todos:
     status: completed
   - id: env-schema
     content: Add zod env validation module and reconcile all .env.example files
-    status: pending
+    status: completed
   - id: images
     content: Adopt next/image in artwork/avatar components + remotePatterns config
     status: completed

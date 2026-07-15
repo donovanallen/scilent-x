@@ -2,6 +2,7 @@
 
 import { db } from '@scilent-one/db';
 
+import { env } from '@/env';
 import { requireAdmin } from '@/lib/api-utils';
 import { createActionDomainLogger, toLogError } from '@/lib/logger';
 
@@ -41,7 +42,7 @@ export interface DbTable {
 export async function getDbStatus(): Promise<DbStatusResult> {
   await requireAdmin();
 
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl = env.DATABASE_URL;
 
   if (!databaseUrl) {
     return {
@@ -76,7 +77,7 @@ export async function getDbStatus(): Promise<DbStatusResult> {
 export async function getDbMetadata(): Promise<DbMetadata> {
   await requireAdmin();
 
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl = env.DATABASE_URL;
 
   if (!databaseUrl) {
     return {
@@ -179,7 +180,10 @@ export async function getTableCounts(): Promise<Record<string, number | null>> {
           count: Number(result[0]?.count ?? 0),
         };
       } catch (error) {
-        log.error(`Failed to count rows for table ${table.name}`, toLogError(error));
+        log.error(
+          `Failed to count rows for table ${table.name}`,
+          toLogError(error)
+        );
         return {
           tableName: table.name,
           count: null,
@@ -223,42 +227,32 @@ export async function getAuthProviders(): Promise<AuthProviderInfo[]> {
       id: 'google',
       name: 'Google',
       type: 'social',
-      configured: Boolean(
-        process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-      ),
+      configured: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
     },
     {
       id: 'github',
       name: 'GitHub',
       type: 'social',
-      configured: Boolean(
-        process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
-      ),
+      configured: Boolean(env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET),
     },
     {
       id: 'apple',
       name: 'Apple',
       type: 'social',
-      configured: Boolean(
-        process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET
-      ),
+      configured: Boolean(env.APPLE_CLIENT_ID && env.APPLE_CLIENT_SECRET),
     },
     // Generic OAuth Providers (streaming services)
     {
       id: 'tidal',
       name: 'Tidal',
       type: 'oauth',
-      configured: Boolean(
-        process.env.TIDAL_CLIENT_ID && process.env.TIDAL_CLIENT_SECRET
-      ),
+      configured: Boolean(env.TIDAL_CLIENT_ID && env.TIDAL_CLIENT_SECRET),
     },
     {
       id: 'spotify',
       name: 'Spotify',
       type: 'oauth',
-      configured: Boolean(
-        process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET
-      ),
+      configured: Boolean(env.SPOTIFY_CLIENT_ID && env.SPOTIFY_CLIENT_SECRET),
     },
   ];
 

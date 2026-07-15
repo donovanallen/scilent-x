@@ -30,6 +30,7 @@
     "@scilent-one/scilent-ui": "workspace:*",
     "@scilent-one/social": "workspace:*",
     "@scilent-one/ui": "workspace:*",
+    "@t3-oss/env-nextjs": "^0.13.11",
     "@tanstack/react-virtual": "^3.14.6",
     "better-auth": "catalog:better-auth",
     "class-variance-authority": "^0.7.1",
@@ -43,7 +44,8 @@
     "react-dom": "19.2.7",
     "sonner": "^2.0.7",
     "swr": "^2.4.2",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@scilent-one/tooling": "workspace:*",

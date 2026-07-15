@@ -1,6 +1,9 @@
 import createMDX from '@next/mdx';
 import type { NextConfig } from 'next';
 
+// Validate env at build time (skipped when SKIP_ENV_VALIDATION=true or NODE_ENV=test).
+import './src/env';
+
 const nextConfig: NextConfig = {
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
   devIndicators: false,
