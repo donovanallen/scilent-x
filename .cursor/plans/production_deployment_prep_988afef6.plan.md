@@ -22,19 +22,22 @@ todos:
     status: completed
   - id: auth-hardening
     content: 'trustedOrigins, session config, rate limiting in packages/auth'
-    status: pending
+    status: completed
   - id: db-prod
     content: 'Pooled connection docs, root db:* aliases, migrate-deploy wiring'
     status: pending
   - id: ci
     content: New ci.yml (lint/typecheck/build/tests incl. apps/web + harmony-engine)
-    status: pending
+    status: completed
   - id: observability
     content: Sentry scaffold (env-gated) + /api/health route
     status: pending
+  - id: platform-provisioning
+    content: 'WS8: Vercel project, env secrets, migrate-on-deploy, domain/DNS, Sentry DSN'
+    status: pending
   - id: runbook
     content: 'docs/DEPLOYMENT.md runbook: Vercel setup, env secrets, domain repurpose steps'
-    status: pending
+    status: completed
   - id: agent-tooling
     content: New production-readiness skill + deploy-check command; recommend Vercel MCP
     status: pending
@@ -61,30 +64,37 @@ isProject: false
 
 - Add a typed env module (zod-based, `@t3-oss/env-nextjs` style) validating at build/boot: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, Spotify/Tidal/Apple Music vars, `LOG_LEVEL`. Today validation is nonexistent; ~25 vars are read ad-hoc.
 - Reconcile [apps/web/.env.example](apps/web/.env.example) (and db/auth package examples) with the real inventory; document required-vs-optional per feature.
-- Secrets live in Vercel project env settings (prod/preview split); nothing committed.
+- Secrets live in Vercel project env settings (prod/preview split); nothing committed. **Dashboard entry of secrets → [WS8](#workstream-8--platform-provisioning-deferred).**
 
 ## Workstream 3 — DB & Prisma
 
-- Migrations already exist (12 under [packages/db/prisma/migrations](packages/db/prisma/migrations)) with a `db:migrate:deploy` script — wire it into deploy (see WS5). No schema changes needed.
+- Migrations already exist (12 under [packages/db/prisma/migrations](packages/db/prisma/migrations)) with a `db:migrate:deploy` script — wire it into deploy (see [WS8](#workstream-8--platform-provisioning-deferred)). No schema changes needed.
 - Document/verify pooled `DATABASE_URL` for serverless; optionally add explicit pool sizing to `PrismaPg` in [packages/db/src/client.ts](packages/db/src/client.ts).
 - Add root `db:*` script aliases (README/AGENTS.md reference them but they don't exist).
 
-## Workstream 4 — Auth hardening (`packages/auth`)
+## Workstream 4 — Auth hardening (`packages/auth`) ✅
 
 - Set `trustedOrigins` from the prod URL, explicit session `expiresIn`/`updateAge`, and confirm `BETTER_AUTH_SECRET`/`BETTER_AUTH_URL` are required by the env schema.
 - Enable Better Auth rate limiting on auth endpoints.
 - Decide (your call, non-blocking): email verification + password reset need an email provider (e.g. Resend) — I'd scaffold the config behind an optional env var but not block launch on it. OAuth login providers (Google/GitHub/Apple) stay disabled; docs updated to match reality.
 
-## Workstream 5 — CI/CD + deployment
+**Done in-repo:** `trustedOrigins` from `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` / `VERCEL_URL`; session 7d / refresh 1d; rate limits; optional Resend (`RESEND_API_KEY`); [docs/AUTH.md](docs/AUTH.md) updated. Changeset: `.changeset/auth-production-hardening.md`.
 
-- **New `ci.yml`**: lint + typecheck + build (`turbo build --filter=web`) + full test suite on every PR — current [test.yml](.github/workflows/test.yml) path-filters _out_ `apps/web` and never runs `harmony-engine` tests despite triggering on them. Fix both.
-- **Vercel project**: root-directory `apps/web`, install `pnpm install`, build `turbo build --filter=web` (turbo already runs `^db:generate` before build). Commit a minimal `vercel.json` if needed for the monorepo.
-- **Migrate-on-deploy**: run `prisma migrate deploy` as part of the production build command (standard Vercel+Prisma pattern), so schema changes ship atomically with the code that needs them.
-- Keep existing Changesets release flow untouched (packages are private; it's a changelog/version mechanism).
+## Workstream 5 — CI/CD + deployment (split)
 
-## Workstream 6 — Observability
+### In-repo / CI (done) ✅
 
-- Add **Sentry** (`@sentry/nextjs`) for client + server error reporting; wire it into `global-error.tsx` and `handleApiError` in [apps/web/src/lib/api-utils.ts](apps/web/src/lib/api-utils.ts). Pino stays for structured server logs (Vercel captures stdout).
+- **New [`.github/workflows/ci.yml`](.github/workflows/ci.yml)**: lint + typecheck + build (`turbo build --filter=web`) + full test suite on every PR — uses `SKIP_ENV_VALIDATION=true` so Next env schema does not need secrets in GitHub Actions.
+- **Fixed [`.github/workflows/test.yml`](.github/workflows/test.yml)**: path filters include `apps/web` + `harmony-engine`; coverage job still covers social/scilent-ui/ui; separate step runs harmony-engine + web tests.
+- Draft [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) + minimal [apps/web/vercel.json](apps/web/vercel.json) install/build hints for the monorepo.
+
+### Platform / dashboard (moved → [WS8](#workstream-8--platform-provisioning-deferred))
+
+- Vercel project creation, env secret entry, migrate-on-deploy on a live project, domain/DNS — **not done here**.
+
+## Workstream 6 — Observability (code later; DSN → WS8)
+
+- Add **Sentry** (`@sentry/nextjs`) for client + server error reporting; wire it into `global-error.tsx` and `handleApiError` in [apps/web/src/lib/api-utils.ts](apps/web/src/lib/api-utils.ts). Pino stays for structured server logs (Vercel captures stdout). Scaffold env-gated in a later code PR; **creating the Sentry project and pasting DSNs is [WS8](#workstream-8--platform-provisioning-deferred).**
 - Add a `/api/health` route (DB ping) for uptime checks.
 
 ## Workstream 7 — Recommended tooling for repeatable deploys
@@ -101,6 +111,22 @@ isProject: false
 - `.cursor/commands/deploy-check.md` — pre-deploy command: `pnpm fix` + build + `changeset status` + env-example drift check + migration status.
 - Extend the existing `responsive-testing` skill usage into CI later (optional, post-launch).
 
+## Workstream 8 — Platform provisioning (deferred)
+
+External dashboard / account work. In-repo hooks: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), `apps/web/vercel.json`, `SKIP_ENV_VALIDATION` in CI, root `pnpm db:migrate:deploy`. **Do not block code PRs on this list.**
+
+Checklist:
+
+- [ ] Create Vercel project for this repo; **Root Directory** = `apps/web`
+- [ ] Configure install/build (see `vercel.json` / DEPLOYMENT.md); confirm Turborepo + `pnpm` versions
+- [ ] Enter Production + Preview env vars from `apps/web/.env.example` (at least `DATABASE_URL` pooled, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`)
+- [ ] Optional: `RESEND_API_KEY`, `AUTH_EMAIL_FROM`, streaming/Apple Music keys, `NEXT_PUBLIC_APP_URL`
+- [ ] Wire **migrate-on-deploy**: run `pnpm db:migrate:deploy` in the production build (or install) command so schema ships with the code
+- [ ] Attach custom domain / DNS (or move domain from the old Vercel project)
+- [ ] Create Sentry project; set DSN env vars after WS6 scaffolds `@sentry/nextjs`
+- [ ] Smoke-test production deploy + auth cookie/origin + DB connectivity
+- [ ] Confirm Preview deploys get Preview env + acceptable `trustedOrigins` behavior
+
 ## Sequencing
 
-WS1–WS4 are code changes I can do now in one branch (auth gate first — it's the only true launch blocker). WS5 CI workflow is also code. The Vercel project creation, env secret entry, prod DB provisioning, and domain move are dashboard actions you'll do (I'll write a step-by-step runbook as `docs/DEPLOYMENT.md`). WS6 Sentry needs a DSN from you (or we scaffold it env-gated). WS7 skills/commands ship with the branch.
+WS1–WS2 and WS4 auth hardening + WS5 CI workflows are in-repo. Remaining code: WS3 (DB pool docs / aliases if not already present), WS6 observability scaffold, WS7 skills/commands. **WS8 is the go-live platform checklist** (Vercel, secrets, migrate-on-deploy, domain, Sentry DSN).
