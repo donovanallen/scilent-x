@@ -29,7 +29,15 @@
     "build": {
       "dependsOn": ["^build", "^db:generate"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["DATABASE_URL", "SKIP_ENV_VALIDATION"]
+      "env": [
+        "DATABASE_URL",
+        "SKIP_ENV_VALIDATION",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "SENTRY_AUTH_TOKEN",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "SENTRY_DSN"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -44,19 +52,43 @@
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
       "cache": true,
-      "env": ["DATABASE_URL", "SKIP_ENV_VALIDATION"]
+      "env": [
+        "DATABASE_URL",
+        "SKIP_ENV_VALIDATION",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "SENTRY_AUTH_TOKEN",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "SENTRY_DSN"
+      ]
     },
     "test:run": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
       "cache": true,
-      "env": ["DATABASE_URL", "SKIP_ENV_VALIDATION"]
+      "env": [
+        "DATABASE_URL",
+        "SKIP_ENV_VALIDATION",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "SENTRY_AUTH_TOKEN",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "SENTRY_DSN"
+      ]
     },
     "test:coverage": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
       "cache": true,
-      "env": ["DATABASE_URL", "SKIP_ENV_VALIDATION"]
+      "env": [
+        "DATABASE_URL",
+        "SKIP_ENV_VALIDATION",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "SENTRY_AUTH_TOKEN",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "SENTRY_DSN"
+      ]
     },
     "dev": {
       "cache": false,

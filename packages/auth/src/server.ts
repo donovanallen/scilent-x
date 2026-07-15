@@ -35,9 +35,14 @@ const authBaseURL =
 /**
  * Production requires BETTER_AUTH_SECRET (≥32 chars) via apps/web env schema.
  * Better Auth also reads BETTER_AUTH_SECRET from the environment.
+ * Skip the hard throw when SKIP_ENV_VALIDATION=true (CI Next builds).
  */
 const authSecret = process.env.BETTER_AUTH_SECRET?.trim();
-if (process.env.NODE_ENV === 'production' && !authSecret) {
+if (
+  process.env.NODE_ENV === 'production' &&
+  !authSecret &&
+  process.env.SKIP_ENV_VALIDATION !== 'true'
+) {
   throw new Error(
     'BETTER_AUTH_SECRET is required in production (set via apps/web env)'
   );

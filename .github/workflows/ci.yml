@@ -21,6 +21,9 @@ jobs:
       SKIP_ENV_VALIDATION: 'true'
       # prisma.config.ts requires DATABASE_URL for `prisma generate` (no live DB).
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/ci?schema=public
+      # Auth module throws without a secret when NODE_ENV=production (Next build).
+      BETTER_AUTH_SECRET: ci-only-better-auth-secret-min-32-chars
+      BETTER_AUTH_URL: http://127.0.0.1:3000
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
