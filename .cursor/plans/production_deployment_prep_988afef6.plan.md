@@ -46,39 +46,66 @@ isProject: false
 
 # Production Deployment Prep
 
+## Progress (as of 2026-07-15)
+
+Branch: `cursor/production-deployment-prep-plan-7c85` (PR #128). Reviewed against this plan and commits through `16d60c0`.
+
+| WS    | Focus                 | Status                             | Notes                                                                                                                                                                                                    |
+| ----- | --------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1** | Frontend hardening    | **Done**                           | Middleware cookie gate, server auth layout, admin RBAC via Better Auth roles, `next/image` + remotePatterns, security headers, error/loading/Toaster, SEO (metadata/robots/sitemap/icon), logger cleanup |
+| **2** | Env validation        | **Done**                           | `apps/web/src/env.ts` (`@t3-oss/env-nextjs` + zod), instrumentation + next.config boot validation, reconciled `.env.example`s, `docs/AUTH.md` updated                                                    |
+| **3** | DB / Prisma prod      | **Not started (local draft only)** | Root `db:*` aliases drafted in **uncommitted** `package.json` / `AGENTS.md` only. No pool sizing in `PrismaPg`, no pooled-URL docs landed on branch. Migrate-on-deploy wire-up is **WS8**                |
+| **4** | Auth hardening        | **Done**                           | `trustedOrigins`, session 7d/1d, rate limits, optional Resend, changeset `.changeset/auth-production-hardening.md`                                                                                       |
+| **5** | CI/CD (in-repo)       | **Done**                           | `.github/workflows/ci.yml`; `test.yml` includes `apps/web` + harmony-engine; draft `docs/DEPLOYMENT.md` + `apps/web/vercel.json`                                                                         |
+| **6** | Observability (code)  | **Not started**                    | No `/api/health`; no `@sentry/nextjs` scaffold                                                                                                                                                           |
+| **7** | Agent tooling         | **Not started**                    | No `production-readiness` skill / `deploy-check` command yet                                                                                                                                             |
+| **8** | Platform provisioning | **Deferred**                       | Vercel project, secrets, migrate-on-deploy on live build, domain/DNS, Sentry DSN — dashboard work                                                                                                        |
+
+**Branch commits for this plan (newest first):**
+
+- `16d60c0` — feat(auth): harden Better Auth and add production CI (WS4 + WS5)
+- `d57a3ed` — feat(web): add typed env validation (WS2)
+- `1d3ec5f` — lockfile fix after merge
+- `f5a84d3` — feat(web): harden frontend for production readiness (WS1)
+- `cbf2cd9` — docs(plans): add this plan
+
+**Remaining code before go-live:** WS3 (aliases + pool docs), WS6 (health + env-gated Sentry), WS7 (skill/command). **Then WS8** with you on the dashboard.
+
+**Uncommitted local (not on branch yet):** `AGENTS.md` + root `package.json` `db:*` aliases (belongs in WS3); unrelated WIP under `apps/web` (admin status pages) — keep out of plan commits unless intentional.
+
 ## Assumptions (flag if wrong)
 
 - **Hosting: Vercel** — the repo's docs ([docs/INITIAL_SETUP.md](docs/INITIAL_SETUP.md)) already assume it, and it's the best fit for Next 16 + Turborepo. Repurposing your existing URL is then just moving the custom domain from the old Vercel project to the new one (Settings → Domains); DNS stays untouched if it already points at Vercel. **I need from you**: the domain name, and which platform the old project is on.
 - **Production Postgres**: code uses `@prisma/adapter-pg` with a plain connection string, so any provider works (Neon/Supabase/Railway). For Vercel serverless you must use a **pooled** connection URL. Tell me if you already have a prod DB.
 
-## Workstream 1 — Frontend production hardening (`apps/web`)
+## Workstream 1 — Frontend production hardening (`apps/web`) ✅
 
-- **Auth gate (biggest gap)**: `(authenticated)` is name-only. Add session-cookie check + redirect-to-`/login` in [apps/web/src/middleware.ts](apps/web/src/middleware.ts) (currently logging-only), plus a server-side `getSession` guard in the authenticated layout. Add real admin RBAC checks for `/admin/*` (actions currently have TODO comments claiming protection that doesn't exist).
-- **Images**: adopt `next/image` in the artwork components ([packages/scilent-ui](packages/scilent-ui) `Artwork`, `AlbumArtwork`, `ArtistCard`, `ArtistHeader`; web admin/settings avatars) and configure `images.remotePatterns` in [apps/web/next.config.ts](apps/web/next.config.ts) for Spotify (`i.scdn.co`), Apple (`*.mzstatic.com`), Tidal, and `coverartarchive.org`.
-- **next.config**: add security `headers()` (HSTS, X-Content-Type-Options, frame-ancestors, referrer policy), keep `optimizePackageImports` and add `@scilent-one/ui` / `@scilent-one/scilent-ui` to it.
-- **Error UX**: add segment `error.tsx` + `loading.tsx` for the authenticated group (currently everything falls through to `global-error.tsx`); mount `<Toaster />` in the root layout — toasts are called throughout but never render.
-- **SEO/meta**: root metadata description + OpenGraph/Twitter card, favicon/`icon` assets, `robots.ts`, `sitemap.ts`, `metadataBase` from the prod URL.
-- **Cleanup**: remove/gate dev-only bits (admin DB page links to `localhost:5555` Prisma Studio), replace remaining `console.error` in server actions with `@scilent-one/logger`.
+- **Auth gate**: session-cookie check + redirect-to-`/login` in [apps/web/src/middleware.ts](apps/web/src/middleware.ts); server `getSession` in authenticated layout; admin RBAC via Better Auth roles (`hasAdminRole` / `isAdminUser`), not email allowlists.
+- **Images**: `next/image` in scilent-ui artwork + web avatars; `images.remotePatterns` for Spotify / Apple / Tidal / Cover Art Archive / OAuth avatars.
+- **next.config**: security `headers()`, `optimizePackageImports` includes `@scilent-one/ui` / `@scilent-one/scilent-ui`.
+- **Error UX**: segment `error.tsx` + `loading.tsx`; root `<Toaster />`; server actions use `@scilent-one/logger`.
+- **SEO/meta**: description + OG/Twitter, `icon.tsx`, `robots.ts`, `sitemap.ts`, `metadataBase` via `getSiteUrl()`.
+- **Cleanup**: Prisma Studio link gated to development; setup link → `/admin/db/setup`.
 
-## Workstream 2 — Env vars, secrets, validation
+## Workstream 2 — Env vars, secrets, validation ✅
 
-- Add a typed env module (zod-based, `@t3-oss/env-nextjs` style) validating at build/boot: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, Spotify/Tidal/Apple Music vars, `LOG_LEVEL`. Today validation is nonexistent; ~25 vars are read ad-hoc.
-- Reconcile [apps/web/.env.example](apps/web/.env.example) (and db/auth package examples) with the real inventory; document required-vs-optional per feature.
+- Typed env module: [apps/web/src/env.ts](apps/web/src/env.ts) (`@t3-oss/env-nextjs` + zod). Required: `DATABASE_URL`, `BETTER_AUTH_SECRET` (≥32), `BETTER_AUTH_URL`. Validated at build (`next.config` import) and boot (`instrumentation.ts`). Skip with `SKIP_ENV_VALIDATION=true` or `NODE_ENV=test`.
+- Reconciled [apps/web/.env.example](apps/web/.env.example), [packages/db/.env.example](packages/db/.env.example), [packages/auth/.env.example](packages/auth/.env.example); [docs/AUTH.md](docs/AUTH.md) points at canonical web template.
 - Secrets live in Vercel project env settings (prod/preview split); nothing committed. **Dashboard entry of secrets → [WS8](#workstream-8--platform-provisioning-deferred).**
 
-## Workstream 3 — DB & Prisma
+## Workstream 3 — DB & Prisma ⏳
 
-- Migrations already exist (12 under [packages/db/prisma/migrations](packages/db/prisma/migrations)) with a `db:migrate:deploy` script — wire it into deploy (see [WS8](#workstream-8--platform-provisioning-deferred)). No schema changes needed.
-- Document/verify pooled `DATABASE_URL` for serverless; optionally add explicit pool sizing to `PrismaPg` in [packages/db/src/client.ts](packages/db/src/client.ts).
-- Add root `db:*` script aliases (README/AGENTS.md reference them but they don't exist).
+- Migrations already exist under [packages/db/prisma/migrations](packages/db/prisma/migrations) with package script `db:migrate:deploy` — **wire into live deploy in [WS8](#workstream-8--platform-provisioning-deferred)**. No schema changes needed for launch.
+- **Still todo:** document/verify pooled `DATABASE_URL` for serverless; optionally add explicit pool sizing to `PrismaPg` in [packages/db/src/client.ts](packages/db/src/client.ts) (today: plain `connectionString` only).
+- **Still todo (draft exists locally, uncommitted):** root `db:*` script aliases + AGENTS.md lines for `db:migrate:deploy` / `db:seed`. Commit as part of this workstream.
 
 ## Workstream 4 — Auth hardening (`packages/auth`) ✅
 
 - Set `trustedOrigins` from the prod URL, explicit session `expiresIn`/`updateAge`, and confirm `BETTER_AUTH_SECRET`/`BETTER_AUTH_URL` are required by the env schema.
 - Enable Better Auth rate limiting on auth endpoints.
-- Decide (your call, non-blocking): email verification + password reset need an email provider (e.g. Resend) — I'd scaffold the config behind an optional env var but not block launch on it. OAuth login providers (Google/GitHub/Apple) stay disabled; docs updated to match reality.
+- Optional Resend email (verification + password reset) behind `RESEND_API_KEY` — no-ops when unset. OAuth login providers (Google/GitHub/Apple) stay disabled; docs match reality.
 
-**Done in-repo:** `trustedOrigins` from `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` / `VERCEL_URL`; session 7d / refresh 1d; rate limits; optional Resend (`RESEND_API_KEY`); [docs/AUTH.md](docs/AUTH.md) updated. Changeset: `.changeset/auth-production-hardening.md`.
+**Done in-repo:** `trustedOrigins` from `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` / `VERCEL_URL` ([packages/auth/src/origins.ts](packages/auth/src/origins.ts)); session 7d / refresh 1d; rate limits; optional Resend ([packages/auth/src/email.ts](packages/auth/src/email.ts)); [docs/AUTH.md](docs/AUTH.md). Changeset: [.changeset/auth-production-hardening.md](.changeset/auth-production-hardening.md).
 
 ## Workstream 5 — CI/CD + deployment (split)
 
@@ -92,12 +119,13 @@ isProject: false
 
 - Vercel project creation, env secret entry, migrate-on-deploy on a live project, domain/DNS — **not done here**.
 
-## Workstream 6 — Observability (code later; DSN → WS8)
+## Workstream 6 — Observability (code later; DSN → WS8) ⏳
 
-- Add **Sentry** (`@sentry/nextjs`) for client + server error reporting; wire it into `global-error.tsx` and `handleApiError` in [apps/web/src/lib/api-utils.ts](apps/web/src/lib/api-utils.ts). Pino stays for structured server logs (Vercel captures stdout). Scaffold env-gated in a later code PR; **creating the Sentry project and pasting DSNs is [WS8](#workstream-8--platform-provisioning-deferred).**
+- Add **Sentry** (`@sentry/nextjs`) for client + server error reporting; wire it into `global-error.tsx` and `handleApiError` in [apps/web/src/lib/api-utils.ts](apps/web/src/lib/api-utils.ts). Pino stays for structured server logs (Vercel captures stdout). Scaffold env-gated; **creating the Sentry project and pasting DSNs is [WS8](#workstream-8--platform-provisioning-deferred).**
 - Add a `/api/health` route (DB ping) for uptime checks.
+- **Status:** neither health route nor Sentry scaffold exists on the branch yet.
 
-## Workstream 7 — Recommended tooling for repeatable deploys
+## Workstream 7 — Recommended tooling for repeatable deploys ⏳
 
 **Existing/reputable to adopt:**
 
@@ -110,10 +138,11 @@ isProject: false
 - `.cursor/skills/production-readiness/SKILL.md` — the audit checklist from this plan (auth gate, env schema, headers, images, migrations) so future agents re-verify before each deploy.
 - `.cursor/commands/deploy-check.md` — pre-deploy command: `pnpm fix` + build + `changeset status` + env-example drift check + migration status.
 - Extend the existing `responsive-testing` skill usage into CI later (optional, post-launch).
+- **Status:** skill + command not created yet.
 
 ## Workstream 8 — Platform provisioning (deferred)
 
-External dashboard / account work. In-repo hooks: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), `apps/web/vercel.json`, `SKIP_ENV_VALIDATION` in CI, root `pnpm db:migrate:deploy`. **Do not block code PRs on this list.**
+External dashboard / account work. In-repo hooks: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), `apps/web/vercel.json`, `SKIP_ENV_VALIDATION` in CI. Root `pnpm db:migrate:deploy` lands with WS3 (script already exists under `packages/db`). **Do not block code PRs on this list.**
 
 Checklist:
 
@@ -129,4 +158,4 @@ Checklist:
 
 ## Sequencing
 
-WS1–WS2 and WS4 auth hardening + WS5 CI workflows are in-repo. Remaining code: WS3 (DB pool docs / aliases if not already present), WS6 observability scaffold, WS7 skills/commands. **WS8 is the go-live platform checklist** (Vercel, secrets, migrate-on-deploy, domain, Sentry DSN).
+**Done in-repo:** WS1, WS2, WS4, WS5 (CI + draft runbook). **Next code:** WS3 → WS6 → WS7. **Go-live:** WS8 with you (Vercel, secrets, migrate-on-deploy, domain, Sentry DSN).
