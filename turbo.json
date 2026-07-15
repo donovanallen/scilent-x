@@ -10,21 +10,26 @@
       "outputs": ["storybook-static/**"]
     },
     "db:generate": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:migrate": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:push": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:studio": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["DATABASE_URL"]
     },
     "build": {
       "dependsOn": ["^build", "^db:generate"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["DATABASE_URL", "SKIP_ENV_VALIDATION"]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -38,17 +43,20 @@
     "test": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "cache": true
+      "cache": true,
+      "env": ["DATABASE_URL", "SKIP_ENV_VALIDATION"]
     },
     "test:run": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "cache": true
+      "cache": true,
+      "env": ["DATABASE_URL", "SKIP_ENV_VALIDATION"]
     },
     "test:coverage": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "cache": true
+      "cache": true,
+      "env": ["DATABASE_URL", "SKIP_ENV_VALIDATION"]
     },
     "dev": {
       "cache": false,
