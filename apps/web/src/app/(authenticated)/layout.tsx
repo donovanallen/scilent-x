@@ -13,6 +13,7 @@ import { AuthenticatedShell } from './authenticated-shell';
 /**
  * Authoritative session gate for all authenticated routes.
  * Middleware only checks cookie presence; this validates the session.
+ * `/admin/*` role enforcement is also handled by `admin/layout.tsx`.
  */
 export default async function AuthenticatedLayout({
   children,

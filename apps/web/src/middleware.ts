@@ -3,6 +3,9 @@
  *
  * Cookie presence is checked here for UX (redirect to /login). Full session
  * validation happens in the authenticated layout / API handlers.
+ * Role enforcement (admin vs user) happens in the admin layout via
+ * `auth.api.getSession` — Better Auth session validation is not Edge-safe
+ * when the Prisma adapter is used, so middleware only checks cookie presence.
  */
 
 import { withRequestLogging } from '@scilent-one/logger/next';

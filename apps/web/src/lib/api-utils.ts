@@ -25,7 +25,7 @@ export async function requireAuth() {
   return user;
 }
 
-/** Throws if the current user is not on the `ADMIN_EMAILS` allowlist. */
+/** Throws if the current user does not have the Better Auth `admin` role. */
 export async function requireAdmin() {
   const user = await requireAuth();
   if (!isAdminUser(user)) {

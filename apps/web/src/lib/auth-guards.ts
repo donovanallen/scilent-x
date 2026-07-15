@@ -1,27 +1,13 @@
-/**
- * Admin access is gated by an email allowlist until a proper role
- * column / Better Auth admin plugin lands.
- *
- * Set `ADMIN_EMAILS` to a comma-separated list of emails
- * (case-insensitive), e.g. `ADMIN_EMAILS=you@example.com,ops@example.com`.
- * When unset or empty, no user is treated as admin.
- */
-export function getAdminEmails(): Set<string> {
-  const raw = process.env.ADMIN_EMAILS ?? '';
-  return new Set(
-    raw
-      .split(',')
-      .map((email) => email.trim().toLowerCase())
-      .filter(Boolean)
-  );
-}
+import { hasAdminRole } from '@scilent-one/auth/roles';
 
+/**
+ * Returns true when the user has the Better Auth `admin` role
+ * (or an equivalent role string from the admin plugin).
+ */
 export function isAdminUser(
-  user: { email?: string | null } | null | undefined
+  user: { role?: string | string[] | null } | null | undefined
 ): boolean {
-  const email = user?.email?.trim().toLowerCase();
-  if (!email) return false;
-  return getAdminEmails().has(email);
+  return hasAdminRole(user?.role);
 }
 
 /** Paths that do not require a session cookie (optimistic middleware). */

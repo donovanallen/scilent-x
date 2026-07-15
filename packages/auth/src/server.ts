@@ -19,7 +19,7 @@ import { betterAuth } from 'better-auth';
 import { createAuthMiddleware } from 'better-auth/api';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
-import { genericOAuth } from 'better-auth/plugins';
+import { admin, genericOAuth } from 'better-auth/plugins';
 import { db } from '@scilent-one/db';
 import { createLogger } from '@scilent-one/logger';
 import { authLoggerHooks } from '@scilent-one/logger/auth';
@@ -216,6 +216,24 @@ export const auth = betterAuth({
    * nextCookies: Automatically handles cookie setting in Next.js server actions
    */
   plugins: [
+    /**
+     * Admin plugin — roles, ban, and user impersonation.
+     * @see https://www.better-auth.com/docs/plugins/admin
+     *
+     * Optional bootstrap: set BETTER_AUTH_ADMIN_USER_IDS to a comma-separated
+     * list of user IDs that should always be treated as admins (useful before
+     * the first seeded admin exists).
+     */
+    admin({
+      defaultRole: 'user',
+      adminRoles: ['admin'],
+      adminUserIds: (process.env.BETTER_AUTH_ADMIN_USER_IDS ?? '')
+        .split(',')
+        .map((id) => id.trim())
+        .filter(Boolean),
+      // Long enough for local debugging sessions without forcing re-impersonation
+      impersonationSessionDuration: 60 * 60 * 4, // 4 hours
+    }),
     /**
      * Generic OAuth Plugin for Streaming Service Account Linking
      *

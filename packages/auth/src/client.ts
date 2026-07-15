@@ -22,11 +22,13 @@
 
 import { createAuthClient } from 'better-auth/react';
 import {
+  adminClient,
   genericOAuthClient,
   inferAdditionalFields,
 } from 'better-auth/client/plugins';
 
 import type { Auth } from './server';
+import { hasAdminRole } from './roles';
 
 /**
  * Auth client instance for client-side authentication.
@@ -49,7 +51,7 @@ export const authClient = createAuthClient({
    * Set this if your auth API is on a different domain.
    */
   // baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
-  plugins: [genericOAuthClient(), inferAdditionalFields<Auth>()],
+  plugins: [adminClient(), genericOAuthClient(), inferAdditionalFields<Auth>()],
 });
 
 /**
@@ -65,6 +67,8 @@ export const {
   unlinkAccount,
   listAccounts,
 } = authClient;
+
+export { hasAdminRole };
 
 /**
  * Type exports for client-side usage

@@ -1,7 +1,6 @@
-import { describe, expect, it, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
-  getAdminEmails,
   isAdminPath,
   isAdminUser,
   isPublicPath,
@@ -9,31 +8,12 @@ import {
 } from '../auth-guards';
 
 describe('auth-guards', () => {
-  const original = process.env.ADMIN_EMAILS;
-
-  beforeEach(() => {
-    delete process.env.ADMIN_EMAILS;
-  });
-
-  afterEach(() => {
-    if (original === undefined) {
-      delete process.env.ADMIN_EMAILS;
-    } else {
-      process.env.ADMIN_EMAILS = original;
-    }
-  });
-
-  it('parses ADMIN_EMAILS allowlist case-insensitively', () => {
-    process.env.ADMIN_EMAILS = ' Alice@Example.com , bob@example.com ';
-    expect(getAdminEmails()).toEqual(
-      new Set(['alice@example.com', 'bob@example.com'])
-    );
-    expect(isAdminUser({ email: 'ALICE@example.com' })).toBe(true);
-    expect(isAdminUser({ email: 'other@example.com' })).toBe(false);
-  });
-
-  it('treats empty ADMIN_EMAILS as no admins', () => {
-    expect(isAdminUser({ email: 'anyone@example.com' })).toBe(false);
+  it('detects admin role from Better Auth role strings', () => {
+    expect(isAdminUser({ role: 'admin' })).toBe(true);
+    expect(isAdminUser({ role: 'user,admin' })).toBe(true);
+    expect(isAdminUser({ role: ['user', 'admin'] })).toBe(true);
+    expect(isAdminUser({ role: 'user' })).toBe(false);
+    expect(isAdminUser({ role: null })).toBe(false);
     expect(isAdminUser(null)).toBe(false);
   });
 

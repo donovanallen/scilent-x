@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn, Skeleton } from '@scilent-one/ui';
-import { Disc3 } from 'lucide-react';
+import { Album } from 'lucide-react';
 import Image from 'next/image';
 
 export interface AlbumArtworkProps extends Omit<
@@ -83,16 +83,18 @@ export function AlbumArtwork({
     [src, fallbackSrc]
   );
   const [sourceIndex, setSourceIndex] = React.useState(0);
+  const [hasFailed, setHasFailed] = React.useState(false);
   const [isImageLoading, setIsImageLoading] = React.useState(
     sources.length > 0
   );
-  const currentSrc = sources[sourceIndex];
+  const currentSrc = !hasFailed ? sources[sourceIndex] : undefined;
 
   const sizeClass = sizeClasses[size];
   const roundedClass = roundedClasses[rounded];
 
   React.useEffect(() => {
     setSourceIndex(0);
+    setHasFailed(false);
     setIsImageLoading(sources.length > 0);
   }, [sources]);
 
@@ -107,6 +109,7 @@ export function AlbumArtwork({
         return index + 1;
       }
       setIsImageLoading(false);
+      setHasFailed(true);
       return index;
     });
   }, [sources.length]);
@@ -138,7 +141,7 @@ export function AlbumArtwork({
         aria-label={alt}
         {...props}
       >
-        <Disc3 className="text-muted-foreground" />
+        <Album className="text-muted-foreground" aria-hidden="true" />
       </div>
     );
   }

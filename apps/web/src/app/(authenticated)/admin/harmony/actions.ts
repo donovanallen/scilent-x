@@ -108,6 +108,9 @@ export async function getProviderCredentialsStatus(): Promise<
 /**
  * Update the enabled status for a provider.
  * Creates a new setting record if one doesn't exist.
+ *
+ * Requires an authenticated admin session (role check in admin layout +
+ * Better Auth admin plugin on impersonation APIs).
  */
 export async function updateProviderEnabled(
   providerName: string,
@@ -158,6 +161,9 @@ export async function updateProviderEnabled(
 
 /**
  * Update the priority for a provider.
+ *
+ * Requires an authenticated admin session (role check in admin layout +
+ * Better Auth admin plugin on impersonation APIs).
  */
 export async function updateProviderPriority(
   providerName: string,

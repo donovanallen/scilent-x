@@ -4,6 +4,7 @@ import * as React from 'react';
 import { PostCard, type PostCardProps, Badge, cn } from '@scilent-one/ui';
 import { Lock } from 'lucide-react';
 import { AlbumArtwork } from '../album/AlbumArtwork';
+import { TrackArtwork } from '../track/TrackArtwork';
 
 export interface ReviewSubjectDisplay {
   type: 'RELEASE' | 'TRACK';
@@ -26,19 +27,29 @@ export function ReviewCard({
   className,
   ...postCardProps
 }: ReviewCardProps) {
-  const subjectLabel =
-    reviewSubject.type === 'TRACK' ? 'Track review' : 'Album review';
+  const isTrack = reviewSubject.type === 'TRACK';
+  const subjectLabel = isTrack ? 'Track review' : 'Album review';
   const isSubjectInteractive = Boolean(onSubjectClick);
   const isPrivate = postCardProps.visibility === 'PRIVATE';
+  const artworkSrc = reviewSubject.artworkUrl ?? undefined;
 
   const subjectContent = (
     <>
-      <AlbumArtwork
-        src={reviewSubject.artworkUrl ?? undefined}
-        alt={reviewSubject.title}
-        size="md"
-        rounded="md"
-      />
+      {isTrack ? (
+        <TrackArtwork
+          src={artworkSrc}
+          alt={reviewSubject.title}
+          size="lg"
+          rounded="md"
+        />
+      ) : (
+        <AlbumArtwork
+          src={artworkSrc}
+          alt={reviewSubject.title}
+          size="md"
+          rounded="md"
+        />
+      )}
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-center gap-2">
           <Badge variant="secondary" className="text-[10px] uppercase">

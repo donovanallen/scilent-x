@@ -20,6 +20,7 @@ import { ROUTES } from '@/lib/routes';
 
 import { AppSidebar } from '../../components/app-sidebar';
 import { HarmonyInteractionProvider } from '../../components/harmony-interaction-provider';
+import { ImpersonationBanner } from '../../components/impersonation-banner';
 
 const pathLabels: Record<string, string> = Object.values(ROUTES).reduce(
   (acc, route) => {
@@ -77,6 +78,7 @@ export function AuthenticatedShell({
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
+        <ImpersonationBanner />
         <header className='flex h-12 sm:h-14 shrink-0 items-center gap-2 px-3 sm:px-4 sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
           <SidebarTrigger className='-ml-1 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0' />
           <Separator
