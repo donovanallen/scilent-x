@@ -1,44 +1,54 @@
 /**
- * Next.js Middleware with Request Logging Orchestration
+ * Next.js Middleware with Request Logging + optimistic auth gate.
  *
- * This middleware:
- * - Logs all requests with timing and request IDs
- * - Propagates request IDs via headers for distributed tracing
- * - Handles path-based routing logic
+ * Cookie presence is checked here for UX (redirect to /login). Full session
+ * validation happens in the authenticated layout / API handlers.
  */
 
 import { withRequestLogging } from '@scilent-one/logger/next';
+import { getSessionCookie } from 'better-auth/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
 
-/**
- * Core middleware logic wrapped with automatic request logging.
- *
- * The `withRequestLogging` wrapper:
- * - Generates unique request IDs (or uses existing x-request-id header)
- * - Logs request start at debug level
- * - Logs request completion with duration at info level
- * - Logs errors with stack traces
- * - Adds x-request-id to response headers for client-side correlation
- */
+import {
+  isAdminPath,
+  isPublicPath,
+  sanitizeInternalRedirect,
+} from '@/lib/auth-guards';
+
 export const middleware = withRequestLogging(
   async (request: NextRequest, { requestId }) => {
-    const response = NextResponse.next();
+    const { pathname, search } = request.nextUrl;
 
-    // Propagate request ID for downstream logging correlation
+    if (!isPublicPath(pathname)) {
+      const sessionCookie = getSessionCookie(request);
+
+      if (!sessionCookie) {
+        const loginUrl = new URL('/login', request.url);
+        const redirectTarget = sanitizeInternalRedirect(`${pathname}${search}`);
+        if (redirectTarget) {
+          loginUrl.searchParams.set('redirect', redirectTarget);
+        }
+        const redirectResponse = NextResponse.redirect(loginUrl);
+        redirectResponse.headers.set('x-request-id', requestId);
+        return redirectResponse;
+      }
+    }
+
+    // Forward pathname so server layouts can rebuild a safe redirect target
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-pathname', pathname);
+    if (isAdminPath(pathname)) {
+      requestHeaders.set('x-admin-path', '1');
+    }
+
+    const response = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
     response.headers.set('x-request-id', requestId);
-
     return response;
   }
 );
 
-/**
- * Middleware matcher configuration.
- *
- * Matches all routes except:
- * - Static files (_next/static)
- * - Image optimization (_next/image)
- * - Favicon and other static assets
- */
 export const config = {
   matcher: [
     /*
@@ -48,6 +58,6 @@ export const config = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      * - public folder assets
      */
-    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
 };

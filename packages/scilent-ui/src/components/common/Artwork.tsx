@@ -2,6 +2,7 @@
 
 import { cn } from '@scilent-one/ui';
 import { Disc3 } from 'lucide-react';
+import Image from 'next/image';
 import * as React from 'react';
 
 export interface ArtworkProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -16,6 +17,13 @@ const sizeClasses = {
   md: 'size-16',
   lg: 'size-24',
   xl: 'size-32',
+} as const;
+
+const sizePx = {
+  sm: 40,
+  md: 64,
+  lg: 96,
+  xl: 128,
 } as const;
 
 const roundedClasses = {
@@ -43,6 +51,7 @@ export function Artwork({
   }, [src]);
 
   const showFallback = !src || hasError;
+  const px = sizePx[size];
 
   return (
     <div
@@ -63,10 +72,12 @@ export function Artwork({
           {isLoading && (
             <div className="absolute inset-0 animate-pulse bg-muted" />
           )}
-          <img
+          <Image
             src={src}
             alt={alt}
-            loading="lazy"
+            width={px}
+            height={px}
+            sizes={`${px}px`}
             onLoad={() => setIsLoading(false)}
             onError={() => {
               setHasError(true);

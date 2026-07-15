@@ -1,30 +1,30 @@
 ---
 name: Production deployment prep
-overview: "Harden the web app, auth, DB, and env handling for production; add CI/CD and Vercel deployment with migrate-on-deploy; and set up repeatable deploy tooling (skills/commands/MCP)."
+overview: 'Harden the web app, auth, DB, and env handling for production; add CI/CD and Vercel deployment with migrate-on-deploy; and set up repeatable deploy tooling (skills/commands/MCP).'
 todos:
   - id: auth-gate
     content: Add middleware session gate + layout guard for (authenticated) routes and admin RBAC
-    status: pending
+    status: completed
   - id: env-schema
     content: Add zod env validation module and reconcile all .env.example files
     status: pending
   - id: images
     content: Adopt next/image in artwork/avatar components + remotePatterns config
-    status: pending
+    status: completed
   - id: next-config
-    content: "Security headers, optimizePackageImports additions in next.config.ts"
-    status: pending
+    content: 'Security headers, optimizePackageImports additions in next.config.ts'
+    status: completed
   - id: error-ux
-    content: "Segment error.tsx/loading.tsx, mount Toaster, replace console.error with logger"
-    status: pending
+    content: 'Segment error.tsx/loading.tsx, mount Toaster, replace console.error with logger'
+    status: completed
   - id: seo
-    content: "Metadata (description/OG), favicon, robots.ts, sitemap.ts, metadataBase"
-    status: pending
+    content: 'Metadata (description/OG), favicon, robots.ts, sitemap.ts, metadataBase'
+    status: completed
   - id: auth-hardening
-    content: "trustedOrigins, session config, rate limiting in packages/auth"
+    content: 'trustedOrigins, session config, rate limiting in packages/auth'
     status: pending
   - id: db-prod
-    content: "Pooled connection docs, root db:* aliases, migrate-deploy wiring"
+    content: 'Pooled connection docs, root db:* aliases, migrate-deploy wiring'
     status: pending
   - id: ci
     content: New ci.yml (lint/typecheck/build/tests incl. apps/web + harmony-engine)
@@ -33,7 +33,7 @@ todos:
     content: Sentry scaffold (env-gated) + /api/health route
     status: pending
   - id: runbook
-    content: "docs/DEPLOYMENT.md runbook: Vercel setup, env secrets, domain repurpose steps"
+    content: 'docs/DEPLOYMENT.md runbook: Vercel setup, env secrets, domain repurpose steps'
     status: pending
   - id: agent-tooling
     content: New production-readiness skill + deploy-check command; recommend Vercel MCP

@@ -39,6 +39,13 @@ const config: StorybookConfig = {
         include: '**/*.svg',
       })
     );
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'next/image': fileURLToPath(
+        new URL('./mocks/next-image.tsx', import.meta.url)
+      ),
+    };
     return config;
   },
 };

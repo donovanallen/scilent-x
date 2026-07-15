@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn, Skeleton } from '@scilent-one/ui';
 import { Disc3 } from 'lucide-react';
+import Image from 'next/image';
 
 export interface AlbumArtworkProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -40,6 +41,17 @@ const sizeClasses = {
   '2xl': 'h-64 w-64',
   full: 'w-full aspect-square',
 } as const;
+
+const sizePx: Record<
+  Exclude<AlbumArtworkProps['size'], 'full' | undefined>,
+  number
+> = {
+  sm: 48,
+  md: 64,
+  lg: 128,
+  xl: 192,
+  '2xl': 256,
+};
 
 const roundedClasses = {
   none: '',
@@ -99,19 +111,6 @@ export function AlbumArtwork({
     });
   }, [sources.length]);
 
-  // Data-URI / cached images often complete before React binds onLoad.
-  const imageRef = React.useCallback((node: HTMLImageElement | null) => {
-    if (!node) return;
-    if (node.complete) {
-      if (node.naturalWidth > 0) {
-        setIsImageLoading(false);
-      } else if (node.currentSrc || node.src) {
-        // Broken image that finished without dimensions
-        setIsImageLoading(false);
-      }
-    }
-  }, []);
-
   // Loading state - skeleton
   if (isLoading) {
     return (
@@ -144,21 +143,26 @@ export function AlbumArtwork({
     );
   }
 
+  const isFull = size === 'full';
+  const px = !isFull ? sizePx[size] : undefined;
+
   return (
     <div className={cn(containerClasses, 'relative')} {...props}>
-      {/* Show skeleton while image is loading */}
       {isImageLoading && <Skeleton className="absolute inset-0" />}
-      <img
-        ref={imageRef}
+      <Image
         src={currentSrc}
         alt={alt}
+        {...(isFull
+          ? { fill: true as const, sizes: '100vw' }
+          : { width: px!, height: px!, sizes: `${px}px` })}
         className={cn(
-          'h-full w-full object-cover',
+          'object-cover',
+          isFull ? 'absolute inset-0 h-full w-full' : 'h-full w-full',
           hoverEffect &&
             'transition-transform duration-base ease-out group-hover:scale-105',
           isImageLoading && 'opacity-0'
         )}
-        loading="eager"
+        priority={size === 'xl' || size === '2xl'}
         onLoad={handleImageLoad}
         onError={handleImageError}
       />

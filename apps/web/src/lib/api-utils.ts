@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { cache } from 'react';
 
+import { isAdminUser } from './auth-guards';
 import { apiLogger } from './logger';
 
 export const getCurrentUser = cache(async () => {
@@ -23,6 +24,20 @@ export async function requireAuth() {
 
   return user;
 }
+
+/** Throws if the current user is not on the `ADMIN_EMAILS` allowlist. */
+export async function requireAdmin() {
+  const user = await requireAuth();
+  if (!isAdminUser(user)) {
+    throw new Error('Forbidden');
+  }
+  return user;
+}
+
+export const getIsAdmin = cache(async () => {
+  const user = await getCurrentUser();
+  return isAdminUser(user);
+});
 
 export function handleApiError(error: unknown) {
   // Log error with structured context
@@ -49,6 +64,13 @@ export function handleApiError(error: unknown) {
       return NextResponse.json(
         { error: 'Unauthorized', code: 'UNAUTHORIZED' },
         { status: 401 }
+      );
+    }
+
+    if (error.message === 'Forbidden') {
+      return NextResponse.json(
+        { error: 'Forbidden', code: 'FORBIDDEN' },
+        { status: 403 }
       );
     }
 

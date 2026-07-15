@@ -2,6 +2,11 @@
 
 import { db } from '@scilent-one/db';
 
+import { requireAdmin } from '@/lib/api-utils';
+import { createActionDomainLogger, toLogError } from '@/lib/logger';
+
+const log = createActionDomainLogger('admin-db');
+
 export type DbStatus = 'connected' | 'error' | 'not_configured';
 
 export interface AuthProviderInfo {
@@ -34,6 +39,8 @@ export interface DbTable {
  * Test the database connection and return status
  */
 export async function getDbStatus(): Promise<DbStatusResult> {
+  await requireAdmin();
+
   const databaseUrl = process.env.DATABASE_URL;
 
   if (!databaseUrl) {
@@ -67,6 +74,8 @@ export async function getDbStatus(): Promise<DbStatusResult> {
  * Parse DATABASE_URL and return sanitized metadata (no credentials)
  */
 export async function getDbMetadata(): Promise<DbMetadata> {
+  await requireAdmin();
+
   const databaseUrl = process.env.DATABASE_URL;
 
   if (!databaseUrl) {
@@ -105,6 +114,8 @@ export async function getDbMetadata(): Promise<DbMetadata> {
  * Return list of available database tables by introspecting the database
  */
 export async function getDbTables(): Promise<DbTable[]> {
+  await requireAdmin();
+
   try {
     // Query PostgreSQL's information_schema to get all user tables
     const tables = await db.$queryRaw<Array<{ table_name: string }>>`
@@ -121,8 +132,7 @@ export async function getDbTables(): Promise<DbTable[]> {
       displayName: formatTableDisplayName(row.table_name),
     }));
   } catch (error) {
-    // Fallback to empty array if introspection fails
-    console.error('Failed to introspect database tables:', error);
+    log.error('Failed to introspect database tables', toLogError(error));
     return [];
   }
 }
@@ -142,6 +152,8 @@ function formatTableDisplayName(tableName: string): string {
  * Get table row counts for all tables dynamically
  */
 export async function getTableCounts(): Promise<Record<string, number | null>> {
+  await requireAdmin();
+
   try {
     // Get all tables dynamically
     const tables = await getDbTables();
@@ -167,7 +179,7 @@ export async function getTableCounts(): Promise<Record<string, number | null>> {
           count: Number(result[0]?.count ?? 0),
         };
       } catch (error) {
-        console.error(`Failed to count rows for table ${table.name}:`, error);
+        log.error(`Failed to count rows for table ${table.name}`, toLogError(error));
         return {
           tableName: table.name,
           count: null,
@@ -186,7 +198,7 @@ export async function getTableCounts(): Promise<Record<string, number | null>> {
       {} as Record<string, number | null>
     );
   } catch (error) {
-    console.error('Failed to get table counts:', error);
+    log.error('Failed to get table counts', toLogError(error));
     return {};
   }
 }
@@ -196,6 +208,8 @@ export async function getTableCounts(): Promise<Record<string, number | null>> {
  * Checks environment variables to determine which providers are configured
  */
 export async function getAuthProviders(): Promise<AuthProviderInfo[]> {
+  await requireAdmin();
+
   const providers: AuthProviderInfo[] = [
     // Email/Password - always configured if enabled in auth config
     {

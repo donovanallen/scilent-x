@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from '@scilent-one/ui';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { Suspense } from 'react';
 
 import { getUsers, getUserCount } from './actions';
@@ -89,10 +90,12 @@ async function UsersTable() {
                   <td className='py-3'>
                     <div className='flex items-center gap-3'>
                       {user.image ? (
-                        <img
+                        <Image
                           src={user.image}
                           alt={user.name ?? 'User avatar'}
-                          className='size-8 rounded-full'
+                          width={32}
+                          height={32}
+                          className='size-8 rounded-full object-cover'
                         />
                       ) : (
                         <div className='size-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium'>

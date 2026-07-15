@@ -125,22 +125,6 @@ export const ROUTES = {
   },
 } as const;
 
-/**
- * Sanitize a post-authentication redirect target.
- *
- * Only same-origin, absolute-path destinations are allowed (e.g. `/reviews/new?url=...`).
- * Absolute URLs and protocol-relative paths (`//evil.com`) are rejected to avoid
- * open-redirect vulnerabilities. Returns `null` when the value is missing or unsafe,
- * letting callers fall back to a default destination.
- *
- * This underpins external review ingress: a deep link such as
- * `/login?redirect=/reviews/new?url=<providerUrl>` survives sign-in/sign-up and lands
- * the user on the pre-populated review composer.
- */
-export function sanitizeInternalRedirect(
-  value: string | null | undefined
-): string | null {
-  if (!value) return null;
-  if (!value.startsWith('/') || value.startsWith('//')) return null;
-  return value;
-}
+// Re-export so existing `@/lib/routes` imports keep working while
+// middleware can import the light copy from `@/lib/auth-guards`.
+export { sanitizeInternalRedirect } from './auth-guards';
