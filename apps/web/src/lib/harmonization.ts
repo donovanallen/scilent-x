@@ -14,6 +14,8 @@ import {
   type PlaylistCollectionParams,
 } from '@scilent-one/harmony-engine';
 
+import { env } from '@/env';
+
 // Singleton instance
 let engine: HarmonizationEngine | null = null;
 
@@ -111,13 +113,13 @@ function buildProviderConfig(
       },
       appName: 'ScilentWeb',
       appVersion: '0.1.0',
-      contact: process.env.MUSICBRAINZ_CONTACT ?? 'dev@example.com',
+      contact: env.MUSICBRAINZ_CONTACT ?? 'dev@example.com',
     };
   }
 
   // Spotify provider - requires client credentials
-  const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
-  const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+  const spotifyClientId = env.SPOTIFY_CLIENT_ID;
+  const spotifyClientSecret = env.SPOTIFY_CLIENT_SECRET;
 
   if (spotifyClientId && spotifyClientSecret && isProviderEnabled('spotify')) {
     providers.spotify = {
@@ -137,8 +139,8 @@ function buildProviderConfig(
   }
 
   // Tidal provider - requires client credentials
-  const tidalClientId = process.env.TIDAL_CLIENT_ID;
-  const tidalClientSecret = process.env.TIDAL_CLIENT_SECRET;
+  const tidalClientId = env.TIDAL_CLIENT_ID;
+  const tidalClientSecret = env.TIDAL_CLIENT_SECRET;
 
   if (tidalClientId && tidalClientSecret && isProviderEnabled('tidal')) {
     providers.tidal = {
@@ -154,15 +156,15 @@ function buildProviderConfig(
       },
       clientId: tidalClientId,
       clientSecret: tidalClientSecret,
-      countryCode: process.env.TIDAL_COUNTRY_CODE ?? 'US',
+      countryCode: env.TIDAL_COUNTRY_CODE ?? 'US',
     };
   }
 
   // Apple Music provider - requires a MusicKit developer token, minted from an
   // Apple Developer Team ID, a MusicKit Key ID, and the matching .p8 private key.
-  const appleMusicTeamId = process.env.APPLE_MUSIC_TEAM_ID;
-  const appleMusicKeyId = process.env.APPLE_MUSIC_KEY_ID;
-  const appleMusicPrivateKey = process.env.APPLE_MUSIC_PRIVATE_KEY;
+  const appleMusicTeamId = env.APPLE_MUSIC_TEAM_ID;
+  const appleMusicKeyId = env.APPLE_MUSIC_KEY_ID;
+  const appleMusicPrivateKey = env.APPLE_MUSIC_PRIVATE_KEY;
 
   if (
     appleMusicTeamId &&
@@ -184,7 +186,7 @@ function buildProviderConfig(
       teamId: appleMusicTeamId,
       keyId: appleMusicKeyId,
       privateKey: appleMusicPrivateKey,
-      storefront: process.env.APPLE_MUSIC_STOREFRONT || 'us',
+      storefront: env.APPLE_MUSIC_STOREFRONT || 'us',
     };
   }
 
@@ -202,20 +204,20 @@ export function getProvidersWithCredentials(): Set<string> {
   providers.add('musicbrainz');
 
   // Spotify - check for client credentials
-  if (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET) {
+  if (env.SPOTIFY_CLIENT_ID && env.SPOTIFY_CLIENT_SECRET) {
     providers.add('spotify');
   }
 
   // Tidal - check for client credentials
-  if (process.env.TIDAL_CLIENT_ID && process.env.TIDAL_CLIENT_SECRET) {
+  if (env.TIDAL_CLIENT_ID && env.TIDAL_CLIENT_SECRET) {
     providers.add('tidal');
   }
 
   // Apple Music - check for the MusicKit developer-token credentials
   if (
-    process.env.APPLE_MUSIC_TEAM_ID &&
-    process.env.APPLE_MUSIC_KEY_ID &&
-    process.env.APPLE_MUSIC_PRIVATE_KEY
+    env.APPLE_MUSIC_TEAM_ID &&
+    env.APPLE_MUSIC_KEY_ID &&
+    env.APPLE_MUSIC_PRIVATE_KEY
   ) {
     providers.add('apple_music');
   }

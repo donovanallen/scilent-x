@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cn, Badge, Skeleton, Separator } from '@scilent-one/ui';
 import type { HarmonizedArtist } from '../../types';
 import { formatPartialDate } from '../../utils';
+import Image from 'next/image';
 
 export interface ArtistHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   /** The harmonized artist data */
@@ -39,11 +40,14 @@ export function ArtistHeader({
       <div className="flex flex-col md:flex-row gap-6">
         {/* Artist Image */}
         <div className="shrink-0">
-          <div className="h-48 w-48 rounded-full overflow-hidden bg-muted">
+          <div className="h-48 w-48 rounded-full overflow-hidden bg-muted relative">
             {imageUrl ? (
-              <img
+              <Image
                 src={imageUrl}
                 alt={artist.name}
+                width={192}
+                height={192}
+                sizes="192px"
                 className="h-full w-full object-cover"
               />
             ) : (

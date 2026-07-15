@@ -11,6 +11,7 @@ import {
 import type { HarmonizedArtist } from '../../types';
 import { InteractiveWrapper } from '../../interactions/InteractiveWrapper';
 import { User } from 'lucide-react';
+import Image from 'next/image';
 
 export interface ArtistCardProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -71,11 +72,12 @@ export function ArtistCard({
     >
       <div className="aspect-square relative overflow-hidden bg-muted shrink-0">
         {imageUrl ? (
-          <img
+          <Image
             src={imageUrl}
             alt={artist.name}
-            className="h-full w-full object-cover"
-            loading="lazy"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover"
           />
         ) : (
           <div className="size-full flex items-center justify-center">

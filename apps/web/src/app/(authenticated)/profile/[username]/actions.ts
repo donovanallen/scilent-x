@@ -15,7 +15,10 @@ import {
   getPlaylistsFromProvider,
   getRecentlyPlayedFromProvider,
 } from '@/lib/harmonization';
+import { createActionDomainLogger, toLogError } from '@/lib/logger';
 import { getFreshAccessToken } from '@/lib/music-provider';
+
+const log = createActionDomainLogger('provider-profile');
 
 export interface ProviderProfileResult {
   success: boolean;
@@ -80,7 +83,7 @@ export async function getProviderProfile(
       profile,
     };
   } catch (error) {
-    console.error(`Failed to fetch ${providerId} profile:`, error);
+    log.error(`Failed to fetch ${providerId} profile`, toLogError(error));
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -217,7 +220,7 @@ export async function getFollowedArtists(
 
     return response;
   } catch (error) {
-    console.error(`Failed to fetch ${providerId} followed artists:`, error);
+    log.error(`Failed to fetch ${providerId} followed artists`, toLogError(error));
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -306,7 +309,7 @@ export async function getPlaylists(
 
     return response;
   } catch (error) {
-    console.error(`Failed to fetch ${providerId} playlists:`, error);
+    log.error(`Failed to fetch ${providerId} playlists`, toLogError(error));
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -379,7 +382,7 @@ export async function getRecentlyPlayed(
       nextCursor: result.nextCursor,
     };
   } catch (error) {
-    console.error(`Failed to fetch ${providerId} recently played:`, error);
+    log.error(`Failed to fetch ${providerId} recently played`, toLogError(error));
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

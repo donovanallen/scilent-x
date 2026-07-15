@@ -23,8 +23,32 @@ import { admin, genericOAuth } from 'better-auth/plugins';
 import { db } from '@scilent-one/db';
 import { createLogger } from '@scilent-one/logger';
 import { authLoggerHooks } from '@scilent-one/logger/auth';
+import { isAuthEmailConfigured, sendAuthEmail } from './email';
+import { getTrustedOrigins } from './origins';
 
 const logger = createLogger('auth:server');
+
+/** Prefer BETTER_AUTH_URL; fall back for local tooling. Validated by apps/web env. */
+const authBaseURL =
+  process.env.BETTER_AUTH_URL?.trim() || 'http://127.0.0.1:3000';
+
+/**
+ * Production requires BETTER_AUTH_SECRET (≥32 chars) via apps/web env schema.
+ * Better Auth also reads BETTER_AUTH_SECRET from the environment.
+ * Skip the hard throw when SKIP_ENV_VALIDATION=true (CI Next builds).
+ */
+const authSecret = process.env.BETTER_AUTH_SECRET?.trim();
+if (
+  process.env.NODE_ENV === 'production' &&
+  !authSecret &&
+  process.env.SKIP_ENV_VALIDATION !== 'true'
+) {
+  throw new Error(
+    'BETTER_AUTH_SECRET is required in production (set via apps/web env)'
+  );
+}
+
+const emailConfigured = isAuthEmailConfigured();
 
 /**
  * Generates a unique username for new users.
@@ -73,11 +97,18 @@ async function generateUniqueUsername(): Promise<string> {
  *
  * Features:
  * - Email/password authentication
- * - Social OAuth providers (Google, GitHub, Apple)
- * - Prisma database adapter
- * - Next.js cookie handling
+ * - Streaming account linking (Spotify / Tidal) via genericOAuth
+ * - Prisma database adapter + Next.js cookie handling
+ * - Rate limiting + production session defaults
+ *
+ * Social login (Google / GitHub / Apple) is intentionally disabled.
+ * Optional Resend email (verification + password reset) activates when
+ * RESEND_API_KEY is set — see packages/auth/src/email.ts.
  */
 export const auth = betterAuth({
+  baseURL: authBaseURL,
+  ...(authSecret ? { secret: authSecret } : {}),
+
   /**
    * Database Configuration
    * Uses Prisma adapter connected to PostgreSQL via @scilent-one/db
@@ -143,73 +174,82 @@ export const auth = betterAuth({
 
   /**
    * Email and Password Authentication
+   *
+   * requireEmailVerification stays false until RESEND_API_KEY is configured
+   * in production — avoids blocking launch on email provisioning.
    */
   emailAndPassword: {
     enabled: true,
-    // Require email verification before allowing sign-in
     requireEmailVerification: false,
-    // Minimum password length
     minPasswordLength: 8,
-    // Maximum password length
     maxPasswordLength: 128,
-    // Auto sign in after registration
     autoSignIn: true,
-    // Password reset configuration
-    // sendResetPassword: async ({ user, url, token }) => {
-    //   // TODO: Implement email sending
-    //   console.log(`Password reset for ${user.email}: ${url}`);
-    // },
+    sendResetPassword: async ({ user, url }) => {
+      await sendAuthEmail({
+        to: user.email,
+        subject: 'Reset your Scilent password',
+        text: `Click the link to reset your password:\n\n${url}\n`,
+      });
+    },
   },
 
   /**
-   * Email Verification Configuration
+   * Email Verification — wired when Resend is configured; no-ops otherwise.
+   * Enable requireEmailVerification (above) once AUTH_EMAIL_FROM is verified.
    */
-  // emailVerification: {
-  //   sendVerificationEmail: async ({ user, url, token }) => {
-  //     // TODO: Implement email sending
-  //     console.log(`Verification email for ${user.email}: ${url}`);
-  //   },
-  //   sendOnSignUp: true,
-  //   autoSignInAfterVerification: true,
-  // },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendAuthEmail({
+        to: user.email,
+        subject: 'Verify your Scilent email',
+        text: `Click the link to verify your email:\n\n${url}\n`,
+      });
+    },
+    sendOnSignUp: emailConfigured,
+    autoSignInAfterVerification: true,
+  },
 
   /**
-   * Social OAuth Providers
-   *
-   * Configure each provider with credentials from their developer consoles:
-   * - Google: https://console.cloud.google.com/apis/credentials
-   * - GitHub: https://github.com/settings/developers
-   * - Apple: https://developer.apple.com/account/resources/authkeys/list
+   * Social OAuth login (Google / GitHub / Apple) — disabled.
+   * Streaming providers use genericOAuth below for account linking only.
+   * To enable social login, uncomment socialProviders and set env vars
+   * (see docs/AUTH.md).
    */
-  // socialProviders: {
-  //   google: {
-  //     clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-  //     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-  //     // Always prompt user to select account
-  //     // prompt: 'select_account',
-  //   },
-  //   github: {
-  //     clientId: process.env.GITHUB_CLIENT_ID ?? '',
-  //     clientSecret: process.env.GITHUB_CLIENT_SECRET ?? '',
-  //   },
-  //   apple: {
-  //     clientId: process.env.APPLE_CLIENT_ID ?? '',
-  //     clientSecret: process.env.APPLE_CLIENT_SECRET ?? '',
-  //     // Required for native iOS apps using app bundle ID
-  //     // appBundleIdentifier: process.env.APPLE_APP_BUNDLE_IDENTIFIER,
-  //   },
-  // },
+  // socialProviders: { ... },
 
   /**
-   * Trusted Origins for CORS
-   * Add your production domains here
+   * Trusted Origins (CSRF / CORS)
+   * Derived from BETTER_AUTH_URL, NEXT_PUBLIC_APP_URL, and VERCEL_URL.
    */
-  trustedOrigins: [
-    // Apple Sign In requires this
-    // 'https://appleid.apple.com',
-    // Add your production domains
-    // 'https://yourdomain.com',
-  ],
+  trustedOrigins: getTrustedOrigins(),
+
+  /**
+   * Session lifetime
+   * expiresIn: absolute session max age (7 days).
+   * updateAge: rolling refresh window — extend expiry when older than 1 day.
+   */
+  session: {
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
+  },
+
+  /**
+   * Rate limiting on auth endpoints.
+   * Forced on in all environments so local load tests match production.
+   * Stricter rules for credential / reset paths.
+   */
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 100,
+    customRules: {
+      '/sign-in/email': { window: 60, max: 10 },
+      '/sign-up/email': { window: 60, max: 5 },
+      '/request-password-reset': { window: 60, max: 5 },
+      '/forget-password': { window: 60, max: 5 },
+      '/send-verification-email': { window: 60, max: 5 },
+    },
+  },
 
   /**
    * Plugins
@@ -508,14 +548,6 @@ export const auth = betterAuth({
     }),
     nextCookies(), // Must be last in the plugins array
   ],
-
-  /**
-   * Advanced Configuration
-   */
-  // session: {
-  //   expiresIn: 60 * 60 * 24 * 7, // 7 days
-  //   updateAge: 60 * 60 * 24, // 1 day
-  // },
 });
 
 /**

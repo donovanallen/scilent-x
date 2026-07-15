@@ -8,12 +8,15 @@ import {
   type HarmonizedTrack,
 } from '@scilent-one/harmony-engine';
 
+import { requireAdmin } from '@/lib/api-utils';
 import { getHarmonizationEngine } from '@/lib/harmonization';
 
 export async function lookupByGtin(gtin: string): Promise<{
   error: string | null;
   data: LookupResult<HarmonizedRelease> | null;
 }> {
+  await requireAdmin();
+
   if (!isValidGtin(gtin)) {
     return { error: 'Invalid GTIN format', data: null };
   }
@@ -34,6 +37,8 @@ export async function lookupByIsrc(isrc: string): Promise<{
   error: string | null;
   data: LookupResult<HarmonizedTrack> | null;
 }> {
+  await requireAdmin();
+
   if (!isValidIsrc(isrc)) {
     return { error: 'Invalid ISRC format', data: null };
   }
@@ -68,6 +73,8 @@ export async function lookupByUrl(url: string): Promise<{
   error: string | null;
   data: UrlLookupResult | null;
 }> {
+  await requireAdmin();
+
   const trimmed = url.trim();
   if (!isValidUrl(trimmed)) {
     return { error: 'Invalid URL format', data: null };
@@ -105,6 +112,8 @@ export async function searchReleases(
   error: string | null;
   data: HarmonizedRelease[] | null;
 }> {
+  await requireAdmin();
+
   const engine = await getHarmonizationEngine();
   try {
     const result = await engine.search(query, undefined, limit);
@@ -138,6 +147,8 @@ export interface ProviderStatus {
 }
 
 export async function getEngineStatus() {
+  await requireAdmin();
+
   const engine = await getHarmonizationEngine();
   const providers = engine.getEnabledProviders();
 

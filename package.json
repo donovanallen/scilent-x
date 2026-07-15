@@ -16,6 +16,12 @@
     "fix": "turbo lint && turbo format && turbo typecheck",
     "version": "pnpm exec changeset version",
     "release": "pnpm exec changeset publish",
+    "db:generate": "pnpm --filter @scilent-one/db db:generate",
+    "db:migrate": "pnpm --filter @scilent-one/db db:migrate",
+    "db:migrate:deploy": "pnpm --filter @scilent-one/db db:migrate:deploy",
+    "db:push": "pnpm --filter @scilent-one/db db:push",
+    "db:seed": "pnpm --filter @scilent-one/db db:seed",
+    "db:studio": "pnpm --filter @scilent-one/db db:studio",
     "clean:full": "rm -rf node_modules apps/*/node_modules apps/web/.next packages/*/node_modules .turbo apps/*/.turbo packages/*/.turbo",
     "reinstall": "pnpm clean:full && pnpm install"
   },

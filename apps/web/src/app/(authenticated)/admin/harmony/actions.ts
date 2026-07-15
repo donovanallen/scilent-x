@@ -3,11 +3,13 @@
 import { db } from '@scilent-one/db';
 import { revalidatePath } from 'next/cache';
 
+import { requireAdmin } from '@/lib/api-utils';
 import {
   resetEngine,
   getProvidersWithCredentials,
   type ProviderDbSetting,
 } from '@/lib/harmonization';
+import { createActionDomainLogger, toLogError } from '@/lib/logger';
 
 import {
   getDefaultPriority,
@@ -15,6 +17,8 @@ import {
   MIN_PROVIDER_PRIORITY,
   MAX_PROVIDER_PRIORITY,
 } from './provider-metadata';
+
+const log = createActionDomainLogger('admin-harmony');
 
 /**
  * List of known/supported provider names.
@@ -43,6 +47,8 @@ export interface ProviderSettingRow {
  * Returns empty array if no settings exist yet.
  */
 export async function getProviderSettings(): Promise<ProviderSettingRow[]> {
+  await requireAdmin();
+
   const settings = await db.providerSetting.findMany({
     orderBy: { providerName: 'asc' },
   });
@@ -64,6 +70,8 @@ export async function getProviderSettings(): Promise<ProviderSettingRow[]> {
 export async function getProviderSettingsMap(): Promise<
   Map<string, ProviderDbSetting>
 > {
+  await requireAdmin();
+
   const settings = await getProviderSettings();
   const map = new Map<string, ProviderDbSetting>();
 
@@ -83,10 +91,11 @@ export async function getProviderSettingsMap(): Promise<
 export async function getProviderCredentialsStatus(): Promise<
   Map<string, boolean>
 > {
+  await requireAdmin();
+
   const providersWithCredentials = getProvidersWithCredentials();
   const map = new Map<string, boolean>();
 
-  // All known providers
   const allProviders = ['musicbrainz', 'spotify', 'tidal', 'apple_music'];
 
   for (const provider of allProviders) {
@@ -102,14 +111,14 @@ export async function getProviderCredentialsStatus(): Promise<
  *
  * Requires an authenticated admin session (role check in admin layout +
  * Better Auth admin plugin on impersonation APIs).
-
  */
 export async function updateProviderEnabled(
   providerName: string,
   enabled: boolean
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Validate provider name to prevent arbitrary values in the database
+    await requireAdmin();
+
     if (!isValidProviderName(providerName)) {
       return {
         success: false,
@@ -117,7 +126,6 @@ export async function updateProviderEnabled(
       };
     }
 
-    // Check if the provider has credentials before enabling
     const providersWithCredentials = getProvidersWithCredentials();
 
     if (enabled && !providersWithCredentials.has(providerName)) {
@@ -127,7 +135,6 @@ export async function updateProviderEnabled(
       };
     }
 
-    // Upsert the setting in database
     await db.providerSetting.upsert({
       where: { providerName },
       update: { enabled },
@@ -138,15 +145,12 @@ export async function updateProviderEnabled(
       },
     });
 
-    // Reset the engine singleton so it rebuilds with new settings
     resetEngine();
-
-    // Revalidate the page to show updated state
     revalidatePath('/admin/harmony');
 
     return { success: true };
   } catch (error) {
-    console.error('Failed to update provider setting:', error);
+    log.error('Failed to update provider setting', toLogError(error));
     return {
       success: false,
       error:
@@ -160,14 +164,14 @@ export async function updateProviderEnabled(
  *
  * Requires an authenticated admin session (role check in admin layout +
  * Better Auth admin plugin on impersonation APIs).
-
  */
 export async function updateProviderPriority(
   providerName: string,
   priority: number
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Validate provider name to prevent arbitrary values in the database
+    await requireAdmin();
+
     if (!isValidProviderName(providerName)) {
       return {
         success: false,
@@ -175,7 +179,6 @@ export async function updateProviderPriority(
       };
     }
 
-    // Validate the priority is a finite number within the allowed range.
     if (!Number.isFinite(priority)) {
       return { success: false, error: 'Priority must be a number' };
     }
@@ -188,7 +191,6 @@ export async function updateProviderPriority(
       };
     }
 
-    // Upsert the setting in database
     await db.providerSetting.upsert({
       where: { providerName },
       update: { priority: normalized },
@@ -199,15 +201,12 @@ export async function updateProviderPriority(
       },
     });
 
-    // Reset the engine singleton so it rebuilds with new settings
     resetEngine();
-
-    // Revalidate the page to show updated state
     revalidatePath('/admin/harmony');
 
     return { success: true };
   } catch (error) {
-    console.error('Failed to update provider priority:', error);
+    log.error('Failed to update provider priority', toLogError(error));
     return {
       success: false,
       error:
