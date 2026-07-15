@@ -7,6 +7,8 @@ on:
 
 jobs:
   status:
+    # Version Packages PRs consume changesets by design; status would false-fail.
+    if: github.head_ref != 'changeset-release/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
