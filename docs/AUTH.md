@@ -233,6 +233,8 @@ Better Auth's [admin plugin](https://www.better-auth.com/docs/plugins/admin) is 
 
 - **Seeded admin:** run `pnpm --filter @scilent-one/db db:seed`, then sign in as
   `admin@scilent.local` (default password `password123`, or `SEED_USER_PASSWORD`).
+- **Set role:** Admin → Users → Make admin / Revoke admin (`authClient.admin.setRole`).
+  You cannot revoke your own admin role or demote the last remaining admin.
 - **Impersonate:** Admin → Users → Impersonate. An amber banner lets you stop and restore the
   admin session (`authClient.admin.stopImpersonating()`).
 - **Bootstrap without seed:** set `BETTER_AUTH_ADMIN_USER_IDS` to a comma-separated list of user IDs.

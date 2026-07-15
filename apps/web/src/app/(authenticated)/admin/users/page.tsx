@@ -1,3 +1,4 @@
+import { hasAdminRole } from '@scilent-one/auth/roles';
 import { PlatformBadgeList } from '@scilent-one/scilent-ui';
 import {
   Badge,
@@ -12,6 +13,7 @@ import Image from 'next/image';
 import { Suspense } from 'react';
 
 import { ImpersonateUserButton } from './_components/impersonate-user-button';
+import { SetUserRoleButton } from './_components/set-user-role-button';
 import { getUsers, getUserCount } from './actions';
 
 export const metadata: Metadata = {
@@ -63,13 +65,15 @@ async function UsersTable() {
     );
   }
 
+  const adminCount = users.filter((u) => hasAdminRole(u.role)).length;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>All Users</CardTitle>
         <CardDescription>
-          Impersonate a non-admin user to browse the app as them. Stop from the
-          amber banner in the shell when finished.
+          Promote or revoke admin role, or impersonate a non-admin to browse as
+          them. Stop impersonating from the amber banner in the shell.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -156,11 +160,19 @@ async function UsersTable() {
                     {formatDate(user.createdAt)}
                   </td>
                   <td className='py-3 text-right'>
-                    <ImpersonateUserButton
-                      userId={user.id}
-                      userName={user.name}
-                      userRole={user.role}
-                    />
+                    <div className='flex flex-col items-end gap-2'>
+                      <SetUserRoleButton
+                        userId={user.id}
+                        userName={user.name}
+                        userRole={user.role}
+                        isLastAdmin={hasAdminRole(user.role) && adminCount <= 1}
+                      />
+                      <ImpersonateUserButton
+                        userId={user.id}
+                        userName={user.name}
+                        userRole={user.role}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
