@@ -1,6 +1,10 @@
 import { db } from '@scilent-one/db';
 import type { PaginationParams, PaginatedResult, UserProfile } from '../types';
-import { getPaginationParams, createPaginatedResult, DEFAULT_PAGE_SIZE } from '../utils/pagination';
+import {
+  getPaginationParams,
+  createPaginatedResult,
+  DEFAULT_PAGE_SIZE,
+} from '../utils/pagination';
 import { NotFoundError } from '../utils/errors';
 
 const userSelect = {
@@ -11,6 +15,7 @@ const userSelect = {
   image: true,
   bio: true,
   email: true,
+  profileType: true,
   createdAt: true,
 } as const;
 

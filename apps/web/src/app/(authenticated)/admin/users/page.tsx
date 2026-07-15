@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { Suspense } from 'react';
 
 import { ImpersonateUserButton } from './_components/impersonate-user-button';
+import { ProfileTypeSelect } from './_components/profile-type-select';
 import { SetUserRoleButton } from './_components/set-user-role-button';
 import { getUsers, getUserCount } from './actions';
 
@@ -90,6 +91,9 @@ async function UsersTable() {
                   Status
                 </th>
                 <th className='pb-3 font-medium text-muted-foreground'>
+                  Profile Type
+                </th>
+                <th className='pb-3 font-medium text-muted-foreground'>
                   Connected
                 </th>
                 <th className='pb-3 font-medium text-muted-foreground'>
@@ -141,6 +145,12 @@ async function UsersTable() {
                     >
                       {user.emailVerified ? 'Verified' : 'Unverified'}
                     </Badge>
+                  </td>
+                  <td className='py-3'>
+                    <ProfileTypeSelect
+                      userId={user.id}
+                      currentProfileType={user.profileType}
+                    />
                   </td>
                   <td className='py-3'>
                     {user.connectedAccounts.length > 0 ? (

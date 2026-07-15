@@ -69,6 +69,14 @@ export {
 export { Avatar, AvatarImage, AvatarFallback } from './components/avatar';
 export { Badge, badgeVariants } from './components/badge';
 export {
+  ProfileTypePill,
+  getProfileTypeLabel,
+  profileTypeLabels,
+  profileTypeColors,
+  type ProfileTypePillProps,
+} from './components/profile-type-pill';
+export { PROFILE_TYPES, type ProfileType } from './components/profile-type';
+export {
   Breadcrumb,
   BreadcrumbList,
   BreadcrumbItem,

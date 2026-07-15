@@ -26,6 +26,8 @@ import {
 import { SimpleTiptapEditor } from '../simple-tiptap-editor';
 import { type MentionSuggestion } from '../mention-list';
 import { cn } from '../../utils';
+import type { ProfileType } from '../profile-type';
+import { ProfileTypePill } from '../profile-type-pill';
 
 export interface CommentCardAuthor {
   id: string;
@@ -33,6 +35,7 @@ export interface CommentCardAuthor {
   username: string | null;
   avatarUrl: string | null;
   image: string | null;
+  profileType?: ProfileType | null;
 }
 
 export interface CommentCardProps {
@@ -208,6 +211,7 @@ export function CommentCard({
           username={author.username}
           avatarUrl={author.avatarUrl}
           image={author.image}
+          profileType={author.profileType}
           size={isReply ? 'sm' : 'md'}
         />
       </button>
@@ -226,6 +230,9 @@ export function CommentCard({
           >
             {author.name || author.username || 'Anonymous'}
           </button>
+          {author.profileType && author.profileType !== 'USER' && (
+            <ProfileTypePill profileType={author.profileType} />
+          )}
           {author.username && (
             <button
               type="button"

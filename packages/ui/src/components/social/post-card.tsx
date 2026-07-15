@@ -37,6 +37,8 @@ import {
 import { PostCardComments } from './post-card-comments';
 import { cn } from '../../utils';
 import { Separator } from '../separator';
+import type { ProfileType } from '../profile-type';
+import { ProfileTypePill } from '../profile-type-pill';
 
 export interface PostCardAuthor {
   id: string;
@@ -44,6 +46,7 @@ export interface PostCardAuthor {
   username: string | null;
   avatarUrl: string | null;
   image: string | null;
+  profileType?: ProfileType | null;
 }
 
 export interface PostCardProps {
@@ -333,6 +336,7 @@ export function PostCard({
             username={author.username}
             avatarUrl={author.avatarUrl}
             image={author.image}
+            profileType={author.profileType}
             size="md"
           />
         </button>
@@ -352,6 +356,9 @@ export function PostCard({
             >
               {author.name || author.username || 'Anonymous'}
             </button>
+            {author.profileType && author.profileType !== 'USER' && (
+              <ProfileTypePill profileType={author.profileType} />
+            )}
             {author.username && (
               <button
                 type="button"

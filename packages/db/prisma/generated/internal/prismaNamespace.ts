@@ -1654,6 +1654,7 @@ export const UserScalarFieldEnum = {
   bio: 'bio',
   avatarUrl: 'avatarUrl',
   palette: 'palette',
+  profileType: 'profileType',
   role: 'role',
   banned: 'banned',
   banReason: 'banReason',
@@ -1937,6 +1938,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ProfileType'
+ */
+export type EnumProfileTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProfileType'>
+    
+
+
+/**
+ * Reference to a field of type 'ProfileType[]'
+ */
+export type ListEnumProfileTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProfileType[]'>
     
 
 

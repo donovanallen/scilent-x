@@ -23,6 +23,7 @@ export async function getUserById(
       bio: true,
       avatarUrl: true,
       image: true,
+      profileType: true,
       createdAt: true,
       _count: {
         select: {
@@ -69,6 +70,7 @@ export async function getUserById(
     bio: typedUser.bio,
     avatarUrl: typedUser.avatarUrl,
     image: typedUser.image,
+    profileType: typedUser.profileType,
     createdAt: typedUser.createdAt,
     _count: typedUser._count,
     isFollowing: currentUserId
@@ -103,6 +105,7 @@ export async function getUserByUsername(
       bio: true,
       avatarUrl: true,
       image: true,
+      profileType: true,
       createdAt: true,
       _count: {
         select: {
@@ -149,6 +152,7 @@ export async function getUserByUsername(
     bio: typedUser.bio,
     avatarUrl: typedUser.avatarUrl,
     image: typedUser.image,
+    profileType: typedUser.profileType,
     createdAt: typedUser.createdAt,
     _count: typedUser._count,
     isFollowing: currentUserId
@@ -192,6 +196,7 @@ export async function searchUsers(
       bio: true,
       avatarUrl: true,
       image: true,
+      profileType: true,
       createdAt: true,
       _count: {
         select: {
@@ -217,6 +222,7 @@ export async function searchUsers(
 
   const items = users.map((user) => ({
     ...user,
+    profileType: user.profileType,
     isFollowing: currentUserId ? user.followers.length > 0 : false,
     followers: undefined as unknown as never,
   })) as UserProfile[];
@@ -251,6 +257,7 @@ export async function getSuggestedUsers(
       bio: true,
       avatarUrl: true,
       image: true,
+      profileType: true,
       createdAt: true,
       _count: {
         select: {

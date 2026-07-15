@@ -1,6 +1,9 @@
 'use server';
 
 import { db } from '@scilent-one/db';
+import type { ProfileType } from '@scilent-one/db';
+import { setProfileType } from '@scilent-one/social';
+import { revalidatePath } from 'next/cache';
 
 import { requireAdmin } from '@/lib/api-utils';
 import { createActionDomainLogger, toLogError } from '@/lib/logger';
@@ -15,6 +18,7 @@ export type UserListItem = {
   id: string;
   email: string;
   name: string | null;
+  profileType: ProfileType;
   emailVerified: boolean;
   image: string | null;
   role: string | null;
@@ -35,6 +39,7 @@ export async function getUsers(): Promise<UserListItem[]> {
         id: true,
         email: true,
         name: true,
+        profileType: true,
         emailVerified: true,
         image: true,
         role: true,
@@ -72,5 +77,28 @@ export async function getUserCount(): Promise<number> {
   } catch (error) {
     log.error('Failed to count users', toLogError(error));
     return 0;
+  }
+}
+
+/**
+ * Updates a user's profile type
+ */
+export async function updateUserProfileType(
+  userId: string,
+  profileType: ProfileType
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    await setProfileType(userId, profileType);
+    revalidatePath('/admin/users');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update user profile type:', error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to update profile type',
+    };
   }
 }

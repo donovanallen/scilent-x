@@ -97,6 +97,7 @@ export const UserScalarFieldEnum = {
   bio: 'bio',
   avatarUrl: 'avatarUrl',
   palette: 'palette',
+  profileType: 'profileType',
   role: 'role',
   banned: 'banned',
   banReason: 'banReason',

@@ -36,6 +36,9 @@ model User {
   // Selected color palette (theme preset); mode (light/dark) is client-only.
   palette       String    @default("default")
 
+  // Profile type — user role/verification status
+  profileType   ProfileType @default(USER)
+
   // Better Auth admin plugin fields
   // https://www.better-auth.com/docs/plugins/admin#schema
   role          String?   @default("user")
@@ -143,6 +146,13 @@ enum ReviewSubjectType {
 enum PostVisibility {
   PUBLIC
   PRIVATE
+}
+
+/// Profile type — categorizes users by their role/verification status
+enum ProfileType {
+  USER
+  VOICE
+  ARTIST
 }
 
 /// Post model - User-created content

@@ -36,6 +36,7 @@ export type UserMinAggregateOutputType = {
   bio: string | null
   avatarUrl: string | null
   palette: string | null
+  profileType: $Enums.ProfileType | null
   role: string | null
   banned: boolean | null
   banReason: string | null
@@ -54,6 +55,7 @@ export type UserMaxAggregateOutputType = {
   bio: string | null
   avatarUrl: string | null
   palette: string | null
+  profileType: $Enums.ProfileType | null
   role: string | null
   banned: boolean | null
   banReason: string | null
@@ -72,6 +74,7 @@ export type UserCountAggregateOutputType = {
   bio: number
   avatarUrl: number
   palette: number
+  profileType: number
   role: number
   banned: number
   banReason: number
@@ -92,6 +95,7 @@ export type UserMinAggregateInputType = {
   bio?: true
   avatarUrl?: true
   palette?: true
+  profileType?: true
   role?: true
   banned?: true
   banReason?: true
@@ -110,6 +114,7 @@ export type UserMaxAggregateInputType = {
   bio?: true
   avatarUrl?: true
   palette?: true
+  profileType?: true
   role?: true
   banned?: true
   banReason?: true
@@ -128,6 +133,7 @@ export type UserCountAggregateInputType = {
   bio?: true
   avatarUrl?: true
   palette?: true
+  profileType?: true
   role?: true
   banned?: true
   banReason?: true
@@ -219,6 +225,7 @@ export type UserGroupByOutputType = {
   bio: string | null
   avatarUrl: string | null
   palette: string
+  profileType: $Enums.ProfileType
   role: string | null
   banned: boolean | null
   banReason: string | null
@@ -258,6 +265,7 @@ export type UserWhereInput = {
   bio?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   palette?: Prisma.StringFilter<"User"> | string
+  profileType?: Prisma.EnumProfileTypeFilter<"User"> | $Enums.ProfileType
   role?: Prisma.StringNullableFilter<"User"> | string | null
   banned?: Prisma.BoolNullableFilter<"User"> | boolean | null
   banReason?: Prisma.StringNullableFilter<"User"> | string | null
@@ -288,6 +296,7 @@ export type UserOrderByWithRelationInput = {
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   palette?: Prisma.SortOrder
+  profileType?: Prisma.SortOrder
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   banned?: Prisma.SortOrderInput | Prisma.SortOrder
   banReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -321,6 +330,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   bio?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   palette?: Prisma.StringFilter<"User"> | string
+  profileType?: Prisma.EnumProfileTypeFilter<"User"> | $Enums.ProfileType
   role?: Prisma.StringNullableFilter<"User"> | string | null
   banned?: Prisma.BoolNullableFilter<"User"> | boolean | null
   banReason?: Prisma.StringNullableFilter<"User"> | string | null
@@ -351,6 +361,7 @@ export type UserOrderByWithAggregationInput = {
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   palette?: Prisma.SortOrder
+  profileType?: Prisma.SortOrder
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   banned?: Prisma.SortOrderInput | Prisma.SortOrder
   banReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -375,6 +386,7 @@ export type UserScalarWhereWithAggregatesInput = {
   bio?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   palette?: Prisma.StringWithAggregatesFilter<"User"> | string
+  profileType?: Prisma.EnumProfileTypeWithAggregatesFilter<"User"> | $Enums.ProfileType
   role?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   banned?: Prisma.BoolNullableWithAggregatesFilter<"User"> | boolean | null
   banReason?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -393,6 +405,7 @@ export type UserCreateInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -423,6 +436,7 @@ export type UserUncheckedCreateInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -453,6 +467,7 @@ export type UserUpdateInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -483,6 +498,7 @@ export type UserUncheckedUpdateInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -513,6 +529,7 @@ export type UserCreateManyInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -531,6 +548,7 @@ export type UserUpdateManyMutationInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -549,6 +567,7 @@ export type UserUncheckedUpdateManyInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -567,6 +586,7 @@ export type UserCountOrderByAggregateInput = {
   bio?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   palette?: Prisma.SortOrder
+  profileType?: Prisma.SortOrder
   role?: Prisma.SortOrder
   banned?: Prisma.SortOrder
   banReason?: Prisma.SortOrder
@@ -585,6 +605,7 @@ export type UserMaxOrderByAggregateInput = {
   bio?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   palette?: Prisma.SortOrder
+  profileType?: Prisma.SortOrder
   role?: Prisma.SortOrder
   banned?: Prisma.SortOrder
   banReason?: Prisma.SortOrder
@@ -603,6 +624,7 @@ export type UserMinOrderByAggregateInput = {
   bio?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   palette?: Prisma.SortOrder
+  profileType?: Prisma.SortOrder
   role?: Prisma.SortOrder
   banned?: Prisma.SortOrder
   banReason?: Prisma.SortOrder
@@ -633,6 +655,10 @@ export type NullableStringFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type EnumProfileTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ProfileType
 }
 
 export type NullableBoolFieldUpdateOperationsInput = {
@@ -825,6 +851,7 @@ export type UserCreateWithoutAccountsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -854,6 +881,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -899,6 +927,7 @@ export type UserUpdateWithoutAccountsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -928,6 +957,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -957,6 +987,7 @@ export type UserCreateWithoutSessionsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -986,6 +1017,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1031,6 +1063,7 @@ export type UserUpdateWithoutSessionsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1060,6 +1093,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1089,6 +1123,7 @@ export type UserCreateWithoutPostsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1118,6 +1153,7 @@ export type UserUncheckedCreateWithoutPostsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1163,6 +1199,7 @@ export type UserUpdateWithoutPostsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1192,6 +1229,7 @@ export type UserUncheckedUpdateWithoutPostsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1221,6 +1259,7 @@ export type UserCreateWithoutRepostsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1250,6 +1289,7 @@ export type UserUncheckedCreateWithoutRepostsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1295,6 +1335,7 @@ export type UserUpdateWithoutRepostsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1324,6 +1365,7 @@ export type UserUncheckedUpdateWithoutRepostsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1353,6 +1395,7 @@ export type UserCreateWithoutCommentsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1382,6 +1425,7 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1427,6 +1471,7 @@ export type UserUpdateWithoutCommentsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1456,6 +1501,7 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1485,6 +1531,7 @@ export type UserCreateWithoutLikesInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1514,6 +1561,7 @@ export type UserUncheckedCreateWithoutLikesInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1559,6 +1607,7 @@ export type UserUpdateWithoutLikesInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1588,6 +1637,7 @@ export type UserUncheckedUpdateWithoutLikesInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1617,6 +1667,7 @@ export type UserCreateWithoutFollowingInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1646,6 +1697,7 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1680,6 +1732,7 @@ export type UserCreateWithoutFollowersInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1709,6 +1762,7 @@ export type UserUncheckedCreateWithoutFollowersInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1754,6 +1808,7 @@ export type UserUpdateWithoutFollowingInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1783,6 +1838,7 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1823,6 +1879,7 @@ export type UserUpdateWithoutFollowersInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1852,6 +1909,7 @@ export type UserUncheckedUpdateWithoutFollowersInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1881,6 +1939,7 @@ export type UserCreateWithoutMentionsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1910,6 +1969,7 @@ export type UserUncheckedCreateWithoutMentionsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -1955,6 +2015,7 @@ export type UserUpdateWithoutMentionsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1984,6 +2045,7 @@ export type UserUncheckedUpdateWithoutMentionsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2013,6 +2075,7 @@ export type UserCreateWithoutActivitiesInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -2042,6 +2105,7 @@ export type UserUncheckedCreateWithoutActivitiesInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -2087,6 +2151,7 @@ export type UserUpdateWithoutActivitiesInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2116,6 +2181,7 @@ export type UserUncheckedUpdateWithoutActivitiesInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2145,6 +2211,7 @@ export type UserCreateWithoutConversationParticipantsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -2174,6 +2241,7 @@ export type UserUncheckedCreateWithoutConversationParticipantsInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -2219,6 +2287,7 @@ export type UserUpdateWithoutConversationParticipantsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2248,6 +2317,7 @@ export type UserUncheckedUpdateWithoutConversationParticipantsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2277,6 +2347,7 @@ export type UserCreateWithoutMessagesInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -2306,6 +2377,7 @@ export type UserUncheckedCreateWithoutMessagesInput = {
   bio?: string | null
   avatarUrl?: string | null
   palette?: string
+  profileType?: $Enums.ProfileType
   role?: string | null
   banned?: boolean | null
   banReason?: string | null
@@ -2351,6 +2423,7 @@ export type UserUpdateWithoutMessagesInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2380,6 +2453,7 @@ export type UserUncheckedUpdateWithoutMessagesInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   palette?: Prisma.StringFieldUpdateOperationsInput | string
+  profileType?: Prisma.EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2539,6 +2613,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   bio?: boolean
   avatarUrl?: boolean
   palette?: boolean
+  profileType?: boolean
   role?: boolean
   banned?: boolean
   banReason?: boolean
@@ -2570,6 +2645,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   bio?: boolean
   avatarUrl?: boolean
   palette?: boolean
+  profileType?: boolean
   role?: boolean
   banned?: boolean
   banReason?: boolean
@@ -2588,6 +2664,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   bio?: boolean
   avatarUrl?: boolean
   palette?: boolean
+  profileType?: boolean
   role?: boolean
   banned?: boolean
   banReason?: boolean
@@ -2606,13 +2683,14 @@ export type UserSelectScalar = {
   bio?: boolean
   avatarUrl?: boolean
   palette?: boolean
+  profileType?: boolean
   role?: boolean
   banned?: boolean
   banReason?: boolean
   banExpires?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "emailVerified" | "name" | "image" | "createdAt" | "updatedAt" | "username" | "bio" | "avatarUrl" | "palette" | "role" | "banned" | "banReason" | "banExpires", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "emailVerified" | "name" | "image" | "createdAt" | "updatedAt" | "username" | "bio" | "avatarUrl" | "palette" | "profileType" | "role" | "banned" | "banReason" | "banExpires", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
@@ -2659,6 +2737,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     bio: string | null
     avatarUrl: string | null
     palette: string
+    profileType: $Enums.ProfileType
     role: string | null
     banned: boolean | null
     banReason: string | null
@@ -3109,6 +3188,7 @@ export interface UserFieldRefs {
   readonly bio: Prisma.FieldRef<"User", 'String'>
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
   readonly palette: Prisma.FieldRef<"User", 'String'>
+  readonly profileType: Prisma.FieldRef<"User", 'ProfileType'>
   readonly role: Prisma.FieldRef<"User", 'String'>
   readonly banned: Prisma.FieldRef<"User", 'Boolean'>
   readonly banReason: Prisma.FieldRef<"User", 'String'>

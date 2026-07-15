@@ -16,6 +16,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
   Separator,
+  ProfileTypePill,
 } from '@scilent-one/ui';
 import {
   ChevronDown,
@@ -240,6 +241,14 @@ export default function SettingsPage() {
                       {user?.id}
                     </span>
                   </div>
+                  {user?.profileType && (
+                    <div className='flex justify-between items-center'>
+                      <span className='text-sm text-muted-foreground'>
+                        Profile Type
+                      </span>
+                      <ProfileTypePill profileType={user.profileType} />
+                    </div>
+                  )}
                   {user?.createdAt && (
                     <div className='flex justify-between items-center'>
                       <span className='text-sm text-muted-foreground'>

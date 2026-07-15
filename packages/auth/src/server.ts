@@ -130,6 +130,12 @@ export const auth = betterAuth({
         defaultValue: 'default',
         input: true,
       },
+      profileType: {
+        type: 'string',
+        required: false,
+        defaultValue: 'USER',
+        input: false,
+      },
     },
   },
 

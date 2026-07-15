@@ -102,6 +102,7 @@ export {
   searchUsers,
   getSuggestedUsers,
   updateProfile,
+  setProfileType,
   checkUsernameAvailability,
 } from './users';
 

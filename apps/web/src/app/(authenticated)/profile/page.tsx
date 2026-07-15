@@ -7,6 +7,7 @@ import {
   useInfiniteScroll,
   Skeleton,
   type PostCardProps,
+  type ProfileType,
   Card,
   CardTitle,
   CardContent,
@@ -39,6 +40,7 @@ interface UserProfile {
   image: string | null;
   email: string;
   createdAt: string;
+  profileType?: ProfileType | null;
   _count?:
     | {
         posts: number;
@@ -455,6 +457,7 @@ export default function MyProfilePage() {
           bio={profile.bio}
           avatarUrl={profile.avatarUrl}
           image={profile.image}
+          profileType={profile.profileType}
           postsCount={profile._count?.posts ?? 0}
           followersCount={profile._count?.followers ?? 0}
           followingCount={profile._count?.following ?? 0}
