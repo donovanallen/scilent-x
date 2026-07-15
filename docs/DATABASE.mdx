@@ -95,15 +95,16 @@ packages/db/
 
 Run these from the monorepo root using pnpm filters:
 
-| Script         | Command                                           | Description                    |
-| -------------- | ------------------------------------------------- | ------------------------------ |
-| Generate       | `pnpm --filter @scilent-one/db db:generate`       | Generate Prisma Client         |
-| Migrate (dev)  | `pnpm --filter @scilent-one/db db:migrate`        | Create and run migrations      |
-| Migrate (prod) | `pnpm --filter @scilent-one/db db:migrate:deploy` | Run existing migrations        |
-| Push           | `pnpm --filter @scilent-one/db db:push`           | Push schema without migrations |
-| Studio         | `pnpm --filter @scilent-one/db db:studio`         | Open Prisma Studio GUI         |
+| Script         | Command                                            | Description                    |
+| -------------- | -------------------------------------------------- | ------------------------------ |
+| Generate       | `pnpm db:generate` (or `--filter @scilent-one/db`) | Generate Prisma Client         |
+| Migrate (dev)  | `pnpm db:migrate`                                  | Create and run migrations      |
+| Migrate (prod) | `pnpm db:migrate:deploy`                           | Run existing migrations        |
+| Push           | `pnpm db:push`                                     | Push schema without migrations |
+| Seed           | `pnpm db:seed`                                     | Seed development data          |
+| Studio         | `pnpm db:studio`                                   | Open Prisma Studio GUI         |
 
-Or from within the `packages/db` directory:
+Root `db:*` scripts proxy to `@scilent-one/db`. From within `packages/db`:
 
 ```bash
 cd packages/db
@@ -112,6 +113,29 @@ pnpm db:migrate
 pnpm db:push
 pnpm db:studio
 ```
+
+---
+
+## Production / serverless connections
+
+On Vercel (and similar serverless hosts), prefer a **pooled** `DATABASE_URL` from your
+provider (Neon pooler, Supabase pooler / port 6543, PgBouncer, etc.). Direct connections
+exhaust max connections under concurrent serverless invocations.
+
+| Use            | When                                                                                |
+| -------------- | ----------------------------------------------------------------------------------- |
+| **Pooled URL** | App runtime on Vercel / serverless (`DATABASE_URL` in `apps/web`)                   |
+| **Direct URL** | `prisma migrate` / some providers' migrate tooling when pooler does not support DDL |
+
+Optional pool sizing for the `PrismaPg` adapter (read by `packages/db`):
+
+```env
+# Cap pg pool size per process (production default: 5 if unset)
+DATABASE_POOL_MAX=5
+```
+
+Wire `pnpm db:migrate:deploy` into the production build on Vercel — see
+[DEPLOYMENT.md](./DEPLOYMENT.md) (WS8).
 
 ---
 

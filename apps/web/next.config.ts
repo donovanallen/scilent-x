@@ -1,4 +1,5 @@
 import createMDX from '@next/mdx';
+import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
 // Validate env at build time (skipped when SKIP_ENV_VALIDATION=true or NODE_ENV=test).
@@ -81,4 +82,26 @@ const withMDX = createMDX({
   options: {},
 });
 
-export default withMDX(nextConfig);
+const config = withMDX(nextConfig);
+
+/**
+ * Wrap with Sentry always so instrumentation hooks stay consistent.
+ * Source-map upload only runs when SENTRY_AUTH_TOKEN (+ org/project) are set;
+ * runtime reporting stays off until NEXT_PUBLIC_SENTRY_DSN / SENTRY_DSN exist.
+ */
+const sentryOptions = {
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+  ...(process.env.SENTRY_ORG ? { org: process.env.SENTRY_ORG } : {}),
+  ...(process.env.SENTRY_PROJECT
+    ? { project: process.env.SENTRY_PROJECT }
+    : {}),
+  ...(process.env.SENTRY_AUTH_TOKEN
+    ? { authToken: process.env.SENTRY_AUTH_TOKEN }
+    : {}),
+};
+
+export default withSentryConfig(config, sentryOptions);

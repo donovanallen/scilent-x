@@ -7,7 +7,8 @@ import { hasAdminRole } from '@scilent-one/auth/roles';
 export function isAdminUser(
   user: { role?: string | string[] | null } | null | undefined
 ): boolean {
-  return hasAdminRole(user?.role);
+  // Normalize `undefined` so exactOptionalPropertyTypes accepts Better Auth User.
+  return hasAdminRole(user?.role ?? null);
 }
 
 /** Paths that do not require a session cookie (optimistic middleware). */

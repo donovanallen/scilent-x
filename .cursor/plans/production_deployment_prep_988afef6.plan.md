@@ -25,13 +25,13 @@ todos:
     status: completed
   - id: db-prod
     content: 'Pooled connection docs, root db:* aliases, migrate-deploy wiring'
-    status: pending
+    status: completed
   - id: ci
     content: New ci.yml (lint/typecheck/build/tests incl. apps/web + harmony-engine)
     status: completed
   - id: observability
     content: Sentry scaffold (env-gated) + /api/health route
-    status: pending
+    status: completed
   - id: platform-provisioning
     content: 'WS8: Vercel project, env secrets, migrate-on-deploy, domain/DNS, Sentry DSN'
     status: pending
@@ -40,7 +40,7 @@ todos:
     status: completed
   - id: agent-tooling
     content: New production-readiness skill + deploy-check command; recommend Vercel MCP
-    status: pending
+    status: completed
 isProject: false
 ---
 
@@ -48,31 +48,20 @@ isProject: false
 
 ## Progress (as of 2026-07-15)
 
-Branch: `cursor/production-deployment-prep-plan-7c85` (PR #128). Reviewed against this plan and commits through `5f0f4aa`.
+Branch: `cursor/production-deployment-prep-plan-7c85` (PR #128).
 
-| WS    | Focus                 | Status                             | Notes                                                                                                                                                                                                    |
-| ----- | --------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **1** | Frontend hardening    | **Done**                           | Middleware cookie gate, server auth layout, admin RBAC via Better Auth roles, `next/image` + remotePatterns, security headers, error/loading/Toaster, SEO (metadata/robots/sitemap/icon), logger cleanup |
-| **2** | Env validation        | **Done**                           | `apps/web/src/env.ts` (`@t3-oss/env-nextjs` + zod), instrumentation + next.config boot validation, reconciled `.env.example`s, `docs/AUTH.md` updated                                                    |
-| **3** | DB / Prisma prod      | **Not started (local draft only)** | Root `db:*` aliases drafted in **uncommitted** `package.json` / `AGENTS.md` only. No pool sizing in `PrismaPg`, no pooled-URL docs landed on branch. Migrate-on-deploy wire-up is **WS8**                |
-| **4** | Auth hardening        | **Done**                           | `trustedOrigins`, session 7d/1d, rate limits, optional Resend, changeset `.changeset/auth-production-hardening.md`                                                                                       |
-| **5** | CI/CD (in-repo)       | **Done**                           | `.github/workflows/ci.yml`; `test.yml` includes `apps/web` + harmony-engine; draft `docs/DEPLOYMENT.md` + `apps/web/vercel.json`                                                                         |
-| **6** | Observability (code)  | **Not started**                    | No `/api/health`; no `@sentry/nextjs` scaffold                                                                                                                                                           |
-| **7** | Agent tooling         | **Not started**                    | No `production-readiness` skill / `deploy-check` command yet                                                                                                                                             |
-| **8** | Platform provisioning | **Deferred**                       | Vercel project, secrets, migrate-on-deploy on live build, domain/DNS, Sentry DSN — dashboard work                                                                                                        |
+| WS    | Focus                 | Status       | Notes                                                                                                                                                                                                    |
+| ----- | --------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1** | Frontend hardening    | **Done**     | Middleware cookie gate, server auth layout, admin RBAC via Better Auth roles, `next/image` + remotePatterns, security headers, error/loading/Toaster, SEO (metadata/robots/sitemap/icon), logger cleanup |
+| **2** | Env validation        | **Done**     | `apps/web/src/env.ts` (`@t3-oss/env-nextjs` + zod), instrumentation + next.config boot validation, reconciled `.env.example`s, `docs/AUTH.md` updated                                                    |
+| **3** | DB / Prisma prod      | **Done**     | Root `db:*` aliases + AGENTS.md; pooled `DATABASE_URL` docs; optional `DATABASE_POOL_MAX` + prod default pool max 5 in `PrismaPg`; migrate-on-deploy **wire-up remains WS8**                             |
+| **4** | Auth hardening        | **Done**     | `trustedOrigins`, session 7d/1d, rate limits, optional Resend, changeset `.changeset/auth-production-hardening.md`                                                                                       |
+| **5** | CI/CD (in-repo)       | **Done**     | `.github/workflows/ci.yml`; `test.yml` includes `apps/web` + harmony-engine; draft `docs/DEPLOYMENT.md` + `apps/web/vercel.json`                                                                         |
+| **6** | Observability (code)  | **Done**     | `/api/health` (DB ping); `@sentry/nextjs` env-gated scaffold (client/server/edge); wired into `global-error.tsx` + `handleApiError`; DSN creation is **WS8**                                             |
+| **7** | Agent tooling         | **Done**     | `.cursor/skills/production-readiness/SKILL.md` + `.cursor/commands/deploy-check.md`; Vercel/Sentry MCP recommended post-WS8                                                                              |
+| **8** | Platform provisioning | **Deferred** | Vercel project, secrets, migrate-on-deploy on live build, domain/DNS, Sentry DSN — dashboard work (expanded runbook below)                                                                               |
 
-**Branch commits for this plan (newest first):**
-
-- `5f0f4aa` — docs(plans): update production prep progress against branch
-- `16d60c0` — feat(auth): harden Better Auth and add production CI (WS4 + WS5)
-- `d57a3ed` — feat(web): add typed env validation (WS2)
-- `1d3ec5f` — lockfile fix after merge
-- `f5a84d3` — feat(web): harden frontend for production readiness (WS1)
-- `cbf2cd9` — docs(plans): add this plan
-
-**Remaining code before go-live:** WS3 (aliases + pool docs), WS6 (health + env-gated Sentry), WS7 (skill/command). **Then WS8** with you on the dashboard.
-
-**Uncommitted local (not on branch yet):** `AGENTS.md` + root `package.json` `db:*` aliases (belongs in WS3); unrelated WIP under `apps/web` (admin status pages) — keep out of plan commits unless intentional.
+**In-repo code for this plan is complete through WS7.** Remaining go-live work is **WS8** (dashboard / account).
 
 ## Assumptions (flag if wrong)
 
@@ -94,11 +83,13 @@ Branch: `cursor/production-deployment-prep-plan-7c85` (PR #128). Reviewed agains
 - Reconciled [apps/web/.env.example](apps/web/.env.example), [packages/db/.env.example](packages/db/.env.example), [packages/auth/.env.example](packages/auth/.env.example); [docs/AUTH.md](docs/AUTH.md) points at canonical web template.
 - Secrets live in Vercel project env settings (prod/preview split); nothing committed. **Dashboard entry of secrets → [WS8](#workstream-8--platform-provisioning-deferred).**
 
-## Workstream 3 — DB & Prisma ⏳
+## Workstream 3 — DB & Prisma ✅
 
 - Migrations already exist under [packages/db/prisma/migrations](packages/db/prisma/migrations) with package script `db:migrate:deploy` — **wire into live deploy in [WS8](#workstream-8--platform-provisioning-deferred)**. No schema changes needed for launch.
-- **Still todo:** document/verify pooled `DATABASE_URL` for serverless; optionally add explicit pool sizing to `PrismaPg` in [packages/db/src/client.ts](packages/db/src/client.ts) (today: plain `connectionString` only).
-- **Still todo (draft exists locally, uncommitted):** root `db:*` script aliases + AGENTS.md lines for `db:migrate:deploy` / `db:seed`. Commit as part of this workstream.
+- Root `db:*` aliases in [package.json](package.json) + [AGENTS.md](AGENTS.md): `db:generate`, `db:migrate`, `db:migrate:deploy`, `db:push`, `db:seed`, `db:studio`.
+- Pooled URL guidance in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) and [docs/DATABASE.mdx](docs/DATABASE.mdx).
+- Optional `DATABASE_POOL_MAX` on `PrismaPg` in [packages/db/src/client.ts](packages/db/src/client.ts) (production default max **5** when unset). Changeset: `.changeset/db-pool-max.md`.
+- Exact migrate-on-deploy command for Vercel: `pnpm db:migrate:deploy` (from monorepo root) — see WS8.
 
 ## Workstream 4 — Auth hardening (`packages/auth`) ✅
 
@@ -120,43 +111,142 @@ Branch: `cursor/production-deployment-prep-plan-7c85` (PR #128). Reviewed agains
 
 - Vercel project creation, env secret entry, migrate-on-deploy on a live project, domain/DNS — **not done here**.
 
-## Workstream 6 — Observability (code later; DSN → WS8) ⏳
+## Workstream 6 — Observability (code) ✅
 
-- Add **Sentry** (`@sentry/nextjs`) for client + server error reporting; wire it into `global-error.tsx` and `handleApiError` in [apps/web/src/lib/api-utils.ts](apps/web/src/lib/api-utils.ts). Pino stays for structured server logs (Vercel captures stdout). Scaffold env-gated; **creating the Sentry project and pasting DSNs is [WS8](#workstream-8--platform-provisioning-deferred).**
-- Add a `/api/health` route (DB ping) for uptime checks.
-- **Status:** neither health route nor Sentry scaffold exists on the branch yet.
+- **`GET /api/health`**: DB `SELECT 1`, JSON `{ status, checks.database.{ status, latencyMs } }`, no auth (middleware already treats `/api/*` as public for cookie redirects).
+- **Sentry** (`@sentry/nextjs`): `instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`; `instrumentation.ts` registers + `onRequestError`; `withSentryConfig` in `next.config.ts` with source maps **disabled** unless `SENTRY_AUTH_TOKEN` is set; runtime `enabled: Boolean(dsn)`.
+- Wired into [global-error.tsx](apps/web/src/app/global-error.tsx) and [handleApiError](apps/web/src/lib/api-utils.ts) (skips 401/403).
+- Optional env in `apps/web/src/env.ts` + `.env.example`: `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`.
+- **Creating the Sentry project and pasting DSNs is [WS8](#workstream-8--platform-provisioning-deferred).**
 
-## Workstream 7 — Recommended tooling for repeatable deploys ⏳
+## Workstream 7 — Recommended tooling for repeatable deploys ✅
 
-**Existing/reputable to adopt:**
+**Existing/reputable to adopt (after WS8):**
 
-- **Vercel MCP server** (official, `mcp.vercel.com`) — lets agents inspect deployments, logs, and env vars; the single most useful addition for this workflow.
-- **Sentry MCP** — once Sentry is in, agents can triage prod errors directly.
+- **Vercel MCP server** (official, `mcp.vercel.com`) — lets agents inspect deployments, logs, and env vars.
+- **Sentry MCP** — once Sentry DSN is live, agents can triage prod errors directly.
 - `gh` CLI already available for CI inspection.
 
-**Net-new for this repo:**
+**Net-new in this repo:**
 
-- `.cursor/skills/production-readiness/SKILL.md` — the audit checklist from this plan (auth gate, env schema, headers, images, migrations) so future agents re-verify before each deploy.
-- `.cursor/commands/deploy-check.md` — pre-deploy command: `pnpm fix` + build + `changeset status` + env-example drift check + migration status.
-- Extend the existing `responsive-testing` skill usage into CI later (optional, post-launch).
-- **Status:** skill + command not created yet.
+- [`.cursor/skills/production-readiness/SKILL.md`](.cursor/skills/production-readiness/SKILL.md) — audit checklist (auth gate, env schema, headers, images, migrations, CI, health, Sentry, trustedOrigins).
+- [`.cursor/commands/deploy-check.md`](.cursor/commands/deploy-check.md) — pre-deploy: `pnpm fix` + build + `changeset status` + env-example drift + migration/health considerations.
 
 ## Workstream 8 — Platform provisioning (deferred)
 
-External dashboard / account work. In-repo hooks: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), `apps/web/vercel.json`, `SKIP_ENV_VALIDATION` in CI. Root `pnpm db:migrate:deploy` lands with WS3 (script already exists under `packages/db`). **Do not block code PRs on this list.**
+External dashboard / account work. In-repo hooks are ready; **do not block code PRs on this list.** Canonical short copy also lives in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-Checklist:
+### Still outstanding from earlier streams (platform-only)
 
-- [ ] Create Vercel project for this repo; **Root Directory** = `apps/web`
-- [ ] Configure install/build (see `vercel.json` / DEPLOYMENT.md); confirm Turborepo + `pnpm` versions
-- [ ] Enter Production + Preview env vars from `apps/web/.env.example` (at least `DATABASE_URL` pooled, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`)
-- [ ] Optional: `RESEND_API_KEY`, `AUTH_EMAIL_FROM`, streaming/Apple Music keys, `NEXT_PUBLIC_APP_URL`
-- [ ] Wire **migrate-on-deploy**: run `pnpm db:migrate:deploy` in the production build (or install) command so schema ships with the code
-- [ ] Attach custom domain / DNS (or move domain from the old Vercel project)
-- [ ] Create Sentry project; set DSN env vars after WS6 scaffolds `@sentry/nextjs`
-- [ ] Smoke-test production deploy + auth cookie/origin + DB connectivity
-- [ ] Confirm Preview deploys get Preview env + acceptable `trustedOrigins` behavior
+| From | Outstanding until WS8                                                                         |
+| ---- | --------------------------------------------------------------------------------------------- |
+| WS2  | Enter secrets in Vercel (Production + Preview); nothing else for env schema                   |
+| WS3  | Wire `pnpm db:migrate:deploy` into the live build command; confirm pooled prod `DATABASE_URL` |
+| WS4  | Set production `BETTER_AUTH_URL` / optional Resend keys; verify cookies on real domain        |
+| WS5  | Create Vercel project; `vercel.json` install/build already drafted                            |
+| WS6  | Create Sentry project; set DSN (+ optional source-map token/org/project)                      |
+| WS7  | Enable Vercel MCP + Sentry MCP for agents after projects exist                                |
+
+### Step-by-step runbook
+
+#### 1. Create the Vercel project
+
+1. Import this GitHub repo in Vercel (or `vercel link` from a machine with access).
+2. **Framework Preset:** Next.js.
+3. **Root Directory:** `apps/web` (matches [apps/web/vercel.json](apps/web/vercel.json)).
+4. Confirm **Install Command:** `cd ../.. && pnpm install` (monorepo root).
+5. Confirm **pnpm** / Node versions match repo (`packageManager` in root `package.json`, `.nvmrc` if present).
+6. Leave the initial **Build Command** as `cd ../.. && pnpm turbo build --filter=web` until step 3 (migrate) is ready — first deploy can validate install/build without migrate if the DB schema is already applied manually.
+
+#### 2. Environment variables
+
+Copy from [apps/web/.env.example](apps/web/.env.example). Set separately for **Production** and **Preview**.
+
+**Required**
+
+| Variable             | Value guidance                                                                            |
+| -------------------- | ----------------------------------------------------------------------------------------- |
+| `DATABASE_URL`       | **Pooled** Postgres URL (Neon/Supabase pooler). Optional companion: `DATABASE_POOL_MAX=5` |
+| `BETTER_AUTH_SECRET` | `openssl rand -base64 32` (≥32 chars)                                                     |
+| `BETTER_AUTH_URL`    | Canonical public HTTPS origin, **no trailing slash** (e.g. `https://app.example.com`)     |
+
+**Optional — product**
+
+| Variable                                                           | When                                             |
+| ------------------------------------------------------------------ | ------------------------------------------------ |
+| `NEXT_PUBLIC_APP_URL`                                              | Public/SEO canonical if it differs from auth URL |
+| `LOG_LEVEL` / `MUSICBRAINZ_CONTACT` / `BETTER_AUTH_ADMIN_USER_IDS` | Ops / bootstrap                                  |
+| `RESEND_API_KEY` / `AUTH_EMAIL_FROM`                               | Password reset + email verification              |
+| Spotify / Tidal / Apple Music keys                                 | Streaming features                               |
+| Google / GitHub / Apple OAuth client IDs                           | Unused for login today (admin status only)       |
+
+**Optional — Sentry (after step 5)**
+
+| Variable                                              | When                                                        |
+| ----------------------------------------------------- | ----------------------------------------------------------- |
+| `NEXT_PUBLIC_SENTRY_DSN`                              | Browser + usually enough for all runtimes                   |
+| `SENTRY_DSN`                                          | Server/edge override (falls back to public DSN in scaffold) |
+| `SENTRY_AUTH_TOKEN` / `SENTRY_ORG` / `SENTRY_PROJECT` | Source-map upload on Vercel **build** env                   |
+
+CI continues to use `SKIP_ENV_VALIDATION=true` — do **not** rely on that skip in Production.
+
+#### 3. Migrate-on-deploy
+
+Update the Vercel **Build Command** (Root Directory still `apps/web`):
+
+```bash
+cd ../.. && pnpm db:migrate:deploy && pnpm turbo build --filter=web
+```
+
+Notes:
+
+- Root alias `pnpm db:migrate:deploy` → `@scilent-one/db` `prisma migrate deploy`.
+- Turbo already runs `^db:generate` for the web build graph.
+- If the pooler rejects DDL, apply migrations once with a **direct** URL (one-off / provider migrate guide), then keep the app on the pooled URL.
+- Do **not** run `db:migrate` (dev) in production.
+
+#### 4. Domain / DNS
+
+1. Vercel → Project → Settings → Domains → add the production hostname.
+2. If DNS already points at Vercel, **move** the domain from the old project to this one (often no DNS edit).
+3. After the domain is attached, set Production `BETTER_AUTH_URL` (and optional `NEXT_PUBLIC_APP_URL`) to that exact origin.
+4. Wait for TLS certificate issuance before smoke-testing auth cookies.
+
+#### 5. Sentry project
+
+1. Create a Sentry Next.js project for this app.
+2. Copy the DSN into Production (and Preview if desired): `NEXT_PUBLIC_SENTRY_DSN` and/or `SENTRY_DSN`.
+3. For readable stack traces: create an auth token with release/source-map scopes; set `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` on the Vercel build environment.
+4. Redeploy. Confirm SDK stays quiet when DSN unset; with DSN set, throw a test error and check Issues.
+
+#### 6. Preview vs Production behavior
+
+| Concern           | Production                              | Preview                                                                                                                  |
+| ----------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Env set           | Production vars                         | Preview vars (separate)                                                                                                  |
+| `BETTER_AUTH_URL` | Final custom domain                     | Prefer Preview-specific URL if using a fixed preview domain; otherwise `VERCEL_URL` is also trusted via `trustedOrigins` |
+| `DATABASE_URL`    | Prod pooled DB (or isolated preview DB) | Prefer a non-prod DB                                                                                                     |
+| Migrate-on-deploy | Yes on production builds                | Decide deliberately — previews migrating a shared prod DB is usually **wrong**                                           |
+| Sentry            | Production DSN / `environment`          | Optional separate project or same DSN with Preview env tag                                                               |
+
+#### 7. Smoke-test checklist
+
+- [ ] Deploy succeeds; build logs show migrate + `turbo build --filter=web`
+- [ ] `GET https://<host>/api/health` → `{ "status": "ok", "checks": { "database": { "status": "ok", "latencyMs": <n> } } }`
+- [ ] Sign up / login; session cookie set for the production host
+- [ ] Authenticated page loads; logout works
+- [ ] Admin user reaches `/admin`; non-admin gets forbidden / redirect as designed
+- [ ] A DB-backed route (feed/profile) returns data
+- [ ] Optional Resend: password-reset email when keys set
+- [ ] Optional Sentry: test error visible in project
+- [ ] Security headers present (`X-Frame-Options`, HSTS, etc.)
+
+#### 8. Post-go-live agent tooling
+
+- Enable **Vercel MCP** (`mcp.vercel.com`) for deployment/log/env inspection.
+- Enable **Sentry MCP** for production error triage.
+- Use `/deploy-check` and the `production-readiness` skill before subsequent promotes.
 
 ## Sequencing
 
-**Done in-repo:** WS1, WS2, WS4, WS5 (CI + draft runbook). **Next code:** WS3 → WS6 → WS7. **Go-live:** WS8 with you (Vercel, secrets, migrate-on-deploy, domain, Sentry DSN).
+**Done in-repo:** WS1–WS7. **Go-live:** WS8 with you (Vercel, secrets, migrate-on-deploy, domain, Sentry DSN, smoke tests).

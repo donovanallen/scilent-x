@@ -10,7 +10,7 @@
 
 import { withRequestLogging } from '@scilent-one/logger/next';
 import { getSessionCookie } from 'better-auth/cookies';
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, type NextMiddleware } from 'next/server';
 
 import {
   isAdminPath,
@@ -18,39 +18,38 @@ import {
   sanitizeInternalRedirect,
 } from '@/lib/auth-guards';
 
-export const middleware = withRequestLogging(
-  async (request: NextRequest, { requestId }) => {
-    const { pathname, search } = request.nextUrl;
+// Cast bridges duplicate `next` peer graphs after @sentry/nextjs pulls OpenTelemetry.
+export const middleware = withRequestLogging(async (request, { requestId }) => {
+  const { pathname, search } = request.nextUrl;
 
-    if (!isPublicPath(pathname)) {
-      const sessionCookie = getSessionCookie(request);
+  if (!isPublicPath(pathname)) {
+    const sessionCookie = getSessionCookie(request);
 
-      if (!sessionCookie) {
-        const loginUrl = new URL('/login', request.url);
-        const redirectTarget = sanitizeInternalRedirect(`${pathname}${search}`);
-        if (redirectTarget) {
-          loginUrl.searchParams.set('redirect', redirectTarget);
-        }
-        const redirectResponse = NextResponse.redirect(loginUrl);
-        redirectResponse.headers.set('x-request-id', requestId);
-        return redirectResponse;
+    if (!sessionCookie) {
+      const loginUrl = new URL('/login', request.url);
+      const redirectTarget = sanitizeInternalRedirect(`${pathname}${search}`);
+      if (redirectTarget) {
+        loginUrl.searchParams.set('redirect', redirectTarget);
       }
+      const redirectResponse = NextResponse.redirect(loginUrl);
+      redirectResponse.headers.set('x-request-id', requestId);
+      return redirectResponse;
     }
-
-    // Forward pathname so server layouts can rebuild a safe redirect target
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-pathname', pathname);
-    if (isAdminPath(pathname)) {
-      requestHeaders.set('x-admin-path', '1');
-    }
-
-    const response = NextResponse.next({
-      request: { headers: requestHeaders },
-    });
-    response.headers.set('x-request-id', requestId);
-    return response;
   }
-);
+
+  // Forward pathname so server layouts can rebuild a safe redirect target
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-pathname', pathname);
+  if (isAdminPath(pathname)) {
+    requestHeaders.set('x-admin-path', '1');
+  }
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+  response.headers.set('x-request-id', requestId);
+  return response;
+}) as unknown as NextMiddleware;
 
 export const config = {
   matcher: [

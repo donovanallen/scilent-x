@@ -63,9 +63,21 @@ export const env = createEnv({
     RESEND_API_KEY: z.string().optional(),
     /** From address for auth emails (e.g. "Scilent <noreply@yourdomain.com>") */
     AUTH_EMAIL_FROM: z.string().optional(),
+
+    /**
+     * Optional Sentry DSN (server/edge). Prefer NEXT_PUBLIC_SENTRY_DSN for
+     * client as well; either may be set. Unset = Sentry disabled.
+     */
+    SENTRY_DSN: z.string().url().optional(),
+    /** Source-map upload token — CI/build only; never expose to the client. */
+    SENTRY_AUTH_TOKEN: z.string().optional(),
+    SENTRY_ORG: z.string().optional(),
+    SENTRY_PROJECT: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url().optional(),
+    /** Public Sentry DSN for browser error reporting (optional). */
+    NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -95,6 +107,11 @@ export const env = createEnv({
     APPLE_CLIENT_SECRET: process.env.APPLE_CLIENT_SECRET,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     AUTH_EMAIL_FROM: process.env.AUTH_EMAIL_FROM,
+    SENTRY_DSN: process.env.SENTRY_DSN,
+    SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+    SENTRY_ORG: process.env.SENTRY_ORG,
+    SENTRY_PROJECT: process.env.SENTRY_PROJECT,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   },
   emptyStringAsUndefined: true,
   skipValidation:

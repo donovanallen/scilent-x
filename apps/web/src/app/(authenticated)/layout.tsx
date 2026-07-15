@@ -29,7 +29,7 @@ export default async function AuthenticatedLayout({
     redirect(`/login?redirect=${encodeURIComponent(safe)}`);
   }
 
-  const admin = isAdminUser(user);
+  const admin = isAdminUser({ role: user.role ?? null });
   if (isAdminPath(pathname) && !admin) {
     redirect('/feed');
   }

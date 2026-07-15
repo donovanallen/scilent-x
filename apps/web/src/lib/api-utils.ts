@@ -1,5 +1,6 @@
 import { auth } from '@scilent-one/auth/server';
 import { SocialError } from '@scilent-one/social';
+import * as Sentry from '@sentry/nextjs';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { cache } from 'react';
@@ -28,7 +29,7 @@ export async function requireAuth() {
 /** Throws if the current user does not have the Better Auth `admin` role. */
 export async function requireAdmin() {
   const user = await requireAuth();
-  if (!isAdminUser(user)) {
+  if (!isAdminUser({ role: user.role ?? null })) {
     throw new Error('Forbidden');
   }
   return user;
@@ -36,20 +37,31 @@ export async function requireAdmin() {
 
 export const getIsAdmin = cache(async () => {
   const user = await getCurrentUser();
-  return isAdminUser(user);
+  return isAdminUser({ role: user?.role ?? null });
 });
 
 export function handleApiError(error: unknown) {
-  // Log error with structured context
+  // Log error with structured context; report unexpected failures to Sentry
+  // (auth/forbidden stay logged only — expected client errors).
+  const skipSentry =
+    error instanceof Error &&
+    (error.message === 'Unauthorized' || error.message === 'Forbidden');
+
   if (error instanceof Error) {
     apiLogger.error('API request failed', error, {
       errorType: error.constructor.name,
     });
+    if (!skipSentry) {
+      Sentry.captureException(error);
+    }
   } else {
     apiLogger.error('API request failed', {
       error: String(error),
       errorType: 'unknown',
     });
+    if (!skipSentry) {
+      Sentry.captureException(error);
+    }
   }
 
   if (error instanceof SocialError) {
