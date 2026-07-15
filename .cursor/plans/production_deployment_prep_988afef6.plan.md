@@ -48,7 +48,7 @@ isProject: false
 
 ## Progress (as of 2026-07-15)
 
-Branch: `cursor/production-deployment-prep-plan-7c85` (PR #128). Reviewed against this plan and commits through `16d60c0`.
+Branch: `cursor/production-deployment-prep-plan-7c85` (PR #128). Reviewed against this plan and commits through `5f0f4aa`.
 
 | WS    | Focus                 | Status                             | Notes                                                                                                                                                                                                    |
 | ----- | --------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -63,6 +63,7 @@ Branch: `cursor/production-deployment-prep-plan-7c85` (PR #128). Reviewed agains
 
 **Branch commits for this plan (newest first):**
 
+- `5f0f4aa` — docs(plans): update production prep progress against branch
 - `16d60c0` — feat(auth): harden Better Auth and add production CI (WS4 + WS5)
 - `d57a3ed` — feat(web): add typed env validation (WS2)
 - `1d3ec5f` — lockfile fix after merge
