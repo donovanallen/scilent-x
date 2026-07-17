@@ -1,6 +1,6 @@
 ---
 name: Production deployment prep
-overview: 'Harden the web app, auth, DB, and env handling for production; add CI/CD and Vercel deployment with migrate-on-deploy; and set up repeatable deploy tooling (skills/commands/MCP).'
+overview: 'Harden the web app, auth, DB, and env handling for production; deploy it as an isolated beta at beta.scilentmusic.com without replacing the existing apex site; and set up repeatable deploy tooling (skills/commands/MCP).'
 todos:
   - id: auth-gate
     content: Add middleware session gate + layout guard for (authenticated) routes and admin RBAC
@@ -33,7 +33,7 @@ todos:
     content: Sentry scaffold (env-gated) + /api/health route
     status: completed
   - id: platform-provisioning
-    content: 'WS8: Vercel project, env secrets, migrate-on-deploy, domain/DNS, Sentry DSN'
+    content: 'WS8: Separate beta Vercel project, isolated Prisma-managed database, env secrets, migrate-on-deploy, beta subdomain/DNS, Sentry DSN'
     status: pending
   - id: runbook
     content: 'docs/DEPLOYMENT.md runbook: Vercel setup, env secrets, domain repurpose steps'
@@ -59,14 +59,16 @@ Branch: `cursor/production-deployment-prep-plan-7c85` (PR #128).
 | **5** | CI/CD (in-repo)       | **Done**     | `.github/workflows/ci.yml`; `test.yml` includes `apps/web` + harmony-engine; draft `docs/DEPLOYMENT.md` + `apps/web/vercel.json`                                                                         |
 | **6** | Observability (code)  | **Done**     | `/api/health` (DB ping); `@sentry/nextjs` env-gated scaffold (client/server/edge); wired into `global-error.tsx` + `handleApiError`; DSN creation is **WS8**                                             |
 | **7** | Agent tooling         | **Done**     | `.cursor/skills/production-readiness/SKILL.md` + `.cursor/commands/deploy-check.md`; Vercel/Sentry MCP recommended post-WS8                                                                              |
-| **8** | Platform provisioning | **Deferred** | Vercel project, secrets, migrate-on-deploy on live build, domain/DNS, Sentry DSN — dashboard work (expanded runbook below)                                                                               |
+| **8** | Platform provisioning | **Deferred** | Separate beta Vercel project, isolated Prisma-managed PostgreSQL database, secrets, migrate-on-deploy, `beta.scilentmusic.com`, Sentry DSN — dashboard work (expanded runbook below)                     |
 
 **In-repo code for this plan is complete through WS7.** Remaining go-live work is **WS8** (dashboard / account).
 
-## Assumptions (flag if wrong)
+## Confirmed deployment approach
 
-- **Hosting: Vercel** — the repo's docs ([docs/INITIAL_SETUP.md](docs/INITIAL_SETUP.md)) already assume it, and it's the best fit for Next 16 + Turborepo. Repurposing your existing URL is then just moving the custom domain from the old Vercel project to the new one (Settings → Domains); DNS stays untouched if it already points at Vercel. **I need from you**: the domain name, and which platform the old project is on.
-- **Production Postgres**: code uses `@prisma/adapter-pg` with a plain connection string, so any provider works (Neon/Supabase/Railway). For Vercel serverless you must use a **pooled** connection URL. Tell me if you already have a prod DB.
+- **Existing production remains unchanged:** the current Vercel project continues serving `scilentmusic.com` with its existing database during the beta period.
+- **Isolated beta:** this repository is imported as a separate Vercel project whose Production domain is `beta.scilentmusic.com`. “Production” here is the Vercel environment name; the product remains beta.
+- **Separate databases:** the existing app and beta app use separate PostgreSQL databases managed through Prisma. The beta Vercel project receives only the beta `DATABASE_URL`; beta migrations and test data must never target the existing production database.
+- **Later cutover:** after beta acceptance, move `scilentmusic.com` from the old Vercel project to this project, update canonical URL/auth environment variables, and redeploy. Keep or redirect `beta.scilentmusic.com` deliberately after cutover.
 
 ## Workstream 1 — Frontend production hardening (`apps/web`) ✅
 
@@ -109,7 +111,7 @@ Branch: `cursor/production-deployment-prep-plan-7c85` (PR #128).
 
 ### Platform / dashboard (moved → [WS8](#workstream-8--platform-provisioning-deferred))
 
-- Vercel project creation, env secret entry, migrate-on-deploy on a live project, domain/DNS — **not done here**.
+- Separate beta Vercel project creation, isolated Prisma-managed database provisioning, env secret entry, migrate-on-deploy on the beta project, and `beta.scilentmusic.com` DNS — **not done here**.
 
 ## Workstream 6 — Observability (code) ✅
 
@@ -138,49 +140,64 @@ External dashboard / account work. In-repo hooks are ready; **do not block code 
 
 ### Still outstanding from earlier streams (platform-only)
 
-| From | Outstanding until WS8                                                                         |
-| ---- | --------------------------------------------------------------------------------------------- |
-| WS2  | Enter secrets in Vercel (Production + Preview); nothing else for env schema                   |
-| WS3  | Wire `pnpm db:migrate:deploy` into the live build command; confirm pooled prod `DATABASE_URL` |
-| WS4  | Set production `BETTER_AUTH_URL` / optional Resend keys; verify cookies on real domain        |
-| WS5  | Create Vercel project; `vercel.json` install/build already drafted                            |
-| WS6  | Create Sentry project; set DSN (+ optional source-map token/org/project)                      |
-| WS7  | Enable Vercel MCP + Sentry MCP for agents after projects exist                                |
+| From | Outstanding until WS8                                                                             |
+| ---- | ------------------------------------------------------------------------------------------------- |
+| WS2  | Enter isolated beta secrets in the new Vercel project (Production + Preview)                      |
+| WS3  | Provision the separate beta database; wire `pnpm db:migrate:deploy` using only its `DATABASE_URL` |
+| WS4  | Set `BETTER_AUTH_URL=https://beta.scilentmusic.com` / optional Resend keys; verify beta cookies   |
+| WS5  | Create a separate beta Vercel project; `vercel.json` install/build already drafted                |
+| WS6  | Create Sentry project; set DSN (+ optional source-map token/org/project)                          |
+| WS7  | Enable Vercel MCP + Sentry MCP for agents after projects exist                                    |
 
 ### Step-by-step runbook
 
-#### 1. Create the Vercel project
+#### 1. Preserve the existing production project
+
+1. Leave the current Vercel project, `scilentmusic.com` domain assignment, environment variables, and database unchanged.
+2. Do not move the apex domain or copy the existing production `DATABASE_URL` into the beta project.
+3. Record which Git branch drives the old project so beta deployment work cannot accidentally change its production branch settings.
+
+#### 2. Create the beta Vercel project
 
 1. Import this GitHub repo in Vercel (or `vercel link` from a machine with access).
-2. **Framework Preset:** Next.js.
-3. **Root Directory:** `apps/web` (matches [apps/web/vercel.json](apps/web/vercel.json)).
-4. Confirm **Install Command:** `cd ../.. && pnpm install` (monorepo root).
-5. Confirm **pnpm** / Node versions match repo (`packageManager` in root `package.json`, `.nvmrc` if present).
-6. Leave the initial **Build Command** as `cd ../.. && pnpm turbo build --filter=web` until step 3 (migrate) is ready — first deploy can validate install/build without migrate if the DB schema is already applied manually.
+2. Create it as a **new project**, separate from the project currently serving `scilentmusic.com`.
+3. **Framework Preset:** Next.js.
+4. **Root Directory:** `apps/web` (matches [apps/web/vercel.json](apps/web/vercel.json)).
+5. Confirm **Install Command:** `cd ../.. && pnpm install` (monorepo root).
+6. Confirm **pnpm** / Node versions match repo (`packageManager` in root `package.json`, `.nvmrc` if present).
+7. Leave the initial **Build Command** as `cd ../.. && pnpm turbo build --filter=web` until the beta database is ready.
 
-#### 2. Environment variables
+#### 3. Provision the isolated beta database
+
+1. Create a new PostgreSQL database for the beta app in Prisma; do not reuse the database connected to the existing `scilentmusic.com` project.
+2. Obtain the PostgreSQL connection string compatible with the repo's `@prisma/adapter-pg` client and verify it is appropriate for Vercel/serverless use.
+3. Store it as `DATABASE_URL` only in the new beta Vercel project. Never paste it into the old project's settings.
+4. Apply migrations to the beta database and verify `/api/health` before adding test users or seed data.
+5. Treat beta data as isolated and disposable unless a separate data-migration plan is approved for final cutover.
+
+#### 4. Environment variables
 
 Copy from [apps/web/.env.example](apps/web/.env.example). Set separately for **Production** and **Preview**.
 
 **Required**
 
-| Variable             | Value guidance                                                                            |
-| -------------------- | ----------------------------------------------------------------------------------------- |
-| `DATABASE_URL`       | **Pooled** Postgres URL (Neon/Supabase pooler). Optional companion: `DATABASE_POOL_MAX=5` |
-| `BETTER_AUTH_SECRET` | `openssl rand -base64 32` (≥32 chars)                                                     |
-| `BETTER_AUTH_URL`    | Canonical public HTTPS origin, **no trailing slash** (e.g. `https://app.example.com`)     |
+| Variable             | Value guidance                                                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `DATABASE_URL`       | Isolated beta PostgreSQL URL managed through Prisma; never the existing site's database. Optional: `DATABASE_POOL_MAX=5` |
+| `BETTER_AUTH_SECRET` | Beta-specific secret from `openssl rand -base64 32` (≥32 chars)                                                          |
+| `BETTER_AUTH_URL`    | `https://beta.scilentmusic.com` (canonical origin, no trailing slash)                                                    |
 
 **Optional — product**
 
-| Variable                                                           | When                                             |
-| ------------------------------------------------------------------ | ------------------------------------------------ |
-| `NEXT_PUBLIC_APP_URL`                                              | Public/SEO canonical if it differs from auth URL |
-| `LOG_LEVEL` / `MUSICBRAINZ_CONTACT` / `BETTER_AUTH_ADMIN_USER_IDS` | Ops / bootstrap                                  |
-| `RESEND_API_KEY` / `AUTH_EMAIL_FROM`                               | Password reset + email verification              |
-| Spotify / Tidal / Apple Music keys                                 | Streaming features                               |
-| Google / GitHub / Apple OAuth client IDs                           | Unused for login today (admin status only)       |
+| Variable                                                           | When                                                       |
+| ------------------------------------------------------------------ | ---------------------------------------------------------- |
+| `NEXT_PUBLIC_APP_URL`                                              | Set to `https://beta.scilentmusic.com` for beta canonicals |
+| `LOG_LEVEL` / `MUSICBRAINZ_CONTACT` / `BETTER_AUTH_ADMIN_USER_IDS` | Ops / bootstrap                                            |
+| `RESEND_API_KEY` / `AUTH_EMAIL_FROM`                               | Password reset + email verification                        |
+| Spotify / Tidal / Apple Music keys                                 | Streaming features; register beta callbacks where required |
+| Google / GitHub / Apple OAuth client IDs                           | Unused for login today (admin status only)                 |
 
-**Optional — Sentry (after step 5)**
+**Optional — Sentry (after step 7)**
 
 | Variable                                              | When                                                        |
 | ----------------------------------------------------- | ----------------------------------------------------------- |
@@ -190,7 +207,7 @@ Copy from [apps/web/.env.example](apps/web/.env.example). Set separately for **P
 
 CI continues to use `SKIP_ENV_VALIDATION=true` — do **not** rely on that skip in Production.
 
-#### 3. Migrate-on-deploy
+#### 5. Beta migrate-on-deploy
 
 Update the Vercel **Build Command** (Root Directory still `apps/web`):
 
@@ -201,47 +218,62 @@ cd ../.. && pnpm db:migrate:deploy && pnpm turbo build --filter=web
 Notes:
 
 - Root alias `pnpm db:migrate:deploy` → `@scilent-one/db` `prisma migrate deploy`.
+- The command must receive the isolated beta `DATABASE_URL` from the new Vercel project.
 - Turbo already runs `^db:generate` for the web build graph.
-- If the pooler rejects DDL, apply migrations once with a **direct** URL (one-off / provider migrate guide), then keep the app on the pooled URL.
+- If the runtime connection rejects DDL, apply migrations once with the provider's migration-compatible connection string, then keep the app on its serverless/runtime connection.
 - Do **not** run `db:migrate` (dev) in production.
+- Do not enable this build command on the old Vercel project.
 
-#### 4. Domain / DNS
+#### 6. Beta domain / DNS
 
-1. Vercel → Project → Settings → Domains → add the production hostname.
-2. If DNS already points at Vercel, **move** the domain from the old project to this one (often no DNS edit).
-3. After the domain is attached, set Production `BETTER_AUTH_URL` (and optional `NEXT_PUBLIC_APP_URL`) to that exact origin.
-4. Wait for TLS certificate issuance before smoke-testing auth cookies.
+1. In the **new beta project**, open Vercel → Project → Settings → Domains and add `beta.scilentmusic.com`.
+2. Add the DNS record Vercel requests. If Vercel manages `scilentmusic.com` DNS, it can usually configure the subdomain directly; otherwise add the displayed record at the current DNS provider.
+3. Do not remove or move `scilentmusic.com` from the old project.
+4. Set Production `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` to `https://beta.scilentmusic.com`.
+5. Redeploy after environment changes and wait for TLS certificate issuance before smoke-testing auth cookies.
 
-#### 5. Sentry project
+#### 7. Sentry project
 
 1. Create a Sentry Next.js project for this app.
 2. Copy the DSN into Production (and Preview if desired): `NEXT_PUBLIC_SENTRY_DSN` and/or `SENTRY_DSN`.
 3. For readable stack traces: create an auth token with release/source-map scopes; set `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` on the Vercel build environment.
 4. Redeploy. Confirm SDK stays quiet when DSN unset; with DSN set, throw a test error and check Issues.
 
-#### 6. Preview vs Production behavior
+#### 8. Beta Production vs pull-request Preview behavior
 
-| Concern           | Production                              | Preview                                                                                                                  |
-| ----------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Env set           | Production vars                         | Preview vars (separate)                                                                                                  |
-| `BETTER_AUTH_URL` | Final custom domain                     | Prefer Preview-specific URL if using a fixed preview domain; otherwise `VERCEL_URL` is also trusted via `trustedOrigins` |
-| `DATABASE_URL`    | Prod pooled DB (or isolated preview DB) | Prefer a non-prod DB                                                                                                     |
-| Migrate-on-deploy | Yes on production builds                | Decide deliberately — previews migrating a shared prod DB is usually **wrong**                                           |
-| Sentry            | Production DSN / `environment`          | Optional separate project or same DSN with Preview env tag                                                               |
+| Concern           | Beta project's Production environment          | Pull-request Preview environment                                                                |
+| ----------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Public URL        | `https://beta.scilentmusic.com`                | Vercel-generated URL or a separate fixed preview hostname                                       |
+| Env set           | Beta Production vars                           | Preview vars (separate)                                                                         |
+| `BETTER_AUTH_URL` | `https://beta.scilentmusic.com`                | Prefer a fixed Preview URL when auth is exercised; `VERCEL_URL` is trusted via `trustedOrigins` |
+| `DATABASE_URL`    | Isolated beta database                         | Prefer another disposable preview database; never the existing site's database                  |
+| Migrate-on-deploy | Yes, targeting only the isolated beta database | Disabled unless per-preview database provisioning is deliberately implemented                   |
+| Sentry            | Beta DSN / environment tag                     | Optional separate project or same DSN with Preview environment tag                              |
 
-#### 7. Smoke-test checklist
+#### 9. Beta smoke-test checklist
 
 - [ ] Deploy succeeds; build logs show migrate + `turbo build --filter=web`
-- [ ] `GET https://<host>/api/health` → `{ "status": "ok", "checks": { "database": { "status": "ok", "latencyMs": <n> } } }`
-- [ ] Sign up / login; session cookie set for the production host
+- [ ] Existing `https://scilentmusic.com` still serves the old project without interruption
+- [ ] `GET https://beta.scilentmusic.com/api/health` → `{ "status": "ok", "checks": { "database": { "status": "ok", "latencyMs": <n> } } }`
+- [ ] Sign up / login; session cookie set for the beta host
 - [ ] Authenticated page loads; logout works
 - [ ] Admin user reaches `/admin`; non-admin gets forbidden / redirect as designed
-- [ ] A DB-backed route (feed/profile) returns data
+- [ ] A DB-backed route (feed/profile) returns beta data and does not expose existing production data
 - [ ] Optional Resend: password-reset email when keys set
 - [ ] Optional Sentry: test error visible in project
 - [ ] Security headers present (`X-Frame-Options`, HSTS, etc.)
 
-#### 8. Post-go-live agent tooling
+#### 10. Final apex-domain cutover (later, after beta acceptance)
+
+1. Back up both databases and define whether beta data is promoted, migrated, or discarded. Domain movement does not move data.
+2. Confirm the new project is ready to use the intended final production database and apply migrations there before traffic cutover.
+3. In Vercel, move `scilentmusic.com` from the old project to the new project. DNS may remain unchanged when it already points to Vercel.
+4. Set `BETTER_AUTH_URL=https://scilentmusic.com` and `NEXT_PUBLIC_APP_URL=https://scilentmusic.com`, then redeploy.
+5. Update streaming OAuth callbacks, Resend links/sender configuration, and any external integrations that use the beta hostname.
+6. Decide whether `beta.scilentmusic.com` remains a testing environment or redirects to the apex domain.
+7. Smoke-test health, auth cookies, admin access, DB-backed pages, email, and integrations before retiring the old Vercel project.
+
+#### 11. Post-go-live agent tooling
 
 - Enable **Vercel MCP** (`mcp.vercel.com`) for deployment/log/env inspection.
 - Enable **Sentry MCP** for production error triage.
@@ -249,4 +281,4 @@ Notes:
 
 ## Sequencing
 
-**Done in-repo:** WS1–WS7. **Go-live:** WS8 with you (Vercel, secrets, migrate-on-deploy, domain, Sentry DSN, smoke tests).
+**Done in-repo:** WS1–WS7. **Beta launch:** WS8 creates an isolated Vercel project and Prisma-managed database at `beta.scilentmusic.com` while the existing apex site remains live. **Final cutover:** move `scilentmusic.com` only after beta acceptance and a separate data/cutover review.
