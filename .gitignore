@@ -43,3 +43,4 @@ storybook-static
 
 # ship retro collector output
 .digest/
+.env*
