@@ -55,7 +55,7 @@ describe('sanitizeHtml', () => {
       const html = 'Line 1<br>Line 2';
       const result = sanitizeHtml(html);
 
-      expect(result).toContain('<br>');
+      expect(result).toMatch(/<br\s*\/?>/);
     });
 
     it('preserves span tags', () => {
@@ -89,7 +89,8 @@ describe('sanitizeHtml', () => {
     });
 
     it('preserves all mention attributes together', () => {
-      const html = '<span data-mention-type="USER" data-mention-id="123" data-mention-label="johndoe">@johndoe</span>';
+      const html =
+        '<span data-mention-type="USER" data-mention-id="123" data-mention-label="johndoe">@johndoe</span>';
       const result = sanitizeHtml(html);
 
       expect(result).toContain('data-mention-type="USER"');
@@ -98,7 +99,8 @@ describe('sanitizeHtml', () => {
     });
 
     it('preserves data-type, data-id, data-label attributes', () => {
-      const html = '<span data-type="mention" data-id="456" data-label="test">content</span>';
+      const html =
+        '<span data-type="mention" data-id="456" data-label="test">content</span>';
       const result = sanitizeHtml(html);
 
       expect(result).toContain('data-type="mention"');
@@ -193,7 +195,8 @@ describe('sanitizeHtml', () => {
     });
 
     it('removes data: URLs in links', () => {
-      const html = '<a href="data:text/html,<script>alert(1)</script>">Click</a>';
+      const html =
+        '<a href="data:text/html,<script>alert(1)</script>">Click</a>';
       const result = sanitizeHtml(html);
 
       expect(result).not.toContain('data:text/html');

@@ -1,4 +1,4 @@
-import DOMPurify from 'isomorphic-dompurify';
+import sanitize from 'sanitize-html';
 
 /**
  * Allowed HTML tags for rich text content.
@@ -61,13 +61,22 @@ export function sanitizeHtml(html: string | undefined | null): string | null {
     return null;
   }
 
-  const clean = DOMPurify.sanitize(html, {
-    ALLOWED_TAGS,
-    ALLOWED_ATTR,
-    // Allow specific data-mention-* attributes (already in ALLOWED_ATTR)
-    ALLOW_DATA_ATTR: false,
-    // Add rel="noopener noreferrer" to links for security
-    ADD_ATTR: ['target'],
+  const clean = sanitize(html, {
+    allowedTags: ALLOWED_TAGS,
+    allowedAttributes: {
+      '*': ALLOWED_ATTR,
+    },
+    allowedSchemes: ['http', 'https', 'mailto'],
+    allowProtocolRelative: false,
+    transformTags: {
+      a: (tagName, attribs) => ({
+        tagName,
+        attribs:
+          attribs.target === '_blank'
+            ? { ...attribs, rel: 'noopener noreferrer' }
+            : attribs,
+      }),
+    },
   });
 
   // Return null for empty results (after removing all dangerous content)
