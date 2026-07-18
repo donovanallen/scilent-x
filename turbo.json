@@ -11,7 +11,7 @@
     },
     "db:generate": {
       "cache": false,
-      "env": ["DATABASE_URL"]
+      "env": ["DATABASE_URL", "DIRECT_URL"]
     },
     "db:migrate": {
       "cache": false,
@@ -31,9 +31,12 @@
       "outputs": [".next/**", "!.next/cache/**"],
       "env": [
         "DATABASE_URL",
+        "DIRECT_URL",
+        "DATABASE_POOL_MAX",
         "SKIP_ENV_VALIDATION",
         "BETTER_AUTH_SECRET",
         "BETTER_AUTH_URL",
+        "NEXT_PUBLIC_APP_URL",
         "SENTRY_AUTH_TOKEN",
         "NEXT_PUBLIC_SENTRY_DSN",
         "SENTRY_DSN"
