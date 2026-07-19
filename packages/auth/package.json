@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@scilent-one/tooling": "workspace:*",
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
