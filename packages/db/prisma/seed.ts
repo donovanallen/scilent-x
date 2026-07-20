@@ -7,12 +7,6 @@ import { PrismaClient } from './generated/client.js';
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
-/**
- * Default password for all seeded credential accounts.
- * Override with SEED_USER_PASSWORD when seeding shared/dev environments.
- */
-const SEED_PASSWORD = process.env.SEED_USER_PASSWORD ?? 'password123';
-
 type SeedUser = {
   email: string;
   name: string;
@@ -23,19 +17,77 @@ type SeedUser = {
 };
 
 /**
- * Mock users with basic profiles and email/password credentials.
- * No OAuth / streaming providers are linked — use impersonation or
- * email sign-in to exercise the app as these accounts.
+ * Production / Vercel Production: seed only the admin credential account.
+ * Local / preview / other: also seed mock profile users for impersonation.
  */
-const SEED_USERS: SeedUser[] = [
-  {
-    email: 'admin@scilent.local',
-    name: 'Scilent Admin',
-    username: 'admin',
-    bio: 'Development admin account for impersonation and admin tooling.',
-    role: 'admin',
-    emailVerified: true,
-  },
+function isProductionSeed(): boolean {
+  return (
+    process.env.NODE_ENV === 'production' ||
+    process.env.VERCEL_ENV === 'production'
+  );
+}
+
+/**
+ * Resolve admin credentials for seeding.
+ *
+ * Local defaults: admin@scilent.local / password123
+ * Production: requires SEED_ADMIN_EMAIL + SEED_ADMIN_PASSWORD (or
+ * SEED_USER_PASSWORD as a password fallback). No weak defaults in prod.
+ */
+function resolveAdminSeed(): {
+  user: SeedUser;
+  password: string;
+  production: boolean;
+} {
+  const production = isProductionSeed();
+  const email =
+    process.env.SEED_ADMIN_EMAIL?.trim() ||
+    (production ? '' : 'admin@scilent.local');
+  const password =
+    process.env.SEED_ADMIN_PASSWORD?.trim() ||
+    process.env.SEED_USER_PASSWORD?.trim() ||
+    (production ? '' : 'password123');
+  const username = process.env.SEED_ADMIN_USERNAME?.trim() || 'admin';
+  const name = process.env.SEED_ADMIN_NAME?.trim() || 'Scilent Admin';
+
+  if (production) {
+    const missing: string[] = [];
+    if (!email) missing.push('SEED_ADMIN_EMAIL');
+    if (!password) missing.push('SEED_ADMIN_PASSWORD (or SEED_USER_PASSWORD)');
+    if (missing.length > 0) {
+      throw new Error(
+        `Production admin seed requires ${missing.join(' and ')}. ` +
+          'Set these env vars before running `pnpm db:seed` against a production database.'
+      );
+    }
+    if (password.length < 12) {
+      throw new Error(
+        'Production SEED_ADMIN_PASSWORD must be at least 12 characters.'
+      );
+    }
+  }
+
+  return {
+    production,
+    password,
+    user: {
+      email,
+      name,
+      username,
+      bio: production
+        ? 'Bootstrap admin account for admin tooling.'
+        : 'Development admin account for impersonation and admin tooling.',
+      role: 'admin',
+      emailVerified: true,
+    },
+  };
+}
+
+/**
+ * Mock users with basic profiles and email/password credentials.
+ * Local / non-production only — never seeded in production.
+ */
+const MOCK_USERS: SeedUser[] = [
   {
     email: 'alice@scilent.local',
     name: 'Alice Rivers',
@@ -128,20 +180,35 @@ async function upsertSeedUser(
 }
 
 async function main() {
-  console.log('🌱 Seeding mock users...');
-  console.log(`   Password for all seeded accounts: ${SEED_PASSWORD}`);
+  const { user: admin, password, production } = resolveAdminSeed();
 
-  const hashedPassword = await hashPassword(SEED_PASSWORD);
+  if (production) {
+    console.log('🌱 Seeding production admin account...');
+    console.log(`   Email: ${admin.email}`);
+    console.log('   Password: (from SEED_ADMIN_PASSWORD / SEED_USER_PASSWORD)');
+  } else {
+    console.log('🌱 Seeding mock users...');
+    console.log(`   Password for all seeded accounts: ${password}`);
+  }
 
-  for (const user of SEED_USERS) {
+  const hashedPassword = await hashPassword(password);
+  const users: SeedUser[] = production ? [admin] : [admin, ...MOCK_USERS];
+
+  for (const user of users) {
     await upsertSeedUser(user, hashedPassword);
   }
 
   console.log('✅ Seed completed.');
   console.log('');
-  console.log(
-    'Sign in as admin@scilent.local to use Admin → Users → Impersonate.'
-  );
+  if (production) {
+    console.log(
+      `Sign in as ${admin.email} to use Admin → Users. Rotate SEED_ADMIN_PASSWORD after first login if it was shared.`
+    );
+  } else {
+    console.log(
+      `Sign in as ${admin.email} to use Admin → Users → Impersonate.`
+    );
+  }
 }
 
 main()

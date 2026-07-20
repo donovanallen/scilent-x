@@ -73,16 +73,23 @@ pnpm db:seed
 pnpm --filter @scilent-one/db db:seed
 ```
 
-Creates/updates credential-only accounts (no OAuth/streaming links):
+Creates/updates credential-only accounts (no OAuth/streaming links).
 
-| Email                 | Role  | Default password                                   |
-| --------------------- | ----- | -------------------------------------------------- |
-| `admin@scilent.local` | admin | `password123` (override with `SEED_USER_PASSWORD`) |
-| `alice@scilent.local` | user  | same                                               |
-| `bob@scilent.local`   | user  | same                                               |
-| `carol@scilent.local` | user  | same                                               |
+**Local / non-production** (`NODE_ENV` / `VERCEL_ENV` not production):
+
+| Email                 | Role  | Default password                                                           |
+| --------------------- | ----- | -------------------------------------------------------------------------- |
+| `admin@scilent.local` | admin | `password123` (override with `SEED_ADMIN_PASSWORD` / `SEED_USER_PASSWORD`) |
+| `alice@scilent.local` | user  | same                                                                       |
+| `bob@scilent.local`   | user  | same                                                                       |
+| `carol@scilent.local` | user  | same                                                                       |
 
 Sign in as the admin, then use **Admin → Users → Impersonate** to browse as a mock user.
+
+**Production** (`NODE_ENV=production` or `VERCEL_ENV=production`): seeds **only** the admin
+account. Requires `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` (or `SEED_USER_PASSWORD`),
+minimum 12 characters — no default password. Optional: `SEED_ADMIN_USERNAME`,
+`SEED_ADMIN_NAME`.
 
 ## Schema
 

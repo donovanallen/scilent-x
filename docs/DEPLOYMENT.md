@@ -81,19 +81,20 @@ cd ../.. && pnpm db:migrate:deploy && pnpm turbo build --filter=web
 
 **Optional:**
 
-| Var                                                   | Notes                                    |
-| ----------------------------------------------------- | ---------------------------------------- |
-| `NEXT_PUBLIC_APP_URL`                                 | Set to `https://beta.scilentmusic.com`   |
-| `VERCEL_URL`                                          | Injected by Vercel — do not set manually |
-| `LOG_LEVEL`                                           | `fatal`…`trace`                          |
-| `MUSICBRAINZ_CONTACT`                                 | MusicBrainz User-Agent email             |
-| `BETTER_AUTH_ADMIN_USER_IDS`                          | Bootstrap admin user IDs                 |
-| `RESEND_API_KEY` / `AUTH_EMAIL_FROM`                  | Password reset + verification email      |
-| Spotify / Tidal / Apple Music keys                    | Streaming catalog + OAuth link features  |
-| Google / GitHub / Apple OAuth client vars             | Login providers disabled in config today |
-| `NEXT_PUBLIC_SENTRY_DSN` / `SENTRY_DSN`               | Enable Sentry after project create       |
-| `SENTRY_AUTH_TOKEN` / `SENTRY_ORG` / `SENTRY_PROJECT` | Source-map upload on build               |
-| `DATABASE_POOL_MAX`                                   | Cap pg pool size (prod default 5)        |
+| Var                                                   | Notes                                                                     |
+| ----------------------------------------------------- | ------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_APP_URL`                                 | Set to `https://beta.scilentmusic.com`                                    |
+| `VERCEL_URL`                                          | Injected by Vercel — do not set manually                                  |
+| `LOG_LEVEL`                                           | `fatal`…`trace`                                                           |
+| `MUSICBRAINZ_CONTACT`                                 | MusicBrainz User-Agent email                                              |
+| `BETTER_AUTH_ADMIN_USER_IDS`                          | Bootstrap admin user IDs                                                  |
+| `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`            | Required for `pnpm db:seed` in production (admin only; ≥12 char password) |
+| `RESEND_API_KEY` / `AUTH_EMAIL_FROM`                  | Password reset + verification email                                       |
+| Spotify / Tidal / Apple Music keys                    | Streaming catalog + OAuth link features                                   |
+| Google / GitHub / Apple OAuth client vars             | Login providers disabled in config today                                  |
+| `NEXT_PUBLIC_SENTRY_DSN` / `SENTRY_DSN`               | Enable Sentry after project create                                        |
+| `SENTRY_AUTH_TOKEN` / `SENTRY_ORG` / `SENTRY_PROJECT` | Source-map upload on build                                                |
+| `DATABASE_POOL_MAX`                                   | Cap pg pool size (prod default 5)                                         |
 
 ### Beta Production vs pull-request Preview
 
