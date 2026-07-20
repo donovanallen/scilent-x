@@ -2,7 +2,7 @@ import sanitize from 'sanitize-html';
 
 /**
  * Allowed HTML tags for rich text content.
- * Only allows safe formatting tags that Quill uses.
+ * Matches safe formatting tags produced by the Tiptap editor (including H1–H3).
  */
 const ALLOWED_TAGS = [
   'p',
@@ -11,6 +11,9 @@ const ALLOWED_TAGS = [
   'em',
   'u',
   's',
+  'h1',
+  'h2',
+  'h3',
   'blockquote',
   'pre',
   'code',

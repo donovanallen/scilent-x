@@ -64,6 +64,26 @@ describe('sanitizeHtml', () => {
 
       expect(result).toContain('<span>Span content</span>');
     });
+
+    it('preserves h1, h2, and h3 heading tags', () => {
+      const html =
+        '<h1>Greetings Earthlings.</h1><h2>We have now taken over</h2><h3>OutKast</h3>';
+      const result = sanitizeHtml(html);
+
+      expect(result).toContain('<h1>Greetings Earthlings.</h1>');
+      expect(result).toContain('<h2>We have now taken over</h2>');
+      expect(result).toContain('<h3>OutKast</h3>');
+    });
+
+    it('strips heading levels the editor does not support', () => {
+      const html = '<h4>Too deep</h4><h5>Also too deep</h5><p>ok</p>';
+      const result = sanitizeHtml(html);
+
+      expect(result).not.toContain('<h4>');
+      expect(result).not.toContain('<h5>');
+      expect(result).toContain('Too deep');
+      expect(result).toContain('<p>ok</p>');
+    });
   });
 
   describe('mention attributes', () => {
