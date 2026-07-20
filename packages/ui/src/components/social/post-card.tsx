@@ -215,6 +215,10 @@ export function PostCard({
   // State for inline comment input
   const [isCommenting, setIsCommenting] = React.useState(false);
 
+  // Drives the one-shot heart "pop" on like (not unlike, not on every
+  // re-render) - see `handleLikeClick` and the `animate-heart-pop` usage below.
+  const [justLiked, setJustLiked] = React.useState(false);
+
   // Reset edit state when entering/exiting edit mode
   React.useEffect(() => {
     if (isEditing) {
@@ -262,6 +266,7 @@ export function PostCard({
     if (isLiked) {
       onUnlike?.();
     } else {
+      setJustLiked(true);
       onLike?.();
     }
   };
@@ -508,7 +513,14 @@ export function PostCard({
                 )}
                 onClick={handleLikeClick}
               >
-                <Heart className={cn('h-4 w-4', isLiked && 'fill-current')} />
+                <Heart
+                  className={cn(
+                    'h-4 w-4',
+                    isLiked && 'fill-current',
+                    justLiked && 'animate-heart-pop'
+                  )}
+                  onAnimationEnd={() => setJustLiked(false)}
+                />
                 <span className="text-sm text-foreground">{likesCount}</span>
               </Button>
               <Button

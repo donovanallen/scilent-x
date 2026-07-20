@@ -363,6 +363,21 @@
   }
 }
 
+@keyframes heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.35);
+  }
+  60% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 /* Base app styles */
 html {
   @apply overscroll-y-none;
@@ -528,6 +543,18 @@ code {
 @utility duration-slower {
   --tw-duration: 400ms;
   transition-duration: 400ms;
+}
+
+/*
+ * One-shot "pop" feedback for like/heart toggles (Post/CommentCard). Fires
+ * only on the like transition (false -> true), not on every re-render or on
+ * unlike, so it stays a `feedback`-purpose animation rather than decoration.
+ * The global `prefers-reduced-motion`/mobile block above already clamps
+ * `animation-duration` to 100ms, so no separate reduced-motion override is
+ * needed here.
+ */
+@utility animate-heart-pop {
+  animation: heart-pop 380ms var(--ease-out);
 }
 
 /*

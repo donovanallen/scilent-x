@@ -133,6 +133,10 @@ export function CommentCard({
   const [editContentHtml, setEditContentHtml] = React.useState('');
   const [hasEdited, setHasEdited] = React.useState(false);
 
+  // Drives the one-shot heart "pop" on like (not unlike, not on every
+  // re-render) - see `handleLikeClick` and the `animate-heart-pop` usage below.
+  const [justLiked, setJustLiked] = React.useState(false);
+
   React.useEffect(() => {
     if (isEditing) {
       setEditContent(content);
@@ -164,6 +168,7 @@ export function CommentCard({
     if (isLiked) {
       onUnlike?.();
     } else {
+      setJustLiked(true);
       onLike?.();
     }
   };
@@ -347,8 +352,10 @@ export function CommentCard({
                 <Heart
                   className={cn(
                     'h-3.5 w-3.5 sm:h-3 sm:w-3',
-                    isLiked && 'fill-current'
+                    isLiked && 'fill-current',
+                    justLiked && 'animate-heart-pop'
                   )}
+                  onAnimationEnd={() => setJustLiked(false)}
                 />
                 <span>{likesCount}</span>
               </Button>

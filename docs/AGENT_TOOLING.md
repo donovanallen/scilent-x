@@ -80,6 +80,39 @@ Vercel Engineering. Referenced here because any new skill should follow its same
 `SKILL.md` with YAML frontmatter (`name`, `description`, `license`, `metadata`) plus a `rules/`
 subfolder of granular, single-topic files, and an `AGENTS.md` compiling the full guide.
 
+### `.cursor/skills/{emil-design-eng,review-animations,improve-animations,find-animation-opportunities,animation-vocabulary,apple-design}/`
+
+Ported verbatim (unmodified `SKILL.md` + companion files) from
+[emilkowalski/skills](https://github.com/emilkowalski/skills), Emil Kowalski's (ex-Vercel/Linear)
+public skill pack for design engineers, mostly focused on animation/motion craft:
+
+- **`emil-design-eng`** — the main skill: taste-driven review/build guidance for UI polish,
+  component design, and animation decisions in general. Loads a required Before/After/Why table
+  format for review output.
+- **`review-animations`** (+ `STANDARDS.md`) — reviews animation/motion _code_ against a strict,
+  opinionated bar (justified motion, frequency-appropriate, `ease-out` not `ease-in`, sub-300ms UI,
+  correct `transform-origin`, GPU-only properties, reduced-motion, etc.) and outputs a Block/Approve
+  verdict. `disable-model-invocation: true` upstream — the agent must be asked for it explicitly, it
+  won't self-trigger.
+- **`improve-animations`** (+ `AUDIT.md`, `PLAN-TEMPLATE.md`) — audits animations across a whole
+  codebase (not a single diff) and writes self-contained, exact-values implementation plans to
+  `plans/` for another agent to execute; never edits source itself.
+- **`find-animation-opportunities`** — read-only sweep for places that would genuinely benefit from
+  motion (and, just as importantly, a documented list of what it rejected and why). Never edits
+  source.
+- **`animation-vocabulary`** — reverse-lookup glossary ("the bouncy thing when a popover opens" →
+  _Pop in_) for naming an effect precisely when prompting an agent or a designer.
+- **`apple-design`** — Apple's interface-design and fluid-motion principles (from WWDC design
+  talks), translated for the web.
+
+The upstream repo (`npx skills@latest add emilkowalski/skills`) ships exactly these six skills as
+of this port - all of them were carried over unmodified. Apply them when writing, reviewing, or
+auditing motion or general UI polish in `packages/ui`, `packages/scilent-ui`, or
+`apps/web` — this repo's `packages/ui/src/globals.css` already defines a shared `--ease-*`/
+`duration-*` motion scale (see the comments there) and a global `prefers-reduced-motion`/mobile
+clamp, so new animations should extend those tokens rather than inventing parallel ones or adding
+bespoke reduced-motion handling.
+
 ## What was intentionally excluded
 
 - **MCP config** (`.cursor/mcp.json`): the source branch has none committed — in cams-web-client

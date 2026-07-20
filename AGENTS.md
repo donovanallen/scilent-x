@@ -83,6 +83,11 @@ like you forgot; treat that prompt as a real checklist item, not noise to dismis
   Apply when writing or reviewing components, data fetching, or bundle-affecting code.
 - `.cursor/skills/production-readiness/SKILL.md` — pre-deploy checklist (auth, env, DB, CI,
   health, Sentry). Pair with `.cursor/commands/deploy-check.md` before promoting builds.
+- Design/motion skills ported from [emilkowalski/skills](https://github.com/emilkowalski/skills) —
+  `emil-design-eng`, `review-animations` (+ `STANDARDS.md`), `improve-animations` (+ `AUDIT.md`,
+  `PLAN-TEMPLATE.md`), `find-animation-opportunities`, `animation-vocabulary`, `apple-design`. Apply
+  when writing, reviewing, or auditing animation/motion or general UI polish in `packages/ui`,
+  `packages/scilent-ui`, or `apps/web`. See `docs/AGENT_TOOLING.md` for what each one does.
 
 ## Conventions worth knowing before you edit code
 
