@@ -36,10 +36,21 @@
         "SKIP_ENV_VALIDATION",
         "BETTER_AUTH_SECRET",
         "BETTER_AUTH_URL",
+        "BETTER_AUTH_ADMIN_USER_IDS",
         "NEXT_PUBLIC_APP_URL",
         "SENTRY_AUTH_TOKEN",
         "NEXT_PUBLIC_SENTRY_DSN",
-        "SENTRY_DSN"
+        "SENTRY_DSN",
+        "SPOTIFY_CLIENT_ID",
+        "SPOTIFY_CLIENT_SECRET",
+        "SPOTIFY_REDIRECT_URI",
+        "TIDAL_CLIENT_ID",
+        "TIDAL_CLIENT_SECRET",
+        "TIDAL_COUNTRY_CODE",
+        "APPLE_MUSIC_TEAM_ID",
+        "APPLE_MUSIC_KEY_ID",
+        "APPLE_MUSIC_PRIVATE_KEY",
+        "APPLE_MUSIC_STOREFRONT"
       ]
     },
     "lint": {
