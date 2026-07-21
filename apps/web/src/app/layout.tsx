@@ -1,4 +1,5 @@
 import { Toaster } from '@scilent-one/ui';
+import { Analytics } from '@vercel/analytics/next';
 import type { Metadata } from 'next';
 import { ViewTransitions } from 'next-view-transitions';
 
@@ -63,6 +64,7 @@ export default function RootLayout({
               <Toaster />
             </PaletteProvider>
           </ThemeProvider>
+          <Analytics />
         </body>
       </html>
     </ViewTransitions>
