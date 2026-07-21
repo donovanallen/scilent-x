@@ -1,5 +1,12 @@
 # @scilent-one/scilent-ui
 
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies [89979fb]
+  - @scilent-one/ui@0.7.1
+
 ## 1.2.0
 
 ### Minor Changes

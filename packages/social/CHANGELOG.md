@@ -1,5 +1,15 @@
 # @scilent-one/social
 
+## 0.6.1
+
+### Patch Changes
+
+- 010b455: Replace the DOM-based HTML sanitizer with a server-compatible implementation
+  so social routes load correctly in Vercel functions.
+- 7ce68fd: Allow h1–h3 tags through HTML sanitization so Tiptap heading formatting is preserved on posts.
+- Updated dependencies [891f615]
+  - @scilent-one/db@0.6.1
+
 ## 0.6.0
 
 ### Minor Changes

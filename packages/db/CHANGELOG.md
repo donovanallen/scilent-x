@@ -1,5 +1,12 @@
 # @scilent-one/db
 
+## 0.6.1
+
+### Patch Changes
+
+- 891f615: Use a direct database connection for Prisma CLI operations and add a reusable
+  connectivity verification script for deployment checks.
+
 ## 0.6.0
 
 ### Minor Changes

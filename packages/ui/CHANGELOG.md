@@ -1,5 +1,13 @@
 # @scilent-one/ui
 
+## 0.7.1
+
+### Patch Changes
+
+- 89979fb: Add a subtle "pop" feedback animation to the like/heart toggle on `PostCard`
+  and `CommentCard` (fires only on like, not unlike or re-render), and a gentle
+  fade/slide entrance to the `Empty` state component.
+
 ## 0.7.0
 
 ### Minor Changes
