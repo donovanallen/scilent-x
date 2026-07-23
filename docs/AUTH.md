@@ -38,6 +38,10 @@ BETTER_AUTH_URL="http://127.0.0.1:3000"
 # Optional bootstrap admin IDs (comma-separated) before a seeded admin exists
 # BETTER_AUTH_ADMIN_USER_IDS=
 
+# Production admin seed (`pnpm db:seed`) — required in prod, unused by the app runtime
+# SEED_ADMIN_EMAIL="admin@yourdomain.com"
+# SEED_ADMIN_PASSWORD="use-a-long-random-secret"
+
 # Optional public app URL (also added to trustedOrigins when set)
 # NEXT_PUBLIC_APP_URL="http://127.0.0.1:3000"
 
@@ -231,8 +235,14 @@ pnpm db:migrate
 Better Auth's [admin plugin](https://www.better-auth.com/docs/plugins/admin) is enabled in
 `@scilent-one/auth`. It adds `role` / ban fields on `users` and `impersonatedBy` on `sessions`.
 
-- **Seeded admin:** run `pnpm --filter @scilent-one/db db:seed`, then sign in as
-  `admin@scilent.local` (default password `password123`, or `SEED_USER_PASSWORD`).
+- **Seeded admin (local):** run `pnpm --filter @scilent-one/db db:seed`, then sign in as
+  `admin@scilent.local` (default password `password123`, or `SEED_USER_PASSWORD` /
+  `SEED_ADMIN_PASSWORD`). Also seeds mock users (alice/bob/carol) for impersonation.
+- **Seeded admin (production):** same `pnpm db:seed` command against the prod DB, with
+  `SEED_ADMIN_EMAIL` + `SEED_ADMIN_PASSWORD` (≥12 chars) set. Production seeds **only**
+  the admin account (no mock users) and refuses weak/missing credentials. Optional:
+  `SEED_ADMIN_USERNAME`, `SEED_ADMIN_NAME`. Detected via `NODE_ENV=production` or
+  `VERCEL_ENV=production`.
 - **Set role:** Admin → Users → Make admin / Revoke admin (`authClient.admin.setRole`).
   You cannot revoke your own admin role or demote the last remaining admin.
 - **Impersonate:** Admin → Users → Impersonate. An amber banner lets you stop and restore the
